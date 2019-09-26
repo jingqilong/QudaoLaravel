@@ -22,6 +22,7 @@ $api->version('v1',function ($api){
         //测试
         $api->group(['prefix' => 'test'],function ($api){
             $api->get('test','TestApiController@index')->name('测试');
+            $api->get('test1','TestApiController@index')->name('测试1');
             $api->get('create_model','TestApiController@createModel')->name('批量创建模型');
             $api->get('create_repository','TestApiController@createRepository')->name('批量创建Repository');
             $api->get('create_service','TestApiController@createService')->name('批量创建Service');
