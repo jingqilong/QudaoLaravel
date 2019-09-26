@@ -70,8 +70,9 @@ class OaAdminMenuRepository extends ApiRepository
         $res    = [];
         foreach ($menu_list as $id => $v){
             if ($v['parent_id'] == 0){
-                $res[$id] = $v;
-                $res[$id]['next_level'] = $this->levelPartition($menu_list,$id);
+//                $res[$id] = $v;
+//                $res[$id]['next_level'] = $this->levelPartition($menu_list,$id);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($menu_list,$id)]);
             }
         }
         return $res;
@@ -86,8 +87,9 @@ class OaAdminMenuRepository extends ApiRepository
         $res = [];
         foreach ($array as $id => $v){
             if ($v['parent_id'] == $parent_id){
-                $res[$id] = $v;
-                $res[$id]['next_level'] = $this->levelPartition($array,$id);
+//                $res[$id] = $v;
+//                $res[$id]['next_level'] = $this->levelPartition($array,$id);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($array,$id)]);
                 continue;
             }
         }

@@ -183,12 +183,11 @@ class AdminMenuService extends BaseService
     {
         $user = $this->auth->user();
         $menu_list = [];
-        $column = ['*'];
         if (!empty($user->permissions)){
             $permissions_ids = explode(',', $user->permissions);
             if (!empty($permissions = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]],['slug']))){
                 $permissions_slugs = array_column($permissions,'slug');
-                $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs],'type' => AdminMenuEnum::MENU],$column);
+                $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs],'type' => AdminMenuEnum::MENU]);
             }
         }
         if (empty($user->permissions) && empty($user->role_id)){
@@ -201,13 +200,13 @@ class AdminMenuService extends BaseService
             if (!empty($perm_infos)){
                 #此处有所有权限，直接返回所有菜单
                 $this->setMessage('获取成功！');
-                return OaAdminMenuRepository::getMenuList(['type' => AdminMenuEnum::MENU],$column);
+                return OaAdminMenuRepository::getMenuList(['type' => AdminMenuEnum::MENU]);
             }
         }
 
         $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id],['menu_id']);
         $menu_ids = array_column($menu_info,'menu_id');
-        $menu_list  += OaAdminMenuRepository::getMenuList(['id' => ['in' , $menu_ids]],$column);
+        $menu_list  += OaAdminMenuRepository::getMenuList(['id' => ['in' , $menu_ids]]);
         if (empty($menu_list)){
             $this->setMessage('暂无列表！');
             return [];//没有可以展示的列表
@@ -215,7 +214,7 @@ class AdminMenuService extends BaseService
         $parent_ids = array_column($menu_list,'parent_id');
         foreach ($menu_list as $list){
             if (!in_array($list['parent_id'],$parent_ids)){
-                $menu_list += OaAdminMenuRepository::getMenuList(['id' => $list['parent_id']],$column);
+                $menu_list += OaAdminMenuRepository::getMenuList(['id' => $list['parent_id']]);
             }
         }
         $this->setMessage('获取成功！');
