@@ -272,7 +272,7 @@ trait RepositoryTrait
 
     /**
      * 获取当前repository的Model
-     * @return mixed
+     * @return Model
      */
     protected function model(){
         return $this->model;

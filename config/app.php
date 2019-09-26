@@ -175,6 +175,7 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         zgldh\QiniuStorage\QiniuFilesystemServiceProvider::class,
         Ixudra\Curl\CurlServiceProvider::class,
+        NotificationChannels\WebPush\WebPushServiceProvider::class,
 
         /*
          * Application Service Providers...

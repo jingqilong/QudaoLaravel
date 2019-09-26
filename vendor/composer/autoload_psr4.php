@@ -63,6 +63,7 @@ return array(
     'Opis\\Closure\\' => array($vendorDir . '/opis/closure/src'),
     'OpenApi\\' => array($vendorDir . '/zircote/swagger-php/src'),
     'NunoMaduro\\Collision\\' => array($vendorDir . '/nunomaduro/collision/src'),
+    'NotificationChannels\\WebPush\\' => array($vendorDir . '/laravel-notification-channels/webpush/src'),
     'Nasyrov\\Laravel\\Enums\\' => array($vendorDir . '/nasyrov/laravel-enums/src'),
     'Namshi\\JOSE\\' => array($vendorDir . '/namshi/jose/src/Namshi/JOSE'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),

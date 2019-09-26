@@ -26,6 +26,7 @@ $api->version('v1',function ($api){
             $api->get('create_repository','TestApiController@createRepository')->name('批量创建Repository');
             $api->get('create_service','TestApiController@createService')->name('批量创建Service');
         });
+        $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
@@ -49,6 +50,7 @@ $api->version('v1',function ($api){
                 $api->post('del_employee','EmployessController@delEmployee')->name("删除员工");
 
                 $api->post('update_employee','EmployessController@updateEmployee')->name("更新员工信息");
+                $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
                 $api->post('add_menu','PermissionsController@addMenu')->name("添加菜单");
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");

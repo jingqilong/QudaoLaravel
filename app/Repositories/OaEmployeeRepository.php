@@ -88,5 +88,12 @@ class OaEmployeeRepository extends ApiRepository
             'expires_in' => $auth->factory()->getTTL() * 60
         ];
     }
+
+    /**
+     * @return OaEmployeeModel
+     */
+    protected function getModel(){
+        return $this->model;
+    }
 }
             

@@ -2,13 +2,14 @@
 namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class OaEmployeeModel extends Authenticatable implements JWTSubject
 {
 
-    use Notifiable;
+    use Notifiable,HasPushSubscriptions;
 
     /**
      * 关联到模型的数据表
