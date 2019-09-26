@@ -8,7 +8,9 @@ use App\Traits\HelpTrait;
 use ErrorException;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Minishlink\WebPush\MessageSentReport;
 use Minishlink\WebPush\Subscription;
+use Minishlink\WebPush\VAPID;
 use Minishlink\WebPush\WebPush;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -16,6 +18,7 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class MessageService extends Notification
 {
+    use HelpTrait;
     /**
      * 错误信息
      * @var
@@ -28,8 +31,6 @@ class MessageService extends Notification
      * @var
      */
     public $message;
-
-    use HelpTrait;
 
     protected $auth;
 
@@ -62,13 +63,65 @@ class MessageService extends Notification
         return true;
     }
 
+    /**
+     * 发送推送
+     * @param $user_id
+     * @param $title
+     * @param $content
+     * @param $icon
+     * @param $action_title
+     * @param $action
+     * @return bool
+     */
     public function push($user_id, $title, $content, $icon, $action_title, $action){
-        $message =  (new WebPushMessage)
-            ->title($title)
-            ->icon($icon)
-            ->body($content)
-            ->action($action_title,$action);
-        return $message;
+        if (!$push_subscriptions = OaPushSubscriptionsRepository::getList(['subscribable_id' => $user_id])){
+            $this->error = '用户未授权！';
+            return false;
+        }
+        $notifications = [];
+        try{
+            foreach ($push_subscriptions as $value){
+                $notifications[] = [
+                    'subscription' => Subscription::create([
+                        'endpoint' => $value['endpoint'],
+                        'publicKey' => $value['public_key'], // base 64 encoded, should be 88 chars
+                        'authToken' => $value['auth_token'], // base 64 encoded, should be 24 chars
+                    ]),
+                    'payload' => 'hello!',
+                ];
+            }
+            $webPush = new WebPush();
+            //发送带有负载的多个通知
+            foreach ($notifications as $notification) {
+                $webPush->sendNotification(
+                    $notification['subscription'],
+                    $notification['payload'] // optional (defaults null)
+                );
+            }
+
+            /**
+             * 检查发送的结果
+             * @var MessageSentReport $report
+             */
+            foreach ($webPush->flush() as $report) {
+                $endpoint = $report->getRequest()->getUri()->__toString();
+                if ($report->isSuccess()) {
+                    echo "[v] Message sent successfully for subscription {$endpoint}.";
+                    $this->message = '发送成功！';
+                    return true;
+                } else {
+                    echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
+                    $this->error = '发送失败！';
+                    return false;
+                }
+            }
+        } catch (ErrorException $e) {
+            $this->error = $e->getMessage();
+            return false;
+        }catch (\Exception $e){
+            $this->error = $e->getMessage();
+            return false;
+        }
     }
 
     public function via($notifiable)

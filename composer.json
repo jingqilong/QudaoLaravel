@@ -17,6 +17,7 @@
         "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "^4.0",
         "ixudra/curl": "^6.17",
+        "laravel-notification-channels/webpush": "^4.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "minishlink/web-push": "^5.2",

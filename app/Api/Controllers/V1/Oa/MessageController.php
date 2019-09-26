@@ -23,7 +23,7 @@ class MessageController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/add_push_auth",
      *     tags={"OA"},
-     *     summary="添加web推送授权信息",
+     *     summary="添加web推送授权信息【添加、更新，两用】",
      *     operationId="add_push_auth",
      *     @OA\Parameter(
      *         name="sign",
@@ -113,12 +113,17 @@ class MessageController extends ApiController
     }
 
     public function push(){
-        return [$this->messageService->push(
+        $res = $this->messageService->push(
             1,
             '审核通知',
-            '您有一位用户等待授权中，请立即前往进行授权！',
+            '您有一位用户等待审核中，请立即前往进行审核！',
             '223',
             '立即前往',
-            'https://www.baidu.com')];
+            'https://www.baidu.com');
+        return [
+            'error'     => $this->messageService->error,
+            'message'   => $this->messageService->message,
+            'data'      => $res
+            ];
     }
 }
