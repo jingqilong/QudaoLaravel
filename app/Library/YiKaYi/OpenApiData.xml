@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Actions>
+  <Action name="MemberLogin" controller="OpenApi" description="会员登录" />
+  <Action name="Add_Member" controller="OpenApi" description="会员注册" />
+  <Action name="Get_MemberInfo" controller="OpenApi" description="查询会员信息" />
+  <Action name="Update_Member" controller="OpenApi" description="编辑会员信息" />
+  <Action name="Get_PointNotePaged" controller="OpenApi" description="获取积分记录" />
+  <Action name="Get_ValueNotePaged" controller="OpenApi" description="获取储值记录" />
+  <Action name="Get_CountListPaged" controller="OpenApi" description="获取会员计次列表" />
+  <Action name="Get_GiftExchangeNotePaged" controller="OpenApi" description="获取积分兑换记录" />
+  <Action name="Update_MemberPassword" controller="OpenApi" description="修改会员密码" />
+  <Action name="FrozenValue" controller="OpenApi" description="冻结储值" />
+  <Action name="ReSetMemberPassword" controller="OpenApi" description="重置会员密码" />
+  <Action name="Delete_Member" controller="OpenApi" description="删除会员" />
+  <Action name="Lock_Member" controller="OpenApi" description=" 锁定会员" />
+  <Action name="Consume" controller="OpenApi" description="会员消费" />
+  <Action name="Add_Value" controller="OpenApi" description="会员充值" />
+  <Action name="ManuePoint" controller="OpenApi" description="快速消费" />
+  <Action name="Add_MemberRuleValue" controller="OpenApi" description="按照会员级别的充值规则充值" />
+  <Action name="ValueConsume" controller="OpenApi" description="储值扣费" />
+  <Action name="GiftExChange" controller="OpenApi" description="积分兑换" />
+  <Action name="SaveCountAddConsume" controller="OpenApi" description="计次消费" />
+  <Action name="Count_Add" controller="OpenApi" description="增加计次" />
+  <Action name="ReturnGoods" controller="OpenApi" description="退货" />
+  <Action name="Get_PointNotePagedV2" controller="OpenApi" description="根据会员获取积分记录" />
+  <Action name="Get_ValueNotePagedV2" controller="OpenApi" description="根据会员获取储值记录" />
+  <Action name="Get_MemberGroupValueRulesV2" controller="OpenApi" description="获取充值规则" />
+  <Action name="Get_MembersPagedV2" controller="OpenApi" description="获取会员列表" />
+  <Action name="Get_CouponPagedV2" controller="OpenApi" description="获取电子券列表" />
+  <Action name="Get_CoupnSendPagedV2" controller="OpenApi" description="获取电子券发送记录列表" />
+  <Action name="Get_GiftsPagedV2" controller="OpenApi" description="获取礼品列表" />
+  <Action name="Get_GoodsItemsPagedV2" controller="OpenApi" description="获取商品列表" />
+  <Action name="Get_GoodsTypePagedV2" controller="OpenApi" description="获取商品类别列表" />
+  <Action name="Get_ConsumeNotePagedV2" controller="OpenApi" description="获取销售记录" />
+  <Action name="Get_ConsumeNoteItemPagedV2" controller="OpenApi" description="获取销售明细" />
+  <Action name="Get_AllPointNotePagedV2" controller="OpenApi" description="获取所有会员积分记录" />
+  <Action name="Get_AllValueNotePagedV2" controller="OpenApi" description="获取所有会员储值记录" />
+  <Action name="Get_GiftExchangeNotePagedV2" controller="OpenApi" description="获取积分兑换记录" />
+  <Action name="Get_MemberGroupPagedV2" controller="OpenApi" description="获取会员级别列表" />
+  <Action name="Get_ChainStorePagedV2" controller="OpenApi" description="获取店面列表" />
+  <Action name="Get_CountListPagedV2" controller="OpenApi" description="获取计次信息" />
+  <Action name="Get_Provinces" controller="OpenApi" description="获取省份列表" />
+  <Action name="Get_CitiesByProvince" controller="OpenApi" description="获取市列表" />
+  <Action name="Get_CountyByCity" controller="OpenApi" description="获取区列表" />
+  <Action name="Add_Business" controller="BusinessApi" description="新建商家（代理商使用）" />
+  <Action name="ReNew" controller="BusinessApi" description="商家充值（代理商使用）" />
+  <Action name="Get_IndustryList" controller="BusinessApi" description="获取行业列表（代理商使用）" />
+  <Action name="GetEditionList" controller="BusinessApi" description="获取版本列表（代理商使用）" />
+  <Action name="Get_UserAccountPaged" controller="BusinessApi" description="获取工号(用户)列表" />
+  <Action name="Add_User" controller="BusinessApi" description="新建公共" />
+  <Action name="Update_User" controller="BusinessApi" description="编辑工号" />
+  <Action name="Delete_User" controller="BusinessApi" description="删除工号" />
+  <Action name="Add_ChainStoreV2" controller="Special" description="新建店面" />
+  <Action name="Update_ChainStoreV2" controller="Special" description="修改店面" />
+  <Action name="Update_ChainStoreLimit" controller="BusinessApi" description="受限充值" />
+  <Action name="Delete_ChainStore" controller="BusinessApi" description="删除店面" />
+  <Action name="Get_UserGroupPaged" controller="BusinessApi" description="获取权限列表" />
+  <Action name="Add_Gift" controller="Special" description="新建礼品" />
+  <Action name="Update_Gift" controller="Special" description="编辑礼品" />
+  <Action name="Delete_Gift" controller="Special" description="删除礼品" />
+  <Action name="Add_GoodsItem" controller="Special" description="新建商品" />
+  <Action name="Edit_GoodsItem" controller="Special" description="编辑商品" />
+  <Action name="Delete_GoodsItem" controller="Special" description="删除商品" />
+  <Action name="Get_Extensions" controller="OpenApi" description="获取扩展字段" />
+  <Action name="GetMemberGuidByOpenId" controller="VipCloud" description="根据第三方平台标识获取会员唯一标识" />
+  <Action name="BindMember" controller="VipCloud" description="绑定会员" />
+  <Action name="SubCoupon" controller="OpenApi" description="使用优惠券" />
+  <Action name="SendCoupon" controller="OpenApi" description="发送优惠券" />
+  <Action name="Update_MemberValue" controller="OpenApi" description="增加/扣除储值 " />
+  <Action name="Update_MemberPoint" controller="OpenApi" description="增加/扣除积分." />
+  <Action name="Get_PointAndDiscount" controller="OpenApi" description="获取商品积分、折扣系数 " />
+  <Action name="UploadImage" controller="OpenApi" description="上传图片" />
+  <Action name="SendSms" controller="OpenApi" description="发送短信（单发）" />
+  <Action name="GetOAuthUrl" controller="VipCloud" description="网页授权" />
+  <Action name="Get_GoodsBillPaged" controller="BusinessApi" description="获取商品订单列表" />
+</Actions>

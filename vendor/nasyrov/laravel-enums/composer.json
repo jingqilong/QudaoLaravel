@@ -1,0 +1,53 @@
+{
+    "name": "nasyrov/laravel-enums",
+    "type": "library",
+    "description": "Laravel package for Enum implementation.",
+    "keywords": [
+        "laravel",
+        "enum"
+    ],
+    "homepage": "https://github.com/nasyrov/laravel-enums",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evgenii Nasyrov",
+            "email": "inasyrov@ya.ru",
+            "homepage": "https://github.com/nasyrov",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "illuminate/console": "5.5.*|5.6.*|5.7.*|5.8.*",
+        "illuminate/support": "5.5.*|5.6.*|5.7.*|5.8.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.5|~3.7|~3.8",
+        "phpunit/phpunit": "~6.0|~7.0",
+        "squizlabs/php_codesniffer": "~3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nasyrov\\Laravel\\Enums\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nasyrov\\Laravel\\Enums\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "lint": "phpcs -p --standard=psr2 src",
+        "test": "phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nasyrov\\Laravel\\Enums\\EnumServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

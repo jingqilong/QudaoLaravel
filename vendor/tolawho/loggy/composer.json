@@ -1,0 +1,28 @@
+{
+    "name": "tolawho/loggy",
+    "description": "Laravel 5 log with multiple channel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tolawho",
+            "email": "tolawho@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tolawho\\Loggy\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tolawho\\Loggy\\ServiceProvider"
+            ],
+            "aliases": {
+                "Loggy": "Tolawho\\Loggy\\Facades\\Loggy"
+            }
+        }
+    }
+}
