@@ -239,5 +239,6 @@ return [
         'production' => 1,
         //测试环境
         'local' => 0,
+        'test' => 0,
     ],
 ];
