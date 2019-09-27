@@ -176,7 +176,8 @@ trait RepositoryTrait
         return $result ? 1 : null;
     }
 
-    /**删除数据
+    /**
+     * 删除数据
      * @param $where
      * @return null
      */

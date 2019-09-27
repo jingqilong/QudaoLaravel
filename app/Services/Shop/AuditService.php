@@ -44,5 +44,36 @@ class AuditService extends BaseService
         }
         return ['code' => 200,'message' => '删除成功'];
     }
+
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function updateAudit(array $data)
+    {
+        unset($data['sign'],$data['token']);
+        $data['updated_at'] = time();
+        if (!OaAuditTypeRepository::exists(['id' => $data['id']])){
+            return ['code' => 1,'message' => '未找到审核类型！'];
+        }
+        if(!$res = OaAuditTypeRepository::getUpdId(['id' => $data['id']],$data)){dd($res);
+            return ['code' => 1,'message' => '更新失败,请重试！'];
+        }
+        return ['code' => 200,'message' => '更新成功'];
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     * @param 获取所有审核类型
+     */
+    public function getAudit()
+    {
+        if(!$res = OaAuditTypeRepository::getAll()){
+            return ['code' => 1,'message' => '查找失败,请重试！'];
+        }
+        return ['code' => 200,$res];
+    }
 }
             
