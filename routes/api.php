@@ -66,7 +66,7 @@ $api->version('v1',function ($api){
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
         //精选服务模块
-        $api->group(['prefix' => 'prime'],function ($api){
+        $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
                 $api->post('logout','PrimeController@logout')->name('退出');
                 $api->post('refresh','PrimeController@refresh')->name('刷新token');
@@ -75,7 +75,7 @@ $api->version('v1',function ($api){
             $api->post('login','PrimeController@login')->name('登录');
         });
         //会员模块
-        $api->group(['prefix' => 'member'],function ($api){
+        $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
                 $api->post('refresh','MemberController@refresh')->name('刷新token');
@@ -84,6 +84,7 @@ $api->version('v1',function ($api){
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
+                $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
             });
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
@@ -92,7 +93,7 @@ $api->version('v1',function ($api){
         });
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
-            $api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
+            //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
             $api->post('upload_images', 'QiNiuController@uploadImages')->name('上传图片至七牛云');
         });
         //公共模块

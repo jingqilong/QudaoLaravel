@@ -52,57 +52,57 @@ trait QiNiuTrait
             'image_id' => 'p_image'
         ],
     ];
-//    //测试
-//    public $module_config = [
-//        'Activity'      => [//之前的图片存储库
-//            'bucket' => 'test-activity-img',
-//            'domains'=> [
-//                'default'   => 'pxpguwpi0.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpguwpi0.bkt.clouddn.com',
-//            ],
-//        ],
-//        'ActivityTemp'  => [//更改过后的图片存储库
-//            'bucket' => 'test-activity-img',
-//            'domains'=> [
-//                'default'   => 'pxpguwpi0.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpguwpi0.bkt.clouddn.com',
-//            ],
-//        ],
-//        'Estate'        => [//房产
-//            'bucket' => 'test-estate-img',
-//            'domains'=> [
-//                'default'   => 'pxpgs3c6d.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpgs3c6d.bkt.clouddn.com',
-//            ],
-//        ],
-//        'Goods'         => [//商品
-//            'bucket' => 'test-shop-main-img',
-//            'domains'=> [
-//                'default'   => 'pxpgvz2ko.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpgvz2ko.bkt.clouddn.com',
-//            ],
-//        ],
-//        'Member'        => [//会员
-//            'bucket' => 'test-member-img',
-//            'domains'=> [
-//                'default'   => 'pxpgn5daq.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpgn5daq.bkt.clouddn.com',
-//            ],
-//        ],
-//        'Project'       => [//精选生活
-//            'bucket' => 'test-project-img',
-//            'domains'=> [
-//                'default'   => 'pxpfz4iid.bkt.clouddn.com',
-//                'https'     => '',
-//                'custom'    => 'pxpfz4iid.bkt.clouddn.com',
-//            ],
-//        ],
-//    ];
+    //测试
+    public $module_config_test = [
+        'Activity'      => [//之前的图片存储库
+            'bucket' => 'test-activity-img',
+            'domains'=> [
+                'default'   => 'pxpguwpi0.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpguwpi0.bkt.clouddn.com',
+            ],
+        ],
+        'ActivityTemp'  => [//更改过后的图片存储库
+            'bucket' => 'test-activity-img',
+            'domains'=> [
+                'default'   => 'pxpguwpi0.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpguwpi0.bkt.clouddn.com',
+            ],
+        ],
+        'Estate'        => [//房产
+            'bucket' => 'test-estate-img',
+            'domains'=> [
+                'default'   => 'pxpgs3c6d.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpgs3c6d.bkt.clouddn.com',
+            ],
+        ],
+        'Goods'         => [//商品
+            'bucket' => 'test-shop-main-img',
+            'domains'=> [
+                'default'   => 'pxpgvz2ko.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpgvz2ko.bkt.clouddn.com',
+            ],
+        ],
+        'Member'        => [//会员
+            'bucket' => 'test-member-img',
+            'domains'=> [
+                'default'   => 'pxpgn5daq.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpgn5daq.bkt.clouddn.com',
+            ],
+        ],
+        'Project'       => [//精选生活
+            'bucket' => 'test-project-img',
+            'domains'=> [
+                'default'   => 'pxpfz4iid.bkt.clouddn.com',
+                'https'     => '',
+                'custom'    => 'pxpfz4iid.bkt.clouddn.com',
+            ],
+        ],
+    ];
     //正式图片迁移配置
     public $module_config = [
         'Activity'      => [//之前的图片存储库
