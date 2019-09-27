@@ -24,6 +24,7 @@
         "nasyrov/laravel-enums": "^1.1",
         "overtrue/laravel-lang": "~3.0",
         "overtrue/laravel-wechat": "~5.0",
+        "simplesoftwareio/simple-qrcode": "~2",
         "tolawho/loggy": "^1.0",
         "tymon/jwt-auth": "1.0.0-rc.4.1",
         "zgldh/qiniu-laravel-storage": "^0.10.3",
