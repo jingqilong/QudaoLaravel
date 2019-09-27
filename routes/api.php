@@ -62,6 +62,7 @@ $api->version('v1',function ($api){
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 #OA流程
                 $api->post('add_audit','AuditController@addAudit')->name("添加审核类型");
+                $api->post('del_audit','AuditController@delAudit')->name("删除审核类型");
             });
             $api->post('login','OaController@login')->name('登录');
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
