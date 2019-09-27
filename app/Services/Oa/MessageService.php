@@ -3,6 +3,8 @@ namespace App\Services\Oa;
 
 use App\Models\OaEmployeeModel;
 use App\Repositories\OaEmployeeRepository;
+use App\Repositories\OaMessageDefRepository;
+use App\Repositories\OaMessageSendRepository;
 use App\Repositories\OaPushSubscriptionsRepository;
 use App\Traits\HelpTrait;
 use ErrorException;
@@ -66,14 +68,11 @@ class MessageService extends Notification
     /**
      * 发送推送
      * @param $user_id
-     * @param $title
-     * @param $content
-     * @param $icon
-     * @param $action_title
-     * @param $action
+     * @param WebPushMessage $webPushMessage  请使用WebPushMessage生成消息对象
      * @return bool
      */
-    public function push($user_id, $title, $content, $icon, $action_title, $action){
+    public function push($user_id,WebPushMessage $webPushMessage){
+        $payload = json_encode($webPushMessage->toArray());
         if (!$push_subscriptions = OaPushSubscriptionsRepository::getList(['subscribable_id' => $user_id])){
             $this->error = '用户未授权！';
             return false;
@@ -87,7 +86,7 @@ class MessageService extends Notification
                         'publicKey' => $value['public_key'], // base 64 encoded, should be 88 chars
                         'authToken' => $value['auth_token'], // base 64 encoded, should be 24 chars
                     ]),
-                    'payload' => 'hello!',
+                    'payload' => is_array($payload) ? json_encode($payload) : $payload,
                 ];
             }
             $webPush = new WebPush();
@@ -106,6 +105,9 @@ class MessageService extends Notification
             foreach ($webPush->flush() as $report) {
                 $endpoint = $report->getRequest()->getUri()->__toString();
                 if ($report->isSuccess()) {
+                    if ($def_id = OaMessageDefRepository::addMessage(json_decode($payload))){
+                        OaMessageSendRepository::getAddId(['user_id' => $user_id, 'message_id' => $def_id, 'created_at' => date('Y-m-d H:m:s')]);
+                    }
                     echo "[v] Message sent successfully for subscription {$endpoint}.";
                     $this->message = '发送成功！';
                     return true;
@@ -129,13 +131,22 @@ class MessageService extends Notification
         return [WebPushChannel::class];
     }
 
-    public function toWebPush($notifiable, $notification)
+    /**
+     * 创建推送消息对象
+     * @param $title
+     * @param $icon
+     * @param $body
+     * @param $action_title
+     * @param $action
+     * @return WebPushMessage
+     */
+    public function toWebPush($title, $icon, $body, $action_title, $action)
     {
         return (new WebPushMessage)
-            ->title('Approved!')
-            ->icon('/approved-icon.png')
-            ->body('Your account was approved!')
-            ->action('View account', 'view_account');
+            ->title($title)
+            ->icon($icon)
+            ->body($body)
+            ->action($action_title, $action);
         // ->data(['id' => $notification->id])
         // ->badge()
         // ->dir()

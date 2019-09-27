@@ -113,13 +113,11 @@ class MessageController extends ApiController
     }
 
     public function push(){
+        $payload = $this->messageService->toWebPush('推送标题','ICON','推送内容','动作名称','动作');
         $res = $this->messageService->push(
             1,
-            '审核通知',
-            '您有一位用户等待审核中，请立即前往进行审核！',
-            '223',
-            '立即前往',
-            'https://www.baidu.com');
+            $payload
+        );
         return [
             'error'     => $this->messageService->error,
             'message'   => $this->messageService->message,
