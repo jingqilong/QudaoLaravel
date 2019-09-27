@@ -6,6 +6,7 @@ namespace App\Services\Common;
 
 use App\Enums\ImageTypeEnum;
 use App\Enums\QiNiuEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use App\Traits\QiNiuTrait;
@@ -122,8 +123,8 @@ class QiNiuService extends BaseService
      * @return Builder
      */
     public function getModel(string $table){
-        //$connection = DB::connection('local_taiji');//本地
-        $connection = DB::connection('online_taiji');//线上
+        $connection = DB::connection('local_taiji');//本地
+        //$connection = DB::connection('online_taiji');//线上
         $model = $connection->table($table);
         return $model;
     }
@@ -144,14 +145,15 @@ class QiNiuService extends BaseService
     }
 
     /**
-     * 根据不同的配置迁移图片至七牛云
+     * 根据不同的配置迁移图片至七牛云（迁移用）
      * @param $module
      * @param $name
      * @param $path
      * @return bool|string  返回图片上传后存入数据表中的id
      */
     public function uploadQiniu($module, $name, $path){
-        $config = $this->module_config[$module];
+        $config = $this->module_config_test[$module];//测试
+//        $config = $this->module_config[$module];
         $model = $this->getModel('my_images');
         //获取七牛云配置
         config([
@@ -255,5 +257,110 @@ class QiNiuService extends BaseService
             $result[$name]['url'] = $url;
         }
         return ['code' => 1, 'message' => '总共'.$count.'张图片上传成功！', 'data' => $result];
+    }
+
+
+
+    public function migrationBigImage(){
+        /**
+         * 1，读取所有文件
+         * 2，读取数据库中图片相关表的信息
+         * 3，根据模块生成七牛云配置
+         * 4，生成七牛云对象，将图片上传至七牛云
+         * 5，将七牛云返回的图片地址存入对应的数据表
+         * 6，完成文件迁移
+         */
+        #测试
+//        $path = 'C:\\phpStudy\\PHPTutorial\\WWW\\qudao_laravel\\public\\upload\\images\\Activity\\2018-11-21\\gsnh.png';
+//        $url = $this->uploadQiniu($this->module_config['Activity'],'gsnh.png', $path);
+//        dd($url);
+
+        $path = public_path('upload');
+        $file_list = $this->traverseFile($path);
+        $upload_data = [];
+        $correspond_arr = [
+            'event' => 'my_hd_activity',
+            'shop'  => 'my_sc_goods_common'
+        ];
+        $module_file = [
+            'event' => 'Activity',
+            'shop'  => 'Goods'
+        ];
+        $img_field = [
+            'my_hd_activity'    => 'a_img_ids',
+            'my_sc_goods_common' => 'desc_img_ids'
+        ];
+        $id_field = [
+            'my_hd_activity'    => 'a_id',
+            'my_sc_goods_common' => 'goods_common_id'
+        ];
+        foreach ($correspond_arr as $module => $table){
+            //此处按模块进行上传，避免访问超时，event、shop
+            if ($module != 'shop'){
+                continue;
+            }
+            foreach ($file_list[$module] as $id => $images){
+                $ids = '';
+                $upload_data[$module][$id] = [];
+                foreach ($images as $name => $local_path){
+                    $qiniu_id = $this->uploadQiniu($module_file[$module],$name, $local_path);
+                    $ids .= $qiniu_id.',';
+                    $upload_data[$module][$id][$name] = $qiniu_id;
+                }
+                $ids = trim($ids,',');
+                $upload_data[$module][$id]['ids'] = $ids;
+                //dd($upload_data[$module][$id]);
+                $where = [$id_field[$table] => $id];
+                $upd_data = [$img_field[$table] => $ids];
+                if (!$this->update($this->getModel($table), $where, $upd_data)){
+                    Loggy::write('error','信息更新失败，更新信息：'.json_encode($upd_data).'  条件：'.json_encode($where).' 类型：'.$module);
+                }
+            }
+        }
+        return $upload_data;
+    }
+
+
+    /**
+     * 根据不同的配置上传图片至七牛云
+     * @param $module
+     * @param $name
+     * @param $path
+     * @return mixed  返回图片上传后存入数据表中的id
+     */
+    public function uploadImages($module, $name, $path){
+        $config = $this->module_config_test[$module];//测试
+//        $config = $this->module_config[$module];
+        //获取七牛云配置
+        config([
+            'filesystems.disks.qiniu.bucket' => $config['bucket'],
+            'filesystems.disks.qiniu.domains' => $config['domains']
+        ]);
+        //$config = config('filesystems.disks.qiniu');
+        $disk = QiniuStorage::disk('qiniu');
+        $fileName = $config['bucket'].'/'.md5($name.$path).'.'.$name;
+        if ($disk->exists($fileName)){//如果图片已经上传
+            $url = (string)$disk->downloadUrl($fileName);
+            if ($img_id = CommonImagesRepository::getField(['img_url' => $url],'id')){
+                //如果数据库中存在，返回id，如果不存在，在下面插入数据库
+                return ['id' => $img_id, 'url' => $url];
+            }
+        }else{//如果图片没有上传
+            $res = $disk->put($fileName, file_get_contents($path));
+            if (!$res){//上传失败
+                Loggy::write('error','图片上传七牛云失败，图片名称：'.$name.'  本地地址：'.$path.' 类型：'.$module);
+                return false;
+            }
+            $url = (string)$disk->downloadUrl($fileName);
+        }
+        if (!$id = CommonImagesRepository::getAddId([
+            'type' => ImageTypeEnum::getConst(strtoupper($module)),
+            'img_url' => $url,
+            'create_at' => time()
+        ])){
+            Loggy::write('error','图片添加失败，图片名称：'.$name.'  七牛云地址：'.$url.' 类型：'.$module);
+            return false;
+        }
+        return ['id' => $id, 'url' => $url];
     }
 }
