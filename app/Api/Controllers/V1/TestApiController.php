@@ -113,12 +113,7 @@ class TestApiController extends ApiController
      *
      */
     public function index(){
-        //$tables = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
-//        $data = AdminUsersModel::find(1);
-//        $data = AdminUsersRepository::getOne(['a_id' => 2]);
-        $data = UsersService::getUser(2);
-        //return '这是你输入的数据：'.json_encode($data);
-        return __('admin.login');
+        return view('welcome');
     }
 
 
