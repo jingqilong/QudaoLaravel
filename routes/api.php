@@ -48,7 +48,6 @@ $api->version('v1',function ($api){
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取员工信息');
                 $api->post('add_employee','EmployessController@addEmployee')->name('添加员工信息');
                 $api->post('del_employee','EmployessController@delEmployee')->name("删除员工");
-
                 $api->post('update_employee','EmployessController@updateEmployee')->name("更新员工信息");
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
@@ -61,6 +60,11 @@ $api->version('v1',function ($api){
                 $api->get('permission_list','PermissionsController@permissionList')->name("获取权限列表");
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
+                #OA流程
+                $api->post('add_audit','AuditController@addAudit')->name("添加审核类型");
+                $api->post('del_audit','AuditController@delAudit')->name("删除审核类型");
+                $api->post('upd_audit','AuditController@updateAudit')->name("更改审核类型");
+                $api->get('get_audit','AuditController@getAudit')->name("查找审核类型");
             });
             $api->post('login','OaController@login')->name('登录');
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
