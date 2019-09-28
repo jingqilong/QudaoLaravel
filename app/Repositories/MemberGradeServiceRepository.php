@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\MemberServiceRecordModel;
+use App\Models\MemberGradeServiceModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class MemberServiceRecordRepository extends ApiRepository
+class MemberGradeServiceRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class MemberServiceRecordRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(MemberServiceRecordModel $model)
+    public function __construct(MemberGradeServiceModel $model)
     {
         $this->model = $model;
     }

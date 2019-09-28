@@ -85,6 +85,16 @@ $api->version('v1',function ($api){
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+
+                #会员权限
+                $api->post('add_service','ServiceController@addService')->name('添加服务');
+                $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
+                $api->post('edit_service','ServiceController@editService')->name('修改服务');
+                $api->delete('delete_service','ServiceController@deleteService')->name('删除服务');
+                $api->get('service_list','ServiceController@serviceList')->name('获取服务列表');
+                $api->post('grade_add_service','ServiceController@gradeAddService')->name('给等级添加服务');
+                $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
+                $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
             });
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');

@@ -160,9 +160,9 @@ trait QiNiuTrait
         'ACTIVITY'      => [//精彩活动
             'bucket' => 'qudao-activity-img',
             'domains'=> [
-                'default'   => 'pxnvlqdh3.bkt.clouddn.com',
+                'default'   => 'activity.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnvlqdh3.bkt.clouddn.com',
+                'custom'    => 'activity.shop.qudaoplus.cn',
             ],
         ],
         'DOCTOR'  => [//医疗特约
@@ -181,7 +181,7 @@ trait QiNiuTrait
                 'custom'    => 'pxnw137no.bkt.clouddn.com',
             ],
         ],
-        'Estate'        => [//房产-租赁
+        'ESTATE'        => [//房产-租赁
             'bucket' => 'qudao-estate-img',
             'domains'=> [
                 'default'   => 'pxnwc1cfd.bkt.clouddn.com',
