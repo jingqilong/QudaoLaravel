@@ -470,5 +470,24 @@ class MemberService extends BaseService
         }
         return ['code' => 1,'message' => '恭喜您，修改成功！'];
     }
+
+    public function getRelationList($type){
+        $user = $this->auth->user();
+        if ($type == 1){
+            $relation_list = MemberRelationRepository::doubleRelation($user->m_id);
+        }else{
+            $relation_list = MemberRelationRepository::detailRelation($user->m_id);
+        }
+        if ($relation_list === false){
+            $this->setError('推荐关系获取失败！');
+            return false;
+        }
+        if (!$relation_list){
+            $this->setMessage('您还没有推荐过人！');
+            return [];
+        }
+        $this->setMessage('获取推荐关系成功！');
+        return $relation_list;
+    }
 }
             

@@ -142,11 +142,12 @@ class ServiceService extends BaseService
     }
 
     /**
+     * @param array $where
      * @return array
      */
-    public function serviceList()
+    public function serviceList($where = ['id' => ['<>',0]])
     {
-        $list = MemberServiceRepository::getServiceList(['id' => ['<>',0]]);
+        $list = MemberServiceRepository::getServiceList($where);
         $this->setMessage('列表获取成功！');
         return $list;
     }

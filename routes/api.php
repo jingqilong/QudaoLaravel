@@ -88,6 +88,7 @@ $api->version('v1',function ($api){
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
+                $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
 
                 #会员权限
@@ -99,6 +100,10 @@ $api->version('v1',function ($api){
                 $api->post('grade_add_service','ServiceController@gradeAddService')->name('给等级添加服务');
                 $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
                 $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
+                $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
+                $api->post('add_view_member','ServiceController@addViewMember')->name('添加会员可查看成员');
+                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除会员可查看成员');
+                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');

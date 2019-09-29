@@ -123,8 +123,8 @@ class QiNiuService extends BaseService
      * @return Builder
      */
     public function getModel(string $table){
-        $connection = DB::connection('local_taiji');//本地
-        //$connection = DB::connection('online_taiji');//线上
+        //$connection = DB::connection('local_taiji');//本地
+        $connection = DB::connection('online_taiji');//线上
         $model = $connection->table($table);
         return $model;
     }
@@ -152,8 +152,8 @@ class QiNiuService extends BaseService
      * @return bool|string  返回图片上传后存入数据表中的id
      */
     public function uploadQiniu($module, $name, $path){
-//        $config = $this->module_config_test[$module];//测试
-        $config = $this->module_config[$module];
+        $config = $this->module_config_test[$module];//测试
+//        $config = $this->module_config[$module];
         $model = $this->getModel('my_images');
         //获取七牛云配置
         config([
