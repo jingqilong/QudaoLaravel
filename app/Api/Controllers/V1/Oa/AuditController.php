@@ -96,7 +96,7 @@ class AuditController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *     path="/api/v1/oa/del_audit",
      *     tags={"OA流程"},
      *     summary="删除审核类型",

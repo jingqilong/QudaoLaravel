@@ -8,7 +8,6 @@ use App\Api\Controllers\ApiController;
 use App\Enums\SMSEnum;
 use App\Services\Common\SmsService;
 use App\Services\Member\MemberService;
-use App\Services\Oa\EmployeeService;
 use Illuminate\Http\JsonResponse;
 
 class MemberController extends ApiController
@@ -532,7 +531,7 @@ class MemberController extends ApiController
         }
         //短信验证
         $check_sms = $this->smsService->checkCode($this->request['m_phone'],SMSEnum::CHANGEPASSWORD, $this->request['code']);
-        if (is_string($check_sms)){dd($check_sms);
+        if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
         }
         $res = $this->memberService->smsChangePassword($this->request);
@@ -540,5 +539,65 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $res['message']];
         }
         return ['code' => 200, 'message' => $res['message']];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_relation_list",
+     *     tags={"会员"},
+     *     summary="获取用户推荐关系",
+     *     operationId="get_relation_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="查看类型,1、只查看直接推荐和间接推荐，2、查看详细推荐关系",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户推荐关系获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getRelationList(){
+        $rules = [
+            'type'       => 'required|in:1,2',
+        ];
+        $messages = [
+            'type.required'         => '请输入查看类型',
+            'type.in'               => '查看类型不存在'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->getRelationList($this->request['type']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
     }
 }

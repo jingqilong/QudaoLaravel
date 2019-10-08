@@ -47,7 +47,7 @@ $api->version('v1',function ($api){
                 $api->post('del_depart','OaController@delDepart')->name("删除部门");
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取员工信息');
                 $api->post('add_employee','EmployessController@addEmployee')->name('添加员工信息');
-                $api->post('del_employee','EmployessController@delEmployee')->name("删除员工");
+                $api->delete('del_employee','EmployessController@delEmployee')->name("删除员工");
                 $api->post('update_employee','EmployessController@updateEmployee')->name("更新员工信息");
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
@@ -62,7 +62,7 @@ $api->version('v1',function ($api){
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 #OA流程
                 $api->post('add_audit','AuditController@addAudit')->name("添加审核类型");
-                $api->post('del_audit','AuditController@delAudit')->name("删除审核类型");
+                $api->delete('del_audit','AuditController@delAudit')->name("删除审核类型");
                 $api->post('upd_audit','AuditController@updateAudit')->name("更改审核类型");
                 $api->get('get_audit','AuditController@getAudit')->name("查找审核类型");
             });
@@ -88,18 +88,43 @@ $api->version('v1',function ($api){
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
+                $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+
+                #会员权限
+                $api->post('add_service','ServiceController@addService')->name('添加服务');
+                $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
+                $api->post('edit_service','ServiceController@editService')->name('修改服务');
+                $api->delete('delete_service','ServiceController@deleteService')->name('删除服务');
+                $api->get('service_list','ServiceController@serviceList')->name('获取服务列表');
+                $api->post('grade_add_service','ServiceController@gradeAddService')->name('给等级添加服务');
+                $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
+                $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
+                $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
+                $api->post('add_view_member','ServiceController@addViewMember')->name('添加会员可查看成员');
+                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除会员可查看成员');
+                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
         });
+
+        //房产模块
+        $api->group(['prefix' => 'house', 'namespace' => 'house'], function ($api){
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('add_house_order', 'CommonController@sendCaptcha')->name('发送短信验证码');
+                $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
+            });
+        });
+
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
             //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
             $api->post('upload_images', 'QiNiuController@uploadImages')->name('上传图片至七牛云');
         });
+
         //公共模块
         $api->group(['prefix' => 'common', 'namespace' => 'Common'], function ($api){
             $api->post('send_captcha', 'CommonController@sendCaptcha')->name('发送短信验证码');

@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class MemberServiceRecordModel extends Model
+class MemberBusinessRecordModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class MemberServiceRecordModel extends Model
      *
      * @var string
      */
-    protected $table = 'member_service_record';
+    protected $table = 'member_business_record';
 
      /**
      * 表明模型是否应该被打上时间戳

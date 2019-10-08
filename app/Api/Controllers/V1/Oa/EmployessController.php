@@ -164,7 +164,7 @@ class EmployessController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *     path="/api/v1/oa/del_employee",
      *     tags={"OA"},
      *     summary="删除员工信息",

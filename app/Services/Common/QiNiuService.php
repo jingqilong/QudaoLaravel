@@ -123,8 +123,8 @@ class QiNiuService extends BaseService
      * @return Builder
      */
     public function getModel(string $table){
-        $connection = DB::connection('local_taiji');//本地
-        //$connection = DB::connection('online_taiji');//线上
+        //$connection = DB::connection('local_taiji');//本地
+        $connection = DB::connection('online_taiji');//线上
         $model = $connection->table($table);
         return $model;
     }

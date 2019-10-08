@@ -108,49 +108,49 @@ trait QiNiuTrait
         'Activity'      => [//之前的图片存储库
             'bucket' => 'qudao-activity-img',
             'domains'=> [
-                'default'   => 'pxnvlqdh3.bkt.clouddn.com',
+                'default'   => 'activity.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnvlqdh3.bkt.clouddn.com',
+                'custom'    => 'activity.shop.qudaoplus.cn',
             ],
         ],
         'ActivityTemp'  => [//更改过后的图片存储库
             'bucket' => 'qudao-activity-img',
             'domains'=> [
-                'default'   => 'pxnvlqdh3.bkt.clouddn.com',
+                'default'   => 'activity.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnvlqdh3.bkt.clouddn.com',
+                'custom'    => 'activity.shop.qudaoplus.cn',
             ],
         ],
         'Estate'        => [//房产
             'bucket' => 'qudao-estate-img',
             'domains'=> [
-                'default'   => 'pxnwc1cfd.bkt.clouddn.com',
+                'default'   => 'estate.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnwc1cfd.bkt.clouddn.com',
+                'custom'    => 'estate.shop.qudaoplus.cn',
             ],
         ],
         'Goods'         => [//商品
             'bucket' => 'qudao-shop-img',
             'domains'=> [
-                'default'   => 'py0hcd3dv.bkt.clouddn.com',
+                'default'   => 'shop.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'py0hcd3dv.bkt.clouddn.com',
+                'custom'    => 'shop.shop.qudaoplus.cn',
             ],
         ],
         'Member'        => [//会员
             'bucket' => 'qudao-member-img',
             'domains'=> [
-                'default'   => 'pxnv4f3zi.bkt.clouddn.com',
+                'default'   => 'member.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnv4f3zi.bkt.clouddn.com',
+                'custom'    => 'member.shop.qudaoplus.cn',
             ],
         ],
         'Project'       => [//精选生活
             'bucket' => 'qudao-project-img',
             'domains'=> [
-                'default'   => 'pxnw51r2j.bkt.clouddn.com',
+                'default'   => 'project.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnw51r2j.bkt.clouddn.com',
+                'custom'    => 'project.shop.qudaoplus.cn',
             ],
         ],
     ];
@@ -160,47 +160,47 @@ trait QiNiuTrait
         'ACTIVITY'      => [//精彩活动
             'bucket' => 'qudao-activity-img',
             'domains'=> [
-                'default'   => 'pxnvlqdh3.bkt.clouddn.com',
+                'default'   => 'activity.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnvlqdh3.bkt.clouddn.com',
+                'custom'    => 'activity.shop.qudaoplus.cn',
             ],
         ],
         'DOCTOR'  => [//医疗特约
             'bucket' => 'qudao-doctor-img',
             'domains'=> [
-                'default'   => 'pxnvdrmmr.bkt.clouddn.com',
+                'default'   => 'doctor.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnvdrmmr.bkt.clouddn.com',
+                'custom'    => 'doctor.shop.qudaoplus.cn',
             ],
         ],
         'ENTERPRISE'  => [//企业咨询
             'bucket' => 'qudao-enterprise-img',
             'domains'=> [
-                'default'   => 'pxnw137no.bkt.clouddn.com',
+                'default'   => 'enterprise.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnw137no.bkt.clouddn.com',
+                'custom'    => 'enterprise.shop.qudaoplus.cn',
             ],
         ],
-        'Estate'        => [//房产-租赁
+        'ESTATE'        => [//房产-租赁
             'bucket' => 'qudao-estate-img',
             'domains'=> [
-                'default'   => 'pxnwc1cfd.bkt.clouddn.com',
+                'default'   => 'estate.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnwc1cfd.bkt.clouddn.com',
+                'custom'    => 'estate.shop.qudaoplus.cn',
             ],
         ],
         'HEADING'        => [//会员头像
             'bucket' => 'qudao-heading',
             'domains'=> [
-                'default'   => 'pxntxvo6y.bkt.clouddn.com',
+                'default'   => 'heading.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxntxvo6y.bkt.clouddn.com',
+                'custom'    => 'heading.shop.qudaoplus.cn',
             ],
         ],
         'ITEMS'         => [//项目对接
             'bucket' => 'qudao-items-img',
             'domains'=> [
-                'default'   => 'pxnwg69e5.bkt.clouddn.com',
+                'default'   => 'items.shop.qudaoplus.cn',
                 'https'     => '',
                 'custom'    => 'pxnwg69e5.bkt.clouddn.com',
             ],
@@ -208,33 +208,33 @@ trait QiNiuTrait
         'MEMBER'        => [//成员风采
             'bucket' => 'qudao-member-img',
             'domains'=> [
-                'default'   => 'pxnv4f3zi.bkt.clouddn.com',
+                'default'   => 'member.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnv4f3zi.bkt.clouddn.com',
+                'custom'    => 'member.shop.qudaoplus.cn',
             ],
         ],
         'PROJECT'       => [//精选生活
             'bucket' => 'qudao-project-img',
             'domains'=> [
-                'default'   => 'pxnw51r2j.bkt.clouddn.com',
+                'default'   => 'project.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnw51r2j.bkt.clouddn.com',
+                'custom'    => 'project.shop.qudaoplus.cn',
             ],
         ],
         'SHOP'         => [//商城模块
             'bucket' => 'qudao-shop-img',
             'domains'=> [
-                'default'   => 'py0hcd3dv.bkt.clouddn.com',
+                'default'   => 'shop.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'py0hcd3dv.bkt.clouddn.com',
+                'custom'    => 'shop.shop.qudaoplus.cn',
             ],
         ],
         'SPACE'         => [//私享空间
             'bucket' => 'qudao-space-img',
             'domains'=> [
-                'default'   => 'pxnwkrubu.bkt.clouddn.com',
+                'default'   => 'space.shop.qudaoplus.cn',
                 'https'     => '',
-                'custom'    => 'pxnwkrubu.bkt.clouddn.com',
+                'custom'    => 'space.shop.qudaoplus.cn',
             ],
         ],
     ];
