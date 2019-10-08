@@ -109,13 +109,23 @@ $api->version('v1',function ($api){
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
+            $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
         });
 
         //房产模块
         $api->group(['prefix' => 'house', 'namespace' => 'house'], function ($api){
-            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
-                $api->post('add_house_order', 'CommonController@sendCaptcha')->name('发送短信验证码');
-                $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
+            $api->group(['middleware' => 'house.jwt.auth'],function($api) {
+                $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
+            });
+        });
+
+        //贷款模块
+        $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
+            $api->group(['middleware' => 'loan.jwt.auth'],function($api) {
+                $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
+                $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
+                $api->delete('del_loan', 'LoanController@delLoan')->name('删除贷款订单');
+                $api->get('get_loan', 'LoanController@getLoan')->name('获取贷款订单');
             });
         });
 

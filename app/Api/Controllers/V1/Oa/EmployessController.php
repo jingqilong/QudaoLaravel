@@ -80,15 +80,7 @@ class EmployessController extends ApiController
      *     summary="添加员工信息",
      *     operationId="add_employee",
      *     @OA\Parameter(name="sign",in="query",description="签名",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
+     *     @OA\Parameter(name="token",in="query",description="token",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="username",in="query",description="账号(前端传值)",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="password",in="query",description="密码(前端传值)",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="repwd",in="query",description="确认密码(前端传值)",required=true,@OA\Schema(type="string",)),
