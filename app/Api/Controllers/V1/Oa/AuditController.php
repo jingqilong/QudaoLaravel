@@ -238,7 +238,7 @@ class AuditController extends ApiController
             'name.required' => '未找到审核类型',
             'name.unique'   => '重复的审核类型，请重新输入',
             'id.required'   => '未找到审核类型ID',
-            'url.active_url'     => '不是有效的网址',
+            'url.active_url'  => '不是有效的网址',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
