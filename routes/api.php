@@ -62,10 +62,9 @@ $api->version('v1',function ($api){
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 #OA流程
-                $api->post('add_audit','AuditController@addAudit')->name("添加审核类型");
-                $api->delete('del_audit','AuditController@delAudit')->name("删除审核类型");
-                $api->post('upd_audit','AuditController@updateAudit')->name("更改审核类型");
-                $api->get('get_audit','AuditController@getAudit')->name("查找审核类型");
+                $api->group(['prefix' => 'process'],function ($api){
+                    $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');
+                });
             });
             $api->post('login','OaController@login')->name('登录');
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
