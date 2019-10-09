@@ -64,6 +64,11 @@ $api->version('v1',function ($api){
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');
+                    $api->delete('delete_process_categories','ProcessController@deleteProcessCategories')->name('删除流程分类');
+                    $api->post('edit_process_categories','ProcessController@editProcessCategories')->name('修改流程分类');
+                    $api->get('get_categories_list','ProcessController@getCategoriesList')->name('获取流程分类列表');
+
+                    $api->post('create_process','ProcessController@createProcess')->name('创建流程');
                 });
             });
             $api->post('login','OaController@login')->name('登录');
