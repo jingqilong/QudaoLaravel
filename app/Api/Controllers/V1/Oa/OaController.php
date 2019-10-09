@@ -450,7 +450,7 @@ class OaController extends ApiController
         return ['code' => 100,'message' => $res['message']];
     }
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *     path="/api/v1/oa/del_depart",
      *     tags={"OA"},
      *     summary="删除部门信息",
