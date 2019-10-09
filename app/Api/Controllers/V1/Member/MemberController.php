@@ -186,6 +186,67 @@ class MemberController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/member/get_user_list",
+     *     tags={"会员"},
+     *     summary="获取用户列表",
+     *     operationId="get_user_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * Get user info.
+     * @return array
+     */
+    public function getUserList()
+    {
+        $list = $this->memberService->getUserList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        if (!$list){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
+    }
+    /**
+     * @OA\Get(
      *     path="/api/v1/member/get_user_info",
      *     tags={"会员"},
      *     summary="获取用户信息",
