@@ -153,7 +153,7 @@ class OaController extends ApiController
      *         @OA\Schema(
      *             type="string",
      *         )
-     *     ),
+     *      ),
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
@@ -198,7 +198,7 @@ class OaController extends ApiController
      *         @OA\Schema(
      *             type="string",
      *         )
-     *     ),
+     *      ),
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
@@ -242,10 +242,19 @@ class OaController extends ApiController
      *         @OA\Schema(
      *             type="string",
      *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="token刷新失败",
+     *         description="获取部门失败",
      *     ),
      * )
      *
@@ -272,6 +281,15 @@ class OaController extends ApiController
      *         name="sign",
      *         in="query",
      *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -343,7 +361,16 @@ class OaController extends ApiController
      *         @OA\Schema(
      *             type="string",
      *         )
-     *     ),
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
@@ -436,7 +463,16 @@ class OaController extends ApiController
      *         @OA\Schema(
      *             type="string",
      *         )
-     *     ),
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
