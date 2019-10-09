@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 
 /**
  * @OA\Info(
- *     title="My First API",
+ *     title="Qu Dao API",
  *     version="1.0"
  * )
  */
