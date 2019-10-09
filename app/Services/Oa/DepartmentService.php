@@ -83,11 +83,12 @@ class DepartmentService extends BaseService
      */
     public function getDepartList($page,$pageNum)
     {
+        
         if (!$depart_list = OaDepartmentRepository::getList(['id' => ['>',0]],['field' => '*'],'','',$page,$pageNum)){
                 $this->setError('获取失败!');
                 return false;
         }
-        
+
         unset($depart_list['first_page_url'], $depart_list['from'],
             $depart_list['from'], $depart_list['last_page_url'],
             $depart_list['next_page_url'], $depart_list['path'],
