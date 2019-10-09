@@ -153,7 +153,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="id",
      *          in="query",
-     *          description="提交人会员id(前端传值)",
+     *          description="提交贷款订单id(前端传值)",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
