@@ -15,8 +15,19 @@ class ProcessCategoryEnum extends BaseEnum
         'RESOURCE'      => '资源',
 
         //状态
-        'INACTIVE'      => '非激活状态',
-        'ACTIVE'        => '激活状态',
+        'INACTIVE'      => '未激活',
+        'ACTIVE'        => '激活',
+    ];
+
+    public static $getway_type = [
+        0 => 'ROUTE',
+        1 => 'REPOSITORY',
+        2 => 'RESOURCE',
+    ];
+
+    public static $status = [
+        0 => 'INACTIVE',
+        1 => 'ACTIVE',
     ];
     // constants
 
@@ -29,4 +40,21 @@ class ProcessCategoryEnum extends BaseEnum
     const INACTIVE          = 0;
 
     const ACTIVE            = 1;
+
+    /**
+     * 获取网管类型label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getGetWayType(int $value){
+        return isset(self::$getway_type[$value]) ? self::$labels[self::$getway_type[$value]] : '';
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getStatus(int $value){
+        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    }
 }

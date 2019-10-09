@@ -5,6 +5,7 @@ namespace App\Repositories\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Tolawho\Loggy\Facades\Loggy;
 
 trait RepositoryTrait
 {
@@ -33,15 +34,7 @@ trait RepositoryTrait
      * @return null
      */
     protected function getOne(array $where,array $column=['*']){
-        $model = $this->model;
-        foreach ($where as $k => $v) {
-            if(is_array($v)){
-                $model = $model->where($k, reset($v), end($v));
-            }else{
-                $model = $model->where($k,$v);
-            }
-        }
-        //$model = $model->where($where);
+        $model = self::addWhere($this->model,$where);
         $result = $model->first($column);
         return $result ? $result->toArray() : null;
     }
@@ -65,15 +58,8 @@ trait RepositoryTrait
      * @param array $column
      * @return null
      */
-    protected function getOrderOne(array $where=[], $order='*', $desc='desc',array $column=['*']){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
-        }
+    protected function getOrderOne(array $where,string $order,string $desc='desc',array $column=['*']){
+        $model = self::addWhere($this->model,$where);
         $result = $model->orderBy($order,$desc)->first($column);
         return $result ? $result->toArray() : null;
     }
@@ -99,21 +85,7 @@ trait RepositoryTrait
      * @return null
      */
     protected function getList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null, $page=null, $pageNum=null){
-        $model = $this->model;
-        foreach ($where as $k=>$v){
-            if (is_array($v)){
-                switch (reset($v)){
-                    case 'in':
-                        $model = $model->whereIn($k, end($v));
-                        break;
-                    default:
-                        $model = $model->where($k, reset($v), end($v));
-                        break;
-                }
-            }else{
-                $model = $model->where($k,$v);
-            }
-        }
+        $model = self::addWhere($this->model,$where);
         if ($order!=null && $desc_asc!=null){
             $model = $model->orderBy($order,$desc_asc);
         }
@@ -152,14 +124,7 @@ trait RepositoryTrait
      * @return null
      */
     protected function getUpdId(array $where,array $data){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
-        }
+        $model = self::addWhere($this->model,$where);
         $result = $model->update($data);
         $id = $this->getField($where,$this->getPrimaryKey());
         return $result>=0 ? $id : null;
@@ -182,15 +147,13 @@ trait RepositoryTrait
      * @return null
      */
     protected function delete(array $where){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
+        $model = self::addWhere($this->model,$where);
+        try{
+            $result = $model->delete();
+        }catch (\Exception $e){
+            Loggy::write('error',$e);
+            return null;
         }
-        $result = $model->delete();
         return $result ? $result : null;
     }
 
@@ -200,15 +163,9 @@ trait RepositoryTrait
      * @param string $column
      * @return int
      */
-    protected function sum(array $where, $column='*'){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
-        }
+    protected function sum(array $where,string $column = null){
+        $column = $column ?? ($this->getPrimaryKey());
+        $model = self::addWhere($this->model,$where);
         $result = $model->sum($column);
         return $result ? $result : null;
     }
@@ -219,15 +176,8 @@ trait RepositoryTrait
      * @param string $column
      * @return null
      */
-    protected function getField(array $where=[], $column = '*'){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
-        }
+    protected function getField(array $where,string $column){
+        $model = self::addWhere($this->model,$where);
         $result = $model->first([$column]);
         return $result ? $result->toArray()[$column] : null;
     }
@@ -239,15 +189,7 @@ trait RepositoryTrait
      */
     protected function count(array $where)
     {
-        $model=$this->model;
-        if (!empty($where) && is_array($where))
-            foreach ($where as $k => $v) {
-                if (is_array($v)) {
-                    $model = $model->where($k, reset($v), end($v));
-                } else {
-                    $model = $model->where($k,$v);
-                }
-            }
+        $model = self::addWhere($this->model,$where);
         $result = $model->count();
         return $result;
     }
@@ -259,14 +201,7 @@ trait RepositoryTrait
      * @return mixed
      */
     protected function exists(array $where){
-        $model = $this->model;
-        foreach ($where as $name => $value){
-            if (is_array($value)){
-                $model = $model->where($name,reset($value),end($value));
-            }else{
-                $model = $model->where($name, $value);
-            }
-        }
+        $model = self::addWhere($this->model,$where);
         return $model->exists();
     }
 
@@ -286,5 +221,30 @@ trait RepositoryTrait
     protected function getFields()
     {
         return $this->model->getFillable();
+    }
+
+    /**
+     * 把条件加进模型中
+     * @param $model
+     * @param $where
+     * @return Model
+     */
+    private function addWhere($model, $where){
+        if (!empty($where)){
+            foreach ($where as $k=>$v){
+                if (!is_array($v)){
+                    $model = $model->where($k,$v);continue;
+                }
+                switch (reset($v)){
+                    case 'in':
+                        $model = $model->whereIn($k, end($v));
+                        break;
+                    default:
+                        $model = $model->where($k, reset($v), end($v));
+                        break;
+                }
+            }
+        }
+        return $model;
     }
 }

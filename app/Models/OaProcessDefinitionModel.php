@@ -27,7 +27,7 @@ class OaProcessDefinitionModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','catagory_id','description','status','created_at','updated_at'];
+    protected $fillable = ['id','name','category_id','description','status','created_at','updated_at'];
 
 
 
