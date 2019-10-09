@@ -20,6 +20,71 @@ class EmployessController extends ApiController
         parent::__construct();
         $this->employeeService = $employeeService;
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/get_employee_list",
+     *     tags={"OA"},
+     *     summary="获取用户列表",
+     *     operationId="get_employee_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * @return array
+     */
+    public function getEmployeeList()
+    {
+        $list = $this->employeeService->getEmployeeList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        if (!$list){
+            return ['code' => 100, 'message' => $this->employeeService->error];
+        }
+        return ['code' => 200,'message' => $this->employeeService->message,'data' => $list];
+    }
+
+
+
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_employee_info",
@@ -66,7 +131,7 @@ class EmployessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->employeeService->getUserInfo($this->request);
+        $res = $this->employeeService->getUserInfo($this->request['username']);
         if ($res['code'] == 200){
             return ['code' => 200,'data' => $res];
         }

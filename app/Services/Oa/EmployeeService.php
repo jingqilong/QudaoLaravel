@@ -4,6 +4,7 @@ namespace App\Services\Oa;
 
 use App\Repositories\OaAdminPermissionsRepository;
 use App\Repositories\OaAdminRolesRepository;
+use App\Repositories\OaDepartmentRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
@@ -77,6 +78,36 @@ class EmployeeService extends BaseService
         }
         return false;
     }
+
+
+    public function getEmployeeList($page,$pageNum)
+    {
+        if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],['field' => '*'],'id','desc',$page,$pageNum)){
+            $this->setError('没有员工信息！');
+            return false;
+        }dd($employee_list);
+        unset(
+              $employee_list['first_page_url'],  $employee_list['from'],
+              $employee_list['from'],            $employee_list['last_page_url'],
+              $employee_list['next_page_url'],   $employee_list['path'],
+              $employee_list['prev_page_url'],   $employee_list['to']
+        );
+
+        if (empty($employee_list['data'])){
+            $this->setMessage('暂无数据!');
+            return $employee_list;
+        }
+        foreach ($employee_list['data'] as &$value)
+        {
+            $value['parent']     = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
+            $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+        }
+
+        $this->setMessage('获取成功！');
+        return $employee_list;
+    }
+
 
     /**
      * @param array $data
@@ -167,9 +198,9 @@ class EmployeeService extends BaseService
     /**
      * @return mixed
      */
-    public function getUserInfo()
+    public function getUserInfo(string $name)
     {
-        return OaEmployeeRepository::getUser();
+        return OaEmployeeRepository::getOne(['name' => $name]);
     }
 
     /**

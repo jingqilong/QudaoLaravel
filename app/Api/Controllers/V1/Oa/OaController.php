@@ -231,8 +231,8 @@ class OaController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_depart",
-     *     tags={"OA"},
-     *     summary="获取部门",
+     *     tags={"OA部门"},
+     *     summary="查找获取部门",
      *     operationId="get_depart",
      *     @OA\Parameter(
      *         name="sign",
@@ -274,7 +274,7 @@ class OaController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/add_depart",
-     *     tags={"OA"},
+     *     tags={"OA部门"},
      *     summary="添加部门信息",
      *     operationId="add_depart",
      *     @OA\Parameter(
@@ -341,16 +341,16 @@ class OaController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->departmentService->addDepart($this->request);
-        if ($res['code'] == 1){
-            return ['code' => 200,'message' => '添加成功'];
+        if (!$res){
+            return ['code' => 100,'message' => $this->departmentService->error];
         }
-        return ['code' => 100,'message' => $res['message']];
+        return ['code' => 200,'message' => $this->departmentService->message];
     }
 
     /**
      * @OA\Post(
      *     path="/api/v1/oa/update_depart",
-     *     tags={"OA"},
+     *     tags={"OA部门"},
      *     summary="更改部门信息",
      *     operationId="update_depart",
      *     @OA\Parameter(
@@ -452,7 +452,7 @@ class OaController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/oa/del_depart",
-     *     tags={"OA"},
+     *     tags={"OA部门"},
      *     summary="删除部门信息",
      *     operationId="del_depart",
      *     @OA\Parameter(
@@ -515,7 +515,7 @@ class OaController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/get_depart_list",
-     *     tags={"OA"},
+     *     tags={"OA部门"},
      *     summary="获取部门列表",
      *     operationId="get_depart_list",
      *     @OA\Parameter(

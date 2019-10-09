@@ -25,6 +25,24 @@ class OaDepartmentRepository extends ApiRepository
      * @return mixed
      * @desc  添加部门
      */
+    protected function addFirstDepartment(array $info){
+        $department_data = [
+            'parent_id' => $info['parent_id'],
+            'name' => $info['name'],
+            'level' =>  1,
+            'created_at' => time(),
+        ];
+        if (!$id = $this->getAddId($department_data)){
+            return false;
+        }
+        $res = $this->getUpdId(['id' => $id],['path' => $id,'parent_id' => 0]);
+        return $res;
+    }
+    /**
+     * @param array $info
+     * @return mixed
+     * @desc  添加部门
+     */
     protected function addDepartment(array $info){
         $department_data = [
             'parent_id' => $info['parent_id'],
