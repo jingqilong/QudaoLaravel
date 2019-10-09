@@ -505,10 +505,71 @@ class OaController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $id = $this->request['id']; //根据主键ID查找  强制转换字符串类型
-        $res = $this->departmentService->delDepart($id);
+        $res = $this->departmentService->delDepart( $id);
         if ($res['code'] == 1){
             return ['code' => 200,'message' => '删除成功'];
         }
         return ['code' => 100,'message' => $res['message']];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/get_depart_list",
+     *     tags={"OA"},
+     *     summary="获取部门列表",
+     *     operationId="get_depart_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取部门列表失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * @return array
+     */
+    public function getDepartList()
+    {
+        $res = $this->departmentService->getDepartList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        if (!$res){
+            return ['code' => 100, 'message' => $this->departmentService->error];
+        }
+        return ['code' => 200,'message' => $this->departmentService->message,'data' => $res];
     }
 }

@@ -6,6 +6,8 @@ use App\Repositories\MedicalDepartmentRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
+use App\Repositories\OaAdminPermissionsRepository;
+use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
@@ -86,6 +88,28 @@ class MemberService extends BaseService
             return $token;
         }
         return false;
+    }
+
+    public function getUserList($page,$pageNum)
+    {
+        if ($user_list = MemberRepository::getList(['m_starte' => 1],['field'=> '*'],'m_time','desc',$page,$pageNum)){
+            unset($user_list['first_page_url'], $user_list['from'],
+                $user_list['from'], $user_list['last_page_url'],
+                $user_list['next_page_url'], $user_list['path'],
+                $user_list['prev_page_url'], $user_list['to']);
+            if (empty($user_list['data'])){
+                $this->setMessage('暂无数据!');
+                return $user_list;
+            }
+            foreach ($user_list['data'] as &$value)
+            {
+                $value['created_at'] = date('Y-m-d H:m:s',$value['created_at'] ?? 0);
+                $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at'] ?? 0);
+            }
+            $this->setMessage('获取成功！');
+            return $user_list;
+        }
+         $this->setError('没有会员！');
     }
 
     /**

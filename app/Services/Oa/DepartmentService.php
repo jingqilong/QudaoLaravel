@@ -75,5 +75,42 @@ class DepartmentService extends BaseService
         }
         return ['code' => 0, 'message' => '删除失败'];
     }
+
+    /**
+     * @param $page
+     * @param $pageNum
+     * @return bool|null
+     */
+    public function getDepartList($page,$pageNum)
+    {
+        
+        if (!$depart_list = OaDepartmentRepository::getList(['id' => ['>',0]],['field' => '*'],'','',$page,$pageNum)){
+                $this->setError('获取失败!');
+                return false;
+        }
+
+        unset($depart_list['first_page_url'], $depart_list['from'],
+            $depart_list['from'], $depart_list['last_page_url'],
+            $depart_list['next_page_url'], $depart_list['path'],
+            $depart_list['prev_page_url'], $depart_list['to']);
+        if (empty($depart_list['data'])){
+            $this->setMessage('暂无数据!');
+            return $depart_list;
+        }
+
+        $path_data = [];
+        foreach ($depart_list['data'] as &$value)
+        {
+            $path_data['path']   = explode(',',$value['path']);
+            $value['parent']     = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
+            $depart_name         = OaDepartmentRepository::getList(['id' => ['in',$path_data['path']]],['name']);
+            $value['path']       = array_column($depart_name,'name');
+            $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+        }
+
+        $this->setMessage('获取成功！');
+        return $depart_list;
+    }
 }
             
