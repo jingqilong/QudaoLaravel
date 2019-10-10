@@ -27,7 +27,7 @@ class OaProcessNodeModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','process_id','name','limit_time','type','icon','position','description','created_at','updated_at'];
+    protected $fillable = ['id','process_id','name','limit_time','icon','position','description','created_at','updated_at'];
 
 
 

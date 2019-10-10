@@ -72,6 +72,13 @@ $api->version('v1',function ($api){
                     $api->get('get_categories_list','ProcessController@getCategoriesList')->name('获取流程分类列表');
 
                     $api->post('create_process','ProcessController@createProcess')->name('创建流程');
+                    $api->delete('delete_process','ProcessController@deleteProcess')->name('删除流程');
+                    $api->post('edit_process','ProcessController@editProcess')->name('修改流程');
+                    $api->get('get_process_list','ProcessController@getProcessList')->name('获取流程列表');
+
+                    $api->post('process_add_node','ProcessController@processAddNode')->name('流程添加节点');
+                    $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
+                    $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
                 });
             });
             $api->post('login','OaController@login')->name('登录');
