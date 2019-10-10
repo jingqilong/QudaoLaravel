@@ -454,8 +454,8 @@ class PermissionsController extends ApiController
             'head_portrait'     => 'required',
             'password'          => 'required',
             'confirm_password'  => 'required',
-            'roles'             => 'regex:/^([0-9]+[,])*[0-9]$/',
-            'permission_ids'    => 'regex:/^([0-9]+[,])*[0-9]$/',
+            'roles'             => 'regex:/^(\d+[,])*\d+$/',
+            'permission_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
             'username.required'         => '请填写用户名',

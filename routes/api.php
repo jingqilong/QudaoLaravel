@@ -79,6 +79,19 @@ $api->version('v1',function ($api){
                     $api->post('process_add_node','ProcessController@processAddNode')->name('流程添加节点');
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
                     $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
+
+                    $api->post('add_event','ProcessController@addEvent')->name('添加事件');
+                    $api->delete('delete_event','ProcessController@deleteEvent')->name('删除事件');
+                    $api->post('edit_event','ProcessController@editEvent')->name('修改事件');
+                    $api->get('get_event_list','ProcessController@getEventList')->name('获取事件列表');
+
+                    $api->post('add_action','ProcessController@addAction')->name('添加动作');
+                    $api->delete('delete_action','ProcessController@deleteAction')->name('删除动作');
+                    $api->post('edit_action','ProcessController@editAction')->name('修改动作');
+                    $api->get('get_action_list','ProcessController@getActionList')->name('获取动作列表');
+
+                    $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
+                    $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
                 });
             });
             $api->post('login','OaController@login')->name('登录');

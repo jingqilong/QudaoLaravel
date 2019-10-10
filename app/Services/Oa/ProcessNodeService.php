@@ -9,6 +9,7 @@ use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessTransitionRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class ProcessNodeService extends BaseService
 {
@@ -28,22 +29,71 @@ class ProcessNodeService extends BaseService
             $this->setError('节点名称已被占用！');
             return false;
         }
+        if (empty($request['action_related_id']) && OaProcessNodeRepository::exists(['process_id' => $request['process_id'], 'position' => 1])){
+            $this->setError('第一步只能添加一个节点！');
+            return false;
+        }
+        $position = 1;
+        if (!empty($request['action_related_id'])){
+            if (!$action_related = OaProcessActionRelatedRepository::getOne(['id' => $request['action_related_id']])){
+                $this->setError('节点动作相关不存在！');
+                return false;
+            }
+            if (!empty($action_related['transition_id'])){
+                $this->setError('当前节点动作已添加流转，无法添加！');
+                return false;
+            }
+            if (!$node_id = OaProcessNodeActionRepository::getField(['id' => $action_related['node_action_id']],'node_id')){
+                $this->setError('数据异常！');
+                Loggy::write('error','给流程添加节点：数据异常，节点动作丢失！节点动作记录ID：'.$action_related['action_related_id']);
+                return false;
+            }
+            if (!$node_position = OaProcessNodeRepository::getField(['id' => $node_id],'position')){
+                $this->setError('数据异常！');
+                Loggy::write('error','给流程添加节点：数据异常，节点丢失！节点ID：'.$node_id);
+                return false;
+            }
+            $position = $node_position + 1;
+        }
         $add_arr = [
             'process_id'    => $request['process_id'],
             'name'          => $request['name'],
             'limit_time'    => $request['limit_time'] ?? 0,
             'icon'          => $request['icon'] ?? '',
-            'position'      => $request['position'],
+            'position'      => $position,
             'description'   => $request['description'] ?? '',
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (OaProcessNodeRepository::getAddId($add_arr)){
-            $this->setMessage('添加成功！');
-            return true;
+        DB::beginTransaction();
+        if (!$new_node_id = OaProcessNodeRepository::getAddId($add_arr)){
+            $this->setError('添加失败！');
+            DB::rollBack();
+            return false;
         }
-        $this->setError('添加失败！');
-        return false;
+        if (!empty($request['action_related_id'])){
+            $add_transition = [
+                'process_id'    => $request['process_id'],
+                'current_node'  => $node_id,
+                'next_node'     => $new_node_id,
+                'created_at'    => time(),
+                'updated_at'    => time(),
+            ];
+            if (!$transition_id = OaProcessTransitionRepository::getAddId($add_transition)){
+                $this->setError('添加失败！');
+                DB::rollBack();
+                return false;
+            }
+            $upd_action_related = ['transition_id' => $transition_id, 'updated_at' => time()];
+            if (!OaProcessActionRelatedRepository::getUpdId(['id' => $request['action_related_id']],$upd_action_related)){
+                $this->setError('添加失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
+        $this->setMessage('添加成功！');
+        DB::commit();
+        return true;
     }
 
     /**
