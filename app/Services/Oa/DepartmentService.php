@@ -4,6 +4,7 @@ namespace App\Services\Oa;
 
 use App\Repositories\OaDepartmentRepository;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentService extends BaseService
 {
@@ -24,23 +25,52 @@ class DepartmentService extends BaseService
 
     /**
      * @param array $data
-     * @return array
+     * @return mixed
      * @desc 添加新部门
      */
     public function addDepart(array $data)
     {
-        if (!$parent_info = OaDepartmentRepository::getOne(['id' => $data['parent_id']])){
-            return ['code' => 0, 'message' => '父级部门不存在'];
+        $path       = '0,';
+        $parent_id  = 0;
+        $level      = 0;
+        if (isset($data['parent_id']) && (0 != $data['parent_id'])){
+            if (!$parent_info = OaDepartmentRepository::getOne(['id' => $data['parent_id']])){
+                $this->setError('父级部门不存在！');
+                return false;
+            }
+            $path       = $parent_info['path'];
+            $parent_id  = $parent_info['id'];
+            $level      = $parent_info['level'];
         }
-        if ($depart = OaDepartmentRepository::getOne(['name' => $data['name'], 'parent_id' => $data['parent_id'],'level' => $parent_info['level'] + 1])){
-            return ['code' => 0, 'message' => '部门信息已存在'];
+
+        if (OaDepartmentRepository::exists(['name' => $data['name'],'level' => $level + 1,'path' => ['like',$path.'%']])){
+            $this->setError('部门名称已存在！');
+            return false;
         }
-        $data['path'] = $parent_info['path'];
-        $data['level'] = $parent_info['level'];
-        if (!$res = OaDepartmentRepository::addDepartment($data)){
-            return ['code' => 0, 'message' => '添加失败'];
+        $add_arr = [
+            'name'        => $data['name'],
+            'parent_id'   => $parent_id,
+            'level'       => $level + 1,
+            'created_at'  => time(),
+            'updated_at'  => time(),
+        ];
+        DB::beginTransaction();
+        if (!$id = OaDepartmentRepository::getAddId($add_arr)){
+            $this->setError('添加部门失败！');
+            DB::rollBack();
+            return false;
         }
-        return ['code' => 1, 'message' => '添加成功'];
+        $upd_arr = [
+            'path' => $path. $id . ',',
+        ];
+        if (!$id = OaDepartmentRepository::getUpdId(['id' => $id],$upd_arr)){
+            $this->setError('添加部门失败！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
+        $this->setMessage('添加部门成功!');
+        return true;
     }
 
     /**
@@ -83,7 +113,7 @@ class DepartmentService extends BaseService
      */
     public function getDepartList($page,$pageNum)
     {
-        
+
         if (!$depart_list = OaDepartmentRepository::getList(['id' => ['>',0]],['field' => '*'],'','',$page,$pageNum)){
                 $this->setError('获取失败!');
                 return false;
