@@ -27,7 +27,7 @@ class OaProcessTransitionModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','process_id','current_node','next_node'];
+    protected $fillable = ['id','process_id','current_node','next_node','created_at','updated_at'];
 
 
 

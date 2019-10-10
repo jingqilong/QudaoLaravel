@@ -77,6 +77,8 @@ $api->version('v1',function ($api){
                     $api->get('get_process_list','ProcessController@getProcessList')->name('获取流程列表');
 
                     $api->post('process_add_node','ProcessController@processAddNode')->name('流程添加节点');
+                    $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
+                    $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
                 });
             });
             $api->post('login','OaController@login')->name('登录');

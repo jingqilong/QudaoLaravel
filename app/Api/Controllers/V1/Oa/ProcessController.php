@@ -327,7 +327,7 @@ class ProcessController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Response(response=100,description="修改失败",),
+     *     @OA\Response(response=100,description="获取失败",),
      * )
      *
      */
@@ -401,7 +401,7 @@ class ProcessController extends ApiController
      *              type="string",
      *          )
      *      ),
-     *     @OA\Response(response=100,description="修改失败",),
+     *     @OA\Response(response=100,description="添加失败",),
      * )
      *
      */
@@ -463,7 +463,7 @@ class ProcessController extends ApiController
      *              type="string",
      *          )
      *      ),
-     *     @OA\Response(response=100,description="修改失败",),
+     *     @OA\Response(response=100,description="删除失败",),
      * )
      *
      */
@@ -633,7 +633,7 @@ class ProcessController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Response(response=100,description="修改失败",),
+     *     @OA\Response(response=100,description="获取失败",),
      * )
      *
      */
@@ -724,7 +724,7 @@ class ProcessController extends ApiController
      *              type="string",
      *          )
      *      ),
-     *     @OA\Response(response=100,description="修改失败",),
+     *     @OA\Response(response=100,description="添加失败",),
      * )
      *
      */
@@ -754,6 +754,189 @@ class ProcessController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->processNodeService->processAddNode($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeService->error];
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/oa/process/delete_node",
+     *     tags={"OA流程"},
+     *     summary="删除流程节点【待完善】",
+     *     operationId="delete_node",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="node_id",
+     *          in="query",
+     *          description="节点ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function deleteNode(){
+        $rules = [
+            'process_id'    => 'required|integer',
+            'node_id'       => 'required|integer',
+        ];
+        $messages = [
+            'process_id.required'   => '流程ID不能为空！',
+            'process_id.integer'    => '流程ID必须为整型！',
+            'node_id.required'      => '节点ID不能为空！',
+            'node_id.integer'       => '节点ID必须为整型！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeService->deleteNode($this->request['process_id'], $this->request['node_id']);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeService->error];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/process_edit_node",
+     *     tags={"OA流程"},
+     *     summary="流程修改节点",
+     *     operationId="process_edit_node",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="node_id",
+     *          in="query",
+     *          description="节点ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="节点名称",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="limit_time",
+     *          in="query",
+     *          description="限定时间（单位：s）、不填为不限制",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="icon",
+     *          in="query",
+     *          description="流程图显示图标",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="description",
+     *          in="query",
+     *          description="步骤描述",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function processEditNode(){
+        $rules = [
+            'node_id'       => 'required|integer',
+            'process_id'    => 'required|integer',
+            'name'          => 'required',
+            'limit_time'    => 'integer',
+            'icon'          => 'url',
+            'description'   => 'string',
+        ];
+        $messages = [
+            'node_id.required'      => '节点ID不能为空！',
+            'node_id.integer'       => '节点ID必须为整型！',
+            'process_id.required'   => '流程ID不能为空！',
+            'process_id.integer'    => '流程ID必须为整型！',
+            'name.required'         => '节点名称不能为空！',
+            'limit_time.integer'    => '限定时间必须为整型！',
+            'icon.url'              => '流程图显示图标必须为url！',
+            'description.string'    => '步骤描述必须为字符串！'
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeService->processEditNode($this->request);
         if ($res){
             return ['code' => 200,'message' => $this->processNodeService->message];
         }
