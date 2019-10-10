@@ -395,25 +395,7 @@ class OaController extends ApiController
      *         description="上级部门id",
      *         required=true,
      *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="path",
-     *         in="query",
-     *         description="部门路径",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="level",
-     *         in="query",
-     *         description="部门层级",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
+     *             type="int",
      *         )
      *     ),
      *     @OA\Response(
@@ -435,7 +417,7 @@ class OaController extends ApiController
         $messages = [
             'name.required'         => '请输入部门名称',
             'parent_id.required'    => '请输入上级部门ID',
-            'parent_id.number'      => '请正确输入类型',
+            'parent_id.Integer'     => '请正确输入类型',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -444,10 +426,10 @@ class OaController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->departmentService->updateDepart($this->request);
-        if ($res['code'] == 1){
-            return ['code' => 200,'message' => '修改成功'];
+        if (!$res){
+            return ['code' => 100,'message' => $this->departmentService->error];
         }
-        return ['code' => 100,'message' => $res['message']];
+        return ['code' => 200,'message' => $this->departmentService->message];
     }
     /**
      * @OA\Delete(

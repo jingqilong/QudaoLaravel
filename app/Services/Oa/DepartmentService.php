@@ -75,10 +75,10 @@ class DepartmentService extends BaseService
 
     /**
      * @param array $data
-     * @return array
+     * @return mixed
      * @desc 修改部门
      */
-    public function updateDepart(array $data)
+    /*public function updateDepart(array $data)
     {
         if ($depart = OaDepartmentRepository::getOne(['parent_id' => $data['parent_id'],'path' => $data['path'],'level' => $data['level']]))
         {
@@ -89,6 +89,20 @@ class DepartmentService extends BaseService
         }
         return ['code' => 0, 'message' => '查询不到该部门'];
 
+    }*/
+    public function updateDepart(array $data)
+    {
+        if (!$departInfo = OaDepartmentRepository::getOne(['id' => $data['id']])){
+            $this->setError('未查到该部门信息！请重试');
+            return false;
+        }
+        $data['updated_at'] = time();
+        if (!$id = OaDepartmentRepository::getUpdId(['id' => $data['id']],['name' => $data['name'],'updated_at' => $data['updated_at']])){
+            $this->setError('修改部门信息失败！');
+            return false;
+        }
+        $this->setMessage('修改部门信息成功！');
+        return true;
     }
 
     /**
@@ -131,12 +145,12 @@ class DepartmentService extends BaseService
         $path_data = [];
         foreach ($depart_list['data'] as &$value)
         {
-            $path_data['path']   = explode(',',$value['path']);
-            $value['parent']     = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
-            $depart_name         = OaDepartmentRepository::getList(['id' => ['in',$path_data['path']]],['name']);
-            $value['path']       = array_column($depart_name,'name');
-            $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+            $path_data['path']    = explode(',',$value['path']);
+            $value['parent']      = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
+            $depart_name          = OaDepartmentRepository::getList(['id' => ['in',$path_data['path']]],['name']);
+            $value['path']        = array_column($depart_name,'name');
+            $value['created_at']  = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']  = date('Y-m-d H:m:s',$value['updated_at']);
         }
 
         $this->setMessage('获取成功！');
