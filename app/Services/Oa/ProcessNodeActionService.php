@@ -2,6 +2,9 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\ProcessActionEnum;
+use App\Enums\ProcessEventEnum;
+use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessActionsRepository;
 use App\Repositories\OaProcessEventsRepository;
@@ -35,7 +38,7 @@ class ProcessNodeActionService extends BaseService
             return false;
         }
         $action_ids = explode('.',$action_ids);
-        $action_count = OaProcessActionsRepository::count(['id' => ['in', $action_ids]]);
+        $action_count = OaProcessActionsRepository::count(['id' => ['in', $action_ids],'status' => ProcessActionEnum::ENABLE]);
         if ($action_count != count($action_ids)){
             $this->setError('有无效动作！');
             return false;
@@ -98,7 +101,7 @@ class ProcessNodeActionService extends BaseService
         DB::beginTransaction();
         if (!empty($request['event_ids'])){
             $event_ids = explode(',',$request['event_ids']);
-            $event_count = OaProcessEventsRepository::count(['id' => ['in', $event_ids]]);
+            $event_count = OaProcessEventsRepository::count(['id' => ['in', $event_ids],'status' => ProcessEventEnum::ENABLE]);
             if ($event_count != count($event_ids)){
                 $this->setError('存在无效事件！');
                 DB::rollBack();
@@ -150,6 +153,51 @@ class ProcessNodeActionService extends BaseService
             }
         }
         $this->setMessage('添加成功！');
+        DB::commit();
+        return true;
+    }
+
+    /**
+     * 删除流程节点中的动作
+     * @param integer $node_id      节点ID
+     * @param integer $action_id    动作ID
+     * @return bool
+     */
+    public function nodeDeleteAction($node_id, $action_id)
+    {
+        if (!OaProcessNodeRepository::exists(['id' => $node_id])){
+            $this->setError('该节点不存在！');
+            return false;
+        }
+        if (!OaProcessActionsRepository::exists(['id' => $action_id])){
+            $this->setError('该动作不存在！');
+            return false;
+        }
+        if (!$node_action = OaProcessNodeActionRepository::getOne(['node_id' => $node_id,'action_id' => $action_id])){
+            $this->setError('该动作已被删除！');
+            return false;
+        }
+        DB::beginTransaction();
+        #删除动作下相关记录
+        if ($action_related = OaProcessActionRelatedRepository::getOrderOne(['node_action_id' => $node_action['id']],'transition_id','desc')){
+            if ($action_related['transition_id'] > 0){
+                $this->setError('该动作结果已绑定下一节点，无法删除！');
+                DB::rollBack();
+                return false;
+            }
+            OaProcessActionRelatedRepository::delete(['node_action_id' => $node_action['id']]);
+        }
+        #删除动作下负责人记录
+        if (!OaProcessActionPrincipalsRepository::delete(['node_action_id' => $node_action['id']])){
+            Loggy::write('error','流程节点删除动作：删除节点动作负责人失败！节点动作ID：'.$node_action['id']);
+        }
+        #删除动作
+        if (!OaProcessNodeActionRepository::delete(['node_id' => $node_id,'action_id' => $action_id])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('删除成功！');
         DB::commit();
         return true;
     }

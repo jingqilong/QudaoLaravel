@@ -10,8 +10,8 @@ class ProcessDefinitionEnum extends BaseEnum
 
     public static $labels=[
         //状态
-        'INACTIVE'      => '未激活',
-        'ACTIVE'        => '激活',
+        'INACTIVE'      => '未启用',
+        'ACTIVE'        => '启用',
     ];
 
     public static $status = [

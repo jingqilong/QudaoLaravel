@@ -91,7 +91,11 @@ $api->version('v1',function ($api){
                     $api->get('get_action_list','ProcessController@getActionList')->name('获取动作列表');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
+                    $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
                     $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
+                    $api->post('action_add_principal','ProcessController@actionAddPrincipal')->name('流程节点动作添加负责人');
+
+                    $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
             $api->post('login','OaController@login')->name('登录');
