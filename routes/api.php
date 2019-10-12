@@ -75,6 +75,7 @@ $api->version('v1',function ($api){
                     $api->delete('delete_process','ProcessController@deleteProcess')->name('删除流程');
                     $api->post('edit_process','ProcessController@editProcess')->name('修改流程');
                     $api->get('get_process_list','ProcessController@getProcessList')->name('获取流程列表');
+                    $api->post('get_process_detail','ProcessController@getProcessDetail')->name('获取流程详情');
 
                     $api->post('process_add_node','ProcessController@processAddNode')->name('流程添加节点');
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');

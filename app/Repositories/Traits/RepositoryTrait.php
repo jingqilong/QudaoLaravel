@@ -118,7 +118,7 @@ trait RepositoryTrait
     }
 
     /**
-     * 更新数据并返回id
+     * 更新一条数据并返回id
      * @param $where
      * @param $data
      * @return null
@@ -128,6 +128,18 @@ trait RepositoryTrait
         $result = $model->update($data);
         $id = $this->getField($where,$this->getPrimaryKey());
         return $result>=0 ? $id : null;
+    }
+
+    /**
+     * 批量更新数据
+     * @param $where
+     * @param $data
+     * @return null
+     */
+    protected function update(array $where,array $data){
+        $model = self::addWhere($this->model,$where);
+        $result = $model->update($data);
+        return $result;
     }
 
     /**

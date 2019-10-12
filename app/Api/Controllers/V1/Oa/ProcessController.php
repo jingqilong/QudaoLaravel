@@ -616,7 +616,7 @@ class ProcessController extends ApiController
      * @OA\Get(
      *     path="/api/v1/oa/process/get_process_list",
      *     tags={"OA流程"},
-     *     summary="获取流程列表【待完善】",
+     *     summary="获取流程列表",
      *     operationId="get_process_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -664,6 +664,64 @@ class ProcessController extends ApiController
             return ['code' => 100,'message' => $this->processCategoriesService->error];
         }
         return ['code' => 200,'message' => $this->processCategoriesService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/get_process_detail",
+     *     tags={"OA流程"},
+     *     summary="获取流程详情",
+     *     operationId="get_process_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="process_id",
+     *         in="query",
+     *         description="流程ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取失败",),
+     * )
+     *
+     */
+    public function getProcessDetail(){
+        $rules = [
+            'process_id' => 'required|integer'
+        ];
+        $messages = [
+            'process_id.required'   => '流程ID不能为空！',
+            'process_id.integer'    => '流程ID必须为整型！'
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processDefinitionService->getProcessDetail($this->request['process_id']);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 200,'message' => $this->processNodeService->error,'data' => $res];
     }
 
 
@@ -782,7 +840,7 @@ class ProcessController extends ApiController
      * @OA\Delete(
      *     path="/api/v1/oa/process/delete_node",
      *     tags={"OA流程"},
-     *     summary="删除流程节点【待完善】",
+     *     summary="删除流程节点",
      *     operationId="delete_node",
      *     @OA\Parameter(
      *         name="sign",

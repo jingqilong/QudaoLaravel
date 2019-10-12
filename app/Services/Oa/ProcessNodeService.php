@@ -2,10 +2,12 @@
 namespace App\Services\Oa;
 
 
+use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionRepository;
 use App\Repositories\OaProcessNodeRepository;
+use App\Repositories\OaProcessRecordRepository;
 use App\Repositories\OaProcessTransitionRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\DB;
@@ -71,6 +73,11 @@ class ProcessNodeService extends BaseService
             DB::rollBack();
             return false;
         }
+        if (!OaProcessDefinitionRepository::getUpdId(['id' => $request['process_id']],['step_count' => $position])){
+            $this->setError('添加失败！');
+            DB::rollBack();
+            return false;
+        }
         if (!empty($request['action_related_id'])){
             $add_transition = [
                 'process_id'    => $request['process_id'],
@@ -107,51 +114,115 @@ class ProcessNodeService extends BaseService
         /**
          * 删除节点步骤
          * 1，检查节点有效性
-         * 2，根据节点动作相关中关联的流转建立新的流转关系
-         * 3，删除节点动作相关中关联的流转
-         * 4，删除节点动作相关
-         * 5，删除节点动作相关负责人
-         * 6，删除节点动作
+         * 2，检查该流程有没有使用，已使用的流程是无法删除节点的
+         * 3，检查更新节点步骤，不是末端节点，无法进行删除动作
+         * 4，获取要删除数据的索引
+         * 5，解除当前节点与上一节点之间的流转关系
+         * 6，删除节点动作相关流转
+         * 7，删除节点动作相关
+         * 8，删除节点动作负责人
+         * 9，删除节点动作
+         * 10，删除节点
          */
-//        #1、检查节点有效性
-//        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id])){
-//            $this->setError('该流程不存在！');
-//            return false;
-//        }
-//        if (!$node = OaProcessNodeRepository::getOne(['id' => $node_id,'process_id' => $process_id])){
-//            $this->setError('该节点不存在！');
-//            return false;
-//        }
-//        DB::beginTransaction();
-//        #2、根据节点动作相关中关联的流转建立新的流转关系
-//        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $node_id])){
-//            #当前节点的动作总数
-//            $node_action_count = count($node_actions);
-//            foreach ($node_actions as $action){
-//                #获取流程节点相关的记录
-//                if (!$node_action_relations = OaProcessActionRelatedRepository::getList(['node_action_id' => $action['id']])){
-//                    continue;
-//                }
-//                #动作结果跳转节点数组
-//                $action_dump_nodes = [];
-//                #动作结果总数
-//                $action_result_count = count($node_action_relations);
-//                foreach ($node_action_relations as $related){
-//                    $transition = OaProcessTransitionRepository::getOne(['id' => $related['transition_id']]);
-//                }
-//            }
-//        }
-//
-//
-//        if ($node_action_relations = OaProcessActionRelatedRepository::getList(['node_action_id' => $node_id])){
-//            foreach ($node_action_relations as $node_action_related){
-//                if ($transition = OaProcessTransitionRepository::getOne(['id' => $node_action_related['transition_id']])){
-//
-//                }
-//            }
-//        }
+        #1、检查节点有效性
+        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id])){
+            $this->setError('该流程不存在！');
+            return false;
+        }
+        if (!$node = OaProcessNodeRepository::getOne(['id' => $node_id,'process_id' => $process_id])){
+            $this->setError('该节点不存在！');
+            return false;
+        }
+        #2、检查该流程有没有使用，已使用的流程是无法删除节点的
+        if (OaProcessRecordRepository::exists(['process_id' => $process_id])){
+            $this->setError('当前流程已被使用，无法进行删除动作！');
+            return false;
+        }
+        #3、检查更新节点步骤
+        $node_list = OaProcessNodeRepository::getList(['process_id' => $process_id,'id' => ['<>',$node_id]]);
+        $positions = array_column($node_list,'position');
+        $process_upd = ['updated_at' => time()];
+        foreach ($positions as $position){
+            if ($position > $node['position']){
+                $this->setError('该节点不是末端节点，无法进行删除动作！');
+                return false;
+            }
+            if ($position <  $node['position']){
+                $process_upd['step_count'] = $position;
+            }
+        }
+        DB::beginTransaction();
+        if (!OaProcessDefinitionRepository::getUpdId(['id' => $process_id],$process_upd)){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #4、获取要删除数据的索引
+        $node_action_ids        = [];//节点动作关联ID
+        $action_related_ids     = [];//节点动作相关关联ID
+        $action_principal_ids   = [];//节点动作负责人关联ID
+        $transition_ids         = [];//节点动作相关流转关联ID
+        $last_transition_ids    = [];//节点上一节点相关流转ID
+        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $node_id])){
+            $node_action_ids = array_column($node_actions,'id');
+            if ($node_action_related = OaProcessActionRelatedRepository::getList(['node_action_id' => ['in',$node_action_ids]])){
+                $action_related_ids = array_column($node_action_related,'id');
+                $transition_ids     = array_column($node_action_related,'transition_id');
+            }
+            if ($action_principals = OaProcessActionPrincipalsRepository::getList(['node_action_id' => ['in',$node_action_ids]])){
+                $action_principal_ids = array_column($action_principals,'id');
+            }
+        }
+        if ($last_transitions = OaProcessTransitionRepository::getList(['next_node' => $node_id])){
+            $last_transition_ids = array_column($last_transitions,'id');
+            $transition_ids = array_merge($transition_ids,$last_transition_ids);
+        }
+        #5、解除当前节点与上一节点之间的流转关系
+        if (!empty($last_transition_ids) && !OaProcessActionRelatedRepository::update(['transition_id' => ['in',$last_transition_ids]],['transition_id' => 0])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #6、删除节点动作相关流转
+        if (!empty($transition_ids) && !OaProcessTransitionRepository::delete(['id' => ['in',$transition_ids]])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #7、删除节点动作相关
+        if (!empty($action_related_ids) && !OaProcessActionRelatedRepository::delete(['id' => ['in',$action_related_ids]])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #8、删除节点动作负责人
+        if (!empty($action_principal_ids) && !OaProcessActionPrincipalsRepository::delete(['id' => ['in',$action_principal_ids]])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #9、删除节点动作
+        if (!empty($node_action_ids) && !OaProcessNodeActionRepository::delete(['id' => ['in',$node_action_ids]])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        #10、删除节点
+        if (!OaProcessNodeRepository::delete(['id' => $node_id])){
+            $this->setError('删除失败！');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('删除成功！');
+        DB::commit();
+        return true;
     }
 
+    /**
+     * 修改节点
+     * @param $request
+     * @return bool
+     */
     public function processEditNode($request)
     {
         if (!$node = OaProcessNodeRepository::getOne(['id' => $request['node_id']])){

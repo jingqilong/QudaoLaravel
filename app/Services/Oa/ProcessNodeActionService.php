@@ -37,7 +37,7 @@ class ProcessNodeActionService extends BaseService
             $this->setError('该节点不存在！');
             return false;
         }
-        $action_ids = explode('.',$action_ids);
+        $action_ids = explode(',',$action_ids);
         $action_count = OaProcessActionsRepository::count(['id' => ['in', $action_ids],'status' => ProcessActionEnum::ENABLE]);
         if ($action_count != count($action_ids)){
             $this->setError('有无效动作！');
@@ -70,7 +70,7 @@ class ProcessNodeActionService extends BaseService
             $results = explode(',',$action['result']);
             foreach ($results as $result){
                 $add_action_related = [
-                    'node_action_id' => $node_action_id,
+                    'node_action_id'    => $node_action_id,
                     'action_result'     => $result,
                     'created_at'        => time(),
                     'updated_at'        => time(),
@@ -115,8 +115,12 @@ class ProcessNodeActionService extends BaseService
                 return false;
             }
         }
-        if (!empty($request['next_node_id'])){
-            if (!$node = OaProcessNodeRepository::getOne(['id' => $request['next_node_id']])){
+        if (isset($request['next_node_id'])){
+            if ($action_related['transition_id'] > 0){
+                $this->setError('下一节点已添加，请勿重复添加！');
+                return false;
+            }
+            if ($request['next_node_id'] != 0 && !$node = OaProcessNodeRepository::getOne(['id' => $request['next_node_id']])){
                 $this->setError('下一节点不存在！');
                 DB::rollBack();
                 return false;
@@ -132,12 +136,20 @@ class ProcessNodeActionService extends BaseService
                 DB::rollBack();
                 return false;
             }
+            $now_process_id = OaProcessNodeRepository::getField(['id'=>$now_node_id],'process_id');
+            if ($request['next_node_id'] != 0){
+                if ($node['process_id'] != $now_process_id){
+                    $this->setError('该节点不属于本流程！');
+                    DB::rollBack();
+                    return false;
+                }
+            }
             $add_transition = [
-                'process_id' => $node['process_id'],
-                'current_node' => $now_node_id,
-                'next_node' => $request['next_node_id'],
-                'created_at' => time(),
-                'updated_at' => time(),
+                'process_id'    => $now_process_id,
+                'current_node'  => $now_node_id,
+                'next_node'     => $request['next_node_id'],
+                'created_at'    => time(),
+                'updated_at'    => time(),
             ];
             if (!$transition_id = OaProcessTransitionRepository::getAddId($add_transition)){
                 $this->setError('添加失败！');

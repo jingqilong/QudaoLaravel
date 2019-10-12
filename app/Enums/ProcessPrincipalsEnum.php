@@ -32,7 +32,7 @@ class ProcessPrincipalsEnum extends BaseEnum
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus(int $value){
+    public static function getStatus($value){
         return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
     }
 
