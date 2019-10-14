@@ -1,27 +1,27 @@
 <?php
 /**
- * 流程定义表枚举
+ * 流程动作枚举
  */
 namespace App\Enums;
 
 
-class ProcessDefinitionEnum extends BaseEnum
+class ProcessActionEnum extends BaseEnum
 {
 
     public static $labels=[
         //状态
-        'INACTIVE'      => '未启用',
-        'ACTIVE'        => '启用',
+        'ENABLE'        => '启用',
+        'DISABLED'      => '禁用',
     ];
 
     public static $status = [
-        0 => 'INACTIVE',
-        1 => 'ACTIVE',
+        1 => 'ENABLE',
+        2 => 'DISABLED',
     ];
     // constants
-    const INACTIVE          = 0;
+    const ENABLE        = 1;
 
-    const ACTIVE            = 1;
+    const DISABLED      = 2;
 
     /**
      * 获取状态label

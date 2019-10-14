@@ -715,7 +715,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Api\\Controllers\\SwaggerController' => __DIR__ . '/../..' . '/app/Api/Controllers/SwaggerController.php',
         'App\\Api\\Controllers\\V1\\Common\\CommonController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/Common/CommonController.php',
         'App\\Api\\Controllers\\V1\\Common\\MessageController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/Common/MessageController.php',
+<<<<<<< HEAD
         'App\\Api\\Controllers\\V1\\Enterprise\\EnterpriseController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/Enterprise/EnterpriseController.php',
+=======
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
         'App\\Api\\Controllers\\V1\\House\\OrderController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/House/OrderController.php',
         'App\\Api\\Controllers\\V1\\Loan\\LoanController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/Loan/LoanController.php',
         'App\\Api\\Controllers\\V1\\Member\\MemberController' => __DIR__ . '/../..' . '/app/Api/Controllers/V1/Member/MemberController.php',
@@ -744,8 +747,16 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Enums\\ImageTypeEnum' => __DIR__ . '/../..' . '/app/Enums/ImageTypeEnum.php',
         'App\\Enums\\OrderEnum' => __DIR__ . '/../..' . '/app/Enums/OrderEnum.php',
         'App\\Enums\\PayMethodEnum' => __DIR__ . '/../..' . '/app/Enums/PayMethodEnum.php',
+<<<<<<< HEAD
         'App\\Enums\\ProcessCategoryEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessCategoryEnum.php',
         'App\\Enums\\ProcessDefinitionEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessDefinitionEnum.php',
+=======
+        'App\\Enums\\ProcessActionEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessActionEnum.php',
+        'App\\Enums\\ProcessCategoryEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessCategoryEnum.php',
+        'App\\Enums\\ProcessDefinitionEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessDefinitionEnum.php',
+        'App\\Enums\\ProcessEventEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessEventEnum.php',
+        'App\\Enums\\ProcessPrincipalsEnum' => __DIR__ . '/../..' . '/app/Enums/ProcessPrincipalsEnum.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
         'App\\Enums\\QiNiuEnum' => __DIR__ . '/../..' . '/app/Enums/QiNiuEnum.php',
         'App\\Enums\\SMSEnum' => __DIR__ . '/../..' . '/app/Enums/SMSEnum.php',
         'App\\Enums\\TradeEnum' => __DIR__ . '/../..' . '/app/Enums/TradeEnum.php',
@@ -830,6 +841,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Models\\OaProcessNodeActionModel' => __DIR__ . '/../..' . '/app/Models/OaProcessNodeActionModel.php',
         'App\\Models\\OaProcessNodeModel' => __DIR__ . '/../..' . '/app/Models/OaProcessNodeModel.php',
         'App\\Models\\OaProcessRecordModel' => __DIR__ . '/../..' . '/app/Models/OaProcessRecordModel.php',
+<<<<<<< HEAD
+=======
+        'App\\Models\\OaProcessTransitionDetailViewModel' => __DIR__ . '/../..' . '/app/Models/OaProcessTransitionDetailViewModel.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
         'App\\Models\\OaProcessTransitionModel' => __DIR__ . '/../..' . '/app/Models/OaProcessTransitionModel.php',
         'App\\Models\\OaPushSubscriptionsModel' => __DIR__ . '/../..' . '/app/Models/OaPushSubscriptionsModel.php',
         'App\\Models\\PrimeAuditModel' => __DIR__ . '/../..' . '/app/Models/PrimeAuditModel.php',
@@ -924,6 +939,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Repositories\\OaProcessNodeActionRepository' => __DIR__ . '/../..' . '/app/Repositories/OaProcessNodeActionRepository.php',
         'App\\Repositories\\OaProcessNodeRepository' => __DIR__ . '/../..' . '/app/Repositories/OaProcessNodeRepository.php',
         'App\\Repositories\\OaProcessRecordRepository' => __DIR__ . '/../..' . '/app/Repositories/OaProcessRecordRepository.php',
+<<<<<<< HEAD
+=======
+        'App\\Repositories\\OaProcessTransitionDetailViewRepository' => __DIR__ . '/../..' . '/app/Repositories/OaProcessTransitionDetailViewRepository.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
         'App\\Repositories\\OaProcessTransitionRepository' => __DIR__ . '/../..' . '/app/Repositories/OaProcessTransitionRepository.php',
         'App\\Repositories\\OaPushSubscriptionsRepository' => __DIR__ . '/../..' . '/app/Repositories/OaPushSubscriptionsRepository.php',
         'App\\Repositories\\PrimeAuditRepository' => __DIR__ . '/../..' . '/app/Repositories/PrimeAuditRepository.php',

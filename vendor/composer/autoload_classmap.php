@@ -13,7 +13,10 @@ return array(
     'App\\Api\\Controllers\\SwaggerController' => $baseDir . '/app/Api/Controllers/SwaggerController.php',
     'App\\Api\\Controllers\\V1\\Common\\CommonController' => $baseDir . '/app/Api/Controllers/V1/Common/CommonController.php',
     'App\\Api\\Controllers\\V1\\Common\\MessageController' => $baseDir . '/app/Api/Controllers/V1/Common/MessageController.php',
+<<<<<<< HEAD
     'App\\Api\\Controllers\\V1\\Enterprise\\EnterpriseController' => $baseDir . '/app/Api/Controllers/V1/Enterprise/EnterpriseController.php',
+=======
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
     'App\\Api\\Controllers\\V1\\House\\OrderController' => $baseDir . '/app/Api/Controllers/V1/House/OrderController.php',
     'App\\Api\\Controllers\\V1\\Loan\\LoanController' => $baseDir . '/app/Api/Controllers/V1/Loan/LoanController.php',
     'App\\Api\\Controllers\\V1\\Member\\MemberController' => $baseDir . '/app/Api/Controllers/V1/Member/MemberController.php',
@@ -42,8 +45,16 @@ return array(
     'App\\Enums\\ImageTypeEnum' => $baseDir . '/app/Enums/ImageTypeEnum.php',
     'App\\Enums\\OrderEnum' => $baseDir . '/app/Enums/OrderEnum.php',
     'App\\Enums\\PayMethodEnum' => $baseDir . '/app/Enums/PayMethodEnum.php',
+<<<<<<< HEAD
     'App\\Enums\\ProcessCategoryEnum' => $baseDir . '/app/Enums/ProcessCategoryEnum.php',
     'App\\Enums\\ProcessDefinitionEnum' => $baseDir . '/app/Enums/ProcessDefinitionEnum.php',
+=======
+    'App\\Enums\\ProcessActionEnum' => $baseDir . '/app/Enums/ProcessActionEnum.php',
+    'App\\Enums\\ProcessCategoryEnum' => $baseDir . '/app/Enums/ProcessCategoryEnum.php',
+    'App\\Enums\\ProcessDefinitionEnum' => $baseDir . '/app/Enums/ProcessDefinitionEnum.php',
+    'App\\Enums\\ProcessEventEnum' => $baseDir . '/app/Enums/ProcessEventEnum.php',
+    'App\\Enums\\ProcessPrincipalsEnum' => $baseDir . '/app/Enums/ProcessPrincipalsEnum.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
     'App\\Enums\\QiNiuEnum' => $baseDir . '/app/Enums/QiNiuEnum.php',
     'App\\Enums\\SMSEnum' => $baseDir . '/app/Enums/SMSEnum.php',
     'App\\Enums\\TradeEnum' => $baseDir . '/app/Enums/TradeEnum.php',
@@ -128,6 +139,10 @@ return array(
     'App\\Models\\OaProcessNodeActionModel' => $baseDir . '/app/Models/OaProcessNodeActionModel.php',
     'App\\Models\\OaProcessNodeModel' => $baseDir . '/app/Models/OaProcessNodeModel.php',
     'App\\Models\\OaProcessRecordModel' => $baseDir . '/app/Models/OaProcessRecordModel.php',
+<<<<<<< HEAD
+=======
+    'App\\Models\\OaProcessTransitionDetailViewModel' => $baseDir . '/app/Models/OaProcessTransitionDetailViewModel.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
     'App\\Models\\OaProcessTransitionModel' => $baseDir . '/app/Models/OaProcessTransitionModel.php',
     'App\\Models\\OaPushSubscriptionsModel' => $baseDir . '/app/Models/OaPushSubscriptionsModel.php',
     'App\\Models\\PrimeAuditModel' => $baseDir . '/app/Models/PrimeAuditModel.php',
@@ -222,6 +237,10 @@ return array(
     'App\\Repositories\\OaProcessNodeActionRepository' => $baseDir . '/app/Repositories/OaProcessNodeActionRepository.php',
     'App\\Repositories\\OaProcessNodeRepository' => $baseDir . '/app/Repositories/OaProcessNodeRepository.php',
     'App\\Repositories\\OaProcessRecordRepository' => $baseDir . '/app/Repositories/OaProcessRecordRepository.php',
+<<<<<<< HEAD
+=======
+    'App\\Repositories\\OaProcessTransitionDetailViewRepository' => $baseDir . '/app/Repositories/OaProcessTransitionDetailViewRepository.php',
+>>>>>>> 7a2de8037826a49368e7a7343b11b19afe114eb7
     'App\\Repositories\\OaProcessTransitionRepository' => $baseDir . '/app/Repositories/OaProcessTransitionRepository.php',
     'App\\Repositories\\OaPushSubscriptionsRepository' => $baseDir . '/app/Repositories/OaPushSubscriptionsRepository.php',
     'App\\Repositories\\PrimeAuditRepository' => $baseDir . '/app/Repositories/PrimeAuditRepository.php',
