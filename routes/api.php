@@ -141,7 +141,30 @@ $api->version('v1',function ($api){
                 $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
                 $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
                 $api->delete('del_loan', 'LoanController@delLoan')->name('删除贷款订单');
-                $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取贷款订单');
+                $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取贷款订单列表');
+                $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
+            });
+        });
+
+        //企业咨询模块
+        $api->group(['prefix' => 'enterprise', 'namespace' => 'Enterprise'], function ($api){
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('add_enterprise', 'EnterpriseController@addEnterprise')->name('添加企业咨询订单');
+                $api->post('upd_enterprise', 'EnterpriseController@updEnterprise')->name('修改企业咨询订单');
+                $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('删除企业咨询订单');
+                $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取企业咨询订单列表');
+                $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('获取企业咨询订单信息');
+            });
+        });
+
+        //项目对接模块
+        $api->group(['prefix' => 'project', 'namespace' => 'Project'], function ($api){
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('add_project', 'ProjectController@addProject')->name('添加项目对接订单');
+                $api->post('upd_project', 'ProjectController@updProject')->name('修改项目对接订单');
+                $api->delete('del_project', 'ProjectController@delProject')->name('删除项目对接订单');
+                $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
+                $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');
             });
         });
 

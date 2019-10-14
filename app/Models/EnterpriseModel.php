@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class LoanPersonalModel extends Model
+class EnterpriseModel extends Model
 {
     
     /**
@@ -10,7 +10,7 @@ class LoanPersonalModel extends Model
      *
      * @var string
      */
-    protected $table = 'loan_personal';
+    protected $table = 'enterprise_order';
     
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class LoanPersonalModel extends Model
     protected $primaryKey = 'id';
     
     
-    protected $fillable = ['id','name','mobile','price','ent_name','ent_title','address','cardid','reference_name','status','remark','created_at','updated_at','reservation_at'];
+    protected $fillable = ['id','name','mobile','enterprise_name','service_type','status','remark','created_at','reservation_at','updated_at'];
 
     
 

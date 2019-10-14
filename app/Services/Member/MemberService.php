@@ -103,8 +103,8 @@ class MemberService extends BaseService
             }
             foreach ($user_list['data'] as &$value)
             {
-                $value['created_at'] = date('Y-m-d H:m:s',$value['created_at'] ?? 0);
-                $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at'] ?? 0);
+                $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
+                $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
             }
             $this->setMessage('获取成功！');
             return $user_list;

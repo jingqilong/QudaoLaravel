@@ -1,53 +1,62 @@
 <?php
-namespace App\Services\Loan;
+namespace App\Services\Enterprise;
+
 
 
 use App\Repositories\EnterpriseRepository;
 use App\Services\BaseService;
 
-class PersonalService extends BaseService
+class EnterpriseService extends BaseService
 {
 
     /**
-     * 获取贷款订单列表 （前端显示）
+     * 获取项目对接订单列表  （前端使用）
      * @param array $data
      * @return mixed
      */
-    public function getLoanList(array $data)
+    public function getEnterpriseList(array $data)
     {
-        if (!$list = EnterpriseRepository::getList(['name' => $data['name'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
         }
+        foreach ($list as &$value)
+        {
+            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
+            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+        }
         $this->setMessage('查找成功');
         return $list;
     }
 
     /**
-     * 获取贷款订单信息
-     * @param array $data
+     * 获取项目对接订单详情
+     * @param string $id
      * @return mixed
      */
-    public function getLoanInfo(array $data)
+    public function getEnterpriseInfo(string $id)
     {
-        if (!$list = EnterpriseRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
-            $this->setError('没有查到数据！');
+        if (!$list = EnterpriseRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
+            $this->setError('查询不到该条数据！');
             return false;
         }
+
         $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
         $list['created_at']        =   date('Y-m-d H:m:s',$list['created_at']);
         $list['updated_at']        =   date('Y-m-d H:m:s',$list['updated_at']);
+
         $this->setMessage('查找成功');
         return $list;
     }
 
 
     /**
-     * 添加贷款订单信息
+     * 添加项目订单信息
      * @param array $data
      * @return mixed
      */
-    public function addLoan(array $data)
+    public function addEnterprise(array $data)
     {
         unset($data['sign'], $data['token']);
         $data['created_at']     = time();
@@ -63,11 +72,11 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 修改贷款订单信息
+     * 修改项目订单信息
      * @param array $data
      * @return mixed
      */
-    public function updLoan(array $data)
+    public function updEnterprise(array $data)
     {
         $id = $data['id'];
         unset($data['sign'], $data['token'], $data['id']);
@@ -84,13 +93,12 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 软删除订单
-     * @param integer $id
+     * @param string $id
      * @return mixed
      */
-    public function delLoan($id)
+    public function delEnterprise(string $id)
     {
-        if (!$loanInfo = EnterpriseRepository::getOne(['id' => $id])){
+        if (!$EnterpriseInfo = EnterpriseRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }

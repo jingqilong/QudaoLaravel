@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\LoanRecommendedModel;
+use App\Models\ProjectModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class LoanRecommendedRepository extends ApiRepository
+class ProjectRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class LoanRecommendedRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(LoanRecommendedModel $model)
+    public function __construct(ProjectModel $model)
     {
         $this->model = $model;
     }

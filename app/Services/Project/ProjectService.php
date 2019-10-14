@@ -1,60 +1,68 @@
 <?php
-namespace App\Services\Loan;
+namespace App\Services\Project;
 
 
-use App\Repositories\EnterpriseRepository;
+use App\Repositories\ProjectRepository;
 use App\Services\BaseService;
 
-class PersonalService extends BaseService
+class ProjectService extends BaseService
 {
 
     /**
-     * 获取贷款订单列表 （前端显示）
+     * 获取项目对接订单列表  （前端使用）
      * @param array $data
      * @return mixed
      */
-    public function getLoanList(array $data)
+    public function getProjectList(array $data)
     {
-        if (!$list = EnterpriseRepository::getList(['name' => $data['name'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = ProjectRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
         }
+        foreach ($list as &$value)
+        {
+            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
+            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+        }
         $this->setMessage('查找成功');
         return $list;
     }
 
     /**
-     * 获取贷款订单信息
-     * @param array $data
+     * 获取项目对接订单详情
+     * @param string $id
      * @return mixed
      */
-    public function getLoanInfo(array $data)
+    public function getProjectInfo(string $id)
     {
-        if (!$list = EnterpriseRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
-            $this->setError('没有查到数据！');
+        if (!$list = ProjectRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
+            $this->setError('查询不到该条数据！');
             return false;
         }
+
         $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
         $list['created_at']        =   date('Y-m-d H:m:s',$list['created_at']);
         $list['updated_at']        =   date('Y-m-d H:m:s',$list['updated_at']);
+
         $this->setMessage('查找成功');
         return $list;
     }
 
 
     /**
-     * 添加贷款订单信息
+     * 添加项目订单信息
      * @param array $data
      * @return mixed
      */
-    public function addLoan(array $data)
+    public function addProject(array $data)
     {
         unset($data['sign'], $data['token']);
         $data['created_at']     = time();
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';
 
-        if (!$res = EnterpriseRepository::getAddId($data)){
+        if (!$res = ProjectRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -63,11 +71,11 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 修改贷款订单信息
+     * 修改项目订单信息
      * @param array $data
      * @return mixed
      */
-    public function updLoan(array $data)
+    public function updProject(array $data)
     {
         $id = $data['id'];
         unset($data['sign'], $data['token'], $data['id']);
@@ -75,7 +83,7 @@ class PersonalService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';  // 修改数据后  状态值从新开始
 
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],$data)){
+        if (!$res = ProjectRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -84,17 +92,16 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 软删除订单
-     * @param integer $id
+     * @param string $id
      * @return mixed
      */
-    public function delLoan($id)
+    public function delProject(string $id)
     {
-        if (!$loanInfo = EnterpriseRepository::getOne(['id' => $id])){
+        if (!$ProjectInfo = ProjectRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = ProjectRepository::getUpdId(['id' => $id],['status' => '9'])){
             $this->setError('删除失败！');
             return false;
         }
