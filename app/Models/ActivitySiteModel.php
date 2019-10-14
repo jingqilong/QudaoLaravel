@@ -27,7 +27,7 @@ class ActivitySiteModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','address','real_name','theme_id','image_ids','label_ids','scale','created_at','updeted_at'];
+    protected $fillable = ['id','title','address','name','theme_id','image_ids','labels','scale','created_at','updated_at'];
 
 
 

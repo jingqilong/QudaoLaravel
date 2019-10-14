@@ -27,7 +27,7 @@ class ActivityDetailModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','address','price','theme_id','start_time','end_time','site_id','supplies_ids','is_recommend','banner_ids','image_ids','firm_ids','notice','detail','created_at','updeted_at'];
+    protected $fillable = ['id','name','address','price','theme_id','start_time','end_time','site_id','supplies_ids','is_recommend','banner_ids','image_ids','status','firm','notice','detail','created_at','updated_at'];
 
 
 

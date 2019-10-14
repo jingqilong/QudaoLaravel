@@ -27,7 +27,7 @@ class ActivitySuppliesParameterModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','supplies_id','key','value','created_at','updeted_at'];
+    protected $fillable = ['id','supplies_id','key','value','created_at','updated_at'];
 
 
 

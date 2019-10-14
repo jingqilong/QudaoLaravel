@@ -27,7 +27,7 @@ class ActivitySuppliesModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','price','is_recommend','link','detail','image_ids','source','theme_id','created_at','updeted_at'];
+    protected $fillable = ['id','name','price','is_recommend','link','detail','image_ids','source','theme_id','created_at','updated_at'];
 
 
 

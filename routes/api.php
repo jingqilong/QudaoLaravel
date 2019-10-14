@@ -111,6 +111,24 @@ $api->version('v1',function ($api){
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
+        //精选活动模块
+        $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+                $api->post('add_activity','ActivityController@addActivity')->name('添加活动');
+
+                $api->post('add_activity_theme','ActivityController@addActivityTheme')->name('添加活动主题');
+                $api->delete('delete_activity_theme','ActivityController@deleteActivityTheme')->name('删除活动主题');
+                $api->post('edit_activity_theme','ActivityController@editActivityTheme')->name('修改活动主题');
+                $api->get('activity_theme_list','ActivityController@activityThemeList')->name('获取活动主题列表');
+
+                $api->post('add_activity_site','ActivityController@addActivitySite')->name('添加活动场地');
+                $api->delete('delete_activity_site','ActivityController@deleteActivitySite')->name('删除活动场地');
+                $api->post('edit_activity_site','ActivityController@editActivitySite')->name('修改活动场地');
+                $api->get('activity_site_list','ActivityController@activitySiteList')->name('获取活动场地列表');
+
+                $api->post('add_activity_supplies','ActivityController@addActivitySupplies')->name('添加活动用品');
+            });
+        });
         //会员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
