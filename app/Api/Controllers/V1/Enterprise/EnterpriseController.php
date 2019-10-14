@@ -5,14 +5,14 @@ namespace App\Api\Controllers\V1\Enterprise;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Enterprise\EnterpriseService;
+use App\Services\Enterprise\OrderService;
 
 class EnterpriseController extends ApiController
 {
 
     protected $enterpriseService;
 
-    public function __construct(EnterpriseService $enterpriseService)
+    public function __construct(OrderService $enterpriseService)
     {
         parent::__construct();
         $this->enterpriseService   =  $enterpriseService;

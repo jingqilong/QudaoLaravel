@@ -2,7 +2,7 @@
 namespace App\Services\Loan;
 
 
-use App\Repositories\EnterpriseRepository;
+use App\Repositories\EnterpriseOrderRepository;
 use App\Services\BaseService;
 
 class PersonalService extends BaseService
@@ -15,7 +15,7 @@ class PersonalService extends BaseService
      */
     public function getLoanList(array $data)
     {
-        if (!$list = EnterpriseRepository::getList(['name' => $data['name'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseOrderRepository::getList(['name' => $data['name'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
         }
@@ -30,7 +30,7 @@ class PersonalService extends BaseService
      */
     public function getLoanInfo(array $data)
     {
-        if (!$list = EnterpriseRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseOrderRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
             $this->setError('没有查到数据！');
             return false;
         }
@@ -54,7 +54,7 @@ class PersonalService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';
 
-        if (!$res = EnterpriseRepository::getAddId($data)){
+        if (!$res = EnterpriseOrderRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -75,7 +75,7 @@ class PersonalService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';  // 修改数据后  状态值从新开始
 
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],$data)){
+        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -90,11 +90,11 @@ class PersonalService extends BaseService
      */
     public function delLoan($id)
     {
-        if (!$loanInfo = EnterpriseRepository::getOne(['id' => $id])){
+        if (!$loanInfo = EnterpriseOrderRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],['status' => '9'])){
             $this->setError('删除失败！');
             return false;
         }

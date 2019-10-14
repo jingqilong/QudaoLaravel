@@ -2,7 +2,7 @@
 namespace App\Services\Project;
 
 
-use App\Repositories\ProjectRepository;
+use App\Repositories\ProjectOrderRepository;
 use App\Services\BaseService;
 
 class ProjectService extends BaseService
@@ -15,7 +15,7 @@ class ProjectService extends BaseService
      */
     public function getProjectList(array $data)
     {
-        if (!$list = ProjectRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = ProjectOrderRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
         }
@@ -36,7 +36,7 @@ class ProjectService extends BaseService
      */
     public function getProjectInfo(string $id)
     {
-        if (!$list = ProjectRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
+        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
             $this->setError('查询不到该条数据！');
             return false;
         }
@@ -62,7 +62,7 @@ class ProjectService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';
 
-        if (!$res = ProjectRepository::getAddId($data)){
+        if (!$res = ProjectOrderRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -83,7 +83,7 @@ class ProjectService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';  // 修改数据后  状态值从新开始
 
-        if (!$res = ProjectRepository::getUpdId(['id' => $id],$data)){
+        if (!$res = ProjectOrderRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -97,11 +97,11 @@ class ProjectService extends BaseService
      */
     public function delProject(string $id)
     {
-        if (!$ProjectInfo = ProjectRepository::getOne(['id' => $id])){
+        if (!$ProjectInfo = ProjectOrderRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = ProjectRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = ProjectOrderRepository::getUpdId(['id' => $id],['status' => '9'])){
             $this->setError('删除失败！');
             return false;
         }

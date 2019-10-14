@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ProjectModel;
+use App\Models\ActivityCollectModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ProjectRepository extends ApiRepository
+class ActivityCollectRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ProjectRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ProjectModel $model)
+    public function __construct(ActivityCollectModel $model)
     {
         $this->model = $model;
     }

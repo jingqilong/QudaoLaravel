@@ -3,10 +3,10 @@ namespace App\Services\Enterprise;
 
 
 
-use App\Repositories\EnterpriseRepository;
+use App\Repositories\EnterpriseOrderRepository;
 use App\Services\BaseService;
 
-class EnterpriseService extends BaseService
+class OrderService extends BaseService
 {
 
     /**
@@ -16,7 +16,7 @@ class EnterpriseService extends BaseService
      */
     public function getEnterpriseList(array $data)
     {
-        if (!$list = EnterpriseRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseOrderRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
         }
@@ -37,7 +37,7 @@ class EnterpriseService extends BaseService
      */
     public function getEnterpriseInfo(string $id)
     {
-        if (!$list = EnterpriseRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseOrderRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
             $this->setError('查询不到该条数据！');
             return false;
         }
@@ -63,7 +63,7 @@ class EnterpriseService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';
 
-        if (!$res = EnterpriseRepository::getAddId($data)){
+        if (!$res = EnterpriseOrderRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -84,7 +84,7 @@ class EnterpriseService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';  // 修改数据后  状态值从新开始
 
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],$data)){
+        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -98,11 +98,11 @@ class EnterpriseService extends BaseService
      */
     public function delEnterprise(string $id)
     {
-        if (!$EnterpriseInfo = EnterpriseRepository::getOne(['id' => $id])){
+        if (!$EnterpriseInfo = EnterpriseOrderRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = EnterpriseRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],['status' => '9'])){
             $this->setError('删除失败！');
             return false;
         }
