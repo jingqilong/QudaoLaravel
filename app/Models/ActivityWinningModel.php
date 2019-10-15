@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityCollectModel extends Model
+class ActivityWinningModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityCollectModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_collect';
+    protected $table = 'activity_winning';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class ActivityCollectModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','activity_id','member_id','created_at','deleted_at'];
+    protected $fillable = ['id','member_id','activity_id','prize_id','created_at'];
 
 
 

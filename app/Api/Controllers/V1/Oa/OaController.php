@@ -548,6 +548,18 @@ class OaController extends ApiController
      */
     public function getDepartList()
     {
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->departmentService->getDepartList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if (!$res){
             return ['code' => 100, 'message' => $this->departmentService->error];

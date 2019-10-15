@@ -89,7 +89,6 @@ class SiteService extends BaseService
             'image_ids'     => $request['image_ids'],
             'labels'        => $request['labels'] ?? '',
             'scale'         => $request['scale'],
-            'created_at'    => time(),
             'updated_at'    => time(),
         ];
         if (ActivitySiteRepository::getUpdId(['id' => $request['id']],$upd_arr)){

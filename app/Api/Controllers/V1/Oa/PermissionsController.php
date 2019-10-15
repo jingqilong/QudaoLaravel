@@ -573,6 +573,18 @@ class PermissionsController extends ApiController
      *
      */
     public function userList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->employeeService->getPermUserList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if (!$res){
             return ['code' => 100, 'message' => $this->employeeService->error];
@@ -630,6 +642,18 @@ class PermissionsController extends ApiController
      *
      */
     public function permissionList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->adminPermissionService->getPermissionList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if (!$res){
             return ['code' => 100, 'message' => $this->adminPermissionService->error];
@@ -687,6 +711,18 @@ class PermissionsController extends ApiController
      *
      */
     public function roleList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->adminRolesService->getRoleList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if (!$res){
             return ['code' => 100, 'message' => $this->adminRolesService->error];

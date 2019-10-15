@@ -1,0 +1,233 @@
+<?php
+namespace App\Services\Activity;
+
+
+use App\Repositories\ActivityDetailRepository;
+use App\Repositories\ActivityPrizeRepository;
+use App\Repositories\ActivityWinningRepository;
+use App\Repositories\CommonImagesRepository;
+use App\Services\BaseService;
+use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
+
+class PrizeService extends BaseService
+{
+    use HelpTrait;
+    public $auth;
+
+    /**
+     * PrizeService constructor.
+     * @param $auth
+     */
+    public function __construct()
+    {
+        $this->auth = Auth::guard('member_api');
+    }
+
+    /**
+     * 添加奖品
+     * @param $request
+     * @return bool
+     */
+    public function addPrize($request)
+    {
+        if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        $add_arr = [
+            'activity_id'   => $request['activity_id'],
+            'name'          => $request['name'],
+            'number'        => $request['number'],
+            'odds'          => $request['odds'],
+            'image_ids'     => $request['image_ids'],
+            'worth'         => $request['worth'],
+            'link'          => $request['link'] ?? '',
+        ];
+        if (ActivityPrizeRepository::exists($add_arr)){
+            $this->setError('该奖品已添加！');
+            return false;
+        }
+        $add_arr['created_at'] = time();
+        $add_arr['updated_at'] = time();
+        if (!ActivityPrizeRepository::getAddId($add_arr)){
+            $this->setError('添加失败！');
+            return false;
+        }
+        $this->setMessage('添加成功！');
+        return true;
+    }
+
+    /**
+     * 删除奖品
+     * @param $id
+     * @return bool
+     */
+    public function deletePrize($id)
+    {
+        if (!$prize = ActivityPrizeRepository::getOne(['id' => $id])){
+            $this->setError('奖品不存在！');
+            return false;
+        }
+        if ($activity = ActivityWinningRepository::exists(['prize_id' => $id])){
+            $this->setError('该奖品已被抽中，无法删除！');
+            return false;
+        }
+        if (!ActivityPrizeRepository::delete(['id' => $id])){
+            $this->setError('删除失败！');
+            return false;
+        }
+        $this->setMessage('删除成功！');
+        return true;
+    }
+
+    /**
+     * 修改奖品
+     * @param $request
+     * @return bool
+     */
+    public function editPrize($request)
+    {
+        if (!$prize = ActivityPrizeRepository::getOne(['id' => $request['id']])){
+            $this->setError('奖品不存在！');
+            return false;
+        }
+        if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        $upd_arr = [
+            'activity_id'   => $request['activity_id'],
+            'name'          => $request['name'],
+            'number'        => $request['number'],
+            'odds'          => $request['odds'],
+            'image_ids'     => $request['image_ids'],
+            'worth'         => $request['worth'],
+            'link'          => $request['link'] ?? '',
+        ];
+        if (ActivityPrizeRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
+            $this->setError('该奖品信息已存在！');
+            return false;
+        }
+        $upd_arr['updated_at'] = time();
+        if (!ActivityPrizeRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
+        return true;
+    }
+
+    /**
+     * 获取奖品列表
+     * @param $request
+     * @return bool
+     */
+    public function getPrizeList($request)
+    {
+        $page       = $request['page'] ?? 1 ;
+        $page_num   = $request['page_num'] ?? 20;
+        $activity_id= $request['activity_id'] ?? 0;
+        $where      = ['id' => ['>',0]];
+        if (!empty($activity_id)){
+            if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
+                $this->setError('活动不存在！');
+                return false;
+            }
+            $where = ['activity_id' => $activity_id];
+        }
+        if (!$list = ActivityPrizeRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        unset($list['first_page_url'], $list['from'],
+            $list['from'], $list['last_page_url'],
+            $list['next_page_url'], $list['path'],
+            $list['prev_page_url'], $list['to']);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $activity_ids = array_column($list['data'],'activity_id');
+        $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
+        foreach ($list['data'] as &$value){
+            $value['images']     = [];
+            $activity = $this->searchArray($activities,'id',$value['activity_id']);
+            $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';
+            if (!empty($value['images_ids'])){
+                $image_ids = explode(',',$value['images_ids']);
+                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                    $image_list     = array_column($image_list,'img_url');
+                    $value['images']= $image_list;
+                }
+            }
+            $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
+            $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
+            unset($value['image_ids']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 活动抽奖
+     * @param $activity_id
+     * @return bool
+     */
+    public function raffle($activity_id)
+    {
+        if (!ActivityDetailRepository::exists(['id' => $activity_id])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        $member = $this->auth->user();
+        if (!ActivityPrizeRepository::exists(['activity_id' => $activity_id])){
+            $this->setError('该活动没有抽奖活动！');
+            return false;
+        }
+        if (ActivityWinningRepository::exists(['member_id' => $member->m_id,'activity_id' => $activity_id])){
+            $this->setError('您已经抽过奖了！');
+            return false;
+        }
+        //TODO 此处判断会员有没有报名此活动
+        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','number','odds','image_ids','worth']);
+        foreach ($prize_all as $key => &$prize){
+            if ($prize['number'] !== 0 && ($prize['number'] <= ActivityWinningRepository::count(['prize_id' => $prize['id']]))){
+                unset($prize_all[$key]);
+            }
+            unset($prize['number']);
+        }
+        if (empty($prize_all)){
+            $this->setError('奖品已经被抽完了，下次再来吧！');
+            return false;
+        }
+        foreach ($prize_all as $key => $value){
+            $arr[$value['id']] = $value['odds'];
+        }
+        $rid = $this->get_rand($arr);
+        $winning = $prize_all[$rid - 1];
+        $add_winning = [
+            'member_id'     => $member->m_id,
+            'activity_id'   => $activity_id,
+            'prize_id'      => $winning['id'],
+            'created_at'    => time()
+        ];
+        $winning['images']     = [];
+        if (!empty($winning['images_ids'])){
+            $image_ids = explode(',',$winning['images_ids']);
+            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                $image_list     = array_column($image_list,'img_url');
+                $winning['images']= $image_list;
+            }
+        }
+        unset($winning['odds'],$winning['images_ids']);
+        if (!ActivityWinningRepository::getAddId($add_winning)){
+            $this->setMessage('抽奖失败！');
+            return $winning;
+        }
+        //TODO 此处添加抽奖成功后的事务
+        $this->setMessage('恭喜你中奖啦！');
+        return $winning;
+    }
+}
+            

@@ -5,10 +5,13 @@ namespace App\Services\Event;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivitySiteRepository;
 use App\Repositories\ActivityThemeRepository;
+use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 
 class ActivityService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * 添加活动
@@ -55,6 +58,77 @@ class ActivityService extends BaseService
         }
         $this->setError('添加失败！');
         return false;
+    }
+
+    /**
+     * 活动首页列表
+     * @param $request
+     * @return bool|null
+     */
+    public function getHomeList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $theme_id   = $request['theme_id'] ?? null;
+        $is_recommend = $request['is_recommend'] ?? null;
+        $keywords   = $request['keywords'] ?? null;
+        $model = ActivityDetailRepository::model()->where('status','=',1);
+        if (!empty($theme_id)){
+            $model = $model->where('theme_id','=',$theme_id);
+        }
+        if (!empty($is_recommend)){
+            $model = $model->where('is_recommend','=',$is_recommend);
+        }
+
+        if (!empty($keywords)){
+            $model = $model->orWhere('name','like','%'.$keywords.'%');
+            $model = $model->orWhere('address','like','%'.$keywords.'%');
+            $model = $model->orWhere('price','like','%'.$keywords.'%');
+        }
+        $activity_column = ['id','name','address','price','start_time','end_time','site_id','is_recommend','banner_ids','firm','image_ids','theme_id'];
+        if (!$list = $model->paginate($page_num,$activity_column,'*',$page)->toArray()){
+            $this->setError('获取失败！');
+            return false;
+        }
+        unset($list['first_page_url'], $list['from'],
+            $list['from'], $list['last_page_url'],
+            $list['next_page_url'], $list['path'],
+            $list['prev_page_url'], $list['to']);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $theme_ids  = array_column($list['data'],'theme_id');
+        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['name']);
+        foreach ($list['data'] as &$value){
+            $value['images']     = [];
+            $theme = $this->searchArray($themes,'id',$value['theme_id']);
+            $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
+            if (!empty($value['image_ids'])){
+                $image_ids = explode(',',$value['image_ids']);
+                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                    $image_list     = array_column($image_list,'img_url');
+                    $value['images']= $image_list;
+                }
+            }
+            $value['banners'] = [];
+            if (!empty($value['banner_ids'])){
+                $image_ids = explode(',',$value['banner_ids']);
+                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                    $image_list     = array_column($image_list,'img_url');
+                    $value['banners']= $image_list;
+                }
+            }
+            $value['firm'] = !empty($value['firm']) ? explode('|',$value['firm']): [];
+            $site                   = ActivitySiteRepository::getOne(['id' => $value['site_id']]);
+            $value['site_name']     = $site ? $site['name'] : '';
+            $value['site_title']     = $site ? $site['title'] : '';
+            $value['start_time']    = date('Y-m-d H:m:i',$value['start_time']);
+            $value['end_time']      = date('Y-m-d H:m:i',$value['end_time']);
+            unset($value['image_ids'],$value['banner_ids'],$value['theme_id'],$value['site_id']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

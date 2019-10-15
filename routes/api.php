@@ -127,6 +127,19 @@ $api->version('v1',function ($api){
                 $api->get('activity_site_list','ActivityController@activitySiteList')->name('获取活动场地列表');
 
                 $api->post('add_activity_supplies','ActivityController@addActivitySupplies')->name('添加活动用品');
+                $api->delete('delete_activity_supplies','ActivityController@deleteActivitySupplies')->name('删除活动用品');
+                $api->post('edit_activity_supplies','ActivityController@editActivitySupplies')->name('修改活动用品');
+                $api->get('activity_supplies_list','ActivityController@activitySuppliesList')->name('获取活动用品列表');
+
+                $api->post('activity_add_prize','ActivityController@activityAddPrize')->name('活动添加奖品');
+                $api->delete('activity_delete_prize','ActivityController@activityDeletePrize')->name('删除活动奖品');
+                $api->post('activity_edit_prize','ActivityController@activityEditPrize')->name('修改奖品信息');
+                $api->get('get_prize_list','ActivityController@getPrizeList')->name('获取活动奖品列表');
+            });
+            $api->group(['middleware' => 'member.jwt.auth'],function($api){
+                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
+                $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
+                $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
             });
         });
         //会员模块
