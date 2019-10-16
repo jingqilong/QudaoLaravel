@@ -92,7 +92,7 @@ class SmsService extends BaseService
      * @param $type
      * @return array
      */
-    public function send($mobile, $type)
+    public function sendCode($mobile, $type)
     {
         if (!SMSEnum::exists($type)){
             return ['code' => 0, 'message' => '暂无此类型！'];
@@ -131,6 +131,27 @@ class SmsService extends BaseService
             'status'    => 0,
             'created_at' => time(),
         ]);
+        return ['code' => 1, 'message' => '短信发送成功！'];
+    }
+
+    /**
+     * 给用户发送自定义短信
+     * @param $mobile
+     * @param $content
+     * @return array
+     */
+    public function sendContent($mobile, $content){
+        $yiKaYi = new YiKaYiSms();
+        $data = array (
+            "userAccount"   => "10000",
+            "mobile"        => $mobile,
+            "content"       => $content
+        );
+        $res = $yiKaYi->CallHttpPost('SendSms',$data);
+        if ($res['status'] != 0){
+            Loggy::write('error','短信发送失败！|内容：'.$content.' |手机号：'.$mobile.' |失败原因：'.$res['message'].' |错误码：'.$res['status']);
+            return ['code' => 0, 'message' => '短信发送失败，请重试！'];
+        }
         return ['code' => 1, 'message' => '短信发送成功！'];
     }
 }

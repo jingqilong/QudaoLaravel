@@ -259,4 +259,42 @@ trait RepositoryTrait
         }
         return $model;
     }
+
+
+    /**
+     * 关键字搜索【不适合大量数据查询】
+     * @param array $keywords   格式：array('搜索关键字' => array('搜索字段1','搜索字段2'))
+     * @param array $where      搜索时的附加条件
+     * @param array $column
+     * @param null $page
+     * @param null $pageNum
+     * @param null $order
+     * @param null $desc_asc
+     * @return bool|null
+     */
+    protected function search(array $keywords, $where = [], $column = ['*'], $page=null, $pageNum=null, $order=null, $desc_asc=null){
+        $model = $this->model;
+        if (!empty($where)){
+            $model = self::addWhere($this->model,$where);
+        }
+        foreach ($keywords as $keyword => $columns){
+            if (!is_array($columns)){
+                return false;
+            }
+            $model = $model->where(reset($columns),'like','%'.$keyword.'%');
+            array_shift($columns);
+            foreach ($columns as $value){
+                $model = $model->orWhere($value,'like','%'.$keyword.'%');
+            }
+        }
+        if ($order!=null && $desc_asc!=null){
+            $model = $model->orderBy($order,$desc_asc);
+        }
+        if (null!=$page && null!=$pageNum){
+            $model = $model->paginate($pageNum,$column,'*',$page);
+            return $model ? $model->toArray() : null;
+        }
+        $result = $model->get($column);
+        return $result ? $result->toArray() : null;
+    }
 }

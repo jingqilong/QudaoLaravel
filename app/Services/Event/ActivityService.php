@@ -61,7 +61,7 @@ class ActivityService extends BaseService
     }
 
     /**
-     * 活动首页列表
+     * 活动首页列表【有搜索功能】
      * @param $request
      * @return bool|null
      */
@@ -72,23 +72,25 @@ class ActivityService extends BaseService
         $theme_id   = $request['theme_id'] ?? null;
         $is_recommend = $request['is_recommend'] ?? null;
         $keywords   = $request['keywords'] ?? null;
-        $model = ActivityDetailRepository::model()->where('status','=',1);
+        $where = ['status' => 1];
         if (!empty($theme_id)){
-            $model = $model->where('theme_id','=',$theme_id);
+            $where['theme_id']  = $theme_id;
         }
         if (!empty($is_recommend)){
-            $model = $model->where('is_recommend','=',$is_recommend);
-        }
-
-        if (!empty($keywords)){
-            $model = $model->orWhere('name','like','%'.$keywords.'%');
-            $model = $model->orWhere('address','like','%'.$keywords.'%');
-            $model = $model->orWhere('price','like','%'.$keywords.'%');
+            $where['is_recommend']  = $is_recommend;
         }
         $activity_column = ['id','name','address','price','start_time','end_time','site_id','is_recommend','banner_ids','firm','image_ids','theme_id'];
-        if (!$list = $model->paginate($page_num,$activity_column,'*',$page)->toArray()){
-            $this->setError('获取失败！');
-            return false;
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name', 'address', 'price']];
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'start_time','desc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         unset($list['first_page_url'], $list['from'],
             $list['from'], $list['last_page_url'],
@@ -101,6 +103,7 @@ class ActivityService extends BaseService
         $theme_ids  = array_column($list['data'],'theme_id');
         $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['name']);
         foreach ($list['data'] as &$value){
+            $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             $value['images']     = [];
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
@@ -128,7 +131,9 @@ class ActivityService extends BaseService
             unset($value['image_ids'],$value['banner_ids'],$value['theme_id'],$value['site_id']);
         }
         $this->setMessage('获取成功！');
-        return $list;
+        $res['banners'] = [];
+        $res['list'] = $list;
+        return $res;
     }
 }
             

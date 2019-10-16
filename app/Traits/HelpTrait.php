@@ -166,4 +166,41 @@ trait HelpTrait
         unset ($proArr);
         return $result;
     }
+
+    /**
+     * 根据会员等级计算折扣
+     * @param integer $grade 等级,1、亦享成员，2、至享成员，3、悦享成员，4、真享成员，5、君享成员，6、尊享成员，7、测试成员
+     * @param $amount
+     * @return int
+     */
+    function discount($grade, $amount){
+        $discount_amount = 0;
+        switch ($grade){
+            case 1:
+                $discount_amount = $amount;
+                break;
+            case 2:
+                $discount_amount = $amount;
+                break;
+            case 3:
+                $discount_amount = $amount;
+                break;
+            case 4:
+                $discount_amount = $amount;
+                break;
+            case 5:
+                $discount_amount = $amount;
+                break;
+            case 6:
+                $discount_amount = $amount;
+                break;
+            case 7:
+                $discount_amount = $amount;
+                break;
+            default:
+                $discount_amount = $amount;
+                break;
+        }
+        return $discount_amount;
+    }
 }

@@ -329,8 +329,8 @@ class QiNiuService extends BaseService
      * @return mixed  返回图片上传后存入数据表中的id
      */
     public function uploadImages($module, $name, $path){
-        $config = $this->module_config_test[$module];//测试
-//        $config = $this->module_config[$module];
+//        $config = $this->module_config_test[$module];//测试
+        $config = $this->module_config[$module];
         //获取七牛云配置
         config([
             'filesystems.disks.qiniu.bucket' => $config['bucket'],

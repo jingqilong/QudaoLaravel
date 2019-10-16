@@ -76,7 +76,7 @@ class CommonController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->smsService->send($this->request['mobile'], $this->request['type']);
+        $res = $this->smsService->sendCode($this->request['mobile'], $this->request['type']);
         if ($res['code'] == 0){
             return ['code' => 100, 'message' => $res['message']];
         }

@@ -140,6 +140,11 @@ $api->version('v1',function ($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
+
+                $api->post('comment','UserActivityController@comment')->name('会员评论活动');
+                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员评论活动');
+
+                $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
             });
         });
         //会员模块

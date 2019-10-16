@@ -30,6 +30,7 @@ class PublicService extends BaseService
         $user = $this->auth->user();
         $referral_code = $user->m_referral_code;
         if (!empty($user->m_referral_qrcode)){
+            $this->setMessage('图片获取成功！');
             return ['url' => $user->m_referral_qrcode];
         }
         if (empty($user->m_referral_code)){
@@ -40,7 +41,7 @@ class PublicService extends BaseService
             }
         }
         $image_name = 'qr_code'.$user->m_id;//dd(unlink($image_name));
-        $img_path = $this->buildQrCode('http://qudaoplus.cn/?referral_code='.$referral_code, $image_name);
+        $img_path = $this->buildQrCode('http://qudaoplus.cc/?referral_code='.$referral_code, $image_name);
         $qiniuService = new QiNiuService();
         if (!$res = $qiniuService->uploadImages('Member',$image_name.$user->m_id,$img_path)){
             $this->setError('图片获取失败！');
