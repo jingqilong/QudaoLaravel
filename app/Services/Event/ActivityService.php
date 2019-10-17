@@ -3,6 +3,8 @@ namespace App\Services\Event;
 
 
 use App\Repositories\ActivityDetailRepository;
+use App\Repositories\ActivityGuestRepository;
+use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivitySiteRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
@@ -43,7 +45,8 @@ class ActivityService extends BaseService
             'status'        => $request['status'],
             'firm'          => $request['firm'] ?? '',
             'notice'        => $request['notice'] ?? '',
-            'detail'        => $request['detail'] ?? ''
+            'detail'        => $request['detail'] ?? '',
+            'is_member'     => $request['is_member']
         ];
         if (ActivityDetailRepository::exists($add_arr)){
             $this->setError('该活动已添加！');
@@ -67,12 +70,12 @@ class ActivityService extends BaseService
      */
     public function getHomeList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        $theme_id   = $request['theme_id'] ?? null;
-        $is_recommend = $request['is_recommend'] ?? null;
-        $keywords   = $request['keywords'] ?? null;
-        $where = ['status' => 1];
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
+        $theme_id       = $request['theme_id'] ?? null;
+        $is_recommend   = $request['is_recommend'] ?? null;
+        $keywords       = $request['keywords'] ?? null;
+        $where          = ['status' => 1,'end_time' => ['>',time()]];
         if (!empty($theme_id)){
             $where['theme_id']  = $theme_id;
         }
@@ -125,15 +128,42 @@ class ActivityService extends BaseService
             $value['firm'] = !empty($value['firm']) ? explode('|',$value['firm']): [];
             $site                   = ActivitySiteRepository::getOne(['id' => $value['site_id']]);
             $value['site_name']     = $site ? $site['name'] : '';
-            $value['site_title']     = $site ? $site['title'] : '';
+            $value['site_title']    = $site ? $site['title'] : '';
             $value['start_time']    = date('Y-m-d H:m:i',$value['start_time']);
             $value['end_time']      = date('Y-m-d H:m:i',$value['end_time']);
             unset($value['image_ids'],$value['banner_ids'],$value['theme_id'],$value['site_id']);
         }
         $this->setMessage('获取成功！');
-        $res['banners'] = [];
-        $res['list'] = $list;
+        $res['banners']     = [];
+        $res['list']        = $list;
         return $res;
+    }
+
+    /**
+     * 软删除活动
+     * @param $id
+     * @return bool
+     */
+    public function softDeleteActivity($id)
+    {
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $id])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        if ($activity['deleted_at'] > 0){
+            $this->setError('活动已删除！');
+            return false;
+        }
+        if (ActivityRegisterRepository::exists(['activity_id' => $id]) || ActivityGuestRepository::exists(['activity_id' => $id])){
+            $this->setError('活动已有人参加，无法进行删除！');
+            return false;
+        }
+        if (ActivityDetailRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+            $this->setMessage('删除成功！');
+            return true;
+        }
+        $this->setError('删除失败！');
+        return false;
     }
 }
             

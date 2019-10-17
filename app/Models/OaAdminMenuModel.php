@@ -27,7 +27,7 @@ class OaAdminMenuModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','type','parent_id','path','level','order','title','icon','url','permission','created_at','updated_at'];
+    protected $fillable = ['id','type','parent_id','path','level','order','title','icon','method','url','permission','created_at','updated_at'];
 
 
 

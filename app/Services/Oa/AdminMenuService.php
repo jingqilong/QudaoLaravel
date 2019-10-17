@@ -62,12 +62,18 @@ class AdminMenuService extends BaseService
                 return false;
             }
         }
+        if (OaAdminMenuRepository::exists(['title' => $request['title']])){
+            $this->setError('标题已被使用！');
+            return false;
+        }
         $menu_data = [
+            'type'      => $request['type'],
             'parent_id' => $request['parent_menu'],
             'path'      => $request['path'] ?? '',
             'level'     => $menu_level,
             'title'     => $request['title'],
             'icon'      => $request['icon'],
+            'method'    => $request['method'] ?? '',
             'permission'=> $request['permission'] ?? '',
         ];
         DB::beginTransaction();
@@ -187,7 +193,7 @@ class AdminMenuService extends BaseService
             $permissions_ids = explode(',', $user->permissions);
             if (!empty($permissions = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]],['slug']))){
                 $permissions_slugs = array_column($permissions,'slug');
-                $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs],'type' => AdminMenuEnum::MENU]);
+                $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs]]);
             }
         }
         if (empty($user->permissions) && empty($user->role_id)){
@@ -200,7 +206,7 @@ class AdminMenuService extends BaseService
             if (!empty($perm_infos)){
                 #此处有所有权限，直接返回所有菜单
                 $this->setMessage('获取成功！');
-                return OaAdminMenuRepository::getMenuList(['type' => AdminMenuEnum::MENU]);
+                return OaAdminMenuRepository::getMenuList(['id' => ['>',0]]);
             }
         }
 

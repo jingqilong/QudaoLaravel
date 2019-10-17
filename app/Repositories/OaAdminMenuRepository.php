@@ -29,13 +29,14 @@ class OaAdminMenuRepository extends ApiRepository
      */
     protected function createMenu(array $add_data){
         $arr = [
-            'type'      => AdminMenuEnum::MENU,
+            'type'      => $add_data['type'],
             'parent_id' => $add_data['parent_id'],
             'path'      => $add_data['path'],
             'level'     => $add_data['level'],
             'order'     => $add_data['order'] ?? 0,
             'title'     => $add_data['title'],
             'icon'      => $add_data['icon'],
+            'method'    => $add_data['method'],
             'url'       => $add_data['url'] ?? '',
             'permission'=> $add_data['permission'] ?? '',
             'created_at' => date('Y-m-d H:m:s'),
@@ -50,7 +51,7 @@ class OaAdminMenuRepository extends ApiRepository
      * @param array $column
      * @return array
      */
-    protected function getMenuList(array $where, $column = ['id', 'type', 'parent_id', 'path', 'level', 'title', 'icon', 'url']){
+    protected function getMenuList(array $where, $column = ['id', 'type', 'parent_id', 'path', 'level', 'title', 'icon', 'method', 'url']){
         if (!$list = $this->getList($where,$column,'order','asc')){
             return [];
         }
@@ -58,7 +59,8 @@ class OaAdminMenuRepository extends ApiRepository
         $menu_list = [];
         //查询填补上级菜单
         foreach ($list as &$value){
-            $value['url'] = 'HTTP://'.$_SERVER['HTTP_HOST'].'/api/'.$value['path'];
+            $http = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
+            $value['url'] = $http . $_SERVER['HTTP_HOST'] . '/api/v1/' . $value['path'];
             if (!in_array($value['parent_id'],$parent_ids)){
                 $menu_list[$value['parent_id']] = OaAdminMenuRepository::getOne(['id' => $value['parent_id']],$column);
                 $parent_ids += [$value['parent_id']];

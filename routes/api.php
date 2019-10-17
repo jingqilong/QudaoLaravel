@@ -115,26 +115,27 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 $api->post('add_activity','ActivityController@addActivity')->name('添加活动');
+                $api->delete('delete_activity','ActivityController@deleteActivity')->name('软删除活动');
 
-                $api->post('add_activity_theme','ActivityController@addActivityTheme')->name('添加活动主题');
-                $api->delete('delete_activity_theme','ActivityController@deleteActivityTheme')->name('删除活动主题');
-                $api->post('edit_activity_theme','ActivityController@editActivityTheme')->name('修改活动主题');
-                $api->get('activity_theme_list','ActivityController@activityThemeList')->name('获取活动主题列表');
+                $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
+                $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
+                $api->post('edit_activity_theme','ThemeController@editActivityTheme')->name('修改活动主题');
+                $api->get('activity_theme_list','ThemeController@activityThemeList')->name('获取活动主题列表');
 
-                $api->post('add_activity_site','ActivityController@addActivitySite')->name('添加活动场地');
-                $api->delete('delete_activity_site','ActivityController@deleteActivitySite')->name('删除活动场地');
-                $api->post('edit_activity_site','ActivityController@editActivitySite')->name('修改活动场地');
-                $api->get('activity_site_list','ActivityController@activitySiteList')->name('获取活动场地列表');
+                $api->post('add_activity_site','SiteController@addActivitySite')->name('添加活动场地');
+                $api->delete('delete_activity_site','SiteController@deleteActivitySite')->name('删除活动场地');
+                $api->post('edit_activity_site','SiteController@editActivitySite')->name('修改活动场地');
+                $api->get('activity_site_list','SiteController@activitySiteList')->name('获取活动场地列表');
 
-                $api->post('add_activity_supplies','ActivityController@addActivitySupplies')->name('添加活动用品');
-                $api->delete('delete_activity_supplies','ActivityController@deleteActivitySupplies')->name('删除活动用品');
-                $api->post('edit_activity_supplies','ActivityController@editActivitySupplies')->name('修改活动用品');
-                $api->get('activity_supplies_list','ActivityController@activitySuppliesList')->name('获取活动用品列表');
+                $api->post('add_activity_supplies','SuppliesController@addActivitySupplies')->name('添加活动用品');
+                $api->delete('delete_activity_supplies','SuppliesController@deleteActivitySupplies')->name('删除活动用品');
+                $api->post('edit_activity_supplies','SuppliesController@editActivitySupplies')->name('修改活动用品');
+                $api->get('activity_supplies_list','SuppliesController@activitySuppliesList')->name('获取活动用品列表');
 
-                $api->post('activity_add_prize','ActivityController@activityAddPrize')->name('活动添加奖品');
-                $api->delete('activity_delete_prize','ActivityController@activityDeletePrize')->name('删除活动奖品');
-                $api->post('activity_edit_prize','ActivityController@activityEditPrize')->name('修改奖品信息');
-                $api->get('get_prize_list','ActivityController@getPrizeList')->name('获取活动奖品列表');
+                $api->post('activity_add_prize','PrizeController@activityAddPrize')->name('活动添加奖品');
+                $api->delete('activity_delete_prize','PrizeController@activityDeletePrize')->name('删除活动奖品');
+                $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
+                $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');

@@ -67,6 +67,15 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="菜单类型：0：目录，1：菜单：2：操作",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="parent_menu",
      *         in="query",
      *         description="父级菜单id，0为顶级菜单",
@@ -96,7 +105,7 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="path",
      *         in="query",
-     *         description="路径【oa/login】",
+     *         description="访问路径【oa/login】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -106,6 +115,15 @@ class PermissionsController extends ApiController
      *         name="role_id",
      *         in="query",
      *         description="角色id,【1,2】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="method",
+     *         in="query",
+     *         description="访问方法，只填一个【GET、POST、DELETE、PUT等】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -130,17 +148,22 @@ class PermissionsController extends ApiController
     public function addMenu()
     {
         $rules = [
+            'type'          => 'required|in:0,1,2',
             'parent_menu'   => 'required|integer',
             'title'         => 'required',
             'icon'          => 'required',
             'role_id'       => 'regex:/^([0-9]+[,])*[0-9]+$/',
+            'method'        => 'in:GET,POST,DELETE,PUT',
         ];
         $messages = [
+            'type.required'         => '请选择菜单类别',
+            'type.in'               => '菜单类别取值不在范围内',
             'parent_menu.required'  => '请选择父级菜单',
-            'integer.required'      => '父级菜单ID必须为整数',
+            'parent_menu.integer'   => '父级菜单ID必须为整数',
             'title.required'        => '请输入标题',
             'icon.required'         => '请选择图标',
             'role_id.regex'         => '角色id格式有误',
+            'method.in'             => '访问方法不存在',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -200,7 +223,7 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="http_method",
      *         in="query",
-     *         description="HTTP方法，【EG：POST,GET,PUT,DELETE】【EG2:POST】",
+     *         description="HTTP方法，可多个填写【EG：POST,GET,PUT,DELETE】【EG2:POST】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"

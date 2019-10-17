@@ -22,6 +22,10 @@ class ActivityEnum extends BaseEnum
     const OWN           = 1;    //自营
 
     const THIRDPART     = 2;    //第三方
+    // 是否允许非会员参加
+    const NOTALLOW      = 1;    //不允许
+
+    const ALLOW         = 2;    //允许
 
     /**
      * 获取状态label

@@ -2,6 +2,7 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
 use App\Repositories\ActivityCommentKeywordsRepository;
 use App\Repositories\ActivityCommentsRepository;
@@ -114,9 +115,14 @@ class CommentsService extends BaseService
             return false;
         }
         $member = $this->auth->user();
-        if (!$grade = MemberGradeRepository::getOne(['user_id' => $member])){
-            $this->setError('您还不是会员，无法参加活动！');
-            return false;
+        $member_price = $activity['price'];
+        if ($activity['is_member'] == ActivityEnum::NOTALLOW){
+            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member])){
+                $this->setError('本次活动仅限会员参加！');
+                return false;
+            }
+            //计算会员价格
+            $member_price   = $this->discount($grade['grade'],$activity['price']);
         }
         $time = time();
         if ($time > $activity['start_time'] && $time < $activity['end_time']){
@@ -134,8 +140,6 @@ class CommentsService extends BaseService
             $this->setError('您已经报过名了，请勿重复报名！');
             return false;
         }
-        //计算会员价格
-        $member_price   = $this->discount($grade['grade'],$activity['price']);
         $add_arr = [
             'activity_id'   => $request['activity_id'],
             'member_id'     => $member->m_id,
