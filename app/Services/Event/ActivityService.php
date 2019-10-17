@@ -165,5 +165,51 @@ class ActivityService extends BaseService
         $this->setError('删除失败！');
         return false;
     }
+
+    public function editActivity($request)
+    {
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $request['id']])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        if (!ActivityThemeRepository::exists(['id' => $request['theme_id']])){
+            $this->setError('活动主题不存在！');
+            return false;
+        }
+        if (!ActivitySiteRepository::exists(['id' => $request['site_id']])){
+            $this->setError('活动场地不存在！');
+            return false;
+        }
+        $upd_arr = [
+            'name'          => $request['name'],
+            'address'       => $request['address'],
+            'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
+            'theme_id'      => $request['theme_id'],
+            'start_time'    => strtotime($request['start_time']),
+            'end_time'      => strtotime($request['end_time']),
+            'site_id'       => $request['site_id'],
+            'supplies_ids'  => $request['supplies_ids'] ?? '',
+            'is_recommend'  => $request['is_recommend'] ?? 0,
+            'banner_ids'    => $request['banner_ids'],
+            'image_ids'     => $request['image_ids'],
+            'status'        => $request['status'],
+            'firm'          => $request['firm'] ?? '',
+            'notice'        => $request['notice'] ?? '',
+            'detail'        => $request['detail'] ?? '',
+            'is_member'     => $request['is_member']
+        ];
+        if (ActivityDetailRepository::exists($upd_arr)){
+            $this->setError('该活动已存在！');
+            return false;
+        }
+        $upd_arr['updated_at'] = time();
+
+        if (ActivityDetailRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setMessage('修改成功！');
+            return true;
+        }
+        $this->setError('修改失败！');
+        return false;
+    }
 }
             

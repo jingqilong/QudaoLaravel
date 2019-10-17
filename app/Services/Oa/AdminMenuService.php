@@ -70,6 +70,7 @@ class AdminMenuService extends BaseService
             'type'      => $request['type'],
             'parent_id' => $request['parent_menu'],
             'path'      => $request['path'] ?? '',
+            'vue_route' => $request['vue_route'] ?? '',
             'level'     => $menu_level,
             'title'     => $request['title'],
             'icon'      => $request['icon'],

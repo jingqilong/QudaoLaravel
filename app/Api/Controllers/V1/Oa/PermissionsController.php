@@ -112,6 +112,15 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="vue_route",
+     *         in="query",
+     *         description="前端路由",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="role_id",
      *         in="query",
      *         description="角色id,【1,2】",

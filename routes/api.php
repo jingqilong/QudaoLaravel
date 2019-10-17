@@ -116,6 +116,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 $api->post('add_activity','ActivityController@addActivity')->name('添加活动');
                 $api->delete('delete_activity','ActivityController@deleteActivity')->name('软删除活动');
+                $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
 
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
