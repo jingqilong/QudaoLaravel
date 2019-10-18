@@ -46,16 +46,6 @@ class AdminMenuService extends BaseService
             }
             $menu_level = $parent_level + 1;
         }
-        $role_ids = $request['role_id'] ?? '';
-        $roles      = explode(',',$role_ids);
-        if (!empty($roles)){
-            foreach ($roles as $id){
-                if (!OaAdminRolesRepository::exists(['id' => $id])){
-                    $this->setError('角色'.$id.'不存在！');
-                    return false;
-                }
-            }
-        }
         if (isset($request['permission']) || !empty($request['permission'])){
             if (!OaAdminPermissionsRepository::exists(['slug' => $request['permission']])){
                 $this->setError('权限不存在！');
@@ -82,20 +72,6 @@ class AdminMenuService extends BaseService
             DB::rollBack();
             $this->setError('菜单添加失败！');
             return false;
-        }
-        if (!empty($roles)){
-            $role_menu = [];
-            foreach ($roles as $id){
-                $role_menu[$id]['menu_id'] = $menu_id;
-                $role_menu[$id]['role_id'] = $id;
-                $role_menu[$id]['created_at'] = date('Y-m-d H:m:s');
-                $role_menu[$id]['updated_at'] = date('Y-m-d H:m:s');
-            }
-            if (!OaAdminRoleMenuRepository::create($role_menu)){
-                DB::rollBack();
-                $this->setError('菜单添加失败！');
-                return false;
-            }
         }
         DB::commit();
         $this->setMessage('添加成功！');

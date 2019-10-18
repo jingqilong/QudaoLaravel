@@ -26,6 +26,7 @@ class PrizeController extends ApiController
      *     path="/api/v1/activity/activity_add_prize",
      *     tags={"精选活动后台"},
      *     summary="活动添加奖品",
+     *     description="sang" ,
      *     operationId="activity_add_prize",
      *     @OA\Parameter(
      *         name="sign",
@@ -155,6 +156,7 @@ class PrizeController extends ApiController
      *     path="/api/v1/activity/activity_delete_prize",
      *     tags={"精选活动后台"},
      *     summary="删除活动奖品",
+     *     description="sang" ,
      *     operationId="activity_delete_prize",
      *     @OA\Parameter(
      *         name="sign",
@@ -214,6 +216,7 @@ class PrizeController extends ApiController
      *     path="/api/v1/activity/activity_edit_prize",
      *     tags={"精选活动后台"},
      *     summary="修改奖品信息",
+     *     description="sang" ,
      *     operationId="activity_edit_prize",
      *     @OA\Parameter(
      *         name="sign",
@@ -355,6 +358,7 @@ class PrizeController extends ApiController
      *     path="/api/v1/activity/get_prize_list",
      *     tags={"精选活动后台"},
      *     summary="获取活动奖品列表",
+     *     description="sang" ,
      *     operationId="get_prize_list",
      *     @OA\Parameter(
      *         name="sign",

@@ -60,8 +60,8 @@ class OaAdminMenuRepository extends ApiRepository
         $menu_list = [];
         //查询填补上级菜单
         foreach ($list as &$value){
-            $http = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-            $value['path'] = $http . $_SERVER['HTTP_HOST'] .'/' . $value['path'];
+//            $http = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
+//            $value['path'] = $http . $_SERVER['HTTP_HOST'] .'/' . $value['path'];
             if (!in_array($value['parent_id'],$parent_ids)){
                 $menu_list[$value['parent_id']] = OaAdminMenuRepository::getOne(['id' => $value['parent_id']],$column);
                 $parent_ids += [$value['parent_id']];

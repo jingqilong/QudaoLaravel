@@ -28,6 +28,7 @@ class WeChatController extends ApiController
      *     path="/api/v1/member/mini_login",
      *     tags={"会员"},
      *     summary="微信小程序登录",
+     *     description="sang" ,
      *     operationId="mini_login",
      *     @OA\Parameter(
      *         name="sign",
@@ -121,6 +122,7 @@ class WeChatController extends ApiController
      *     path="/api/v1/member/mini_bind_mobile",
      *     tags={"会员"},
      *     summary="微信小程序登录绑定手机号",
+     *     description="sang" ,
      *     operationId="mini_bind_mobile",
      *   @OA\Parameter(in="query",name="sign",description="签名",required=true,@OA\Schema(type="string",)),
      *   @OA\Parameter(in="query",name="code",description="js_code",required=true,@OA\Schema(type="string",)),

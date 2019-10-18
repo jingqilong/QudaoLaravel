@@ -47,6 +47,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/add_menu",
      *     tags={"OA权限管理"},
      *     summary="添加菜单",
+     *     description="sang" ,
      *     operationId="add_menu",
      *     @OA\Parameter(
      *         name="sign",
@@ -121,15 +122,6 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="role_id",
-     *         in="query",
-     *         description="角色id,【1,2】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="method",
      *         in="query",
      *         description="访问方法，只填一个【GET、POST、DELETE、PUT等】",
@@ -161,7 +153,6 @@ class PermissionsController extends ApiController
             'parent_menu'   => 'required|integer',
             'title'         => 'required',
             'icon'          => 'required',
-            'role_id'       => 'regex:/^([0-9]+[,])*[0-9]+$/',
             'method'        => 'in:GET,POST,DELETE,PUT',
         ];
         $messages = [
@@ -171,7 +162,6 @@ class PermissionsController extends ApiController
             'parent_menu.integer'   => '父级菜单ID必须为整数',
             'title.required'        => '请输入标题',
             'icon.required'         => '请选择图标',
-            'role_id.regex'         => '角色id格式有误',
             'method.in'             => '访问方法不存在',
         ];
 
@@ -192,6 +182,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/add_permission",
      *     tags={"OA权限管理"},
      *     summary="添加权限",
+     *     description="sang" ,
      *     operationId="add_permission",
      *     @OA\Parameter(
      *         name="sign",
@@ -286,6 +277,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/add_roles",
      *     tags={"OA权限管理"},
      *     summary="添加角色",
+     *     description="sang" ,
      *     operationId="add_roles",
      *     @OA\Parameter(
      *         name="sign",
@@ -369,6 +361,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/add_user",
      *     tags={"OA权限管理"},
      *     summary="添加用户",
+     *     description="sang" ,
      *     operationId="add_user",
      *     @OA\Parameter(
      *         name="sign",
@@ -521,6 +514,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/menu_list",
      *     tags={"OA权限管理"},
      *     summary="获取菜单列表",
+     *     description="sang" ,
      *     operationId="menu_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -560,6 +554,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/user_list",
      *     tags={"OA权限管理"},
      *     summary="获取用户列表",
+     *     description="sang" ,
      *     operationId="user_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -629,6 +624,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/permission_list",
      *     tags={"OA权限管理"},
      *     summary="获取权限列表",
+     *     description="sang" ,
      *     operationId="permission_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -698,6 +694,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/role_list",
      *     tags={"OA权限管理"},
      *     summary="获取角色列表",
+     *     description="sang" ,
      *     operationId="role_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -767,6 +764,7 @@ class PermissionsController extends ApiController
      *     path="/api/v1/oa/operation_log",
      *     tags={"OA权限管理"},
      *     summary="获取操作日志",
+     *     description="sang" ,
      *     operationId="operation_log",
      *     @OA\Parameter(
      *         name="sign",

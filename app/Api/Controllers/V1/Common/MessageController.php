@@ -26,6 +26,7 @@ class MessageController extends ApiController
      *     path="/api/v1/common/browser_push",
      *     tags={"公共"},
      *     summary="浏览器推送消息",
+     *     description="sang" ,
      *     operationId="browser_push",
      *     @OA\Parameter(
      *         name="sign",

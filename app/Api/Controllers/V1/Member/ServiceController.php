@@ -31,7 +31,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/add_service",
      *     tags={"会员权限"},
      *     summary="添加服务",
-     *     description="只添加服务种类",
+     *     description="只添加服务种类,sang",
      *     operationId="add_service",
      *     @OA\Parameter(
      *         name="sign",
@@ -121,7 +121,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/service_detail",
      *     tags={"会员权限"},
      *     summary="获取服务详情",
-     *     description="获取服务详情",
+     *     description="获取服务详情,sang",
      *     operationId="service_detail",
      *     @OA\Parameter(
      *         name="sign",
@@ -188,7 +188,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/delete_service",
      *     tags={"会员权限"},
      *     summary="删除服务",
-     *     description="只删除服务种类",
+     *     description="只删除服务种类,sang",
      *     operationId="delete_service",
      *     @OA\Parameter(
      *         name="sign",
@@ -257,7 +257,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/edit_service",
      *     tags={"会员权限"},
      *     summary="修改服务",
-     *     description="用于修改服务信息",
+     *     description="用于修改服务信息,sang",
      *     operationId="edit_service",
      *     @OA\Parameter(
      *         name="sign",
@@ -361,7 +361,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/service_list",
      *     tags={"会员权限"},
      *     summary="获取服务列表",
-     *     description="获取所有的服务列表",
+     *     description="获取所有的服务列表,sang",
      *     operationId="service_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -412,7 +412,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/grade_add_service",
      *     tags={"会员权限"},
      *     summary="给等级添加服务",
-     *     description="给等级添加服务",
+     *     description="给等级添加服务,sang",
      *     operationId="grade_add_service",
      *     @OA\Parameter(
      *         name="sign",
@@ -529,7 +529,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/grade_delete_service",
      *     tags={"会员权限"},
      *     summary="删除等级中的服务",
-     *     description="删除等级中的服务",
+     *     description="删除等级中的服务,sang",
      *     operationId="grade_delete_service",
      *     @OA\Parameter(
      *         name="sign",
@@ -794,7 +794,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/add_view_member",
      *     tags={"会员权限"},
      *     summary="添加会员可查看成员",
-     *     description="添加会员可查看成员",
+     *     description="添加会员可查看成员,sang",
      *     operationId="add_view_member",
      *     @OA\Parameter(
      *         name="sign",
@@ -877,7 +877,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/delete_view_member",
      *     tags={"会员权限"},
      *     summary="软删除会员可查看成员",
-     *     description="软删除会员可查看成员",
+     *     description="软删除会员可查看成员,sang",
      *     operationId="delete_view_member",
      *     @OA\Parameter(
      *         name="sign",
@@ -945,7 +945,7 @@ class ServiceController extends ApiController
      *     path="/api/v1/member/restore_view_member",
      *     tags={"会员权限"},
      *     summary="恢复会员可查看成员",
-     *     description="恢复会员可查看成员",
+     *     description="恢复会员可查看成员,sang",
      *     operationId="restore_view_member",
      *     @OA\Parameter(
      *         name="sign",

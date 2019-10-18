@@ -12,6 +12,7 @@ class TestApiController extends ApiController
      *     path="/api/v1/test/test",
      *     tags={"测试"},
      *     summary="这是一个测试接口",
+     *     description="sang" ,
      *     operationId="test",
      *     @OA\Parameter(
      *         name="test",
@@ -125,6 +126,7 @@ class TestApiController extends ApiController
      *     path="/api/v1/test/create_model",
      *     tags={"测试"},
      *     summary="批量生成模型",
+     *     description="sang" ,
      *     operationId="create_model",
      *
      *     @OA\Response(
@@ -241,6 +243,7 @@ class $className extends Model
      *     path="/api/v1/test/create_repository",
      *     tags={"测试"},
      *     summary="批量生成Repository",
+     *     description="sang" ,
      *     operationId="create_repository",
      *
      *     @OA\Response(
@@ -341,6 +344,7 @@ class $repositoryName extends ApiRepository
      *     path="/api/v1/test/create_service",
      *     tags={"测试"},
      *     summary="批量生成Services",
+     *     description="sang" ,
      *     operationId="create_service",
      *
      *     @OA\Response(

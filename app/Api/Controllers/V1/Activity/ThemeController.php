@@ -27,6 +27,7 @@ class ThemeController extends ApiController
      *     path="/api/v1/activity/add_activity_theme",
      *     tags={"精选活动后台"},
      *     summary="添加活动主题",
+     *     description="sang" ,
      *     operationId="add_activity_theme",
      *     @OA\Parameter(
      *         name="sign",
@@ -95,6 +96,7 @@ class ThemeController extends ApiController
      *     path="/api/v1/activity/delete_activity_theme",
      *     tags={"精选活动后台"},
      *     summary="删除活动主题",
+     *     description="sang" ,
      *     operationId="delete_activity_theme",
      *     @OA\Parameter(
      *         name="sign",
@@ -154,6 +156,7 @@ class ThemeController extends ApiController
      *     path="/api/v1/activity/edit_activity_theme",
      *     tags={"精选活动后台"},
      *     summary="修改活动主题",
+     *     description="sang" ,
      *     operationId="edit_activity_theme",
      *     @OA\Parameter(
      *         name="sign",
@@ -233,6 +236,7 @@ class ThemeController extends ApiController
      *     path="/api/v1/activity/activity_theme_list",
      *     tags={"精选活动后台"},
      *     summary="获取活动主题列表",
+     *     description="sang" ,
      *     operationId="activity_theme_list",
      *     @OA\Parameter(
      *         name="sign",

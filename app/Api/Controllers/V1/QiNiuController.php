@@ -35,6 +35,7 @@ class QiNiuController extends ApiController
      *     path="/api/v1/qiniu/upload_images",
      *     tags={"七牛云"},
      *     summary="上传至七牛云",
+     *     description="sang" ,
      *     operationId="upload_images",
      *     @OA\Parameter(
      *         name="sign",

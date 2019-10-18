@@ -28,7 +28,7 @@ class WeChatPayController extends ApiController
      *     path="/api/v1/payments/we_chat_pay",
      *     tags={"支付模块"},
      *     summary="微信小程序微信支付下单接口",
-     *     description="用于微信小程序支付下单",
+     *     description="用于微信小程序支付下单,sang",
      *     operationId="we_chat_pay",
      *     @OA\Parameter(
      *     in="query",
@@ -90,7 +90,7 @@ class WeChatPayController extends ApiController
      *     path="/api/v1/payments/we_chat_pay_call_back",
      *     tags={"支付模块"},
      *     summary="微信小程序微信支付回调接口",
-     *     description="用于微信小程序支付回调",
+     *     description="用于微信小程序支付回调,sang",
      *     operationId="we_chat_pay_call_back",
      *   @OA\Response(
      *     response="default",

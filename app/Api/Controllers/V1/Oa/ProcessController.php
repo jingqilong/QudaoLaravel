@@ -60,6 +60,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/add_process_categories",
      *     tags={"OA流程"},
      *     summary="添加流程分类",
+     *     description="sang" ,
      *     operationId="add_process_categories",
      *     @OA\Parameter(
      *         name="sign",
@@ -151,6 +152,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/delete_process_categories",
      *     tags={"OA流程"},
      *     summary="删除流程分类",
+     *     description="sang" ,
      *     operationId="delete_process_categories",
      *     @OA\Parameter(
      *         name="sign",
@@ -210,6 +212,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/edit_process_categories",
      *     tags={"OA流程"},
      *     summary="修改流程分类",
+     *     description="sang" ,
      *     operationId="edit_process_categories",
      *     @OA\Parameter(
      *         name="sign",
@@ -311,6 +314,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/get_categories_list",
      *     tags={"OA流程"},
      *     summary="获取流程分类列表",
+     *     description="sang" ,
      *     operationId="get_categories_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -379,6 +383,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/create_process",
      *     tags={"OA流程"},
      *     summary="创建流程",
+     *     description="sang" ,
      *     operationId="create_process",
      *     @OA\Parameter(
      *         name="sign",
@@ -468,6 +473,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/delete_process",
      *     tags={"OA流程"},
      *     summary="删除流程",
+     *     description="sang" ,
      *     operationId="delete_process",
      *     @OA\Parameter(
      *         name="sign",
@@ -526,6 +532,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/edit_process",
      *     tags={"OA流程"},
      *     summary="修改流程定义",
+     *     description="sang" ,
      *     operationId="edit_process",
      *     @OA\Parameter(
      *         name="sign",
@@ -629,6 +636,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/get_process_list",
      *     tags={"OA流程"},
      *     summary="获取流程列表",
+     *     description="sang" ,
      *     operationId="get_process_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -696,6 +704,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/get_process_detail",
      *     tags={"OA流程"},
      *     summary="获取流程详情",
+     *     description="sang" ,
      *     operationId="get_process_detail",
      *     @OA\Parameter(
      *         name="sign",
@@ -754,6 +763,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/process_add_node",
      *     tags={"OA流程"},
      *     summary="流程添加节点",
+     *     description="sang" ,
      *     operationId="process_add_node",
      *     @OA\Parameter(
      *         name="sign",
@@ -865,6 +875,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/delete_node",
      *     tags={"OA流程"},
      *     summary="删除流程节点",
+     *     description="sang" ,
      *     operationId="delete_node",
      *     @OA\Parameter(
      *         name="sign",
@@ -935,6 +946,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/process_edit_node",
      *     tags={"OA流程"},
      *     summary="流程修改节点",
+     *     description="sang" ,
      *     operationId="process_edit_node",
      *     @OA\Parameter(
      *         name="sign",
@@ -1049,6 +1061,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/add_event",
      *     tags={"OA流程"},
      *     summary="添加事件",
+     *     description="sang" ,
      *     operationId="add_event",
      *     @OA\Parameter(
      *         name="sign",
@@ -1140,6 +1153,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/delete_event",
      *     tags={"OA流程"},
      *     summary="删除事件",
+     *     description="sang" ,
      *     operationId="delete_event",
      *     @OA\Parameter(
      *         name="sign",
@@ -1198,6 +1212,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/edit_event",
      *     tags={"OA流程"},
      *     summary="修改事件",
+     *     description="sang" ,
      *     operationId="edit_event",
      *     @OA\Parameter(
      *         name="sign",
@@ -1301,6 +1316,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/get_event_list",
      *     tags={"OA流程"},
      *     summary="获取事件列表",
+     *     description="sang" ,
      *     operationId="get_event_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -1367,6 +1383,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/add_action",
      *     tags={"OA流程"},
      *     summary="添加动作",
+     *     description="sang" ,
      *     operationId="add_action",
      *     @OA\Parameter(
      *         name="sign",
@@ -1458,6 +1475,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/delete_action",
      *     tags={"OA流程"},
      *     summary="删除动作",
+     *     description="sang" ,
      *     operationId="delete_action",
      *     @OA\Parameter(
      *         name="sign",
@@ -1516,6 +1534,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/edit_action",
      *     tags={"OA流程"},
      *     summary="修改动作",
+     *     description="sang" ,
      *     operationId="edit_action",
      *     @OA\Parameter(
      *         name="sign",
@@ -1619,6 +1638,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/get_action_list",
      *     tags={"OA流程"},
      *     summary="获取动作列表",
+     *     description="sang" ,
      *     operationId="get_action_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -1686,6 +1706,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/node_add_action",
      *     tags={"OA流程"},
      *     summary="给流程节点添加动作",
+     *     description="sang" ,
      *     operationId="node_add_action",
      *     @OA\Parameter(
      *         name="sign",
@@ -1757,6 +1778,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/node_delete_action",
      *     tags={"OA流程"},
      *     summary="流程节点删除动作",
+     *     description="sang" ,
      *     operationId="node_delete_action",
      *     @OA\Parameter(
      *         name="sign",
@@ -1827,6 +1849,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/action_add_related",
      *     tags={"OA流程"},
      *     summary="给流程节点动作事件与下一节点",
+     *     description="sang" ,
      *     operationId="action_add_related",
      *     @OA\Parameter(
      *         name="sign",
@@ -1907,6 +1930,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/process_record",
      *     tags={"OA流程"},
      *     summary="记录流程进度【测试用】",
+     *     description="sang" ,
      *     operationId="process_record",
      *     @OA\Parameter(
      *         name="sign",
@@ -1989,6 +2013,7 @@ class ProcessController extends ApiController
      *     path="/api/v1/oa/process/action_add_principal",
      *     tags={"OA流程"},
      *     summary="流程节点动作添加负责人",
+     *     description="sang" ,
      *     operationId="action_add_principal",
      *     @OA\Parameter(
      *         name="sign",

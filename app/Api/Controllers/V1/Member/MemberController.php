@@ -32,6 +32,7 @@ class MemberController extends ApiController
      *     path="/api/v1/member/login",
      *     tags={"会员"},
      *     summary="登录",
+     *     description="sang" ,
      *     operationId="login",
      *     @OA\Parameter(
      *         name="sign",
@@ -100,6 +101,7 @@ class MemberController extends ApiController
      *     path="/api/v1/member/logout",
      *     tags={"会员"},
      *     summary="退出登录",
+     *     description="sang" ,
      *     operationId="logout",
      *     @OA\Parameter(
      *         name="sign",
@@ -144,6 +146,7 @@ class MemberController extends ApiController
      *     path="/api/v1/member/refresh",
      *     tags={"会员"},
      *     summary="刷新TOKEN",
+     *     description="sang" ,
      *     operationId="refresh",
      *     @OA\Parameter(
      *         name="sign",
@@ -305,6 +308,7 @@ class MemberController extends ApiController
      *     path="/api/v1/member/sms_login",
      *     tags={"会员"},
      *     summary="短信验证登录",
+     *     description="sang" ,
      *     operationId="sms_login",
      *     @OA\Parameter(
      *         name="sign",
@@ -620,6 +624,7 @@ class MemberController extends ApiController
      *     path="/api/v1/member/get_relation_list",
      *     tags={"会员"},
      *     summary="获取用户推荐关系",
+     *     description="sang" ,
      *     operationId="get_relation_list",
      *     @OA\Parameter(
      *         name="sign",

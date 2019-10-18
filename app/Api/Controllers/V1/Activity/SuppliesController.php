@@ -26,6 +26,7 @@ class SuppliesController extends ApiController
      *     path="/api/v1/activity/add_activity_supplies",
      *     tags={"精选活动后台"},
      *     summary="添加活动用品",
+     *     description="sang" ,
      *     operationId="add_activity_supplies",
      *     @OA\Parameter(
      *         name="sign",
@@ -176,6 +177,7 @@ class SuppliesController extends ApiController
      *     path="/api/v1/activity/delete_activity_supplies",
      *     tags={"精选活动后台"},
      *     summary="删除活动用品",
+     *     description="sang" ,
      *     operationId="delete_activity_supplies",
      *     @OA\Parameter(
      *         name="sign",
@@ -235,6 +237,7 @@ class SuppliesController extends ApiController
      *     path="/api/v1/activity/edit_activity_supplies",
      *     tags={"精选活动后台"},
      *     summary="修改活动用品",
+     *     description="sang" ,
      *     operationId="edit_activity_supplies",
      *     @OA\Parameter(
      *         name="sign",
@@ -397,6 +400,7 @@ class SuppliesController extends ApiController
      *     path="/api/v1/activity/activity_supplies_list",
      *     tags={"精选活动后台"},
      *     summary="获取活动用品列表",
+     *     description="sang" ,
      *     operationId="activity_supplies_list",
      *     @OA\Parameter(
      *         name="sign",

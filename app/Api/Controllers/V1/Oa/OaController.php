@@ -31,6 +31,7 @@ class OaController extends ApiController
      *     path="/api/v1/oa/login",
      *     tags={"OA"},
      *     summary="登录",
+     *     description="sang" ,
      *     operationId="login",
      *     @OA\Parameter(
      *         name="sign",
@@ -100,6 +101,7 @@ class OaController extends ApiController
      *     path="/api/v1/oa/logout",
      *     tags={"OA"},
      *     summary="退出登录",
+     *     description="sang" ,
      *     operationId="logout",
      *     @OA\Parameter(
      *         name="sign",
@@ -144,6 +146,7 @@ class OaController extends ApiController
      *     path="/api/v1/oa/refresh",
      *     tags={"OA"},
      *     summary="刷新TOKEN",
+     *     description="sang" ,
      *     operationId="refresh",
      *     @OA\Parameter(
      *         name="sign",
@@ -189,6 +192,7 @@ class OaController extends ApiController
      *     path="/api/v1/oa/get_user_info",
      *     tags={"OA"},
      *     summary="获取用户信息",
+     *     description="sang" ,
      *     operationId="get_user_info",
      *     @OA\Parameter(
      *         name="sign",

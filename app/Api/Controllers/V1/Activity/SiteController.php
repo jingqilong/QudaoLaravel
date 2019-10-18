@@ -27,6 +27,7 @@ class SiteController extends ApiController
      *     path="/api/v1/activity/add_activity_site",
      *     tags={"精选活动后台"},
      *     summary="添加活动场地",
+     *     description="sang" ,
      *     operationId="add_activity_site",
      *     @OA\Parameter(
      *         name="sign",
@@ -155,6 +156,7 @@ class SiteController extends ApiController
      *     path="/api/v1/activity/delete_activity_site",
      *     tags={"精选活动后台"},
      *     summary="删除活动场地",
+     *     description="sang" ,
      *     operationId="delete_activity_site",
      *     @OA\Parameter(
      *         name="sign",
@@ -217,6 +219,7 @@ class SiteController extends ApiController
      *     path="/api/v1/activity/edit_activity_site",
      *     tags={"精选活动后台"},
      *     summary="修改活动场地",
+     *     description="sang" ,
      *     operationId="edit_activity_site",
      *     @OA\Parameter(
      *         name="sign",
@@ -357,6 +360,7 @@ class SiteController extends ApiController
      *     path="/api/v1/activity/activity_site_list",
      *     tags={"精选活动后台"},
      *     summary="获取活动场地列表",
+     *     description="sang" ,
      *     operationId="activity_site_list",
      *     @OA\Parameter(
      *         name="sign",

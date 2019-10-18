@@ -27,7 +27,7 @@ class PublicController extends ApiController
      *     path="/api/v1/member/promote_qr_code",
      *     tags={"会员"},
      *     summary="获取推广二维码",
-     *     description="获取到可以跳转小程序的二维码推广图片",
+     *     description="获取到可以跳转小程序的二维码推广图片,sang",
      *     operationId="promote_qr_code",
      *     @OA\Parameter(
      *         name="sign",

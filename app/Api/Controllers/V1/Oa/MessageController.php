@@ -24,6 +24,7 @@ class MessageController extends ApiController
      *     path="/api/v1/oa/add_push_auth",
      *     tags={"OA"},
      *     summary="添加web推送授权信息【添加、更新，两用】",
+     *     description="sang" ,
      *     operationId="add_push_auth",
      *     @OA\Parameter(
      *         name="sign",

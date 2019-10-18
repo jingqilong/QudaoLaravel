@@ -28,6 +28,7 @@ class PrimeController extends ApiController
      *     path="/api/v1/prime/login",
      *     tags={"精选服务模块"},
      *     summary="登录",
+     *     description="sang" ,
      *     operationId="login",
      *     @OA\Parameter(
      *         name="sign",
@@ -97,6 +98,7 @@ class PrimeController extends ApiController
      *     path="/api/v1/prime/logout",
      *     tags={"精选服务模块"},
      *     summary="退出登录",
+     *     description="sang" ,
      *     operationId="logout",
      *     @OA\Parameter(
      *         name="sign",
@@ -141,6 +143,7 @@ class PrimeController extends ApiController
      *     path="/api/v1/prime/refresh",
      *     tags={"精选服务模块"},
      *     summary="刷新TOKEN",
+     *     description="sang" ,
      *     operationId="refresh",
      *     @OA\Parameter(
      *         name="sign",
@@ -186,6 +189,7 @@ class PrimeController extends ApiController
      *     path="/api/v1/prime/get_user_info",
      *     tags={"精选服务模块"},
      *     summary="获取用户信息",
+     *     description="sang" ,
      *     operationId="get_user_info",
      *     @OA\Parameter(
      *         name="sign",

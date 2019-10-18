@@ -27,6 +27,7 @@ class EmployessController extends ApiController
      *     path="/api/v1/member/get_employee_list",
      *     tags={"OA"},
      *     summary="获取用户列表",
+     *     description="sang" ,
      *     operationId="get_employee_list",
      *     @OA\Parameter(
      *         name="sign",

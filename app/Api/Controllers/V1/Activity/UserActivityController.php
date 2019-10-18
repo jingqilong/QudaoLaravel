@@ -40,6 +40,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/activity_raffle",
      *     tags={"精选活动"},
      *     summary="会员活动抽奖",
+     *     description="sang" ,
      *     operationId="activity_raffle",
      *     @OA\Parameter(
      *         name="sign",
@@ -98,6 +99,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/is_collect_activity",
      *     tags={"精选活动"},
      *     summary="收藏或取消收藏活动",
+     *     description="sang" ,
      *     operationId="is_collect_activity",
      *     @OA\Parameter(
      *         name="sign",
@@ -157,6 +159,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/get_home_list",
      *     tags={"精选活动"},
      *     summary="获取活动首页列表",
+     *     description="sang" ,
      *     operationId="get_home_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -170,7 +173,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="会员token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -179,7 +182,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容",
+     *         description="搜索内容【活动名称、活动地点、活动价格】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -257,6 +260,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/comment",
      *     tags={"精选活动"},
      *     summary="会员评论活动",
+     *     description="sang" ,
      *     operationId="comment",
      *     @OA\Parameter(
      *         name="sign",
@@ -370,6 +374,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/delete_comment",
      *     tags={"精选活动"},
      *     summary="删除活动评论",
+     *     description="sang" ,
      *     operationId="delete_comment",
      *     @OA\Parameter(
      *         name="sign",
@@ -431,6 +436,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/activity_register",
      *     tags={"精选活动"},
      *     summary="活动报名",
+     *     description="sang" ,
      *     operationId="activity_register",
      *     @OA\Parameter(
      *         name="sign",

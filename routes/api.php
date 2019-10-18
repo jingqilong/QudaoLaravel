@@ -111,12 +111,14 @@ $api->version('v1',function ($api){
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
-        //精选活动模块
+        //精选活动模块（后台）
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 $api->post('add_activity','ActivityController@addActivity')->name('添加活动');
                 $api->delete('delete_activity','ActivityController@deleteActivity')->name('软删除活动');
                 $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
+                $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
+                $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
 
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
@@ -138,6 +140,7 @@ $api->version('v1',function ($api){
                 $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
             });
+            //精选活动（前台）
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');

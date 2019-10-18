@@ -27,7 +27,7 @@ class OrderController extends ApiController
      *     path="/api/v1/member/place_order",
      *     tags={"会员"},
      *     summary="支付下单",
-     *     description="用于不需要实物的订单下单",
+     *     description="用于不需要实物的订单下单,sang",
      *     operationId="place_order",
      *     @OA\Parameter(
      *         name="sign",

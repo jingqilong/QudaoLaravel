@@ -25,6 +25,7 @@ class CommonController extends ApiController
      *     path="/api/v1/common/send_captcha",
      *     tags={"公共"},
      *     summary="发送短信验证码",
+     *     description="sang" ,
      *     operationId="send_captcha",
      *     @OA\Parameter(
      *         name="sign",
