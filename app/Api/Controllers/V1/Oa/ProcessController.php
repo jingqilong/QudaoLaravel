@@ -1105,7 +1105,7 @@ class ProcessController extends ApiController
      *          description="事件状态（ENABLE:启用，DISABLED:禁用）",
      *          required=true,
      *          @OA\Schema(
-     *              type="integer",
+     *              type="string",
      *          )
      *      ),
      *     @OA\Parameter(

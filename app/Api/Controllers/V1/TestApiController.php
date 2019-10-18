@@ -3,6 +3,8 @@
 namespace App\Api\Controllers\V1;
 
 use App\Api\Controllers\ApiController;
+use App\Exceptions\ServiceException\EventDoesNotExistsException;
+use App\Services\Common\EventProcessorService;
 use Illuminate\Support\Facades\Schema;
 
 class TestApiController extends ApiController
@@ -114,7 +116,11 @@ class TestApiController extends ApiController
      *
      */
     public function index(){
-        return view('welcome');
+        try{
+            return EventProcessorService::eventReceiver('send_sms','18394377667','测试短信');
+        } catch (EventDoesNotExistsException $e) {
+            return $e->getMessage();
+        }
     }
 
 
