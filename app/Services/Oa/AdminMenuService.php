@@ -39,7 +39,7 @@ class AdminMenuService extends BaseService
     {
         $menu_level = 1;
         if ($request['parent_menu'] != 0){
-            $parent_level = OaAdminMenuRepository::getField(['id' => $request['parent_menu'], 'type' => AdminMenuEnum::MENU],'level');
+            $parent_level = OaAdminMenuRepository::getField(['id' => $request['parent_menu']],'level');
             if (empty($parent_level)){
                 $this->setError('父级菜单不存在！');
                 return false;
