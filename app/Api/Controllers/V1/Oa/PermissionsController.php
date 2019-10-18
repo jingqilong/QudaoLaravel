@@ -324,6 +324,15 @@ class PermissionsController extends ApiController
      *             type="string"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="menu_ids",
+     *         in="query",
+     *         description="菜单ID，【EG：1,2,13】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -337,11 +346,13 @@ class PermissionsController extends ApiController
             'slug'              => 'required',
             'name'              => 'required',
             'permission_ids'    => 'regex:/^([0-9]+[,])*[0-9]+$/',
+            'menu_ids'          => 'regex:/^([0-9]+[,])*[0-9]+$/',
         ];
         $messages = [
             'slug.required'         => '请填写权限标识',
             'name.required'         => '请填写权限名称',
             'permission_ids.regex'  => '权限ID格式有误',
+            'menu_ids.regex'        => '菜单ID格式有误',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -815,5 +826,66 @@ class PermissionsController extends ApiController
             return ['code' => 100, 'message' => $this->adminOperationLogService->error];
         }
         return ['code' => 200, 'message' => $this->adminOperationLogService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/menu_linkage_list",
+     *     tags={"OA权限管理"},
+     *     summary="添加菜单使用父级菜单联动列表",
+     *     description="sang" ,
+     *     operationId="menu_linkage_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="菜单类型：0：目录，1：菜单：2：操作",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function menuLinkageList(){
+        $rules = [
+            'type'          => 'required|in:0,1,2',
+        ];
+        $messages = [
+            'type.required'         => '请选择菜单类型',
+            'type.in'               => '菜单类型取值不在范围内',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->menuService->linkageList($this->request['type']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->menuService->error];
+        }
+        return ['code' => 200, 'message' => $this->menuService->message,'data' => $res];
     }
 }

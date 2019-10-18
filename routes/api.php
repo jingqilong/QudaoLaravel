@@ -64,6 +64,7 @@ $api->version('v1',function ($api){
                 $api->get('permission_list','PermissionsController@permissionList')->name("获取权限列表");
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
+                $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');

@@ -138,6 +138,16 @@ class AdminMenuService extends BaseService
             }
             $permission_arr = $permissions;
         }
+        $menu_ids = $request['menu_ids'] ?? '';
+        $menu_ids      = explode(',',$menu_ids);
+        if (!empty($menu_ids)){
+            foreach ($menu_ids as $id){
+                if (!OaAdminMenuRepository::exists(['id' => $id])){
+                    $this->setError('菜单'.$id.'不存在！');
+                    return false;
+                }
+            }
+        }
         $add_roles = [
             'name'          => $request['name'],
             'slug'          => $request['slug'],
@@ -148,12 +158,28 @@ class AdminMenuService extends BaseService
             $this->error = '角色添加失败！';
             return false;
         }
-        if (!empty($permission_arr))
+        if (!empty($permission_arr)){
             if (!OaAdminRolePermissionsRepository::createRelate(['role_id' => $roles_id, 'permission_ids' => $permission_arr])){
                 DB::rollBack();
                 $this->error = '角色权限添加失败！';
                 return false;
             }
+        }
+
+        if (!empty($menu_ids)){
+            $role_menu = [];
+            foreach ($menu_ids as $id){
+                $role_menu[$id]['menu_id'] = $id;
+                $role_menu[$id]['role_id'] = $roles_id;
+                $role_menu[$id]['created_at'] = date('Y-m-d H:m:s');
+                $role_menu[$id]['updated_at'] = date('Y-m-d H:m:s');
+            }
+            if (!OaAdminRoleMenuRepository::create($role_menu)){
+                DB::rollBack();
+                $this->setError('菜单添加失败！');
+                return false;
+            }
+        }
         DB::commit();
         return true;
     }
@@ -202,5 +228,35 @@ class AdminMenuService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $menu_list;
+    }
+
+    /**
+     * 获取菜单联动列表
+     * @param $type
+     * @return mixed
+     */
+    public function linkageList($type)
+    {
+        $where['type'] = $type;
+        $res = [];
+        switch ($type){
+            case AdminMenuEnum::DIRECTORY:
+                $where['type'] = AdminMenuEnum::DIRECTORY;
+                $res[] = ['id'    => 0, 'title' => '顶级目录', 'icon'  => ''];
+                break;
+            case AdminMenuEnum::MENU:
+                $where['type'] = AdminMenuEnum::DIRECTORY;
+                $res[] = ['id'    => 0, 'title' => '顶级目录', 'icon'  => ''];
+                break;
+            case AdminMenuEnum::OPERATE:
+                $where['type'] = AdminMenuEnum::MENU;
+                $res[] = ['id'    => 0, 'title' => '顶级菜单', 'icon'  => ''];
+                break;
+        }
+        if (!$list = OaAdminMenuRepository::getList($where,['id','title','icon'])){
+            $this->setError('获取失败！');
+        }
+        $this->setMessage('获取成功！');
+        return array_merge($res,$list);
     }
 }
