@@ -4,7 +4,6 @@
 namespace App\Api\Controllers\V1\Oa;
 
 use App\Api\Controllers\ApiController;
-use App\Models\OaEmployeeModel;
 use App\Services\Oa\EmployeeService;
 use Illuminate\Http\JsonResponse;
 
@@ -26,7 +25,7 @@ class EmployessController extends ApiController
      * @OA\Post(
      *     path="/api/v1/member/get_employee_list",
      *     tags={"OA"},
-     *     summary="获取用户列表",
+     *     summary="获取OA员工列表",
      *     description="sang" ,
      *     operationId="get_employee_list",
      *     @OA\Parameter(
@@ -72,9 +71,6 @@ class EmployessController extends ApiController
      * )
      *
      */
-    /**
-     * @return array
-     */
     public function getEmployeeList()
     {
         $rules = [
@@ -89,7 +85,7 @@ class EmployessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->employeeService->getEmployeeList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $list = $this->employeeService->getEmployeeList($this->request);
         if (!$list){
             return ['code' => 100, 'message' => $this->employeeService->error];
         }

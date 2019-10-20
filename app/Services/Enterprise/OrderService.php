@@ -5,9 +5,23 @@ namespace App\Services\Enterprise;
 
 use App\Repositories\EnterpriseOrderRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 
 class OrderService extends BaseService
 {
+
+    use HelpTrait;
+    public $auth;
+
+    /**
+     * PrizeService constructor.
+     * @param $auth
+     */
+    public function __construct()
+    {
+        $this->auth = Auth::guard('member_api');
+    }
 
     /**
      * 获取项目对接订单列表  （前端使用）
@@ -16,11 +30,35 @@ class OrderService extends BaseService
      */
     public function getEnterpriseList(array $data)
     {
-        if (!$list = EnterpriseOrderRepository::getList(['name' => $data['name'],'status' => ['in',[1,2,3,4]]])){
-            $this->setMessage('没有数据！');
-            return [];
+        $memberInfo = $this->auth->user();
+
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $keywords       = $data['keywords'] ?? null;
+        $where = ['name' => $memberInfo['m_cname'],'mobile' => $memberInfo['m_phone'],'status' => ['in',[1,2,3,4]]];
+
+        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at'];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['enterprise_name','service_type']];
+            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num)){
+                $this->setMessage('没有数据！');
+                return [];
+            }
+        }else{
+            if (!$list = EnterpriseOrderRepository::search([],$where,$column,$page,$page_num,'created_at','desc')){
+                $this->setMessage('没有数据！');
+                return [];
+            }
         }
-        foreach ($list as &$value)
+        unset($list['first_page_url'], $list['from'],
+              $list['last_page_url'],  $list['from'],
+              $list['next_page_url'],  $list['path'],
+              $list['prev_page_url'],  $list['to']);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        foreach ($list['data'] as &$value)
         {
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);

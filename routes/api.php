@@ -48,11 +48,11 @@ $api->version('v1',function ($api){
                 $api->delete('del_depart','OaController@delDepart')->name("删除部门");
                 $api->post('get_depart_list','OaController@getDepartList')->name("获取部门列表");
                 #OA员工
-                $api->post('get_employee_list','EmployessController@getEmployeeList')->name('获取员工列表');
-                $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取员工信息');
-                $api->post('add_employee','EmployessController@addEmployee')->name('添加员工信息');
-                $api->delete('del_employee','EmployessController@delEmployee')->name("删除员工");
-                $api->post('update_employee','EmployessController@updateEmployee')->name("更新员工信息");
+                $api->post('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
+                $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取OA员工信息');
+                $api->post('add_employee','EmployessController@addEmployee')->name('添加OA员工信息');
+                $api->delete('del_employee','EmployessController@delEmployee')->name("删除OA员工");
+                $api->post('update_employee','EmployessController@updateEmployee')->name("更新OA员工信息");
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
                 $api->post('add_menu','PermissionsController@addMenu')->name("添加菜单");
@@ -158,8 +158,8 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
                 $api->post('refresh','MemberController@refresh')->name('刷新token');
-                $api->get('get_user_info','MemberController@getUserInfo')->name('获取用户信息');
-                $api->get('get_user_list','MemberController@getUserList')->name('获取用户列表');
+                $api->get('get_user_info','MemberController@getUserInfo')->name('获取会员信息');
+                $api->get('get_user_list','MemberController@getUserList')->name('获取会员列表');
                 $api->get('update_user_info','MemberController@updateUserInfo')->name('更改用户信息');
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');

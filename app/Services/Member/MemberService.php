@@ -90,26 +90,45 @@ class MemberService extends BaseService
         return false;
     }
 
-    public function getUserList($page,$pageNum)
+    /**
+     * 会员按条件查找排序
+     * @param $data
+     * @return array|bool|null
+     */
+    public function getUserList($data)
     {
-        if ($user_list = MemberRepository::getList(['m_starte' => 1],['field'=> '*'],'m_time','desc',$page,$pageNum)){
-            unset($user_list['first_page_url'], $user_list['from'],
-                $user_list['from'], $user_list['last_page_url'],
-                $user_list['next_page_url'], $user_list['path'],
-                $user_list['prev_page_url'], $user_list['to']);
-            if (empty($user_list['data'])){
-                $this->setMessage('暂无数据!');
-                return $user_list;
+        $employeeInfo = $this->auth->user();
+
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $keywords       = $data['keywords'] ?? null;
+        $column         = ['field' => '*'];
+        $where          = ['m_starte' => ['in',[0,2]]];
+        $groupMember    = ['尊享会员','悦享会员','高级顾问','亦享成员','致享成员','真享成员','君享成员'];
+        $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
+
+        if (in_array($employeeInfo['m_groupname'],$groupMember)){
+            if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
+                $this->setMessage('没有查到该成员！');
+                return [];
             }
-            foreach ($user_list['data'] as &$value)
-            {
-                $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
-                $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+        }else {
+            if (!$user_list = MemberRepository::search($keyword,['m_starte' => 0],$column,$page,$page_num,'m_time','desc')){
+                $this->setMessage('没有查到该成员！');
+                return [];
             }
+        }
+
+        unset($user_list['first_page_url'], $user_list['from'],
+            $user_list['from'], $user_list['last_page_url'],
+            $user_list['next_page_url'], $user_list['path'],
+            $user_list['prev_page_url'], $user_list['to']);
+
+        if (empty($user_list['data'])) {
+            $this->setMessage('没有成员!');
+        }
             $this->setMessage('获取成功！');
             return $user_list;
-        }
-         $this->setError('没有会员！');
     }
 
     /**

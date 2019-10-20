@@ -212,6 +212,15 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索内容【会员卡号，成员中文名，成员英文名，成员类别，成员手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -254,10 +263,8 @@ class MemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->memberService->getUserList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
-        if (!$list){
-            return ['code' => 100, 'message' => $this->memberService->error];
-        }
+        $list = $this->memberService->getUserList($this->request);
+        
         return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
     }
     /**

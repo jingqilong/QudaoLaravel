@@ -21,8 +21,8 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_list",
-     *     tags={"Enterprise企业咨询"},
-     *     summary="获取企业咨询订单列表",
+     *     tags={"Enterprise企业咨询(前端页面)"},
+     *     summary="获取企业咨询订单列表(小程序使用)",
      *     operationId="get_enterprise_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -42,11 +42,29 @@ class EnterpriseController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="name",
+     *      @OA\Parameter(
+     *         name="keywords",
      *         in="query",
-     *         description="名字",
-     *         required=true,
+     *         description="搜索内容【项目名称，服务类型】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -58,13 +76,15 @@ class EnterpriseController extends ApiController
     public function getEnterpriseList()
     {
         $rules = [
-            'name'                      => 'required',
+            'keywords'          => 'string',
+            'page'              => 'integer',
+            'page_num'          => 'integer',
         ];
         $messages = [
-            'name.required'             => '请输入预约姓名',
+            'keywords.string'           => '请正确输入搜索条件',
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
         ];
-
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
@@ -78,7 +98,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_info",
-     *     tags={"Enterprise企业咨询"},
+     *     tags={"Enterprise企业咨询(前端页面)"},
      *     summary="获取企业咨询订单",
      *     operationId="get_enterprise_info",
      *     @OA\Parameter(
@@ -139,7 +159,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/enterprise/add_enterprise",
-     *     tags={"Enterprise企业咨询"},
+     *     tags={"Enterprise企业咨询(前端页面)"},
      *     summary="添加企业咨询订单信息",
      *     operationId="add_enterprise",
      *     @OA\Parameter(
@@ -254,7 +274,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/enterprise/upd_enterprise",
-     *     tags={"Enterprise企业咨询"},
+     *     tags={"Enterprise企业咨询(前端页面)"},
      *     summary="修改企业咨询订单信息",
      *     operationId="upd_enterprise",
      *     @OA\Parameter(
@@ -381,7 +401,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/enterprise/del_enterprise",
-     *     tags={"Enterprise企业咨询"},
+     *     tags={"Enterprise企业咨询(前端页面)"},
      *     summary="删除企业咨询订单信息",
      *     operationId="del_enterprise",
      *     @OA\Parameter(

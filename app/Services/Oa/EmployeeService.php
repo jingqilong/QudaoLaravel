@@ -80,12 +80,19 @@ class EmployeeService extends BaseService
     }
 
 
-    public function getEmployeeList($page,$pageNum)
+    public function getEmployeeList($data)
     {
-        if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],['field' => '*'],'id','desc',$page,$pageNum)){
+        $employeeInfo = $this->auth->user();dd($employeeInfo);
+
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $column         = ['field' => '*'];
+
+        if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'m_time','desc',$page,$page_num)){
             $this->setError('没有员工信息！');
             return false;
         }dd($employee_list);
+
         unset(
               $employee_list['first_page_url'],  $employee_list['from'],
               $employee_list['from'],            $employee_list['last_page_url'],
