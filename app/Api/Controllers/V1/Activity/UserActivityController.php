@@ -7,8 +7,8 @@ namespace App\Api\Controllers\V1\Activity;
 use App\Api\Controllers\ApiController;
 use App\Services\Activity\CollectService;
 use App\Services\Activity\CommentsService;
+use App\Services\Activity\DetailService;
 use App\Services\Activity\PrizeService;
-use App\Services\Event\ActivityService;
 
 class UserActivityController extends ApiController
 {
@@ -21,12 +21,12 @@ class UserActivityController extends ApiController
      * UserActivityController constructor.
      * @param PrizeService $activityPrizeService
      * @param CollectService $collectService
-     * @param ActivityService $activityService
+     * @param DetailService $activityService
      * @param CommentsService $commentsService
      */
     public function __construct(PrizeService $activityPrizeService,
                                 CollectService $collectService,
-                                ActivityService $activityService,
+                                DetailService $activityService,
                                 CommentsService $commentsService)
     {
         parent::__construct();
@@ -512,5 +512,65 @@ class UserActivityController extends ApiController
             return ['code' => 200, 'message' => $this->commentsService->message];
         }
         return ['code' => 100, 'message' => $this->commentsService->error];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_activity_detail",
+     *     tags={"精选活动"},
+     *     summary="获取活动详情",
+     *     description="sang" ,
+     *     operationId="get_activity_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function activityDetail(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+        ];
+        $messages = [
+            'activity_id.required'  => '活动ID不能为空！',
+            'activity_id.integer'   => '活动ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->getActivityDetail($this->request['activity_id']);
+        if ($res){
+            return ['code' => 200, 'message' => $this->activityService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->activityService->error];
     }
 }

@@ -179,6 +179,214 @@ class PermissionsController extends ApiController
 
     /**
      * @OA\Post(
+     *     path="/api/v1/oa/edit_menu",
+     *     tags={"OA权限管理"},
+     *     summary="修改菜单",
+     *     description="sang" ,
+     *     operationId="edit_menu",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="菜单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="菜单类型：0：目录，1：菜单：2：操作",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="parent_menu",
+     *         in="query",
+     *         description="父级菜单id，0为顶级菜单",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="标题",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="icon",
+     *         in="query",
+     *         description="图标",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="path",
+     *         in="query",
+     *         description="访问路径【oa/login】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="vue_route",
+     *         in="query",
+     *         description="前端路由",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="method",
+     *         in="query",
+     *         description="访问方法，只填一个【GET、POST、DELETE、PUT等】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="permission",
+     *         in="query",
+     *         description="权限标识,【login】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMenu()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+            'type'          => 'required|in:0,1,2',
+            'parent_menu'   => 'required|integer',
+            'title'         => 'required',
+            'icon'          => 'required',
+            'method'        => 'in:GET,POST,DELETE,PUT',
+        ];
+        $messages = [
+            'id.required'           => '菜单ID不能为空',
+            'id.integer'            => '菜单ID必须为整数',
+            'type.required'         => '请选择菜单类别',
+            'type.in'               => '菜单类别取值不在范围内',
+            'parent_menu.required'  => '请选择父级菜单',
+            'parent_menu.integer'   => '父级菜单ID必须为整数',
+            'title.required'        => '请输入标题',
+            'icon.required'         => '请选择图标',
+            'method.in'             => '访问方法不存在',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->menuService->editMenu($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->menuService->error];
+        }
+        return ['code' => 200, 'message' => $this->menuService->message];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/menu_detail",
+     *     tags={"OA权限管理"},
+     *     summary="菜单详情",
+     *     description="sang" ,
+     *     operationId="menu_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="菜单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function menuDetail()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'           => '菜单ID不能为空',
+            'id.integer'            => '菜单ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->menuService->menuDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->menuService->error];
+        }
+        return ['code' => 200, 'message' => $this->menuService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
      *     path="/api/v1/oa/add_permission",
      *     tags={"OA权限管理"},
      *     summary="添加权限",

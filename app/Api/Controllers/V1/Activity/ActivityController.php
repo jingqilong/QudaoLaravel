@@ -5,7 +5,7 @@ namespace App\Api\Controllers\V1\Activity;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Event\ActivityService;
+use App\Services\Activity\DetailService;
 
 class ActivityController extends ApiController
 {
@@ -13,9 +13,9 @@ class ActivityController extends ApiController
 
     /**
      * ActivityController constructor.
-     * @param ActivityService $activityService
+     * @param DetailService $activityService
      */
-    public function __construct(ActivityService $activityService)
+    public function __construct(DetailService $activityService)
     {
         parent::__construct();
         $this->activityService  = $activityService;
@@ -110,6 +110,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="cover_id",
+     *         in="query",
+     *         description="活动封面图ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="banner_ids",
      *         in="query",
      *         description="轮播图ID串",
@@ -194,6 +203,7 @@ class ActivityController extends ApiController
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
             ],
             'is_recommend'  => 'in:0,1',
+            'cover_id'      => 'required|integer',
             'banner_ids'    => 'required|regex:/^(\d+[,])*\d+$/',
             'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
             'status'        => 'required|in:1,2',
@@ -210,6 +220,8 @@ class ActivityController extends ApiController
             'end_time.required'     => '活动结束时间不能为空',
             'end_time.regex'        => '活动结束时间格式有误，例如：2019-10-10 12:30',
             'is_recommend.in'       => '是否推荐取值不在范围内',
+            'cover_id.required'     => '封面图不能为空',
+            'cover_id.integer'      => '封面图ID必须为整数',
             'banner_ids.required'   => '活动banner图不能为空',
             'banner_ids.regex'      => '活动banner图ID串格式有误',
             'image_ids.required'    => '活动详情图不能为空',
