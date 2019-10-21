@@ -288,7 +288,7 @@ class AdminMenuService extends BaseService
                 return false;
             }
         }
-        if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id])){
+        if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id,'id' => ['<>',$request['id']]])){
             $this->setError('标题已被使用！');
             return false;
         }
@@ -302,7 +302,7 @@ class AdminMenuService extends BaseService
             'icon'      => $request['icon'],
             'method'    => $request['method'] ?? '',
             'permission'=> $request['permission'] ?? '',
-            'updated_at'=> time()
+            'updated_at'=> date('Y-m-d H:i:s')
         ];
         DB::beginTransaction();
         if (!$menu_id = OaAdminMenuRepository::getUpdId(['id' => $request['id']],$menu_data)){
