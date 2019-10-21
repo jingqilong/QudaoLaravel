@@ -3,7 +3,7 @@ namespace App\Services\Member;
 
 
 use App\Repositories\MemberGradeServiceRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
@@ -157,7 +157,7 @@ class GradeServiceService extends BaseService
             $where = [$user_iden => $view_user];
         }
         $user = $this->auth->user();
-        if (!$view_user_id = MemberRepository::getField($where,'m_id')){
+        if (!$view_user_id = OaMemberRepository::getField($where,'m_id')){
             $this->setError('可查看成员不存在！');
             return false;
         }

@@ -65,6 +65,13 @@ $api->version('v1',function ($api){
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+                #OA会员管理
+                $api->post('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
+                $api->post('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
+                $api->post('del_member','OaMemberController@delMember')->name('删除成员');
+                $api->post('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
+                $api->post('add_member','OaMemberController@addMember')->name('添加成员');
+
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');

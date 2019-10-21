@@ -245,10 +245,6 @@ class MemberController extends ApiController
      * )
      *
      */
-    /**
-     * Get user info.
-     * @return array
-     */
     public function getUserList()
     {
         $rules = [

@@ -2,11 +2,25 @@
 namespace App\Services\Loan;
 
 
-use App\Repositories\EnterpriseOrderRepository;
+use App\Repositories\LoanPersonalRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 
 class PersonalService extends BaseService
 {
+
+    use HelpTrait;
+    public $auth;
+
+    /**
+     * PrizeService constructor.
+     * @param $auth
+     */
+    public function __construct()
+    {
+        $this->auth = Auth::guard('member_api');
+    }
 
     /**
      * 获取贷款订单列表 （前端显示）
@@ -15,9 +29,17 @@ class PersonalService extends BaseService
      */
     public function getLoanList(array $data)
     {
-        if (!$list = EnterpriseOrderRepository::getList(['name' => $data['name'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        $memberInfo = $this->auth->user();
+        if (!$list = LoanPersonalRepository::getList(['name' => $memberInfo['m_cname'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
             $this->setMessage('没有数据！');
             return [];
+        }
+
+        foreach ($list as &$value)
+        {
+            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
+            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
         }
         $this->setMessage('查找成功');
         return $list;
@@ -30,7 +52,7 @@ class PersonalService extends BaseService
      */
     public function getLoanInfo(array $data)
     {
-        if (!$list = EnterpriseOrderRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        if (!$list = LoanPersonalRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
             $this->setError('没有查到数据！');
             return false;
         }
@@ -54,7 +76,7 @@ class PersonalService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';
 
-        if (!$res = EnterpriseOrderRepository::getAddId($data)){
+        if (!$res = LoanPersonalRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -75,7 +97,7 @@ class PersonalService extends BaseService
         $data['reservation_at'] = strtotime($data['reservation_at']);
         $data['status']         = '1';  // 修改数据后  状态值从新开始
 
-        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],$data)){
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -90,11 +112,11 @@ class PersonalService extends BaseService
      */
     public function delLoan($id)
     {
-        if (!$loanInfo = EnterpriseOrderRepository::getOne(['id' => $id])){
+        if (!$loanInfo = LoanPersonalRepository::getOne(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],['status' => '9'])){
             $this->setError('删除失败！');
             return false;
         }

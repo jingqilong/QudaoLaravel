@@ -36,7 +36,7 @@ class MemberRelationRepository extends ApiRepository
             return [];
         }
         $direct_ids = array_column($direct_relation,'member_id');
-        $direct_users = MemberRepository::getList(['m_id' => ['in' , $direct_ids]],$member_column);
+        $direct_users = OaMemberRepository::getList(['m_id' => ['in' , $direct_ids]],$member_column);
         //获取间接推荐人
         foreach ($direct_relation as &$v){
             $path = $v['path'];
@@ -51,7 +51,7 @@ class MemberRelationRepository extends ApiRepository
                 continue;
             }
             $indirect_ids = array_column($indirect_users,'member_id');
-            $v['next_level'] = MemberRepository::getList(['m_id' => ['in' , $indirect_ids]],$member_column);
+            $v['next_level'] = OaMemberRepository::getList(['m_id' => ['in' , $indirect_ids]],$member_column);
         }
         return $direct_relation;
     }
@@ -71,7 +71,7 @@ class MemberRelationRepository extends ApiRepository
             return [];
         }
         $direct_ids = array_column($relation_list,'member_id');
-        $all_users = MemberRepository::getList(['m_id' => ['in',$direct_ids]],$member_column);
+        $all_users = OaMemberRepository::getList(['m_id' => ['in',$direct_ids]],$member_column);
         foreach ($relation_list as &$v){
             foreach ($all_users as $user){
                 if ($v['member_id'] == $user['m_id']){

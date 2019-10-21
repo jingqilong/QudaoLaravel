@@ -44,15 +44,6 @@ class LoanController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="name",
-     *         in="query",
-     *         description="名字",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="type",
      *         in="query",
      *         description="操作类型(1本人预约;2推荐预约)",
@@ -68,11 +59,9 @@ class LoanController extends ApiController
     public function getLoanList()
     {
         $rules = [
-            'name'              => 'required',
             'type'              => 'required|between:1,2',
         ];
         $messages = [
-            'name.required'             => '请输入预约姓名',
             'type.required'             => '请输入操作类型',
             'type.between'              => '操作类型不正确',
         ];

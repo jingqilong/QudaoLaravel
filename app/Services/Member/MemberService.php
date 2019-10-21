@@ -27,7 +27,7 @@ class MemberService extends BaseService
     protected $auth;
 
     /**
-     * EmployeeService constructor.
+     * MemberService constructor.
      */
     public function __construct()
     {
@@ -91,13 +91,13 @@ class MemberService extends BaseService
     }
 
     /**
-     * 会员按条件查找排序
+     * 成员按条件查找排序
      * @param $data
      * @return array|bool|null
      */
     public function getUserList($data)
     {
-        $employeeInfo = $this->auth->user();
+        $memberInfo = $this->auth->user();
 
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
@@ -107,7 +107,7 @@ class MemberService extends BaseService
         $groupMember    = ['尊享会员','悦享会员','高级顾问','亦享成员','致享成员','真享成员','君享成员'];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
-        if (in_array($employeeInfo['m_groupname'],$groupMember)){
+        if (in_array($memberInfo['m_groupname'],$groupMember)){
             if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
                 $this->setMessage('没有查到该成员！');
                 return [];

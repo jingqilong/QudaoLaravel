@@ -2,7 +2,7 @@
 namespace App\Services\Member;
 
 
-use App\Repositories\MemberRepository;
+use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\QiNiuService;
 use Illuminate\Support\Facades\Auth;
@@ -34,8 +34,8 @@ class PublicService extends BaseService
             return ['url' => $user->m_referral_qrcode];
         }
         if (empty($user->m_referral_code)){
-            $referral_code = MemberRepository::getReferralCode();
-            if (!MemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_code' => $referral_code])){
+            $referral_code = OaMemberRepository::getReferralCode();
+            if (!OaMemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_code' => $referral_code])){
                 $this->setError('图片获取失败！');
                 return false;
             }
@@ -47,7 +47,7 @@ class PublicService extends BaseService
             $this->setError('图片获取失败！');
             return false;
         }
-        MemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_qrcode' => $res['url']]);
+        OaMemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_qrcode' => $res['url']]);
         unlink($img_path);
         $this->setMessage('图片获取成功！');
         return ['url' => $res['url']];
