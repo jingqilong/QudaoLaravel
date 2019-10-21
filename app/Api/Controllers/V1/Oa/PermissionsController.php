@@ -77,7 +77,7 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="parent_menu",
+     *         name="parent_id",
      *         in="query",
      *         description="父级菜单id，0为顶级菜单",
      *         required=true,
@@ -150,7 +150,7 @@ class PermissionsController extends ApiController
     {
         $rules = [
             'type'          => 'required|in:0,1,2',
-            'parent_menu'   => 'required|integer',
+            'parent_id'     => 'required|integer',
             'title'         => 'required',
             'icon'          => 'required',
             'method'        => 'in:GET,POST,DELETE,PUT',
@@ -158,8 +158,8 @@ class PermissionsController extends ApiController
         $messages = [
             'type.required'         => '请选择菜单类别',
             'type.in'               => '菜单类别取值不在范围内',
-            'parent_menu.required'  => '请选择父级菜单',
-            'parent_menu.integer'   => '父级菜单ID必须为整数',
+            'parent_id.required'    => '请选择父级菜单',
+            'parent_id.integer'     => '父级菜单ID必须为整数',
             'title.required'        => '请输入标题',
             'icon.required'         => '请选择图标',
             'method.in'             => '访问方法不存在',
@@ -221,7 +221,7 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="parent_menu",
+     *         name="parent_id",
      *         in="query",
      *         description="父级菜单id，0为顶级菜单",
      *         required=true,
@@ -295,7 +295,7 @@ class PermissionsController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'type'          => 'required|in:0,1,2',
-            'parent_menu'   => 'required|integer',
+            'parent_id'     => 'required|integer',
             'title'         => 'required',
             'icon'          => 'required',
             'method'        => 'in:GET,POST,DELETE,PUT',
@@ -305,8 +305,8 @@ class PermissionsController extends ApiController
             'id.integer'            => '菜单ID必须为整数',
             'type.required'         => '请选择菜单类别',
             'type.in'               => '菜单类别取值不在范围内',
-            'parent_menu.required'  => '请选择父级菜单',
-            'parent_menu.integer'   => '父级菜单ID必须为整数',
+            'parent_id.required'    => '请选择父级菜单',
+            'parent_id.integer'     => '父级菜单ID必须为整数',
             'title.required'        => '请输入标题',
             'icon.required'         => '请选择图标',
             'method.in'             => '访问方法不存在',

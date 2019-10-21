@@ -38,7 +38,7 @@ class AdminMenuService extends BaseService
     public function addMenu($request)
     {
         $menu_level = 1;
-        $parent_id = $request['parent_menu'] ?? 0;
+        $parent_id = $request['parent_id'] ?? 0;
         if ($parent_id != 0){
             $parent_level = OaAdminMenuRepository::getField(['id' => $parent_id],'level');
             if (empty($parent_level)){
@@ -273,7 +273,7 @@ class AdminMenuService extends BaseService
             return false;
         }
         $menu_level = 1;
-        $parent_id = $request['parent_menu'] ?? 0;
+        $parent_id = $request['parent_id'] ?? 0;
         if ($parent_id != 0){
             $parent_level = OaAdminMenuRepository::getField(['id' => $parent_id],'level');
             if (empty($parent_level)){
