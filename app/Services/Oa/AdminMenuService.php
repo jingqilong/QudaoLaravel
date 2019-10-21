@@ -38,8 +38,9 @@ class AdminMenuService extends BaseService
     public function addMenu($request)
     {
         $menu_level = 1;
-        if ($request['parent_menu'] != 0){
-            $parent_level = OaAdminMenuRepository::getField(['id' => $request['parent_menu']],'level');
+        $parent_id = $request['parent_menu'] ?? 0;
+        if ($parent_id != 0){
+            $parent_level = OaAdminMenuRepository::getField(['id' => $parent_id],'level');
             if (empty($parent_level)){
                 $this->setError('父级菜单不存在！');
                 return false;
@@ -52,13 +53,13 @@ class AdminMenuService extends BaseService
                 return false;
             }
         }
-        if (OaAdminMenuRepository::exists(['title' => $request['title']])){
+        if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id])){
             $this->setError('标题已被使用！');
             return false;
         }
         $menu_data = [
             'type'      => $request['type'],
-            'parent_id' => $request['parent_menu'],
+            'parent_id' => $parent_id,
             'path'      => $request['path'] ?? '',
             'vue_route' => $request['vue_route'] ?? '',
             'level'     => $menu_level,

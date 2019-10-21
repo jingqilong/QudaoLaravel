@@ -191,7 +191,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="is_recommend",
      *         in="query",
-     *         description="是否推荐(默认0，1推荐)",
+     *         description="是否推荐(默认1推荐)",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -200,7 +200,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="theme_id",
      *         in="query",
-     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...",
+     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...【非必填参数为空，表示全部活动】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -234,13 +234,13 @@ class UserActivityController extends ApiController
     public function getHomeList(){
         $rules = [
             'theme_id'      => 'integer',
-            'is_recommend'  => 'in:0,1',
+            'is_recommend'  => 'in:1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'theme_id.integer'      => '活动主题ID必须为整数',
-            'is_recommend.in'       => '是否推荐取值不在范围内',
+            'is_recommend.in'       => '是否推荐取值应为1',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
