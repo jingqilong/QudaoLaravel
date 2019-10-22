@@ -84,7 +84,6 @@ class MemberController extends ApiController
             'password.required' => '请输入密码',
             'password.min' => '密码最少6位',
         ];
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];

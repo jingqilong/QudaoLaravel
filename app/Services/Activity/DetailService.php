@@ -2,7 +2,9 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\ActivityCommentEnum;
 use App\Repositories\ActivityCollectRepository;
+use App\Repositories\ActivityCommentsRepository;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityGuestRepository;
 use App\Repositories\ActivityHostsRepository;
@@ -106,10 +108,15 @@ class DetailService extends BaseService
             return $list;
         }
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name']);
+        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $icon_ids   = array_column($themes,'icon_id');
+        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
         foreach ($list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
+            if ($theme)
+                $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
             $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
+            $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = '报名中';

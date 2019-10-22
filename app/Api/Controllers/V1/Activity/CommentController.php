@@ -5,30 +5,30 @@ namespace App\Api\Controllers\V1\Activity;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Activity\RegisterService;
+use App\Services\Activity\CommentsService;
 
-class RegisterController extends ApiController
+class CommentController extends ApiController
 {
 
-    public $registerService;
+    public $commentService;
 
     /**
      * RegisterController constructor.
-     * @param $registerService
+     * @param $commentsService
      */
-    public function __construct(RegisterService $registerService)
+    public function __construct(CommentsService $commentsService)
     {
         parent::__construct();
-        $this->registerService = $registerService;
+        $this->commentService = $commentsService;
     }
 
     /**
      * @OA\Get(
-     *     path="/api/v1/activity/get_register_list",
+     *     path="/api/v1/activity/get_comment_list",
      *     tags={"精选活动后台"},
-     *     summary="获取活动报名列表",
+     *     summary="获取活动评论列表",
      *     description="sang" ,
-     *     operationId="get_register_list",
+     *     operationId="get_comment_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -72,7 +72,7 @@ class RegisterController extends ApiController
      * )
      *
      */
-    public function getRegisterList(){
+    public function getCommentList(){
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
@@ -85,20 +85,20 @@ class RegisterController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->registerService->getRegisterList($this->request);
+        $res = $this->commentService->getCommentList($this->request);
         if ($res === false){
-            return ['code' => 100, 'message' => $this->registerService->error];
+            return ['code' => 100, 'message' => $this->commentService->error];
         }
-        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->commentService->message, 'data' => $res];
     }
 
     /**
      * @OA\Post(
-     *     path="/api/v1/activity/audit_register",
+     *     path="/api/v1/activity/audit_comment",
      *     tags={"精选活动后台"},
-     *     summary="审核活动报名",
+     *     summary="审核活动评论",
      *     description="sang" ,
-     *     operationId="audit_register",
+     *     operationId="audit_comment",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -118,9 +118,9 @@ class RegisterController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="register_id",
+     *         name="comment_id",
      *         in="query",
-     *         description="报名ID",
+     *         description="评论ID",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -142,14 +142,14 @@ class RegisterController extends ApiController
      * )
      *
      */
-    public function auditRegister(){
+    public function auditComment(){
         $rules = [
-            'register_id'   => 'required|integer',
+            'comment_id'   => 'required|integer',
             'audit'         => 'required|in:1,2',
         ];
         $messages = [
-            'register_id.required'      => '报名ID不能为空',
-            'register_id.integer'       => '报名ID必须为整数',
+            'comment_id.required'       => '评论ID不能为空',
+            'comment_id.integer'        => '评论ID必须为整数',
             'audit.required'            => '审核结果不能为空',
             'audit.in'                  => '审核结果取值有误',
         ];
@@ -157,10 +157,10 @@ class RegisterController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->registerService->auditRegister($this->request['register_id'],$this->request['audit']);
+        $res = $this->commentService->auditComment($this->request['comment_id'],$this->request['audit']);
         if ($res === false){
-            return ['code' => 100, 'message' => $this->registerService->error];
+            return ['code' => 100, 'message' => $this->commentService->error];
         }
-        return ['code' => 200, 'message' => $this->registerService->message];
+        return ['code' => 200, 'message' => $this->commentService->message];
     }
 }

@@ -27,7 +27,7 @@ class ActivityThemeModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','description','created_at','updated_at'];
+    protected $fillable = ['id','name','description','icon_id','created_at','updated_at'];
 
 
 

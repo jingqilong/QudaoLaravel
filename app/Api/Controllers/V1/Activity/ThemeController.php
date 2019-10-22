@@ -65,6 +65,15 @@ class ThemeController extends ApiController
      *             type="string"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="icon_id",
+     *         in="query",
+     *         description="主题图标ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -75,9 +84,12 @@ class ThemeController extends ApiController
     public function addActivityTheme(){
         $rules = [
             'name'          => 'required',
+            'icon_id'       => 'required|integer',
         ];
         $messages = [
             'name.required'         => '主题名称不能为空',
+            'icon_id.required'      => '主题图标不能为空',
+            'icon_id.integer'       => '主题图标ID必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -203,6 +215,15 @@ class ThemeController extends ApiController
      *             type="string"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="icon_id",
+     *         in="query",
+     *         description="主题图标ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -214,11 +235,14 @@ class ThemeController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
+            'icon_id'       => 'required|integer',
         ];
         $messages = [
             'id.required'           => '主题ID不能为空',
             'id.integer'            => '主题ID必须为整数',
             'name.required'         => '主题名称不能为空',
+            'icon_id.required'      => '主题图标不能为空',
+            'icon_id.integer'       => '主题图标ID必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

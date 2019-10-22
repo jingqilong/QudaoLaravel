@@ -67,6 +67,7 @@ $api->version('v1',function ($api){
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+
                 #OA会员管理
                 $api->get('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
                 $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
@@ -74,6 +75,7 @@ $api->version('v1',function ($api){
                 $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
+                $api->get('get_all_menu_list','PermissionsController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
@@ -160,6 +162,10 @@ $api->version('v1',function ($api){
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
+                $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
+
+                $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
+                $api->post('audit_comment','CommentController@auditComment')->name('审核活动评论');
             });
         });
 
@@ -168,11 +174,13 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
+                $api->get('collect_list','UserActivityController@collectList')->name('获取活动收藏列表');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
                 $api->post('comment','UserActivityController@comment')->name('会员评论活动');
-                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员评论活动');
+                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员删除评论');
+                $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
             });

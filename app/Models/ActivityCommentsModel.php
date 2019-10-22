@@ -27,7 +27,7 @@ class ActivityCommentsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','score','keyword_ids','content','comment_name','comment_avatar','activity_id','member_id','status','hidden','created_at','deleted_at'];
+    protected $fillable = ['id','content','comment_name','comment_avatar','activity_id','member_id','status','hidden','created_at','deleted_at'];
 
 
 
