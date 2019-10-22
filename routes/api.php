@@ -127,6 +127,10 @@ $api->version('v1',function ($api){
                 $api->delete('delete_host','ActivityController@deleteHost')->name('删除活动举办方');
                 $api->post('edit_host','ActivityController@editHost')->name('修改活动举办方');
 
+                $api->post('activity_add_link','ActivityController@activityAddLink')->name('添加活动相关链接');
+                $api->delete('delete_link','ActivityController@deleteLink')->name('删除活动链接');
+                $api->post('edit_link','ActivityController@editLink')->name('修改活动链接');
+
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
                 $api->post('edit_activity_theme','ThemeController@editActivityTheme')->name('修改活动主题');
@@ -146,6 +150,8 @@ $api->version('v1',function ($api){
                 $api->delete('activity_delete_prize','PrizeController@activityDeletePrize')->name('删除活动奖品');
                 $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
+
+                $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
             });
         });
 

@@ -6,6 +6,7 @@ use App\Repositories\ActivityCollectRepository;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityGuestRepository;
 use App\Repositories\ActivityHostsRepository;
+use App\Repositories\ActivityLinksRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
@@ -45,7 +46,6 @@ class DetailService extends BaseService
             'notice'        => $request['notice'] ?? '',
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
-            'links'         => $request['links']
         ];
         if (ActivityDetailRepository::exists($add_arr)){
             $this->setError('该活动已添加！');
@@ -189,7 +189,6 @@ class DetailService extends BaseService
             'notice'        => $request['notice'] ?? '',
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
-            'links'         => $request['links']
         ];
         if (ActivityDetailRepository::exists($upd_arr)){
             $this->setError('该活动已存在！');
@@ -285,7 +284,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','links'];
+        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -315,12 +314,21 @@ class DetailService extends BaseService
                 $activity['cover']= $cover_image;
             }
         }
+        #获取主办方
         $activity['host'] = [];
         if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id],['id','type','name','logo_id'])){
             foreach ($host_list as &$value){
                 $value['logo'] = CommonImagesRepository::getOne(['id' => $value['logo_id']],['id','img_url']);
             }
             $activity['host'] = $host_list;
+        }
+        #获取相关链接
+        $activity['links'] = [];
+        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $id],['id','title','url','image_id'])){
+            foreach ($link_list as &$value){
+                $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
+            }
+            $activity['links'] = $link_list;
         }
         $this->setMessage('获取成功！');
         return $activity;
@@ -333,7 +341,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail','links'];
+        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -345,7 +353,6 @@ class DetailService extends BaseService
         $activity['title']  = count($name) > 1 ? end($name) : '';
         $activity['theme'] = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
         $activity['price'] = empty($activity['price']) ? '免费' : round($activity['price'] / 100,2).'元';
-        $activity['links']     = empty($activity['links']) ? [] : explode('|',$activity['links']);
         $activity['images']     = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
@@ -371,6 +378,7 @@ class DetailService extends BaseService
         if ($activity['end_time'] < time()){
             $activity['status'] = '已结束';
         }
+        #是否收藏
         $activity['is_collect'] = 0;
         if (ActivityCollectRepository::exists(['activity_id' => $activity['id'],'member_id' => $member->m_id])){
             $activity['is_collect'] = 1;
@@ -381,13 +389,21 @@ class DetailService extends BaseService
         $activity['day_time']       = date('H:i',$activity['start_time']) .'-'.date('H:i',$activity['end_time']);
         $activity['cover'] = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
         unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids']);
+        #获取举办方信息
         $activity['hosts'] = [];
-        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id,'type' => 1],['name','logo_id'])){
+        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id,'type' => 1],['name','type','logo_id'])){
             foreach ($host_list as &$value){
                 $value['logo'] = CommonImagesRepository::getField(['id' => $value['logo_id']],'img_url');
-                unset($value['logo_id']);
             }
             $activity['hosts'] = $host_list;
+        }
+        #获取相关链接
+        $activity['links'] = [];
+        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $id],['id','title','url','image_id'])){
+            foreach ($link_list as &$value){
+                $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
+            }
+            $activity['links'] = $link_list;
         }
         $this->setMessage('获取成功！');
         return $activity;
