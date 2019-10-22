@@ -2,8 +2,10 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\ActivityRegisterEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPrizeRepository;
+use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
@@ -38,6 +40,7 @@ class PrizeService extends BaseService
         $add_arr = [
             'activity_id'   => $request['activity_id'],
             'name'          => $request['name'],
+            'title'         => $request['title'],
             'number'        => $request['number'],
             'odds'          => $request['odds'],
             'image_ids'     => $request['image_ids'],
@@ -99,6 +102,7 @@ class PrizeService extends BaseService
         $upd_arr = [
             'activity_id'   => $request['activity_id'],
             'name'          => $request['name'],
+            'title'         => $request['title'],
             'number'        => $request['number'],
             'odds'          => $request['odds'],
             'image_ids'     => $request['image_ids'],
@@ -189,8 +193,15 @@ class PrizeService extends BaseService
             $this->setError('您已经抽过奖了！');
             return false;
         }
-        //TODO 此处判断会员有没有报名此活动
-        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','number','odds','image_ids','worth']);
+        if (!$register = ActivityRegisterRepository::getOne(['activity_id' => $activity_id])){
+            $this->setError('您还没有报名，不能参与抽奖！');
+            return false;
+        }
+        if (!in_array($register['status'],[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED])){
+            $this->setError('您的报名还没有完成，不能参与抽奖！');
+            return false;
+        }
+        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','title','number','odds','image_ids','worth']);
         foreach ($prize_all as $key => &$prize){
             if ($prize['number'] !== 0 && ($prize['number'] <= ActivityWinningRepository::count(['prize_id' => $prize['id']]))){
                 unset($prize_all[$key]);
@@ -227,7 +238,7 @@ class PrizeService extends BaseService
         }
         //TODO 此处添加抽奖成功后的事务
         $this->setMessage('恭喜你中奖啦！');
-        return $winning;
+        return '恭喜您抽中了'.$winning['title'].',奖品将在活动现场发放给您！';
     }
 }
             

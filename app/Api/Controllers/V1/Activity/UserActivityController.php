@@ -7,8 +7,9 @@ namespace App\Api\Controllers\V1\Activity;
 use App\Api\Controllers\ApiController;
 use App\Services\Activity\CollectService;
 use App\Services\Activity\CommentsService;
+use App\Services\Activity\DetailService;
 use App\Services\Activity\PrizeService;
-use App\Services\Event\ActivityService;
+use App\Services\Activity\RegisterService;
 
 class UserActivityController extends ApiController
 {
@@ -16,24 +17,28 @@ class UserActivityController extends ApiController
     public $activityCollectService;
     public $activityService;
     public $commentsService;
+    public $registerService;
 
     /**
      * UserActivityController constructor.
      * @param PrizeService $activityPrizeService
      * @param CollectService $collectService
-     * @param ActivityService $activityService
+     * @param DetailService $activityService
      * @param CommentsService $commentsService
+     * @param RegisterService $registerService
      */
     public function __construct(PrizeService $activityPrizeService,
                                 CollectService $collectService,
-                                ActivityService $activityService,
-                                CommentsService $commentsService)
+                                DetailService $activityService,
+                                CommentsService $commentsService,
+                                RegisterService $registerService)
     {
         parent::__construct();
         $this->activityPrizeService     = $activityPrizeService;
         $this->activityCollectService   = $collectService;
         $this->activityService          = $activityService;
         $this->commentsService          = $commentsService;
+        $this->registerService          = $registerService;
     }
     /**
      * @OA\Post(
@@ -94,6 +99,7 @@ class UserActivityController extends ApiController
         }
         return ['code' => 100, 'message' => $this->activityPrizeService->error];
     }
+
     /**
      * @OA\Post(
      *     path="/api/v1/activity/is_collect_activity",
@@ -155,6 +161,87 @@ class UserActivityController extends ApiController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/v1/activity/collect_list",
+     *     tags={"精选活动"},
+     *     summary="获取活动收藏列表",
+     *     description="sang" ,
+     *     operationId="collect_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="活动状态，1全部，2未开始，3进行中，4已结束",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function collectList(){
+        $rules = [
+            'type'          => 'required|in:1,2,3,4',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'type.integer'          => '活动类别不能为空',
+            'type.in'               => '活动类别不存在',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityCollectService->collectList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityCollectService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityCollectService->message, 'data' => $res];
+    }
+    /**
      * @OA\Post(
      *     path="/api/v1/activity/get_home_list",
      *     tags={"精选活动"},
@@ -191,7 +278,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="is_recommend",
      *         in="query",
-     *         description="是否推荐(默认0，1推荐)",
+     *         description="是否推荐(默认1推荐)",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -200,7 +287,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="theme_id",
      *         in="query",
-     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...",
+     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...【非必填参数为空，表示全部活动】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -234,13 +321,13 @@ class UserActivityController extends ApiController
     public function getHomeList(){
         $rules = [
             'theme_id'      => 'integer',
-            'is_recommend'  => 'in:0,1',
+            'is_recommend'  => 'in:1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'theme_id.integer'      => '活动主题ID必须为整数',
-            'is_recommend.in'       => '是否推荐取值不在范围内',
+            'is_recommend.in'       => '是否推荐取值应为1',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
@@ -275,24 +362,6 @@ class UserActivityController extends ApiController
      *         name="token",
      *         in="query",
      *         description="token【会员】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="score",
-     *         in="query",
-     *         description="评分，满分10分",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="keyword_ids",
-     *         in="query",
-     *         description="评论关键字ID串，【例如：22,33,55,】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -343,17 +412,10 @@ class UserActivityController extends ApiController
      */
     public function comment(){
         $rules = [
-            'score'         => 'required|min:1|max:10',
-            'keyword_ids'   => 'required|regex:/^(\d+[,])*$/',
             'comment_avatar'=> 'url',
             'activity_id'   => 'required|integer',
         ];
         $messages = [
-            'score.required'        => '评分不能为空',
-            'score.min'             => '评分不能低于1分',
-            'score.max'             => '评分不能高于10分',
-            'keyword_ids.required'  => '评论关键字不能为空',
-            'keyword_ids.regex'     => '活动主题ID必须为整数',
             'comment_avatar.url'    => '头像链接格式有误',
             'activity_id.required'  => '活动ID不能为空',
             'activity_id.integer'   => '活动ID必须为整数',
@@ -507,10 +569,152 @@ class UserActivityController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->commentsService->register($this->request);
+        $res = $this->registerService->register($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->commentsService->message];
+            return ['code' => 200, 'message' => $this->registerService->message];
         }
-        return ['code' => 100, 'message' => $this->commentsService->error];
+        return ['code' => 100, 'message' => $this->registerService->error];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_activity_detail",
+     *     tags={"精选活动"},
+     *     summary="获取活动详情",
+     *     description="sang" ,
+     *     operationId="get_activity_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function activityDetail(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+        ];
+        $messages = [
+            'activity_id.required'  => '活动ID不能为空！',
+            'activity_id.integer'   => '活动ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->getActivityDetail($this->request['activity_id']);
+        if ($res){
+            return ['code' => 200, 'message' => $this->activityService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->activityService->error];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_activity_comment",
+     *     tags={"精选活动"},
+     *     summary="获取活动评论列表",
+     *     description="sang" ,
+     *     operationId="get_activity_comment",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function getActivityComment(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'activity_id.required'  => '活动ID不能为空',
+            'activity_id.integer'   => '活动ID必须为整数',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->commentsService->getActivityComment($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->commentsService->error];
+        }
+        return ['code' => 200, 'message' => $this->commentsService->message, 'data' => $res];
     }
 }

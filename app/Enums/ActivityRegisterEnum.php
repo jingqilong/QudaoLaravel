@@ -17,6 +17,15 @@ class ActivityRegisterEnum extends BaseEnum
         'CANCELED'      => '已取消',
     ];
 
+    public static $status = [
+        1 => 'PENDING',
+        2 => 'SUBMIT',
+        3 => 'EVALUATION',
+        4 => 'COMPLETED',
+        5 => 'NOPASS',
+        6 => 'CANCELED',
+    ];
+
     // constants
 
     const PENDING           = 1;    //报名状态-待审核
@@ -31,4 +40,12 @@ class ActivityRegisterEnum extends BaseEnum
 
     const CANCELED          = 6;    //报名状态-已取消
 
+    /**
+     * 获取身份标签
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getStatus($value){
+        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    }
 }

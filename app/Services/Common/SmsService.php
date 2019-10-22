@@ -5,7 +5,7 @@ namespace App\Services\Common;
 use App\Enums\SMSEnum;
 use App\Library\YiKaYi\YiKaYiSms;
 use App\Repositories\CommonSmsRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\OaMemberRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\PrimeShopsRepository;
 use App\Services\BaseService;
@@ -74,7 +74,7 @@ class SmsService extends BaseService
         $res = false;
         switch ($module){
             case 'member':
-                $res = MemberRepository::exists(['m_phone' => $mobile]);
+                $res = OaMemberRepository::exists(['m_phone' => $mobile]);
                 break;
             case 'prime':
                 $res = PrimeShopsRepository::exists(['phone' => $mobile]);
@@ -127,7 +127,7 @@ class SmsService extends BaseService
             'mobile'    => $mobile,
             'code'      => $code,
             'title'     => SMSEnum::getLabel($type),
-            'content'   => '',
+            'content'   => $content,
             'status'    => 0,
             'created_at' => time(),
         ]);
@@ -152,6 +152,12 @@ class SmsService extends BaseService
             Loggy::write('error','短信发送失败！|内容：'.$content.' |手机号：'.$mobile.' |失败原因：'.$res['message'].' |错误码：'.$res['status']);
             return ['code' => 0, 'message' => '短信发送失败，请重试！'];
         }
+        CommonSmsRepository::getAddId([
+            'mobile'    => $mobile,
+            'title'     => SMSEnum::getLabel(0),
+            'content'   => $content,
+            'created_at' => time(),
+        ]);
         return ['code' => 1, 'message' => '短信发送成功！'];
     }
 }

@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityCommentKeywordsModel extends Model
+class ActivityHostsModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityCommentKeywordsModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_comment_keywords';
+    protected $table = 'activity_hosts';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class ActivityCommentKeywordsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','description','created_at','updated_at'];
+    protected $fillable = ['id','activity_id','type','name','logo_id','created_at','updated_at'];
 
 
 

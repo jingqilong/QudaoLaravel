@@ -29,6 +29,7 @@ class OaAdminMenuRepository extends ApiRepository
      */
     protected function createMenu(array $add_data){
         $arr = [
+            'primary_key' => $add_data['primary_key'],
             'type'      => $add_data['type'],
             'parent_id' => $add_data['parent_id'],
             'path'      => $add_data['path'],
@@ -52,7 +53,7 @@ class OaAdminMenuRepository extends ApiRepository
      * @param array $column
      * @return array
      */
-    protected function getMenuList(array $where, $column = ['id', 'type', 'parent_id', 'path','vue_route', 'level', 'title', 'icon', 'method', 'url']){
+    protected function getMenuList(array $where, $column = ['id', 'primary_key', 'type', 'parent_id', 'path','vue_route', 'level', 'title', 'icon', 'method', 'url']){
         if (!$list = $this->getList($where,$column,'order','asc')){
             return [];
         }

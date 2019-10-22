@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityCommentsModel extends Model
+class ActivityLinksModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityCommentsModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_comments';
+    protected $table = 'activity_links';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class ActivityCommentsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','content','comment_name','comment_avatar','activity_id','member_id','status','hidden','created_at','deleted_at'];
+    protected $fillable = ['id','activity_id','title','url','image_id','created_at','updated_at'];
 
 
 

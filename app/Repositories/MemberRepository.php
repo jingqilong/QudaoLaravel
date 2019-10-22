@@ -27,7 +27,7 @@ class MemberRepository extends ApiRepository
      * 添加新用户
      * @param $mobile
      * @param array $sub_data
-     * @return array|null
+     * @return mixed
      */
     protected function addUser($mobile, $sub_data = [])
     {

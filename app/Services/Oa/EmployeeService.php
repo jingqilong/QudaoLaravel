@@ -91,7 +91,7 @@ class EmployeeService extends BaseService
         if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'m_time','desc',$page,$page_num)){
             $this->setError('没有员工信息！');
             return false;
-        }dd($employee_list);
+        }
 
         unset(
               $employee_list['first_page_url'],  $employee_list['from'],

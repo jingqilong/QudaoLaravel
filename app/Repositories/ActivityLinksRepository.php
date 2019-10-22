@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ActivityCommentKeywordsModel;
+use App\Models\ActivityLinksModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ActivityCommentKeywordsRepository extends ApiRepository
+class ActivityLinksRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ActivityCommentKeywordsRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ActivityCommentKeywordsModel $model)
+    public function __construct(ActivityLinksModel $model)
     {
         $this->model = $model;
     }

@@ -6,6 +6,7 @@ use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivitySiteRepository;
 use App\Repositories\ActivitySuppliesRepository;
 use App\Repositories\ActivityThemeRepository;
+use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
 
 class ThemeService extends BaseService
@@ -25,6 +26,7 @@ class ThemeService extends BaseService
         $add_arr = [
             'name'          => $request['name'],
             'description'   => $request['description'] ?? '',
+            'icon_id'       => $request['icon_id'] ?? '',
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -79,6 +81,7 @@ class ThemeService extends BaseService
         $upd_arr = [
             'name'          => $request['name'],
             'description'   => $request['description'] ?? '',
+            'icon_id'       => $request['icon_id'] ?? '',
             'updated_at'    => time(),
         ];
         if (ActivityThemeRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -110,6 +113,7 @@ class ThemeService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
+            $value['icon']       = CommonImagesRepository::getField(['id' => $value['icon_id']],'img_url');
             $value['created_at'] = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:i',$value['updated_at']);
         }

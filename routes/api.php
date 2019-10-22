@@ -46,7 +46,7 @@ $api->version('v1',function ($api){
                 $api->post('add_depart','OaController@addDepart')->name("添加部门");
                 $api->post('update_depart','OaController@updateDepart')->name("修改部门");
                 $api->delete('del_depart','OaController@delDepart')->name("删除部门");
-                $api->post('get_depart_list','OaController@getDepartList')->name("获取部门列表");
+                $api->get('get_depart_list','OaController@getDepartList')->name("获取部门列表");
                 #OA员工
                 $api->post('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取OA员工信息');
@@ -56,6 +56,8 @@ $api->version('v1',function ($api){
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
                 $api->post('add_menu','PermissionsController@addMenu')->name("添加菜单");
+                $api->post('edit_menu','PermissionsController@editMenu')->name("修改菜单");
+                $api->get('menu_detail','PermissionsController@menuDetail')->name("菜单详情");
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");
                 $api->post('add_roles','PermissionsController@addRoles')->name("添加角色");
                 $api->post('add_user','PermissionsController@addUser')->name("添加用户");
@@ -65,6 +67,16 @@ $api->version('v1',function ($api){
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+
+                #OA会员管理
+                $api->get('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
+                $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
+                $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
+                $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
+                $api->post('add_member','OaMemberController@addMember')->name('添加成员');
+                $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
+                $api->get('get_all_menu_list','PermissionsController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
+
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');
@@ -121,6 +133,14 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
 
+                $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
+                $api->delete('delete_host','ActivityController@deleteHost')->name('删除活动举办方');
+                $api->post('edit_host','ActivityController@editHost')->name('修改活动举办方');
+
+                $api->post('activity_add_link','ActivityController@activityAddLink')->name('添加活动相关链接');
+                $api->delete('delete_link','ActivityController@deleteLink')->name('删除活动链接');
+                $api->post('edit_link','ActivityController@editLink')->name('修改活动链接');
+
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
                 $api->post('edit_activity_theme','ThemeController@editActivityTheme')->name('修改活动主题');
@@ -140,15 +160,27 @@ $api->version('v1',function ($api){
                 $api->delete('activity_delete_prize','PrizeController@activityDeletePrize')->name('删除活动奖品');
                 $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
+
+                $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
+                $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
+
+                $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
+                $api->post('audit_comment','CommentController@auditComment')->name('审核活动评论');
             });
+        });
+
+        $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             //精选活动（前台）
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
+                $api->get('collect_list','UserActivityController@collectList')->name('获取活动收藏列表');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
+                $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
                 $api->post('comment','UserActivityController@comment')->name('会员评论活动');
-                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员评论活动');
+                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员删除评论');
+                $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
             });
@@ -167,6 +199,7 @@ $api->version('v1',function ($api){
                 $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
 
+
                 #会员权限
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
@@ -181,6 +214,7 @@ $api->version('v1',function ($api){
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除会员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
+            $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');

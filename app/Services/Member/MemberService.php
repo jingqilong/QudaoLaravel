@@ -27,7 +27,7 @@ class MemberService extends BaseService
     protected $auth;
 
     /**
-     * EmployeeService constructor.
+     * MemberService constructor.
      */
     public function __construct()
     {
@@ -64,6 +64,58 @@ class MemberService extends BaseService
 
 
     /**
+     * 手机号注册
+     * @param $data
+     * @return mixed
+     */
+    public function register($data)
+    {
+        if (!$referral_code = MemberRepository::exists(['m_referral_code' => $data['referral_code']])) {
+            $this->setError('邀请码不存在!');
+            return false;
+        }
+        if ($mobile = MemberRepository::exists(['m_phone' => $data['mobile']])){
+            $this->setError('该手机号码已注册过!');
+            return false;
+        }
+        //添加用户
+        DB::beginTransaction();
+        if (!$user_id = MemberRepository::addUser($data['mobile'], ['referral_code' => $data['referral_code']])) {
+            DB::rollBack();
+            return '用户创建失败！';
+        }
+        //建立用户推荐关系
+        $relation_data['member_id'] = $user_id;
+        $relation_data['created_at'] = time();
+        if (empty($referral_code)) {
+            $relation_data['parent_id'] = 0;
+            $relation_data['path'] = '0,' . $user_id;
+            $relation_data['level'] = 1;
+        } else {
+            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])) {
+                DB::rollBack();
+                return '无效的推荐码';
+            }
+            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])) {
+                DB::rollBack();
+                Loggy::write('error', '用户推荐关系丢失，用户id：' . $user_id . '  推荐人推荐码：' . $referral_code);
+                return '数据异常';
+            }
+            $relation_data['parent_id'] = $referral_user['m_id'];
+            $relation_data['path'] = $relation_user['path'] . ',' . $user_id;
+            $relation_data['level'] = $relation_user['level'] + 1;
+        }
+        if (!MemberRelationRepository::getAddId($relation_data)) {
+            DB::rollBack();
+            Loggy::write('error', '推荐关系建立失败，用户id：' . $user_id . '  推荐人id：' . $relation_data['parent_id']);
+            return '推荐关系建立失败';
+        }
+        DB::commit();
+        return MemberRepository::find($user_id);
+    }
+
+
+    /**
      * Log the user out (Invalidate the token).
      *
      * @param $token
@@ -91,13 +143,13 @@ class MemberService extends BaseService
     }
 
     /**
-     * 会员按条件查找排序
+     * 成员按条件查找排序
      * @param $data
      * @return array|bool|null
      */
     public function getUserList($data)
     {
-        $employeeInfo = $this->auth->user();
+        $memberInfo = $this->auth->user();
 
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
@@ -107,7 +159,7 @@ class MemberService extends BaseService
         $groupMember    = ['尊享会员','悦享会员','高级顾问','亦享成员','致享成员','真享成员','君享成员'];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
-        if (in_array($employeeInfo['m_groupname'],$groupMember)){
+        if (in_array($memberInfo['m_groupname'],$groupMember)){
             if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
                 $this->setMessage('没有查到该成员！');
                 return [];
