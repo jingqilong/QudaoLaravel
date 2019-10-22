@@ -154,6 +154,9 @@ $api->version('v1',function ($api){
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
+
+                $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
+                $api->post('audit_comment','CommentController@auditComment')->name('审核活动评论');
             });
         });
 
@@ -162,11 +165,13 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
+                $api->get('collect_list','UserActivityController@collectList')->name('获取活动收藏列表');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
                 $api->post('comment','UserActivityController@comment')->name('会员评论活动');
-                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员评论活动');
+                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员删除评论');
+                $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
             });

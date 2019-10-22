@@ -265,7 +265,8 @@ class AdminMenuService extends BaseService
                 break;
         }
         if (!$list = OaAdminMenuRepository::getList($where,['id','title','icon'])){
-            $this->setError('获取失败！');
+            $this->setMessage('暂无数据！');
+            return [];
         }
         $this->setMessage('获取成功！');
         return array_merge($res,$list);

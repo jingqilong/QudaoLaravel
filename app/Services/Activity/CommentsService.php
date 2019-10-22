@@ -2,15 +2,10 @@
 namespace App\Services\Activity;
 
 
-use App\Enums\ActivityEnum;
-use App\Enums\ActivityRegisterEnum;
-use App\Repositories\ActivityCommentKeywordsRepository;
+use App\Enums\ActivityCommentEnum;
 use App\Repositories\ActivityCommentsRepository;
 use App\Repositories\ActivityDetailRepository;
-use App\Repositories\ActivityRegisterRepository;
-use App\Repositories\MemberGradeRepository;
 use App\Services\BaseService;
-use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,15 +46,7 @@ class CommentsService extends BaseService
             $this->setError('您已经评论过了，无法再次评论！');
             return false;
         }
-        //TODO 此处判断会员有没有报名
-        $keyword_ids = explode(',',$request['keyword_ids']);
-        if (count($keyword_ids) != ActivityCommentKeywordsRepository::count(['id' => ['in', $keyword_ids]])){
-            $this->setError('存在无效的评论关键字！');
-            return false;
-        }
         $add_arr = [
-            'score'         => $request['score'],
-            'keyword_ids'   => $request['keyword_ids'],
             'content'       => $request['content'] ?? '',
             'comment_name'  => $request['comment_name'] ?? $member->m_cname,
             'comment_avatar'=> $request['comment_avatar'] ?? $member->m_img,
@@ -104,66 +91,97 @@ class CommentsService extends BaseService
     }
 
     /**
-     * 活动报名
+     * 获取活动评论列表
      * @param $request
+     * @return mixed
+     */
+    public function getActivityComment($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page'] ?? 20;
+        $comment_where = [
+            'activity_id'   => $request['activity_id'],
+            'status'        => ActivityCommentEnum::PASS,
+            'hidden'        => ActivityCommentEnum::DISPLAY,
+            'deleted_at'    => 0
+        ];
+        $comment_column = ['id','content','comment_name','comment_avatar','member_id','created_at'];
+        if (!$comment_list = ActivityCommentsRepository::getList($comment_where,$comment_column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        unset($comment_list['first_page_url'], $comment_list['from'],
+            $comment_list['from'], $comment_list['last_page_url'],
+            $comment_list['next_page_url'], $comment_list['path'],
+            $comment_list['prev_page_url'], $comment_list['to']);
+        if (empty($comment_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $comment_list;
+        }
+        foreach ($comment_list['data'] as &$value){
+            $value['created_at'] = date('Y-m-d H:i',$value['created_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $comment_list;
+    }
+
+    /**
+     * 获取所有评论（后台）
+     * @param $request
+     * @return bool|null
+     */
+    public function getCommentList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        if (!$comment_list = ActivityCommentsRepository::getList(['id' => ['>',0]],['*'],'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        unset($comment_list['first_page_url'], $comment_list['from'],
+            $comment_list['from'], $comment_list['last_page_url'],
+            $comment_list['next_page_url'], $comment_list['path'],
+            $comment_list['prev_page_url'], $comment_list['to']);
+        if (empty($comment_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $comment_list;
+        }
+        $activity_ids = array_column($comment_list['data'],'activity_id');
+        $activity_list = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]]);
+        foreach ($comment_list['data'] as &$value){
+            $value['activity_name'] = '';
+            if ($activity = $this->searchArray($activity_list,'id',$value['activity_id'])){
+                $value['activity_name'] = reset($activity)['name'];
+            }
+            $value['created_at'] = date('Y-m-d H:i',$value['created_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $comment_list;
+    }
+
+    /**
+     * 审核评论
+     * @param $comment_id
+     * @param $audit
      * @return bool
      */
-    public function register($request)
+    public function auditComment($comment_id, $audit)
     {
-        if (!$activity = ActivityDetailRepository::getOne(['id' => $request['activity_id']])){
-            $this->setError('活动不存在！');
+        if (!$comment = ActivityCommentsRepository::getOne(['id' => $comment_id])){
+            $this->setError('评论不存在！');
             return false;
         }
-        $member = $this->auth->user();
-        $member_price = $activity['price'];
-        if ($activity['is_member'] == ActivityEnum::NOTALLOW){
-            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member])){
-                $this->setError('本次活动仅限会员参加！');
-                return false;
-            }
-            //计算会员价格
-            $member_price   = $this->discount($grade['grade'],$activity['price']);
-        }
-        $time = time();
-        if ($time > $activity['start_time'] && $time < $activity['end_time']){
-            $this->setError('活动已经开始，无法进行报名了！');
+        if ($comment['status'] > ActivityCommentEnum::PENDING){
+            $this->setError('评论已审核！');
             return false;
         }
-        if ($activity['end_time'] < $time){
-            $this->setError('活动已经结束了，下次再来吧！');
+        $status = $audit == 1 ? ActivityCommentEnum::PASS : ActivityCommentEnum::NOPASS;
+        if (!ActivityCommentsRepository::getUpdId(['id' => $comment_id],['status' => $status])){
+            $this->setError('审核失败！');
             return false;
         }
-        if (ActivityRegisterRepository::exists([
-            'activity_id' => $request['activity_id'],
-            'member_id' => $member->m_id,
-            'status' => ['<',5]])){
-            $this->setError('您已经报过名了，请勿重复报名！');
-            return false;
-        }
-        $add_arr = [
-            'activity_id'   => $request['activity_id'],
-            'member_id'     => $member->m_id,
-            'name'          => $request['name'],
-            'mobile'        => $request['mobile'],
-            'activity_price'=> $activity['price'],
-            'member_price'  => $member_price,
-            'status'        => ActivityRegisterEnum::PENDING,
-            'created_at'    => time(),
-            'updated_at'    => time(),
-        ];
-        if (ActivityRegisterRepository::getAddId($add_arr)){
-            //TODO 此处可以添加报名后发通知的事务
-            #发送短信
-            if (!empty($member->m_phone)){
-                $sms = new SmsService();
-                $content = '您好！欢迎参加活动《'.$activity['name'].'》,我们将在24小时内受理您的报名申请，如有疑问请联系客服：000-00000！';
-                $sms->sendContent($member->m_phone,$content);
-            }
-            $this->setMessage('报名成功！');
-            return true;
-        }
-        $this->setError('报名失败！');
-        return false;
+        $this->setMessage('审核成功！');
+        return true;
     }
 }
             
