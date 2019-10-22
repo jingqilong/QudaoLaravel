@@ -96,6 +96,88 @@ class MemberController extends ApiController
         return ['code' => 200, 'message' => '登录成功！', 'data' => $res];
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/mobile_register",
+     *     tags={"会员"},
+     *     summary="手机号码注册登录",
+     *     description="sang" ,
+     *     operationId="mobile_register",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="query",
+     *         description="验证码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="referral_code",
+     *         in="query",
+     *         description="邀请码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="登录失败",
+     *     ),
+     * )
+     *
+     */
+    public function mobileRegister(){
+        $rules = [
+            'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'code'              => 'required|min:4|max:4',
+            'm_referral_code'   => 'string',
+        ];
+        $messages = [
+            'mobile.required'           => '请输入手机号',
+            'mobile.regex'              => '手机号格式有误',
+            'code.required'             => '请输入验证码',
+            'code.min'                  => '验证码不能少于4位',
+            'code.max'                  => '验证码不能多于4位',
+            'm_referral_code.string'    => '邀请码格式错误',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        //短信验证
+        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::REGISTER, $this->request['code']);
+        if (is_string($check_sms)){
+            return ['code' => 100, 'message' => $check_sms];
+        }
+        $res = $this->memberService->register($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
+    }
+
     /**
      * @OA\Post(
      *     path="/api/v1/member/logout",
@@ -385,11 +467,8 @@ class MemberController extends ApiController
 ----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 */
-    /**
-     * @return array
-     * @persy 暂不开发
-     */
-    public function updateUserInfo()
+
+    /*public function updateUserInfo()
     {
         $rules = [
             'mobile'    => 'required|regex:/^1[3456789][0-9]{9}$/',
@@ -409,8 +488,8 @@ class MemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-    }
-/**************************************** ****************************************/
+    }*/
+/****************************************  暂不开发  ****************************************/
 
 
     /**

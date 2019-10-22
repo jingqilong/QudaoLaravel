@@ -129,20 +129,42 @@ class OaMemberService extends BaseService
             $this->setError('成员已被删除!');
             return false;
         }
-        if ($memberInfo['m_starte'] == 0){
-            if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 1])){
-                $this->setError('禁用成员失败!');
+
+        switch ($memberInfo['m_starte'])
+        {
+            case '0':
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 1])){
+                    $this->setError('禁用成员失败!');
+                    return false;
+                }
+                $this->setMessage('禁用会员成功!');
                 return $memberStatus;
-            }
-            $this->setMessage('禁用会员成功!');
-            return $memberStatus;
-        }else{
-            if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 0])){
-                $this->setError('激活会员失败!');
+                break;
+            case '1':
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 0])){
+                    $this->setError('激活会员失败!');
+                    return false;
+                }
+                $this->setMessage('激活会员成功!');
                 return $memberStatus;
-            }
-            $this->setMessage('激活会员成功!');
-            return $memberStatus;
+                break;
+            case '2':
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 3])){
+                    $this->setError('禁用官员失败!');
+                    return false;
+                }
+                $this->setMessage('禁用官员成功!');
+                return $memberStatus;
+                break;
+            case '3':
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 2])){
+                    $this->setError('激活官员失败!');
+                    return false;
+                }
+                $this->setMessage('激活官员成功!');
+                return $memberStatus;
+                break;
+                default;
         }
     }
 
@@ -155,9 +177,37 @@ class OaMemberService extends BaseService
     public function addMember($data)
     {
         unset($data['sign'],$data['token']);
-
+        $data['m_sex'] = $data['m_sex'] == '1' ?  '先生' : '女士';
+        switch ($data['m_groupname'])
+        {
+            case 1:
+                $data['m_groupname'] = '内部测试';
+            break;
+            case 2:
+                $data['m_groupname'] = '亦享成员';
+            break;
+            case 3:
+                $data['m_groupname'] = '至享成员';
+            break;
+            case 4:
+                $data['m_groupname'] = '悦享成员';
+            break;
+            case 5:
+                $data['m_groupname'] = '真享成员';
+            break;
+            case 6:
+                $data['m_groupname'] = '君享成员';
+            break;
+            case 7:
+                $data['m_groupname'] = '尊享成员';
+            break;
+            case 8:
+                $data['m_groupname'] = '内部测试';
+            break;
+            default;
+        }
         if (empty($data)){
-            $this->setError('没有数据，请重新添加');
+            $this->setError('没有数据，请添加数据');
             return false;
         }
 
@@ -173,6 +223,43 @@ class OaMemberService extends BaseService
 
         $this->setMessage('添加成功');
         return $memberInfo;
+
+
+    }
+
+
+    /**
+     * 更新完善成员信息
+     * @param $data
+     * @return bool|null
+     */
+    public function updMemberInfo($data)
+    {
+        unset($data['sign'],$data['token']);
+        if (empty($data)){
+            $this->setError('没有数据，请编辑修改数据');
+            return false;
+        }
+
+        if (!$old_member = OaMemberRepository::getOne(['m_id' => $data['id']])){
+            $this->setError('查找不到该会员！');
+            return false;
+        }
+
+        $table_fields = OaMemberRepository::getFields();
+        $upd_data = [];
+        foreach($table_fields as $v){
+            if (isset($data[$v]) && $old_member[$v] !== $data[$v]){
+                $upd_data[$v] = $data[$v];
+            }
+        }
+
+        if (!$updMemberInfo = OaMemberRepository::getUpdId(['m_id' => $data['id']],$upd_data)){
+            $this->setError('更新失败！请重试');
+            return false;
+        }
+        $this->setMessage('更新成功');
+        return $updMemberInfo;
 
 
     }

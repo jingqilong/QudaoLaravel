@@ -39,7 +39,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="短信类型【0，默认类型1、会员模块登录,2、修改密码...】",
+     *         description="短信类型【0，默认类型1、会员模块登录,2、修改密码,3、成员短信注册,....】",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",

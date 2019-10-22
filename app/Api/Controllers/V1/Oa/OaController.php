@@ -115,7 +115,7 @@ class OaController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -160,7 +160,7 @@ class OaController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -206,7 +206,7 @@ class OaController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -499,7 +499,7 @@ class OaController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/get_depart_list",
      *     tags={"OA部门"},
      *     summary="获取部门列表",
@@ -546,9 +546,6 @@ class OaController extends ApiController
      *     ),
      * )
      *
-     */
-    /**
-     * @return array
      */
     public function getDepartList()
     {

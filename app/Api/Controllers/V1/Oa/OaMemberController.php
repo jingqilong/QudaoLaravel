@@ -18,7 +18,7 @@ class OaMemberController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/get_member_list",
      *     tags={"OA成员管理"},
      *     summary="获取成员列表(OA)",
@@ -93,7 +93,7 @@ class OaMemberController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/get_member_info",
      *     tags={"OA成员管理"},
      *     summary="获取成员信息",
@@ -110,7 +110,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -152,7 +152,7 @@ class OaMemberController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *     path="/api/v1/oa/del_member",
      *     tags={"OA成员管理"},
      *     summary="删除成员",
@@ -169,7 +169,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -211,10 +211,10 @@ class OaMemberController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/set_member_status",
      *     tags={"OA成员管理"},
-     *     summary="禁用or激活成员",
+     *     summary="禁用or激活成员and官员",
      *     operationId="set_member_status",
      *     @OA\Parameter(
      *         name="sign",
@@ -228,7 +228,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="OA TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -273,7 +273,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/add_member",
      *     tags={"OA成员管理"},
-     *     summary="添加成员信息",
+     *     summary="添加成员基本信息",
      *     operationId="add_member",
      *     @OA\Parameter(
      *         name="sign",
@@ -284,10 +284,83 @@ class OaMemberController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(name="token",in="query", description="用户TOKEN",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="token",in="query", description="OA TOKEN",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_num",in="query",description="会员卡号",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_cname",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_ename",in="query",description="英文名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_ename",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_category",in="query",description="成员类别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_groupname",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_workunits",in="query",description="工作单位名称",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_position",in="query",description="职务",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_notes",in="query",description="备注",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_indate",in="query",description="有效期",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function addMember()
+    {
+        $rules = [
+            'm_num'                      => 'required|integer',
+            'm_sex'                      => 'required|integer',
+            'm_cname'                    => 'required|string',
+            'm_groupname'                => 'required',
+            'm_category'                 => 'required',
+            'm_email'                    => 'email',
+        ];
+        $messages = [
+            'm_num.integer'              => '会员卡号格式不正确',
+            'm_num.required'             => '请填写会员卡号',
+            'm_sex.required'             => '请填写性别',
+            'm_sex.integer'              => '请正确填写性别',
+            'm_cname.string'             => '请正确填写姓名',
+            'm_ename.string'             => '请正确填写姓名格',
+            'm_cname.required'           => '请填写中文姓名',
+            'm_email.email'              => '邮箱格式不正确',
+            'm_category.required'        => '请填写成员分类',
+            'm_groupname.required'       => '请填写成员级别',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->addMember($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['res' => $res]];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/upd_member",
+     *     tags={"OA成员管理"},
+     *     summary="更新完善 成员信息",
+     *     operationId="upd_member",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(name="token",in="query", description="OA TOKEN",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="id",in="query", description="用户ID",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_num",in="query",description="会员卡号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_cname",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_ename",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_sex",in="query",description="性别",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_groupname",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_workunits",in="query",description="工作单位名称",required=true,@OA\Schema(type="string",)),
@@ -361,25 +434,29 @@ class OaMemberController extends ApiController
      * )
      *
      */
-    public function addMember()
+    public function updMember()
     {
         $rules = [
+            'id'                                => 'required|integer',
             'm_num'                             => 'required|integer',
             'm_sex'                             => 'required|integer',
             'm_cname'                           => 'required|string',
+            'm_ename'                           => 'string',
             'm_groupname'                       => 'required',
             'm_category'                        => 'required',
             'm_email'                           => 'email',
         ];
         $messages = [
+            'id.integer'                 => '会员ID格式不正确',
+            'id.required'                => '请填写会员ID',
             'm_num.integer'              => '会员卡号格式不正确',
             'm_num.required'             => '请填写会员卡号',
             'm_sex.required'             => '请填写性别',
             'm_sex.integer'              => '请正确填写性别',
             'm_cname.string'             => '请正确填写姓名',
-            'm_ename.string'             => '请正确填写姓名格',
+            'm_ename.string'             => '请正确填写英文名',
             'm_cname.required'           => '请填写中文姓名',
-            'm_email.email'              => '请填写邮箱',
+            'm_email.email'              => '邮箱格式不正确',
             'm_category.required'        => '请填写成员分类',
             'm_groupname.required'       => '请填写成员级别',
         ];
@@ -387,10 +464,10 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->addMember($this->request);
-        if (!$res){
-            return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['res' => $res]];
+        $memberId = $this->OaMemberService->updMemberInfo($this->request);
+        if (!$memberId){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 100, 'message' => $this->OaMemberService->error];
+       return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberId' => $memberId]];
     }
 }

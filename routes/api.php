@@ -46,7 +46,7 @@ $api->version('v1',function ($api){
                 $api->post('add_depart','OaController@addDepart')->name("添加部门");
                 $api->post('update_depart','OaController@updateDepart')->name("修改部门");
                 $api->delete('del_depart','OaController@delDepart')->name("删除部门");
-                $api->post('get_depart_list','OaController@getDepartList')->name("获取部门列表");
+                $api->get('get_depart_list','OaController@getDepartList')->name("获取部门列表");
                 #OA员工
                 $api->post('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取OA员工信息');
@@ -68,11 +68,12 @@ $api->version('v1',function ($api){
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
                 #OA会员管理
-                $api->post('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
-                $api->post('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
-                $api->post('del_member','OaMemberController@delMember')->name('删除成员');
-                $api->post('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
+                $api->get('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
+                $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
+                $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
+                $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
+                $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
@@ -190,6 +191,7 @@ $api->version('v1',function ($api){
                 $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
 
+
                 #会员权限
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
@@ -204,6 +206,7 @@ $api->version('v1',function ($api){
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除会员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
+            $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');

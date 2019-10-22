@@ -64,6 +64,58 @@ class MemberService extends BaseService
 
 
     /**
+     * 手机号注册
+     * @param $data
+     * @return mixed
+     */
+    public function register($data)
+    {
+        if (!$referral_code = MemberRepository::exists(['m_referral_code' => $data['referral_code']])) {
+            $this->setError('邀请码不存在!');
+            return false;
+        }
+        if ($mobile = MemberRepository::exists(['m_phone' => $data['mobile']])){
+            $this->setError('该手机号码已注册过!');
+            return false;
+        }
+        //添加用户
+        DB::beginTransaction();
+        if (!$user_id = MemberRepository::addUser($data['mobile'], ['referral_code' => $data['referral_code']])) {
+            DB::rollBack();
+            return '用户创建失败！';
+        }
+        //建立用户推荐关系
+        $relation_data['member_id'] = $user_id;
+        $relation_data['created_at'] = time();
+        if (empty($referral_code)) {
+            $relation_data['parent_id'] = 0;
+            $relation_data['path'] = '0,' . $user_id;
+            $relation_data['level'] = 1;
+        } else {
+            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])) {
+                DB::rollBack();
+                return '无效的推荐码';
+            }
+            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])) {
+                DB::rollBack();
+                Loggy::write('error', '用户推荐关系丢失，用户id：' . $user_id . '  推荐人推荐码：' . $referral_code);
+                return '数据异常';
+            }
+            $relation_data['parent_id'] = $referral_user['m_id'];
+            $relation_data['path'] = $relation_user['path'] . ',' . $user_id;
+            $relation_data['level'] = $relation_user['level'] + 1;
+        }
+        if (!MemberRelationRepository::getAddId($relation_data)) {
+            DB::rollBack();
+            Loggy::write('error', '推荐关系建立失败，用户id：' . $user_id . '  推荐人id：' . $relation_data['parent_id']);
+            return '推荐关系建立失败';
+        }
+        DB::commit();
+        return MemberRepository::find($user_id);
+    }
+
+
+    /**
      * Log the user out (Invalidate the token).
      *
      * @param $token

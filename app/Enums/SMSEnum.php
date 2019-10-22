@@ -9,9 +9,10 @@ class SMSEnum extends BaseEnum
 {
     //菜单类型
     public static $labels=[
-        'DEFAULT'       => '默认类型',
-        'MEMBERLOGIN'   => '会员模块登录验证',
+        'DEFAULT'          => '默认类型',
+        'MEMBERLOGIN'      => '会员模块登录验证',
         'CHANGEPASSWORD'   => '短信修改密码',
+        'REGISTER'         => '成员短信注册',
     ];
 
     //短信类型
@@ -19,17 +20,18 @@ class SMSEnum extends BaseEnum
         0 => 'DEFAULT',
         1 => 'MEMBERLOGIN',
         2 => 'CHANGEPASSWORD',
+        3 => 'REGISTER',
     ];
 
     //短信类型所属的模块
     public static $module = [
-        'member' => [1,2],
-        'common' => [0],
+        'member'    => [1,2,3],
+        'common'    => [0],
     ];
 
     //注册类短信类型
     public static $register = [
-
+        3 => '短信成员注册',
     ];
 
     //短信模板
@@ -37,6 +39,7 @@ class SMSEnum extends BaseEnum
         0 => '【渠道PLUS】验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
         1 => '【渠道PLUS】登录验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
         2 => '【渠道PLUS】验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
+        3 => '【渠道PLUS】注册验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
     ];
 
     // constants
@@ -46,6 +49,8 @@ class SMSEnum extends BaseEnum
     const MEMBERLOGIN       = 1;
 
     const CHANGEPASSWORD    = 2;
+
+    const REGISTER          = 3;
 
     /**
      * 检查类型是否存在
