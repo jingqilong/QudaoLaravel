@@ -56,6 +56,8 @@ $api->version('v1',function ($api){
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
                 $api->post('add_menu','PermissionsController@addMenu')->name("添加菜单");
+                $api->post('edit_menu','PermissionsController@editMenu')->name("修改菜单");
+                $api->get('menu_detail','PermissionsController@menuDetail')->name("菜单详情");
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");
                 $api->post('add_roles','PermissionsController@addRoles')->name("添加角色");
                 $api->post('add_user','PermissionsController@addUser')->name("添加用户");
@@ -128,6 +130,14 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
 
+                $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
+                $api->delete('delete_host','ActivityController@deleteHost')->name('删除活动举办方');
+                $api->post('edit_host','ActivityController@editHost')->name('修改活动举办方');
+
+                $api->post('activity_add_link','ActivityController@activityAddLink')->name('添加活动相关链接');
+                $api->delete('delete_link','ActivityController@deleteLink')->name('删除活动链接');
+                $api->post('edit_link','ActivityController@editLink')->name('修改活动链接');
+
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');
                 $api->post('edit_activity_theme','ThemeController@editActivityTheme')->name('修改活动主题');
@@ -147,12 +157,18 @@ $api->version('v1',function ($api){
                 $api->delete('activity_delete_prize','PrizeController@activityDeletePrize')->name('删除活动奖品');
                 $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
+
+                $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
             });
+        });
+
+        $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             //精选活动（前台）
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
+                $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
                 $api->post('comment','UserActivityController@comment')->name('会员评论活动');
                 $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员评论活动');

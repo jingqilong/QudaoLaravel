@@ -5,20 +5,28 @@ namespace App\Api\Controllers\V1\Activity;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Event\ActivityService;
+use App\Services\Activity\DetailService;
+use App\Services\Activity\HostsService;
+use App\Services\Activity\LinksService;
 
 class ActivityController extends ApiController
 {
     public $activityService;
+    public $hostsService;
+    public $linksService;
 
     /**
      * ActivityController constructor.
-     * @param ActivityService $activityService
+     * @param DetailService $activityService
+     * @param HostsService $hostsService
+     * @param LinksService $linksService
      */
-    public function __construct(ActivityService $activityService)
+    public function __construct(DetailService $activityService,HostsService $hostsService,LinksService $linksService)
     {
         parent::__construct();
         $this->activityService  = $activityService;
+        $this->hostsService     = $hostsService;
+        $this->linksService     = $linksService;
     }
 
     /**
@@ -110,6 +118,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="cover_id",
+     *         in="query",
+     *         description="活动封面图ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="banner_ids",
      *         in="query",
      *         description="轮播图ID串",
@@ -139,7 +156,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="notice",
      *         in="query",
-     *         description="参会须知",
+     *         description="活动须知",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -194,6 +211,7 @@ class ActivityController extends ApiController
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
             ],
             'is_recommend'  => 'in:0,1',
+            'cover_id'      => 'required|integer',
             'banner_ids'    => 'required|regex:/^(\d+[,])*\d+$/',
             'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
             'status'        => 'required|in:1,2',
@@ -210,6 +228,8 @@ class ActivityController extends ApiController
             'end_time.required'     => '活动结束时间不能为空',
             'end_time.regex'        => '活动结束时间格式有误，例如：2019-10-10 12:30',
             'is_recommend.in'       => '是否推荐取值不在范围内',
+            'cover_id.required'     => '封面图不能为空',
+            'cover_id.integer'      => '封面图ID必须为整数',
             'banner_ids.required'   => '活动banner图不能为空',
             'banner_ids.regex'      => '活动banner图ID串格式有误',
             'image_ids.required'    => '活动详情图不能为空',
@@ -224,8 +244,8 @@ class ActivityController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->activityService->addActivity($this->request);
-        if ($res){
-            return ['code' => 200, 'message' => $this->activityService->message];
+        if ($res !== false){
+            return ['code' => 200, 'message' => $this->activityService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->activityService->error];
     }
@@ -391,6 +411,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="cover_id",
+     *         in="query",
+     *         description="活动封面图ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="banner_ids",
      *         in="query",
      *         description="轮播图ID串",
@@ -420,7 +449,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="notice",
      *         in="query",
-     *         description="参会须知",
+     *         description="活动须知",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -455,7 +484,7 @@ class ActivityController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="添加失败",
+     *         description="修改失败",
      *     ),
      * )
      *
@@ -476,6 +505,7 @@ class ActivityController extends ApiController
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
             ],
             'is_recommend'  => 'in:0,1',
+            'cover_id'      => 'required|integer',
             'banner_ids'    => 'required|regex:/^(\d+[,])*\d+$/',
             'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
             'status'        => 'required|in:1,2',
@@ -494,6 +524,8 @@ class ActivityController extends ApiController
             'end_time.required'     => '活动结束时间不能为空',
             'end_time.regex'        => '活动结束时间格式有误，例如：2019-10-10 12:30',
             'is_recommend.in'       => '是否推荐取值不在范围内',
+            'cover_id.required'     => '封面图不能为空',
+            'cover_id.integer'      => '封面图ID必须为整数',
             'banner_ids.required'   => '活动banner图不能为空',
             'banner_ids.regex'      => '活动banner图ID串格式有误',
             'image_ids.required'    => '活动详情图不能为空',
@@ -658,7 +690,7 @@ class ActivityController extends ApiController
      * @OA\Get(
      *     path="/api/v1/activity/activity_detail",
      *     tags={"精选活动后台"},
-     *     summary="获取获取详细信息",
+     *     summary="获取活动详细信息",
      *     description="sang" ,
      *     operationId="activity_detail",
      *     @OA\Parameter(
@@ -690,7 +722,7 @@ class ActivityController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="删除失败",
+     *         description="获取失败",
      *     ),
      * )
      *
@@ -712,5 +744,453 @@ class ActivityController extends ApiController
             return ['code' => 100, 'message' => $this->activityService->error];
         }
         return ['code' => 200, 'message' => $this->activityService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/activity_add_host",
+     *     tags={"精选活动后台"},
+     *     summary="添加活动举办方",
+     *     description="sang" ,
+     *     operationId="activity_add_host",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="parameters",
+     *         in="query",
+     *         description="参数，['type举办方类别,1为主办方，2为协办方','name举办方名称','logo_id举办方logo图ID']，例子：[{'type':1,'name':'\u4e3e\u529e\u65b9A','logo_id':12},{'type':2,'name':'\u4e3e\u529e\u65b9B','logo_id':42}]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败",
+     *     ),
+     * )
+     *
+     */
+    public function activityAddHost(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+            'parameters'    => 'required|json',
+        ];
+        $messages = [
+            'activity_id.required'  => '活动ID不能为空',
+            'activity_id.integer'   => '活动ID必须为整数',
+            'parameters.required'   => '参数不能为空',
+            'parameters.in'         => '参数必须为json字符串',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->hostsService->addHost($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->hostsService->error];
+        }
+        return ['code' => 200, 'message' => $this->hostsService->message];
+    }
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/activity/delete_host",
+     *     tags={"精选活动后台"},
+     *     summary="删除活动举办方",
+     *     description="sang" ,
+     *     operationId="delete_host",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="举办方ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    public function deleteHost(){
+        $rules = [
+            'id'   => 'required|integer',
+        ];
+        $messages = [
+            'id.required'  => '举办方ID不能为空',
+            'id.integer'   => '举办方ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->hostsService->deleteHost($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->hostsService->error];
+        }
+        return ['code' => 200, 'message' => $this->hostsService->message];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/edit_host",
+     *     tags={"精选活动后台"},
+     *     summary="修改活动举办方",
+     *     description="sang" ,
+     *     operationId="edit_host",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="举办方ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="举办方类型，1主办方，2协办方",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="举办方名称",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="logo_id",
+     *         in="query",
+     *         description="举办方logo图ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editHost(){
+        $rules = [
+            'id'        => 'required|integer',
+            'type'      => 'required|in:1,2',
+            'name'      => 'required',
+            'logo_id'   => 'required|integer',
+        ];
+        $messages = [
+            'id.required'       => '举办方ID不能为空',
+            'id.integer'        => '举办方ID必须为整数',
+            'type.required'     => '举办方类型不能为空',
+            'type.integer'      => '举办方类型不存在',
+            'name.required'     => '举办方名称不能为空',
+            'logo_id.required'  => '举办方logo图不能为空',
+            'logo_id.integer'   => '举办方logo图ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->hostsService->editHost($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->hostsService->error];
+        }
+        return ['code' => 200, 'message' => $this->hostsService->message];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/activity_add_link",
+     *     tags={"精选活动后台"},
+     *     summary="添加活动相关链接",
+     *     description="sang" ,
+     *     operationId="activity_add_link",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="parameters",
+     *         in="query",
+     *         description="参数，['title相关链接标签','url链接','image_id链接图片']，例子：[{'title':'\u4e3e\u529e\u65b9A','url':'http://ssss.com','image_id':12},{'title':'\u4e3e\u529e\u65b9B','url':'http://ssss.com','image_id':12}]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败",
+     *     ),
+     * )
+     *
+     */
+    public function activityAddLink(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+            'parameters'    => 'required|json',
+        ];
+        $messages = [
+            'activity_id.required'  => '活动ID不能为空',
+            'activity_id.integer'   => '活动ID必须为整数',
+            'parameters.required'   => '参数不能为空',
+            'parameters.in'         => '参数必须为json字符串',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->linksService->addLink($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->linksService->error];
+        }
+        return ['code' => 200, 'message' => $this->linksService->message];
+    }
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/activity/delete_link",
+     *     tags={"精选活动后台"},
+     *     summary="删除活动链接",
+     *     description="sang" ,
+     *     operationId="delete_link",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="链接ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    public function deleteLink(){
+        $rules = [
+            'id'   => 'required|integer',
+        ];
+        $messages = [
+            'id.required'  => '链接ID不能为空',
+            'id.integer'   => '链接ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->linksService->deleteLink($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->linksService->error];
+        }
+        return ['code' => 200, 'message' => $this->linksService->message];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/edit_link",
+     *     tags={"精选活动后台"},
+     *     summary="修改活动链接",
+     *     description="sang" ,
+     *     operationId="edit_link",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="链接ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="链接标签",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="url",
+     *         in="query",
+     *         description="链接",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_id",
+     *         in="query",
+     *         description="链接图片ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editLink(){
+        $rules = [
+            'id'        => 'required|integer',
+            'title'     => 'required',
+            'url'       => 'url',
+            'image_id'  => 'integer',
+        ];
+        $messages = [
+            'id.required'       => '链接ID不能为空',
+            'id.integer'        => '链接ID必须为整数',
+            'title.required'    => '链接标签不能为空',
+            'url.required'      => '链接不能为空',
+            'url.url'           => '链接不是一个url',
+            'image_id.integer'  => '链接图ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->linksService->editLink($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->linksService->error];
+        }
+        return ['code' => 200, 'message' => $this->linksService->message];
     }
 }

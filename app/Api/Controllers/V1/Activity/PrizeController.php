@@ -65,6 +65,15 @@ class PrizeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="奖品标签（一等奖、二等奖、三等奖...）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="number",
      *         in="query",
      *         description="奖品数量（0表示无数量限制）",
@@ -120,6 +129,7 @@ class PrizeController extends ApiController
         $rules = [
             'activity_id'   => 'required|integer',
             'name'          => 'required',
+            'title'         => 'required',
             'number'        => 'required|integer',
             'odds'          => 'required|integer',
             'image_ids'     => 'required:regex:/^(\d+[,])*\d+$/',
@@ -130,6 +140,7 @@ class PrizeController extends ApiController
             'activity_id.required'      => '活动ID不能为空',
             'activity_id.integer'       => '活动ID必须为整数',
             'name.required'             => '奖品名称不能为空',
+            'title.required'            => '奖品标签不能为空',
             'number.required'           => '奖品数量不能为空',
             'number.integer'            => '奖品数量必须为整数',
             'odds.required'             => '奖品中奖率不能为空',
@@ -264,6 +275,15 @@ class PrizeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="奖品标签（一等奖、二等奖...）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="number",
      *         in="query",
      *         description="奖品数量（0表示无数量限制）",
@@ -320,6 +340,7 @@ class PrizeController extends ApiController
             'id'            => 'required|integer',
             'activity_id'   => 'required|integer',
             'name'          => 'required',
+            'title'         => 'required',
             'number'        => 'required|integer',
             'odds'          => 'required|integer',
             'image_ids'     => 'required:regex:/^(\d+[,])*\d+$/',
@@ -332,6 +353,7 @@ class PrizeController extends ApiController
             'activity_id.required'      => '活动ID不能为空',
             'activity_id.integer'       => '活动ID必须为整数',
             'name.required'             => '奖品名称不能为空',
+            'title.required'            => '奖品标签不能为空',
             'number.required'           => '奖品数量不能为空',
             'number.integer'            => '奖品数量必须为整数',
             'odds.required'             => '奖品中奖率不能为空',
