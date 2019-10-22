@@ -4,6 +4,7 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\MemberEnum;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $column         = ['field' => '*'];
-        $where          = ['m_starte' => ['in',[0,1,2]]];
+        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::DISABLEMEMBER,MemberEnum::ACTIVITEOFFICER,MemberEnum::DISABLEOFFICER]]];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
 
         if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
@@ -70,7 +71,7 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if (!$memberInfo['m_starte']  == '9'){
+        if (!$memberInfo['m_starte']  == MemberEnum::DELETEMEMBER){
             $this->setError('用户已被删除，有需求请联系超级管理员!');
             return false;
         }
@@ -98,7 +99,7 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => $status])){
+        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DELETEMEMBER])){
             $this->setError('删除成员失败!');
             return false;
         }
@@ -125,7 +126,7 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if ($memberInfo['m_starte'] == 9){
+        if ($memberInfo['m_starte'] == MemberEnum::DELETEMEMBER){
             $this->setError('成员已被删除!');
             return false;
         }
@@ -133,7 +134,7 @@ class OaMemberService extends BaseService
         switch ($memberInfo['m_starte'])
         {
             case '0':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 1])){
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DISABLEMEMBER])){
                     $this->setError('禁用成员失败!');
                     return false;
                 }
@@ -141,7 +142,7 @@ class OaMemberService extends BaseService
                 return $memberStatus;
                 break;
             case '1':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 0])){
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::ACTIVITEMEMBER])){
                     $this->setError('激活会员失败!');
                     return false;
                 }
@@ -149,7 +150,7 @@ class OaMemberService extends BaseService
                 return $memberStatus;
                 break;
             case '2':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 3])){
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DISABLEOFFICER])){
                     $this->setError('禁用官员失败!');
                     return false;
                 }
@@ -157,7 +158,7 @@ class OaMemberService extends BaseService
                 return $memberStatus;
                 break;
             case '3':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => 2])){
+                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::ACTIVITEOFFICER])){
                     $this->setError('激活官员失败!');
                     return false;
                 }
@@ -178,6 +179,9 @@ class OaMemberService extends BaseService
     {
         unset($data['sign'],$data['token']);
         $data['m_sex'] = $data['m_sex'] == '1' ?  '先生' : '女士';
+        if (empty($data['m_starte'])){
+            $data['m_starte'] = MemberEnum::DISABLEMEMBER;
+        }
         switch ($data['m_groupname'])
         {
             case 1:

@@ -24,10 +24,11 @@ class MemberEnum extends BaseEnum
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
         //成员或官员状态
-        'ACTIVITEMEMBER'      => '激活会员',
-        'DISABLEMEMBER'       => '禁用会员',
+        'ACTIVITEMEMBER'      => '激活成员',
+        'DISABLEMEMBER'       => '禁用成员',
         'ACTIVITEOFFICER'     => '激活官员',
         'DISABLEOFFICER'      => '禁用官员',
+        'DELETEMEMBER'        => '删除成员',
     ];
 
 
@@ -53,13 +54,14 @@ class MemberEnum extends BaseEnum
         4 => 'MINGYIZHUANJIA',
     ];
 
-    //成员or官员 状态
+    //成员or官员or软删除   状态
     public static $status = [
 
-        1 => 'ACTIVITEMEMBER',
-        2 => 'DISABLEMEMBER',
-        3 => 'ACTIVITEOFFICER',
-        4 => 'DISABLEOFFICER',
+        0 => 'ACTIVITEMEMBER',
+        1 => 'DISABLEMEMBER',
+        2 => 'ACTIVITEOFFICER',
+        3 => 'DISABLEOFFICER',
+        9 => 'DELETEMEMBER',
     ];
 
     // 成员等级
@@ -91,13 +93,15 @@ class MemberEnum extends BaseEnum
 
 
     //成员分类
-    const ACTIVITEMEMBER    = 0;    //激活会员
+    const ACTIVITEMEMBER    = 0;    //激活成员
 
-    const DISABLEMEMBER     = 1;    //禁用会员
+    const DISABLEMEMBER     = 1;    //禁用成员
 
     const ACTIVITEOFFICER   = 2;    //激活官员
 
     const DISABLEOFFICER    = 3;    //禁用官员
+
+    const DELETEMEMBER      = 9;    //删除成员
 
 
     /**
