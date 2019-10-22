@@ -161,6 +161,6 @@ class RegisterController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
-        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->registerService->message];
     }
 }

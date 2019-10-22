@@ -127,7 +127,7 @@ class SmsService extends BaseService
             'mobile'    => $mobile,
             'code'      => $code,
             'title'     => SMSEnum::getLabel($type),
-            'content'   => '',
+            'content'   => $content,
             'status'    => 0,
             'created_at' => time(),
         ]);
@@ -152,6 +152,12 @@ class SmsService extends BaseService
             Loggy::write('error','短信发送失败！|内容：'.$content.' |手机号：'.$mobile.' |失败原因：'.$res['message'].' |错误码：'.$res['status']);
             return ['code' => 0, 'message' => '短信发送失败，请重试！'];
         }
+        CommonSmsRepository::getAddId([
+            'mobile'    => $mobile,
+            'title'     => SMSEnum::getLabel(0),
+            'content'   => $content,
+            'created_at' => time(),
+        ]);
         return ['code' => 1, 'message' => '短信发送成功！'];
     }
 }

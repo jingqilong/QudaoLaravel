@@ -30,7 +30,7 @@ class OaAdminPermissionsRepository extends ApiRepository
         $arr = [
             'name'          => $add_data['name'],
             'slug'          => $add_data['slug'],
-            'http_method'   => $add_data['http_method'],
+            'http_method'   => $add_data['http_method'] ?? '',
             'http_path'     => $add_data['http_path'] ?? '',
             'created_at'    => date('Y-m-d H:m:s'),
             'updated_at'    => date('Y-m-d H:m:s')

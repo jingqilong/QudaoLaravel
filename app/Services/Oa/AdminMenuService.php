@@ -47,17 +47,28 @@ class AdminMenuService extends BaseService
             }
             $menu_level = $parent_level + 1;
         }
-        if (isset($request['permission']) || !empty($request['permission'])){
-            if (!OaAdminPermissionsRepository::exists(['slug' => $request['permission']])){
-                $this->setError('权限不存在！');
-                return false;
-            }
+        if (OaAdminMenuRepository::exists(['primary_key' => $request['primary_key']])){
+            $this->setError('菜单主键已被使用！');
+            return false;
         }
+        if (OaAdminPermissionsRepository::exists(['slug' => $request['permission']])){
+            $this->setError('权限标识已被使用！');
+            return false;
+        }
+        DB::beginTransaction();
+        if (!OaAdminPermissionsRepository::createPermission(['name' => $request['title'],'slug' => $request['permission']])){
+            $this->setError('权限创建失败！');
+            DB::rollBack();
+            return false;
+        }
+
         if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id])){
             $this->setError('标题已被使用！');
+            DB::rollBack();
             return false;
         }
         $menu_data = [
+            'primary_key'=> $request['primary_key'],
             'type'      => $request['type'],
             'parent_id' => $parent_id,
             'path'      => $request['path'] ?? '',
@@ -66,9 +77,8 @@ class AdminMenuService extends BaseService
             'title'     => $request['title'],
             'icon'      => $request['icon'],
             'method'    => $request['method'] ?? '',
-            'permission'=> $request['permission'] ?? '',
+            'permission'=> $request['permission'],
         ];
-        DB::beginTransaction();
         if (!$menu_id = OaAdminMenuRepository::createMenu($menu_data)){
             DB::rollBack();
             $this->setError('菜单添加失败！');
@@ -282,17 +292,16 @@ class AdminMenuService extends BaseService
             }
             $menu_level = $parent_level + 1;
         }
-        if (isset($request['permission']) || !empty($request['permission'])){
-            if (!OaAdminPermissionsRepository::exists(['slug' => $request['permission']])){
-                $this->setError('权限不存在！');
-                return false;
-            }
+        if (OaAdminMenuRepository::exists(['primary_key' => $request['primary_key']])){
+            $this->setError('菜单主键已被使用！');
+            return false;
         }
         if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id,'id' => ['<>',$request['id']]])){
             $this->setError('标题已被使用！');
             return false;
         }
         $menu_data = [
+            'primary_key'=> $request['primary_key'],
             'type'      => $request['type'],
             'parent_id' => $parent_id,
             'path'      => $request['path'] ?? '',
@@ -301,7 +310,6 @@ class AdminMenuService extends BaseService
             'title'     => $request['title'],
             'icon'      => $request['icon'],
             'method'    => $request['method'] ?? '',
-            'permission'=> $request['permission'] ?? '',
             'updated_at'=> date('Y-m-d H:i:s')
         ];
         DB::beginTransaction();
@@ -322,12 +330,25 @@ class AdminMenuService extends BaseService
      */
     public function menuDetail($id)
     {
-        $column = ['id','type','parent_id','title','icon','path','vue_route','method','permission'];
+        $column = ['id','primary_key','type','parent_id','title','icon','path','vue_route','method','permission'];
         if (!$menu = OaAdminMenuRepository::getOne(['id' => $id],$column)){
             $this->setError('菜单不存在！');
             return false;
         }
         $this->setMessage('获取成功！');
         return $menu;
+    }
+
+    /**
+     * 获取所有菜单
+     * @return mixed
+     */
+    public function getAllMenu()
+    {
+        if (!$list = OaAdminMenuRepository::getAll(['id','primary_key','type','path','vue_route','title','method','url'])){
+            $this->setError('获取失败！');
+            return false;
+        }
+        return $list;
     }
 }

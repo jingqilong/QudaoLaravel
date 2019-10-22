@@ -3,12 +3,12 @@ namespace App\Services\Activity;
 
 
 use App\Enums\ActivityRegisterEnum;
-use App\Enums\OrderEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
+use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
 
@@ -72,10 +72,17 @@ class RegisterService extends BaseService
             $this->setError('报名申请已处理！');
             return false;
         }
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id']])){
+            $this->setError('活动信息不存在！');
+            return false;
+        }
         DB::beginTransaction();
-        $status = ActivityRegisterEnum::SUBMIT;
-        if ($register['member_price'] == 0){
-            $status = ActivityRegisterEnum::EVALUATION;
+        $status = ActivityRegisterEnum::NOPASS;
+        if ($audit == 1){
+            $status = ActivityRegisterEnum::SUBMIT;
+            if ($register['member_price'] == 0){
+                $status = ActivityRegisterEnum::EVALUATION;
+            }
         }
         if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['status' => $status,'updated_at' => time()])){
             $this->setError('审核失败！');
@@ -83,15 +90,43 @@ class RegisterService extends BaseService
             return false;
         }
         //创建订单
-        if ($register['member_price'] > 0){
-            if (!MemberOrdersRepository::addOrder($register['member_price'],$register['member_price'],$register['member_id'],2)){
+        if ($register['member_price'] > 0 && $status == ActivityRegisterEnum::SUBMIT){
+            if (!$order_id = MemberOrdersRepository::addOrder($register['member_price'],$register['member_price'],$register['member_id'],2)){
+                $this->setError('审核失败！');
+                DB::rollBack();
+                return false;
+            }
+            if (!$order = MemberOrdersRepository::getOne(['id' => $order_id])){
+                $this->setError('审核失败！');
+                DB::rollBack();
+                return false;
+            }
+            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order['order_no']])){
                 $this->setError('审核失败！');
                 DB::rollBack();
                 return false;
             }
         }
         //通知用户
-        //TODO  到这里了
+        if (!$member = MemberRepository::getOne(['m_id' => $register['member_id']])){
+            $this->setError('审核失败！');
+            DB::rollBack();
+            return false;
+        }
+        $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
+        $member_name = $member_name.$member['m_sex'];
+        if (!empty($member['m_phone'])){
+            $smsService = new SmsService();
+            $sms_template = [
+                ActivityRegisterEnum::SUBMIT        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).',支付后即可参加活动！',
+                ActivityRegisterEnum::EVALUATION    => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).'，记得提前到场哦！',
+                ActivityRegisterEnum::NOPASS        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动审核未通过，请不要灰心，您还可以参加我们后续的活动哦！',
+            ];
+            $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+        }
+        $this->setMessage('审核成功！');
+        DB::commit();
+        return true;
     }
 }
             

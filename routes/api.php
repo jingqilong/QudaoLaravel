@@ -67,6 +67,7 @@ $api->version('v1',function ($api){
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+                $api->get('get_all_menu_list','PermissionsController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');
@@ -152,6 +153,7 @@ $api->version('v1',function ($api){
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
+                $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
             });
         });
 
