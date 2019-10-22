@@ -252,10 +252,12 @@ class MemberController extends ApiController
     public function getUserList()
     {
         $rules = [
+            'keywords'      => 'string',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'keywords.string'           => '关键字类型不正确',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
         ];
@@ -264,7 +266,7 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $list = $this->memberService->getUserList($this->request);
-        
+
         return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
     }
     /**
