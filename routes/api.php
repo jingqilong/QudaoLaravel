@@ -185,6 +185,8 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
+                $api->post('sign_in','UserActivityController@signIn')->name('活动签到');
+                $api->get('sign_in_list','UserActivityController@signList')->name('获取活动签到列表');
             });
         });
 
