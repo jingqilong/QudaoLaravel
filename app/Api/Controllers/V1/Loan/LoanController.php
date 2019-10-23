@@ -277,7 +277,7 @@ class LoanController extends ApiController
     {
         $rules = [
             'name'              => 'required',
-            'mobile'            => 'required|regex:/^1[34578][0-9]{9}$/',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
             'price'             => 'required|alpha_num',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
@@ -452,7 +452,7 @@ class LoanController extends ApiController
         $rules = [
             'id'                => 'required',
             'name'              => 'required',
-            'mobile'            => 'required|regex:/^1[34578][0-9]{9}$/',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
             'price'             => 'required|alpha_num',
             'ent_name'          => 'required',
             'ent_title'         => 'required',

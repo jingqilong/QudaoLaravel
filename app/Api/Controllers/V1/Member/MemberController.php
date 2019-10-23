@@ -795,7 +795,7 @@ class MemberController extends ApiController
     public function perfectMemberInfo()
     {
         $rules = [
-            'm_phone'                    => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'm_phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
             'm_sex'                      => 'required|integer',
             'm_cname'                    => 'required|string',
             'm_email'                    => 'email',

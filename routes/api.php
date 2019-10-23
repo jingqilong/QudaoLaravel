@@ -220,10 +220,13 @@ $api->version('v1',function ($api){
             $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
+            $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
+            $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
             $api->post('mini_login','WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
             $api->post('official_account_login','WeChatController@officialAccountLogin')->name('微信公众号登录');
             $api->post('official_account_bind_mobile','WeChatController@officialAccountBindMobile')->name('微信公众号登录绑定手机号');
+
         });
 
         //房产模块
