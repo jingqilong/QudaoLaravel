@@ -6,6 +6,7 @@ namespace App\Api\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Config;
+use Symfony\Component\HttpFoundation\Response;
 use Tolawho\Loggy\Facades\Loggy;
 
 class SignVerify {
@@ -34,7 +35,8 @@ class SignVerify {
         //未设置，一律走验签。
         unset($info['s']);
         if(!isset($info['sign']) || empty($info['sign'])){
-            return ['code' => 100, 'message' => '签名不能为空'];
+            return new Response(json_encode(['code' => 100, 'message' => '签名不能为空']));
+//            return ['code' => 100, 'message' => '签名不能为空'];
         }
         $osKey = base64_encode(config('api.module_api.signKey'));
         $para_filter = array();
@@ -56,13 +58,15 @@ class SignVerify {
         if((!isset($info['sign'])) || ($md5Sign != $info['sign'])){
             Loggy::write('error','Message:"Signature validation is not passed." URL: '.
                 $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  RawSign:' .  $info['sign']);
-            return ['code' => 402, 'message' => '签名验证不通过'];
+            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过']));
+//            return ['code' => 402, 'message' => '签名验证不通过'];
         }else if($md5Sign == $info['sign']){
             return $next($request);
         }
         Loggy::write('error','Message:"Signature validation is not passed." URL: '.
             $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  ' .  $info['sign']);
-        return ['code' => 402, 'message' => '签名验证不通过'];
+        return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过']));
+//        return ['code' => 402, 'message' => '签名验证不通过'];
     }
 
     /**
