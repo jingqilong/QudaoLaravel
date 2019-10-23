@@ -67,6 +67,7 @@ class HandleCors
     protected function addHeaders(Request $request,$response)
     {
         if (!($response instanceof Response)){
+            var_dump($response);
             $response = new Response();
         }
         // Prevent double checking
