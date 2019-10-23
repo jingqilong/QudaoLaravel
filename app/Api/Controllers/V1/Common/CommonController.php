@@ -5,19 +5,23 @@ namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Common\SmsService;
+use App\Services\Member\MemberService;
 
 class CommonController extends ApiController
 {
     public $smsService;
+    public $memberService;
 
     /**
      * QiNiuController constructor.
-     * @param $smsService
+     * @param SmsService $smsService
+     * @param MemberService $memberService
      */
-    public function __construct(SmsService $smsService)
+    public function __construct(SmsService $smsService,MemberService $memberService)
     {
         parent::__construct();
         $this->smsService = $smsService;
+        $this->memberService = $memberService;
     }
 
     /**
@@ -39,7 +43,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="短信类型【0，默认类型1、会员模块登录,2、修改密码,3、成员短信注册,....】",
+     *         description="短信类型【0，默认类型1、会员模块登录,2、修改密码,3、成员短信注册，4、成员绑定手机号,....】",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -56,7 +60,7 @@ class CommonController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="上传失败",
+     *         description="发送失败",
      *     ),
      * )
      *
@@ -82,5 +86,54 @@ class CommonController extends ApiController
             return ['code' => 100, 'message' => $res['message']];
         }
         return ['code' => 200, 'message' => $res['message']];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/mobile_exists",
+     *     tags={"公共"},
+     *     summary="检测成员手机号是否注册",
+     *     description="sang" ,
+     *     operationId="mobile_exists",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="查询成功！",
+     *     ),
+     * )
+     *
+     */
+    public function mobileExists(){
+        $rules = [
+            'mobile'    => 'required|regex:/^1[3456789][0-9]{9}$/',
+        ];
+        $messages = [
+            'mobile.required'   => '请输入手机号',
+            'mobile.regex'      => '手机号格式有误',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->mobileExists($this->request['mobile']);
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
 }

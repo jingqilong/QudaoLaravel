@@ -13,6 +13,7 @@ class SMSEnum extends BaseEnum
         'MEMBERLOGIN'      => '会员模块登录验证',
         'CHANGEPASSWORD'   => '短信修改密码',
         'REGISTER'         => '成员短信注册',
+        'BINDMOBILE'       => '成员绑定手机号',
     ];
 
     //短信类型
@@ -21,11 +22,12 @@ class SMSEnum extends BaseEnum
         1 => 'MEMBERLOGIN',
         2 => 'CHANGEPASSWORD',
         3 => 'REGISTER',
+        4 => 'BINDMOBILE',
     ];
 
     //短信类型所属的模块
     public static $module = [
-        'member'    => [1,2,3],
+        'member'    => [1,2,3,4],
         'common'    => [0],
     ];
 
@@ -40,6 +42,7 @@ class SMSEnum extends BaseEnum
         1 => '【渠道PLUS】登录验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
         2 => '【渠道PLUS】验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
         3 => '【渠道PLUS】注册验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
+        4 => '【渠道PLUS】手机号绑定验证码：%s,有效时间为5分钟。如非本人操作，请忽略此短信。',
     ];
 
     // constants
@@ -51,6 +54,8 @@ class SMSEnum extends BaseEnum
     const CHANGEPASSWORD    = 2;
 
     const REGISTER          = 3;
+
+    const BINDMOBILE        = 4;
 
     /**
      * 检查类型是否存在

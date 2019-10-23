@@ -231,9 +231,6 @@ class MemberService extends BaseService
         } catch (InvalidConfigException $e) {
             Loggy::write('error',"File:".$e->getFile()."Line".$e->getLine()."Message:".$e->getMessage());
             return ['code'=>0,'message'=>$e->getMessage()];
-        } catch (InvalidConfigException $e) {
-            Loggy::write('error',"File:".$e->getFile()."Line".$e->getLine()."Message:".$e->getMessage());
-            return ['code'=>0,'message'=>$e->getMessage()];
         } catch (HttpException $e) {
             Loggy::write('error',"File:".$e->getFile()."Line".$e->getLine()."Message:".$e->getMessage());
             return ['code'=>0,'message'=>$e->getMessage()];
@@ -285,7 +282,7 @@ class MemberService extends BaseService
                 'sys_user_info' => [],
                 'token'         => ''
             ];
-            return ['code' => 1, 'message' => '需要绑定用户', 'data' => $arr];
+            return ['code' => 2, 'message' => '需要绑定用户', 'data' => $arr];
         }
         return ['code' => 0 , 'message' => $result['message']];
     }
@@ -494,7 +491,7 @@ class MemberService extends BaseService
         $relation_data['created_at'] = time();
         if (empty($referral_code)){
             $relation_data['parent_id'] = 0;
-            $relation_data['path'] = '0,'.$user_id;
+            $relation_data['path'] = '0,'.$user_id.',';
             $relation_data['level'] = 1;
         }else{
             if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])){
@@ -507,7 +504,7 @@ class MemberService extends BaseService
                 return '数据异常';
             }
             $relation_data['parent_id'] = $referral_user['m_id'];
-            $relation_data['path'] = $relation_user['path'].','.$user_id;
+            $relation_data['path'] = $relation_user['path'] . $user_id . ',';
             $relation_data['level'] = $relation_user['level'] + 1;
         }
         if (!MemberRelationRepository::getAddId($relation_data)){
@@ -583,6 +580,17 @@ class MemberService extends BaseService
         }
         $this->setMessage('获取推荐关系成功！');
         return $relation_list;
+    }
+
+    /**
+     * 检测手机号是否注册
+     * @param $mobile
+     * @return mixed
+     */
+    public function mobileExists($mobile)
+    {
+        $this->setMessage('查询成功！');
+        return MemberRepository::exists(['m_phone' => $mobile]);
     }
 }
             
