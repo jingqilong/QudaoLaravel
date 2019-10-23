@@ -48,6 +48,84 @@ class OaMemberService extends BaseService
         if (empty($member_list['data'])) {
             $this->setMessage('没有成员!');
         }
+        foreach ($member_list['data'] as &$value){
+            switch ($value['m_groupname'])
+            {
+                case 1:
+                    $value['m_groupname'] = '内部测试';
+                    break;
+                case 2:
+                    $value['m_groupname'] = '亦享成员';
+                    break;
+                case 3:
+                    $value['m_groupname'] = '至享成员';
+                    break;
+                case 4:
+                    $value['m_groupname'] = '悦享成员';
+                    break;
+                case 5:
+                    $value['m_groupname'] = '真享成员';
+                    break;
+                case 6:
+                    $value['m_groupname'] = '君享成员';
+                    break;
+                case 7:
+                    $value['m_groupname'] = '尊享成员';
+                    break;
+                case 8:
+                    $value['m_groupname'] = '内部测试';
+                    break;
+                case 9:
+                    $value['m_groupname'] = '待审核';
+                    break;
+                case 10:
+                    $value['m_groupname'] = '高级顾问';
+                    break;
+                case 11:
+                    $value['m_groupname'] = '临时成员';
+                    break;
+                default;
+            }
+            switch ($value['m_category']) {
+                case 1:
+                    $value['m_category'] = '商政名流';
+                    break;
+                case 2:
+                    $value['m_category'] = '企业精英';
+                    break;
+                case 3:
+                    $value['m_category'] = '名医专家';
+                    break;
+                case 4:
+                    $value['m_category'] = '文艺雅仕';
+                    break;
+                default ;
+            }
+            switch ($value['m_starte']) {
+                case 0:
+                    $value['m_starte'] = '成员显示';
+                    break;
+                case 1:
+                    $value['m_starte'] = '成员禁用';
+                    break;
+                case 2:
+                    $value['m_starte'] = '官员显示';
+                    break;
+                case 3:
+                    $value['m_starte'] = '官员禁用';
+                    break;
+                default ;
+            }
+            switch ($value['m_sex']) {
+                case 1:
+                    $value['m_sex'] = '先生';
+                    break;
+                case 2:
+                    $value['m_sex'] = '女士';
+                    break;
+                default ;
+            }
+        }
         $this->setMessage('获取成功！');
         return $member_list;
     }
@@ -63,7 +141,7 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::exists(['m_id' => $id])){
+        if (!$member = OaMemberRepository::exists(['m_id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
@@ -75,6 +153,83 @@ class OaMemberService extends BaseService
             $this->setError('用户已被删除，有需求请联系超级管理员!');
             return false;
         }
+        switch ($memberInfo['m_groupname'])
+        {
+            case 1:
+                $value['m_groupname'] = '内部测试';
+                break;
+            case 2:
+                $value['m_groupname'] = '亦享成员';
+                break;
+            case 3:
+                $value['m_groupname'] = '至享成员';
+                break;
+            case 4:
+                $value['m_groupname'] = '悦享成员';
+                break;
+            case 5:
+                $value['m_groupname'] = '真享成员';
+                break;
+            case 6:
+                $value['m_groupname'] = '君享成员';
+                break;
+            case 7:
+                $value['m_groupname'] = '尊享成员';
+                break;
+            case 8:
+                $value['m_groupname'] = '内部测试';
+                break;
+            case 9:
+                $value['m_groupname'] = '待审核';
+                break;
+            case 10:
+                $value['m_groupname'] = '高级顾问';
+                break;
+            case 11:
+                $value['m_groupname'] = '临时成员';
+                break;
+            default;
+        }
+        switch ($memberInfo['m_category']) {
+            case 1:
+                $value['m_category'] = '商政名流';
+                break;
+            case 2:
+                $value['m_category'] = '企业精英';
+                break;
+            case 3:
+                $value['m_category'] = '名医专家';
+                break;
+            case 4:
+                $value['m_category'] = '文艺雅仕';
+                break;
+            default ;
+        }
+        switch ($memberInfo['m_starte']) {
+            case 0:
+                $value['m_starte'] = '成员显示';
+                break;
+            case 1:
+                $value['m_starte'] = '成员禁用';
+                break;
+            case 2:
+                $value['m_starte'] = '官员显示';
+                break;
+            case 3:
+                $value['m_starte'] = '官员禁用';
+                break;
+            default ;
+        }
+        switch ($memberInfo['m_sex']) {
+            case 1:
+                $value['m_sex'] = '先生';
+                break;
+            case 2:
+                $value['m_sex'] = '女士';
+                break;
+            default ;
+        }
+
         $this->setMessage('获取用户信息成功');
         return $memberInfo;
     }
@@ -86,7 +241,6 @@ class OaMemberService extends BaseService
      */
     public function delMember(string $id)
     {
-        $status = '9';  //成员软删除
         if (empty($id)){
             $this->setError('会员ID为空！');
             return false;
@@ -178,38 +332,10 @@ class OaMemberService extends BaseService
     public function addMember($data)
     {
         unset($data['sign'],$data['token']);
-        $data['m_sex'] = $data['m_sex'] == '1' ?  '先生' : '女士';
         if (empty($data['m_starte'])){
             $data['m_starte'] = MemberEnum::DISABLEMEMBER;
         }
-        switch ($data['m_groupname'])
-        {
-            case 1:
-                $data['m_groupname'] = '内部测试';
-            break;
-            case 2:
-                $data['m_groupname'] = '亦享成员';
-            break;
-            case 3:
-                $data['m_groupname'] = '至享成员';
-            break;
-            case 4:
-                $data['m_groupname'] = '悦享成员';
-            break;
-            case 5:
-                $data['m_groupname'] = '真享成员';
-            break;
-            case 6:
-                $data['m_groupname'] = '君享成员';
-            break;
-            case 7:
-                $data['m_groupname'] = '尊享成员';
-            break;
-            case 8:
-                $data['m_groupname'] = '内部测试';
-            break;
-            default;
-        }
+
         if (empty($data)){
             $this->setError('没有数据，请添加数据');
             return false;
@@ -228,7 +354,6 @@ class OaMemberService extends BaseService
         $this->setMessage('添加成功');
         return $memberInfo;
 
-
     }
 
 
@@ -246,7 +371,7 @@ class OaMemberService extends BaseService
         }
 
         if (!$old_member = OaMemberRepository::getOne(['m_id' => $data['id']])){
-            $this->setError('查找不到该会员！');
+            $this->setError('查找不到该会员,请重试！');
             return false;
         }
 
