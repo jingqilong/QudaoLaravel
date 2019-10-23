@@ -31,7 +31,7 @@ class HandleCors
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {
+    {dd($request);
         if (! $this->cors->isCorsRequest($request)) {
             return $next($request);
         }
