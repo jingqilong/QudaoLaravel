@@ -145,10 +145,11 @@ class OaMemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $id = $this->request['id'];
-        if ($memberInfo = $this->OaMemberService->getMemberInfo($id)){
-            return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['memberInfo' => $memberInfo]];
+        $memberInfo = $this->OaMemberService->getMemberInfo($id);
+        if (!$memberInfo){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 100, 'message' => '用户信息获取失败！'];
+        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberInfo' => $memberInfo]];
     }
 
     /**

@@ -137,7 +137,7 @@ class OaMemberService extends BaseService
      */
     public function getMemberInfo(string $id)
     {
-        if (!empty($id)){
+        if (empty($id)){
             $this->setError('会员ID为空！');
             return false;
         }
@@ -152,6 +152,9 @@ class OaMemberService extends BaseService
         if (!$memberInfo['m_starte']  == MemberEnum::DELETEMEMBER){
             $this->setError('用户已被删除，有需求请联系超级管理员!');
             return false;
+        }
+        if (empty($memberInfo)) {
+            $this->setMessage('没有查找到此成员信息!');
         }
         switch ($memberInfo['m_groupname'])
         {
@@ -168,64 +171,64 @@ class OaMemberService extends BaseService
                 $value['m_groupname'] = '悦享成员';
                 break;
             case 5:
-                $value['m_groupname'] = '真享成员';
+                $memberInfo['m_groupname'] = '真享成员';
                 break;
             case 6:
-                $value['m_groupname'] = '君享成员';
+                $memberInfo['m_groupname'] = '君享成员';
                 break;
             case 7:
-                $value['m_groupname'] = '尊享成员';
+                $memberInfo['m_groupname'] = '尊享成员';
                 break;
             case 8:
-                $value['m_groupname'] = '内部测试';
+                $memberInfo['m_groupname'] = '内部测试';
                 break;
             case 9:
-                $value['m_groupname'] = '待审核';
+                $memberInfo['m_groupname'] = '待审核';
                 break;
             case 10:
-                $value['m_groupname'] = '高级顾问';
+                $memberInfo['m_groupname'] = '高级顾问';
                 break;
             case 11:
-                $value['m_groupname'] = '临时成员';
+                $memberInfo['m_groupname'] = '临时成员';
                 break;
             default;
         }
         switch ($memberInfo['m_category']) {
             case 1:
-                $value['m_category'] = '商政名流';
+                $memberInfo['m_category'] = '商政名流';
                 break;
             case 2:
-                $value['m_category'] = '企业精英';
+                $memberInfo['m_category'] = '企业精英';
                 break;
             case 3:
-                $value['m_category'] = '名医专家';
+                $memberInfo['m_category'] = '名医专家';
                 break;
             case 4:
-                $value['m_category'] = '文艺雅仕';
+                $memberInfo['m_category'] = '文艺雅仕';
                 break;
             default ;
         }
         switch ($memberInfo['m_starte']) {
             case 0:
-                $value['m_starte'] = '成员显示';
+                $memberInfo['m_starte'] = '成员显示';
                 break;
             case 1:
-                $value['m_starte'] = '成员禁用';
+                $memberInfo['m_starte'] = '成员禁用';
                 break;
             case 2:
-                $value['m_starte'] = '官员显示';
+                $memberInfo['m_starte'] = '官员显示';
                 break;
             case 3:
-                $value['m_starte'] = '官员禁用';
+                $memberInfo['m_starte'] = '官员禁用';
                 break;
             default ;
         }
         switch ($memberInfo['m_sex']) {
             case 1:
-                $value['m_sex'] = '先生';
+                $memberInfo['m_sex'] = '先生';
                 break;
             case 2:
-                $value['m_sex'] = '女士';
+                $memberInfo['m_sex'] = '女士';
                 break;
             default ;
         }
