@@ -115,6 +115,7 @@ $api->version('v1',function ($api){
             $api->post('login','OaController@login')->name('登录');
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
+
         //精选服务模块
         $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
@@ -124,6 +125,7 @@ $api->version('v1',function ($api){
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
+
         //精选活动模块（后台）
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
@@ -185,6 +187,7 @@ $api->version('v1',function ($api){
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
             });
         });
+
         //会员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
@@ -258,12 +261,21 @@ $api->version('v1',function ($api){
 
         //项目对接模块
         $api->group(['prefix' => 'project', 'namespace' => 'Project'], function ($api){
+            #会员使用路由
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
+                $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');
                 $api->post('add_project', 'ProjectController@addProject')->name('添加项目对接订单');
                 $api->post('upd_project', 'ProjectController@updProject')->name('修改项目对接订单');
                 $api->delete('del_project', 'ProjectController@delProject')->name('删除项目对接订单');
-                $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
-                $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');
+            });
+
+            #OA 员工使用项目对接路由
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->get('get_project_order_list','OaProjectController@getProjectOrderList')->name('获取项目对接订单列表');
+                $api->get('get_project_order_info','OaProjectController@getProjectOrderInfo')->name('获取项目对接订单信息');
+                $api->post('set_project_order_status','OaProjectController@setProjectOrderStatus')->name('设置项目对接订单状态');
+
             });
         });
 
