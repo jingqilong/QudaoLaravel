@@ -115,6 +115,7 @@ $api->version('v1',function ($api){
             $api->post('login','OaController@login')->name('登录');
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
+
         //精选服务模块
         $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
@@ -124,6 +125,7 @@ $api->version('v1',function ($api){
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
+
         //精选活动模块（后台）
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
@@ -183,8 +185,11 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
+                $api->post('sign_in','UserActivityController@signIn')->name('活动签到');
+                $api->get('sign_in_list','UserActivityController@signList')->name('获取活动签到列表');
             });
         });
+
         //会员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
@@ -215,11 +220,16 @@ $api->version('v1',function ($api){
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
+            $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
-            $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
+            $api->post('mini_login','WeChatController@miniLogin')->name('微信小程序登录');
+            $api->post('mini_bind_mobile','WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
+            $api->post('official_account_login','WeChatController@officialAccountLogin')->name('微信公众号登录');
+            $api->post('official_account_bind_mobile','WeChatController@officialAccountBindMobile')->name('微信公众号登录绑定手机号');
+
         });
 
         //房产模块
@@ -253,12 +263,21 @@ $api->version('v1',function ($api){
 
         //项目对接模块
         $api->group(['prefix' => 'project', 'namespace' => 'Project'], function ($api){
+            #会员使用路由
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
+                $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');
                 $api->post('add_project', 'ProjectController@addProject')->name('添加项目对接订单');
                 $api->post('upd_project', 'ProjectController@updProject')->name('修改项目对接订单');
                 $api->delete('del_project', 'ProjectController@delProject')->name('删除项目对接订单');
-                $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
-                $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');
+            });
+
+            #OA 员工使用项目对接路由
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->get('get_project_order_list','OaProjectController@getProjectOrderList')->name('获取项目对接订单列表');
+                $api->get('get_project_order_info','OaProjectController@getProjectOrderInfo')->name('获取项目对接订单信息');
+                $api->post('set_project_order_status','OaProjectController@setProjectOrderStatus')->name('设置项目对接订单状态');
+
             });
         });
 
@@ -272,6 +291,7 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'common', 'namespace' => 'Common'], function ($api){
             $api->post('send_captcha', 'CommonController@sendCaptcha')->name('发送短信验证码');
             $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
+            $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
         });
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){

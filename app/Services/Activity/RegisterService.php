@@ -12,12 +12,21 @@ use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RegisterService extends BaseService
 {
     use HelpTrait;
+    public $auth;
 
+    /**
+     * CollectService constructor.
+     */
+    public function __construct()
+    {
+        $this->auth = Auth::guard('member_api');
+    }
 
     /**
      * 活动报名
@@ -197,6 +206,74 @@ class RegisterService extends BaseService
         $this->setMessage('审核成功！');
         DB::commit();
         return true;
+    }
+
+    /**
+     * 活动签到
+     * @param $sign_in_code
+     * @return bool
+     */
+    public function sign($sign_in_code)
+    {
+        if (!$register = ActivityRegisterRepository::getOne(['sign_in_code' => $sign_in_code,'status' => ['>',ActivityRegisterEnum::EVALUATION]])){
+            $this->setError('报名信息不存在！');
+            return false;
+        }
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id']])){
+            $this->setError('活动信息不存在！');
+            return false;
+        }
+        $time = time();
+        if ($activity['start_time'] > ($time + 3600)){
+            $this->setError('活动还没开始，不能签到！');
+            return false;
+        }
+        if (($activity['end_time'] + 3600) < $time){
+            $this->setError('活动还没开始，不能签到！');
+            return false;
+        }
+        if (!ActivityRegisterRepository::getUpdId(['sign_in_code' => $sign_in_code],['is_register' => $time,'updated_at' => $time])){
+            $this->setError('签到失败！');
+            return false;
+        }
+        $this->setMessage('签到成功！');
+        return true;
+    }
+
+    /**
+     * 签到列表
+     * @param $request
+     * @return bool|null
+     */
+    public function signList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page'] ?? 20;
+        $where = ['status' => ['>',ActivityRegisterEnum::EVALUATION],'is_register' => ['>',0]];
+        if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        unset($list['first_page_url'], $list['from'],
+            $list['from'], $list['last_page_url'],
+            $list['next_page_url'], $list['path'],
+            $list['prev_page_url'], $list['to']);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $member_ids = array_column($list['data'],'member_id');
+        $member_list = MemberRepository::getList(['m_id' => $member_ids],['m_id','m_cname']);
+        foreach ($list['data'] as &$value){
+            $value['member_name'] = '';
+            if ($member = $this->searchArray($member_list,'m_id',$value['member_id'])){
+                $value['activity_name'] = reset($member)['m_cname'];
+            }
+            $value['sign_time'] = date('Y-m-d H:i',$value['is_register']);
+            unset($value['is_register']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

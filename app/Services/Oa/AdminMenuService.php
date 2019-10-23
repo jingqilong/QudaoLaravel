@@ -293,7 +293,7 @@ class AdminMenuService extends BaseService
             }
             $menu_level = $parent_level + 1;
         }
-        if (OaAdminMenuRepository::exists(['primary_key' => $request['primary_key']])){
+        if (OaAdminMenuRepository::exists(['primary_key' => $request['primary_key'],'id' => ['<>',$request['id']]])){
             $this->setError('菜单主键已被使用！');
             return false;
         }

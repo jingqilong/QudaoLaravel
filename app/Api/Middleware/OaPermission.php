@@ -8,6 +8,7 @@ use App\Repositories\OaAdminRolePermissionsRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class OaPermission extends BaseMiddleware
@@ -30,7 +31,8 @@ class OaPermission extends BaseMiddleware
             $permissions_ids = explode(',', $user->permissions);
         }else{
             if (empty($user->role_id)){
-                return ['code' => 405, 'message' => '无权访问！'];
+                return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
+//                return ['code' => 405, 'message' => '无权访问！'];
             }
             $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id']);
             $permissions_ids = array_column($roles_info,'permission_id');
@@ -49,7 +51,8 @@ class OaPermission extends BaseMiddleware
                 }
             }
         }
-        return ['code' => 405, 'message' => '无权访问！'];
+        return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
+//        return ['code' => 405, 'message' => '无权访问！'];
     }
 
     /**
