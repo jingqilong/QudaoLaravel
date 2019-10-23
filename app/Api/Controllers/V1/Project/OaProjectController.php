@@ -188,7 +188,7 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="状态",
+     *         description="状态 1已提交 2审核中 3审核通过 4审核失败 9已删除",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
