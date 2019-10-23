@@ -84,7 +84,7 @@ class OaProjectService extends BaseService
     }
 
     /**
-     * 根据ID获取订单相信信息
+     * 根据ID获取订单详细信息
      * @param $id
      * @return bool|mixed|null
      */
@@ -105,23 +105,25 @@ class OaProjectService extends BaseService
             return false;
         }
 
-        switch ($orderInfo['status']) {
-            case ProjectEnum::SUBMITTED:
-                $orderInfo['status'] = '已提交';
-                break;
-            case ProjectEnum::INREVIEW:
-                $orderInfo['status'] = '审核中';
-                break;
-            case ProjectEnum::PASS:
-                $value['status'] = '审核通过';
-                break;
-            case ProjectEnum::FAILURE:
-                $orderInfo['status'] = '审核失败';
-                break;
-            case ProjectEnum::DELETE:
-                $orderInfo['status'] = '已删除';
-                break;
-            default ;
+        if (!empty($orderInfo)) {
+            switch ($orderInfo['status']) {
+                case ProjectEnum::SUBMITTED:
+                    $orderInfo['status'] = '已提交';
+                    break;
+                case ProjectEnum::INREVIEW:
+                    $orderInfo['status'] = '审核中';
+                    break;
+                case ProjectEnum::PASS:
+                    $value['status'] = '审核通过';
+                    break;
+                case ProjectEnum::FAILURE:
+                    $orderInfo['status'] = '审核失败';
+                    break;
+                case ProjectEnum::DELETE:
+                    $orderInfo['status'] = '已删除';
+                    break;
+                default ;
+            }
         }
         $orderInfo['reservation_at']    =   date('Y-m-d H:m:s',$orderInfo['reservation_at']);
         $orderInfo['created_at']        =   date('Y-m-d H:m:s',$orderInfo['created_at']);
@@ -138,20 +140,20 @@ class OaProjectService extends BaseService
      */
     public function setProjectOrderStatusById(array $data)
     {
+        $id = $data['id'];
+        unset($data['sign'],$data['token'],$data['id']);
 
-        if (!$orderInfo = OaProjectOrderRepository::exists(['id' => $data['id']])){
+        if (!$orderInfo = OaProjectOrderRepository::exists(['id' => $id])){
             $this->setError('无此订单!');
             return false;
         }
 
-        if (!$orderInfo = OaProjectOrderRepository::getOne(['id' => $data['id']])){
+        if (!$orderInfo = OaProjectOrderRepository::getOne(['id' => $id])){
             $this->setError('没有查到该订单信息!');
             return false;
         }
 
-        unset($data['sign'],$data['token'],$data['id']);
-
-        if (!$updOrder = OaProjectOrderRepository::getAddId(['id' => $data['id'],$data])){
+        if (!$updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$data)){
             $this->setError('审核失败，请重试!');
             return false;
         }
