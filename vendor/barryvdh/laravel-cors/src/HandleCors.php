@@ -56,20 +56,17 @@ class HandleCors
         }
 
         $response = $next($request);
+
         return $this->addHeaders($request, $response);
     }
 
     /**
      * @param Request $request
-     * @param $response
+     * @param Response $response
      * @return Response
      */
-    protected function addHeaders(Request $request,$response)
+    protected function addHeaders(Request $request, Response $response)
     {
-        if (!($response instanceof Response)){
-            var_dump($response);
-            $response = new Response();
-        }
         // Prevent double checking
         if (! $response->headers->has('Access-Control-Allow-Origin')) {
             $response = $this->cors->addActualRequestHeaders($response, $request);
