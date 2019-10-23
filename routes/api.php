@@ -220,7 +220,7 @@ $api->version('v1',function ($api){
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
-            $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
+
         });
 
         //房产模块

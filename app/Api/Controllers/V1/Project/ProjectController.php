@@ -22,7 +22,7 @@ class ProjectController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/project/get_project_list",
-     *     tags={"Project项目对接"},
+     *     tags={"项目对接(前端调用)"},
      *     summary="获取项目订单列表",
      *     operationId="get_project_list",
      *     @OA\Parameter(
@@ -43,34 +43,14 @@ class ProjectController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="name",
-     *         in="query",
-     *         description="名字",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
      *     @OA\Response(response=100,description="获取项目订单列表失败",),
      * )
      *
      */
     public function getProjectList()
     {
-        $rules = [
-            'name'                      => 'required',
-        ];
-        $messages = [
-            'name.required'             => '请输入预约姓名',
-        ];
 
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $list = $this->projectService->getProjectList($this->request);
+        $list = $this->projectService->getProjectList();
 
         return ['code' => 200, 'message' => $this->projectService->message,'data' => $list];
     }
@@ -79,8 +59,8 @@ class ProjectController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/project/get_project_info",
-     *     tags={"Project项目对接"},
-     *     summary="获取项目订单",
+     *     tags={"项目对接(前端调用)"},
+     *     summary="获取项目订单信息",
      *     operationId="get_project_info",
      *     @OA\Parameter(
      *          name="sign",
@@ -140,8 +120,8 @@ class ProjectController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/project/add_project",
-     *     tags={"Project项目对接"},
-     *     summary="添加项目订单信息",
+     *     tags={"项目对接(前端调用)"},
+     *     summary="添加项目对接订单",
      *     operationId="add_project",
      *     @OA\Parameter(
      *          name="sign",
@@ -214,7 +194,7 @@ class ProjectController extends ApiController
     {
         $rules = [
             'name'              => 'required',
-            'mobile'            => 'required|regex:/^1[34578][0-9]{9}$/',
+            'mobile'            => 'required|regex:/^1[35678][0-9]{9}$/',
             'project_name'      => 'required',
             'reservation_at'    => 'required|date',
         ];
@@ -244,7 +224,7 @@ class ProjectController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/project/upd_project",
-     *     tags={"Project项目对接"},
+     *     tags={"项目对接(前端调用)"},
      *     summary="修改项目订单信息",
      *     operationId="upd_project",
      *     @OA\Parameter(
@@ -328,7 +308,7 @@ class ProjectController extends ApiController
         $rules = [
             'id'                => 'required',
             'name'              => 'required',
-            'mobile'            => 'required|regex:/^1[34578][0-9]{9}$/',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
             'project_name'      => 'required',
             'reservation_at'    => 'required|date',
         ];
@@ -360,7 +340,7 @@ class ProjectController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/project/del_project",
-     *     tags={"Project项目对接"},
+     *     tags={"项目对接(前端调用)"},
      *     summary="删除项目订单信息",
      *     operationId="del_project",
      *     @OA\Parameter(
