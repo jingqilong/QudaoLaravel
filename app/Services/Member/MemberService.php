@@ -2,6 +2,7 @@
 namespace App\Services\Member;
 
 
+use App\Enums\MemberEnum;
 use App\Repositories\MedicalDepartmentRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
@@ -155,8 +156,16 @@ class MemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $column         = ['field' => '*'];
-        $where          = ['m_starte' => ['in',[0,2]]];
-        $groupMember    = ['尊享会员','悦享会员','高级顾问','亦享成员','致享成员','真享成员','君享成员'];
+        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
+        $groupMember    = [
+            MemberEnum::HONOURENJOY,
+            MemberEnum::YUEENJOY,
+            MemberEnum::ADVISER,
+            MemberEnum::ALSOENJOY,
+            MemberEnum::TOENJOY,
+            MemberEnum::REALLYENJOY,
+            MemberEnum::YOUENJOY
+        ];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
         if (in_array($memberInfo['m_groupname'],$groupMember)){
@@ -165,7 +174,7 @@ class MemberService extends BaseService
                 return [];
             }
         }else {
-            if (!$user_list = MemberRepository::search($keyword,['m_starte' => 0],$column,$page,$page_num,'m_time','desc')){
+            if (!$user_list = MemberRepository::search($keyword,['m_starte' => MemberEnum::ACTIVITEMEMBER],$column,$page,$page_num,'m_time','desc')){
                 $this->setMessage('没有查到该成员！');
                 return [];
             }
@@ -178,6 +187,85 @@ class MemberService extends BaseService
 
         if (empty($user_list['data'])) {
             $this->setMessage('没有成员!');
+        }
+
+        foreach ($user_list['data'] as &$value){
+            switch ($value['m_groupname'])
+            {
+                case 1:
+                    $value['m_groupname'] = '内部测试';
+                    break;
+                case 2:
+                    $value['m_groupname'] = '亦享成员';
+                    break;
+                case 3:
+                    $value['m_groupname'] = '至享成员';
+                    break;
+                case 4:
+                    $value['m_groupname'] = '悦享成员';
+                    break;
+                case 5:
+                    $value['m_groupname'] = '真享成员';
+                    break;
+                case 6:
+                    $value['m_groupname'] = '君享成员';
+                    break;
+                case 7:
+                    $value['m_groupname'] = '尊享成员';
+                    break;
+                case 8:
+                    $value['m_groupname'] = '内部测试';
+                    break;
+                case 9:
+                    $value['m_groupname'] = '待审核';
+                    break;
+                case 10:
+                    $value['m_groupname'] = '高级顾问';
+                    break;
+                case 11:
+                    $value['m_groupname'] = '临时成员';
+                    break;
+                default;
+            }
+            switch ($value['m_category']) {
+                case 1:
+                    $value['m_category'] = '商政名流';
+                    break;
+                case 2:
+                    $value['m_category'] = '企业精英';
+                    break;
+                case 3:
+                    $value['m_category'] = '名医专家';
+                    break;
+                case 4:
+                    $value['m_category'] = '文艺雅仕';
+                    break;
+                default ;
+            }
+            switch ($value['m_starte']) {
+                case 0:
+                    $value['m_starte'] = '成员显示';
+                    break;
+                case 1:
+                    $value['m_starte'] = '成员禁用';
+                    break;
+                case 2:
+                    $value['m_starte'] = '官员显示';
+                    break;
+                case 3:
+                    $value['m_starte'] = '官员禁用';
+                    break;
+                default ;
+            }
+            switch ($value['m_sex']) {
+                case 1:
+                    $value['m_sex'] = '先生';
+                    break;
+                case 2:
+                    $value['m_sex'] = '女士';
+                    break;
+                default ;
+            }
         }
             $this->setMessage('获取成功！');
             return $user_list;
@@ -592,5 +680,27 @@ class MemberService extends BaseService
         $this->setMessage('查询成功！');
         return MemberRepository::exists(['m_phone' => $mobile]);
     }
+    /**
+     * 手机号码注册完善用户信息
+     * @param array $data
+     * @return bool|null
+     */
+    public function perfectMemberInfo(array $data)
+    {
+        if (!$member = MemberRepository::getOne(['m_phone' => $data['m_phone']])){
+            $this->setError('不能更换手机号的呦！');
+            return false;
+        }
+        unset($data['m_phone'], $data['sign']);
+        $data['m_groupname'] = MemberEnum::TOAUDIT;
+        $data['m_starte'] = MemberEnum::DISABLEMEMBER;
+        $data['m_time'] = date('Y-m-d H:m:s',time());
+        if (!$memberInfo = MemberRepository::getUpdId(['m_id' => $member['m_id']],$data)){
+            $this->setError('信息完善失败，请重试！');
+            return false;
+        }
+
+        $this->setMessage('信息完善成功!');
+        return $memberInfo;
+    }
 }
-            

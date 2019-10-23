@@ -215,6 +215,7 @@ $api->version('v1',function ($api){
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
+            $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','WeChatController@miniLogin')->name('微信小程序登录');

@@ -488,7 +488,6 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
     }*/
-/****************************************  暂不开发  ****************************************/
 
 
     /**
@@ -758,5 +757,73 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->memberService->error];
         }
         return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/perfect_member_info",
+     *     tags={"会员"},
+     *     summary="手机号码注册完善用户信息",
+     *     operationId="perfect_member_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_numcard",in="query",description="身份证",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_wechattext",in="query",description="微信推广",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function perfectMemberInfo()
+    {
+        $rules = [
+            'm_phone'                    => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'm_sex'                      => 'required|integer',
+            'm_cname'                    => 'required|string',
+            'm_email'                    => 'email',
+            'm_birthday'                 => 'required',
+            //'m_numcard'                  => 'required|regex:/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/',
+            'm_address'                  => 'required',
+        ];
+        $messages = [
+            'm_phone.required'           => '请填写手机号码',
+            'm_phone.regex'              => '手机号码不正确',
+            'm_sex.required'             => '请填写性别',
+            'm_sex.integer'              => '请正确填写性别',
+            'm_cname.string'             => '请正确填写姓名',
+            'm_cname.required'           => '请填写中文姓名',
+            'm_email.email'              => '邮箱格式不正确',
+            'mbirthday.required'        => '邮箱格式不正确',
+            //'m_numcard.required'         => '请填写您的身份证号码',
+            //'m_numcard.regex'            => '您输入的身份证号码不是有效格式',
+            'm_address.required'         => '请填写您的地址',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $member = $this->memberService->perfectMemberInfo($this->request);
+        if (!$member){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['memberId' => $member]];
     }
 }

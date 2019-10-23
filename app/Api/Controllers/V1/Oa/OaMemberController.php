@@ -138,17 +138,18 @@ class OaMemberController extends ApiController
             'id'          => 'integer',
         ];
         $messages = [
-            'page.integer'              => 'ID格式不正确',
+            'id.integer'              => 'ID格式不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
         $id = $this->request['id'];
-        if ($memberInfo = $this->OaMemberService->getMemberInfo($id)){
-            return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['memberInfo' => $memberInfo]];
+        $memberInfo = $this->OaMemberService->getMemberInfo($id);
+        if (!$memberInfo){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 100, 'message' => '用户信息获取失败！'];
+        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberInfo' => $memberInfo]];
     }
 
     /**
@@ -405,6 +406,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(name="m_finance",in="query",description="金融支持",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_private",in="query",description="私人订制",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_magazine",in="query",description="杂志专访",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_wechatshow",in="query",description="微信朋友圈展示",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_wechattext",in="query",description="微信推广软文",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_actname",in="query",description="精彩活动名称",required=false,@OA\Schema(type="string",)),
