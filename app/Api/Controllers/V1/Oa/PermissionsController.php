@@ -565,6 +565,7 @@ class PermissionsController extends ApiController
      */
     public function addRoles()
     {
+        return ['code' => 200,'message' => '测试'];
         $rules = [
             'slug'              => 'required',
             'name'              => 'required',
