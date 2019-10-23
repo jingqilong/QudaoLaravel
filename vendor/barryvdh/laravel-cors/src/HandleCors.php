@@ -55,18 +55,20 @@ class HandleCors
             });
         }
 
-        return $next($request);
-
+        $response = $next($request);
         return $this->addHeaders($request, $response);
     }
 
     /**
      * @param Request $request
-     * @param Response $response
+     * @param $response
      * @return Response
      */
-    protected function addHeaders(Request $request, Response $response)
+    protected function addHeaders(Request $request,$response)
     {
+        if (!($response instanceof Response)){
+            $response = new Response();
+        }
         // Prevent double checking
         if (! $response->headers->has('Access-Control-Allow-Origin')) {
             $response = $this->cors->addActualRequestHeaders($response, $request);
