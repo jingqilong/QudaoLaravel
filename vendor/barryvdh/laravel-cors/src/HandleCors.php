@@ -55,7 +55,7 @@ class HandleCors
             });
         }
 
-        $response = $next($request);
+        return $next($request);
 
         return $this->addHeaders($request, $response);
     }
