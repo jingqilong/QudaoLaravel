@@ -5,6 +5,7 @@ namespace App\Services\Project;
 use App\Enums\ProjectEnum;
 use App\Repositories\OaProjectOrderRepository;
 use App\Services\BaseService;
+use App\Services\Common\SmsService;
 use Illuminate\Support\Facades\Auth;
 
 class OaProjectService extends BaseService
@@ -134,7 +135,7 @@ class OaProjectService extends BaseService
     }
 
     /**
-     * 修改订单状态
+     * 审核订单状态
      * @param array $data
      * @return bool|null
      */
@@ -142,6 +143,12 @@ class OaProjectService extends BaseService
     {
         $id = $data['id'];
         unset($data['sign'],$data['token'],$data['id']);
+
+        $statusGroup = [2,3,4];
+        if (!in_array($data['status'],$statusGroup)){
+            $this->setError('审核类型不存在！');
+            return false;
+        }
 
         if (!$orderInfo = OaProjectOrderRepository::exists(['id' => $id])){
             $this->setError('无此订单!');
@@ -153,12 +160,23 @@ class OaProjectService extends BaseService
             return false;
         }
 
-        if (!$updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$data)){
-            $this->setError('审核失败，请重试!');
-            return false;
+        if ($updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$data)){
+            if ($data['status'] == ProjectEnum::PASS){
+                //TODO 此处可以添加报名后发通知的事务
+                #发送短信
+                if (!empty($orderInfo)){
+                    $sms = new SmsService();
+                    $content = '您好！您预约的《'.$orderInfo['project_name'].'》项目,已通过审核,我们将在24小时内负责人联系您，请保持消息畅通，谢谢！';
+                    $sms->sendContent($orderInfo['mobile'],$content);
+                }
+                $this->setMessage('审核通过,消息已发送给联系人！');
+                return $updOrder;
+            }
+            $this->setMessage('审核成功！');
+            return $updOrder;
         }
-        $this->setMessage('审核成功！');
-        return $updOrder;
+        $this->setError('审核失败，请重试!');
+        return false;
     }
 }
             

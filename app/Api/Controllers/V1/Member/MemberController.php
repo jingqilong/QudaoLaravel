@@ -100,7 +100,7 @@ class MemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/member/mobile_register",
      *     tags={"会员"},
-     *     summary="手机号码注册登录",
+     *     summary="手机号码注册",
      *     description="sang" ,
      *     operationId="mobile_register",
      *     @OA\Parameter(
@@ -134,7 +134,7 @@ class MemberController extends ApiController
      *         name="referral_code",
      *         in="query",
      *         description="邀请码",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -150,7 +150,7 @@ class MemberController extends ApiController
         $rules = [
             'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
             'code'              => 'required|min:4|max:4',
-            'm_referral_code'   => 'string',
+            'referral_code'   => 'string',
         ];
         $messages = [
             'mobile.required'           => '请输入手机号',
@@ -158,7 +158,7 @@ class MemberController extends ApiController
             'code.required'             => '请输入验证码',
             'code.min'                  => '验证码不能少于4位',
             'code.max'                  => '验证码不能多于4位',
-            'm_referral_code.string'    => '邀请码格式错误',
+            'referral_code.string'    => '邀请码格式错误',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
@@ -166,10 +166,10 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         //短信验证
-        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::REGISTER, $this->request['code']);
+        /*$check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::REGISTER, $this->request['code']);
         if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
-        }
+        }*/
         $res = $this->memberService->register($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->memberService->error];

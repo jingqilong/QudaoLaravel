@@ -5,6 +5,7 @@ namespace App\Services\Project;
 use App\Enums\ProjectEnum;
 use App\Repositories\ProjectOrderRepository;
 use App\Services\BaseService;
+use App\Services\Common\SmsService;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectService extends BaseService
@@ -104,12 +105,19 @@ class ProjectService extends BaseService
         $data['reservation_at']     =   strtotime($data['reservation_at']);
         $data['status']             =   ProjectEnum::SUBMITTED;
 
-        if (!$res = ProjectOrderRepository::getAddId($data)){
-            $this->setError('预约失败,请重试！');
-            return false;
+        if ($res = ProjectOrderRepository::getAddId($data)){
+            //TODO 此处可以添加报名后发通知的事务
+            #发送短信
+            if (!empty($data['mobile'])){
+                $sms = new SmsService();
+                $content = '您好！您预约的《'.$data['project_name'].'》项目,我们将在24小时内受理您的报名申请，如有疑问请联系客服：000-00000！';
+                $sms->sendContent($data['mobile'],$content);
+            }
+            $this->setMessage('恭喜你，预约成功!稍后请等工作人员联系您!');
+            return true;
         }
-        $this->setMessage('恭喜你，预约成功!稍后请等工作人员联系您!');
-        return true;
+        $this->setError('预约失败,请重试！');
+        return false;
     }
 
     /**
