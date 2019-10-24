@@ -3,13 +3,16 @@ namespace App\Services\Member;
 
 
 use App\Enums\MemberEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
+use App\Repositories\MemberSpecifyViewRepository;
 use App\Repositories\OaAdminPermissionsRepository;
 use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
@@ -25,6 +28,7 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class MemberService extends BaseService
 {
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -699,5 +703,33 @@ class MemberService extends BaseService
 
         $this->setMessage('信息完善成功!');
         return $memberInfo;
+    }
+
+    /**
+     * 获取首页展示成员
+     * @param $count
+     * @return array
+     */
+    public static function getHomeShowMemberList($count){
+        if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
+            return [];
+        }
+        $view_user_ids = array_column($list,'view_user_id');
+        $column = ['m_id','m_cname','m_position','m_img_id'];
+        if (!$view_user_list = MemberRepository::getList(['m_id' => ['in',$view_user_ids]],$column,'m_id','asc',1,$count)){
+            return [];
+        }
+        if (empty($view_user_list['data'])){
+            return [];
+        }
+        $img_ids = array_column($view_user_list['data'],'m_img_id');
+        $image_list = CommonImagesRepository::getList(['id' => ['in',$img_ids]]);
+        foreach ($view_user_list['data'] as &$value){
+            $value['image'] = '';
+            if ($image = self::searchArray($image_list,'id',$value['m_img_id'])){
+                $value['image'] = reset($image)['img_url'];
+            }
+        }
+        return $view_user_list['data'];
     }
 }

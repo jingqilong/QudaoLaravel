@@ -2,9 +2,10 @@
 namespace App\Services\Common;
 
 
-use App\Repositories\CommonHomeBannersRepository;
-use App\Repositories\CommonImagesRepository;
+use App\Services\Activity\DetailService;
 use App\Services\BaseService;
+use App\Services\Member\MemberService;
+use App\Services\Shop\ActivityService;
 use Illuminate\Support\Facades\Auth;
 
 class HomeService extends BaseService
@@ -19,23 +20,23 @@ class HomeService extends BaseService
         $this->auth = Auth::guard('member_api');
     }
 
+    /**
+     * 首页展示数据获取
+     * @return mixed
+     */
     public function getHome()
     {
-        $member = $this->auth->user();
-//        if ($member){
-//            $this->setMessage('获取成功！');
-//            return $member->toArray();
-//        }
+        $detailsService = new DetailService();
         #获取banner图
         $res['banners']     = HomeBannersService::getHomeBanners();
         #获取积分展示图
-        $res['score']       = ['id' => 2,'image' => ''];
+        $res['score']       = ActivityService::getHomeShow();
         #获取推荐精选活动
-        $res['activities']  = [];
+        $res['activities']  = $detailsService->getHomeList(['page_num' => 4,'is_recommend' => 1]);
         #获取成员风采
-        $res['members']     = [];
+        $res['members']     = MemberService::getHomeShowMemberList(8);
         #获取好物推荐
-        $res['shop']        = [];
+        $res['shop']        = ActivityService::getHomeRecommendGoods();
         $this->setMessage('获取成功！');
         return $res;
     }

@@ -15,8 +15,8 @@ class HomeBannersService extends BaseService
      */
     public static function getHomeBanners(){
         $column = ['id','type','related_id','image_id','url'];
-        if (CommonHomeBannersRepository::getList(['show_time' => strtotime("today")],$column)){
-            $banners = CommonHomeBannersRepository::getList(['show_time' => strtotime("today")]);
+        if (CommonHomeBannersRepository::exists(['show_time' => strtotime("today")],$column)){
+            $banners = CommonHomeBannersRepository::getList(['show_time' => strtotime("today")],$column);
         }else{
             if (!$recently_banner = CommonHomeBannersRepository::getOrderOne(['show_time' => ['<',strtotime("today")]],'show_time','desc')){
                 return [];
@@ -25,8 +25,38 @@ class HomeBannersService extends BaseService
         }
         foreach ($banners as &$banner){
             $banner['image'] = CommonImagesRepository::getField(['id' => $banner['image_id']],'img_url');
+            unset($banner['image_id'],$banner['type']);
         }
         return $banners;
+    }
+
+
+    /**
+     * 添加首页展示banner
+     * @param $request
+     * @return bool
+     */
+    public function addBanners($request){
+        $type = $request['type'];
+        $add_arr = [
+            'type'          => $type,
+            'show_time'     => strtotime($request['show_time']),
+            'related_id'    => $request['related_id'],
+            'image_id'      => $request['image_id'],
+            'url'           => $request['url'] ?? '',
+            'created_at'    => time(),
+            'updated_at'    => time(),
+        ];
+        if (CommonHomeBannersRepository::exists($add_arr)){
+            $this->setError('该banner已添加！');
+            return false;
+        }
+        if (!CommonHomeBannersRepository::getAddId($add_arr)){
+            $this->setError('添加失败！');
+            return false;
+        }
+        $this->setMessage('添加成功！');
+        return true;
     }
 }
             
