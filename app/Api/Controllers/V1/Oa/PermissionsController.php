@@ -473,14 +473,14 @@ class PermissionsController extends ApiController
         $rules = [
             'slug'          => 'required',
             'name'          => 'required',
-            'http_method'   => 'regex:/^([a-zA-Z]+[,])*[a-zA-Z]+$/',
-            'http_path'     => 'regex:/^([a-zA-Z/]+[,])*[a-zA-Z/]+$/',
+            'http_method'   => 'regex:/^([A-Z]+[,])*[A-Z]+$/',
+            'http_path'     => 'regex:/^([a-zA-Z0-9]+[\/])*[a-zA-Z0-9]+$/',
         ];
         $messages = [
             'slug.required'     => '请填写权限标识',
             'name.required'     => '请填写权限名称',
             'http_method.regex' => 'HTTP方法格式有误',
-            'http_path.regex'   => 'HTTP路径格式有误',
+            'http_path.regex'   => 'HTTP路径格式有误,示例：api/v1/ddddd',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
