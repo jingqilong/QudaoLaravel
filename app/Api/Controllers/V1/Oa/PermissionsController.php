@@ -487,7 +487,7 @@ class PermissionsController extends ApiController
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
-        }return 'ok';
+        }
         $res = $this->menuService->addPermission($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->menuService->error];
