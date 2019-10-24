@@ -15,7 +15,18 @@ use Illuminate\Support\Facades\Route;
 */
 $api = app('Dingo\Api\Routing\Router');
 
+
+
 $api->version('v1',function ($api){
+//    #预检请求处理、请勿删除
+//    $api->options('/{all}', function(Request $request) {
+//        $origin = $request->header('ORIGIN', '*');
+//        header("Access-Control-Allow-Origin: $origin");
+//        header("Access-Control-Allow-Credentials: true");
+//        header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
+//        header('Access-Control-Allow-Headers: Origin, Access-Control-Request-Headers, SERVER_NAME, Access-Control-Allow-Headers, cache-control, token, X-Requested-With, Content-Type, Accept, Connection, User-Agent, Cookie');
+//    })->where(['all' => '([a-zA-Z0-9-]|/)+']);
+
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
     //不需要验签的接口
     $api->group(['prefix' => 'v1','middleware' => 'cors','namespace' => 'App\Api\Controllers\V1'], function ($api) {
@@ -180,13 +191,13 @@ $api->version('v1',function ($api){
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
-                $api->post('comment','UserActivityController@comment')->name('会员评论活动');
-                $api->delete('delete_comment','UserActivityController@deleteComment')->name('会员删除评论');
-                $api->get('get_activity_comment','UserActivityController@getActivityComment')->name('获取活动评论列表');
+                $api->post('comment','CommentController@comment')->name('会员评论活动');
+                $api->delete('delete_comment','CommentController@deleteComment')->name('会员删除评论');
+                $api->get('get_activity_comment','CommentController@getActivityComment')->name('获取活动评论列表');
 
-                $api->post('activity_register','UserActivityController@activityRegister')->name('活动报名');
-                $api->post('sign_in','UserActivityController@signIn')->name('活动签到');
-                $api->get('sign_in_list','UserActivityController@signList')->name('获取活动签到列表');
+                $api->post('activity_register','RegisterController@activityRegister')->name('活动报名');
+                $api->post('sign_in','RegisterController@signIn')->name('活动签到');
+                $api->get('sign_in_list','RegisterController@signList')->name('获取活动签到列表');
             });
         });
 
@@ -292,6 +303,7 @@ $api->version('v1',function ($api){
             $api->post('send_captcha', 'CommonController@sendCaptcha')->name('发送短信验证码');
             $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
+            $api->get('home', 'CommonController@home')->name('获取首页');
         });
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){

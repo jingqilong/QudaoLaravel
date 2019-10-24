@@ -4,8 +4,10 @@
 namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
+use App\Api\Middleware\MemberAuthJWT;
 use App\Services\Common\SmsService;
 use App\Services\Member\MemberService;
+use Dingo\Api\Http\Request;
 
 class CommonController extends ApiController
 {
@@ -135,5 +137,43 @@ class CommonController extends ApiController
         }
         $res = $this->memberService->mobileExists($this->request['mobile']);
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/common/home",
+     *     tags={"公共"},
+     *     summary="获取首页",
+     *     description="sang" ,
+     *     operationId="home",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token（非必填）",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="获取成功！",
+     *     ),
+     * )
+     *
+     */
+    public function home(){
+        if (isset($this->request['token'])){
+            app(MemberAuthJWT::class)->handle(Request::class);
+        }
     }
 }
