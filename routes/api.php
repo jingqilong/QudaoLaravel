@@ -79,7 +79,7 @@ $api->version('v1',function ($api){
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
 
-                #OA会员管理
+                #OA成员管理
                 $api->get('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
                 $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
                 $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
@@ -185,14 +185,14 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
             //精选活动（前台）
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
-                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('会员活动抽奖');
+                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('成员活动抽奖');
                 $api->post('is_collect_activity','UserActivityController@collectActivity')->name('收藏或取消收藏活动');
                 $api->get('collect_list','UserActivityController@collectList')->name('获取活动收藏列表');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
 
-                $api->post('comment','CommentController@comment')->name('会员评论活动');
-                $api->delete('delete_comment','CommentController@deleteComment')->name('会员删除评论');
+                $api->post('comment','CommentController@comment')->name('成员评论活动');
+                $api->delete('delete_comment','CommentController@deleteComment')->name('成员删除评论');
                 $api->get('get_activity_comment','CommentController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','RegisterController@activityRegister')->name('活动报名');
@@ -201,13 +201,14 @@ $api->version('v1',function ($api){
             });
         });
 
-        //会员模块
+        //成员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
                 $api->post('refresh','MemberController@refresh')->name('刷新token');
-                $api->get('get_user_info','MemberController@getUserInfo')->name('获取会员信息');
-                $api->get('get_user_list','MemberController@getUserList')->name('获取会员列表');
+                $api->get('get_user_info','MemberController@getUserInfo')->name('获取成员信息');
+                $api->get('get_member_list','MemberController@getMemberList')->name('获取成员列表');
+                $api->get('get_member_category_list','MemberController@getMemberCategoryList')->name('根据查找分类获取成员列表');
                 $api->get('update_user_info','MemberController@updateUserInfo')->name('更改用户信息');
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->any('sms_update_user_password','MemberController@forgetPassword')->name('短信验证码修改密码');
@@ -216,7 +217,7 @@ $api->version('v1',function ($api){
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
 
 
-                #会员权限
+                #成员权限
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
                 $api->post('edit_service','ServiceController@editService')->name('修改服务');
@@ -226,9 +227,9 @@ $api->version('v1',function ($api){
                 $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
                 $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
                 $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
-                $api->post('add_view_member','ServiceController@addViewMember')->name('添加会员可查看成员');
-                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除会员可查看成员');
-                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复会员可查看成员');
+                $api->post('add_view_member','ServiceController@addViewMember')->name('添加成员可查看成员');
+                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
+                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
@@ -274,7 +275,7 @@ $api->version('v1',function ($api){
 
         //项目对接模块
         $api->group(['prefix' => 'project', 'namespace' => 'Project'], function ($api){
-            #会员使用路由
+            #成员使用路由
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->get('get_project_list', 'ProjectController@getProjectList')->name('获取项目对接订单列表');
                 $api->get('get_project_info', 'ProjectController@getProjectInfo')->name('获取项目对接订单信息');

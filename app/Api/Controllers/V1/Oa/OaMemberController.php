@@ -135,10 +135,10 @@ class OaMemberController extends ApiController
     public function getMemberInfo()
     {
         $rules = [
-            'id'          => 'integer',
+            'id'            => 'integer',
         ];
         $messages = [
-            'id.integer'              => 'ID格式不正确',
+            'id.integer'    => 'ID格式不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

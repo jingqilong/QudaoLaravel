@@ -164,14 +164,15 @@ class MemberService extends BaseService
      * @param $data
      * @return array|bool|null
      */
-    public function getUserList($data)
+    public function getMemberList($data)
     {
         $memberInfo = $this->auth->user();
 
         $page           = $data['page'] ?? 1;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['field' => '*'];
+        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
         $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
         $groupMember    = [
             MemberEnum::HONOURENJOY,
@@ -185,106 +186,82 @@ class MemberService extends BaseService
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
         if (in_array($memberInfo['m_groupname'],$groupMember)){
-            if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
-                $this->setMessage('没有查到该成员！');
+            if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
+                $this->setMessage('暂无成员信息！');
                 return [];
             }
         }else {
-            if (!$user_list = MemberRepository::search($keyword,['m_starte' => MemberEnum::ACTIVITEMEMBER],$column,$page,$page_num,'m_time','desc')){
-                $this->setMessage('没有查到该成员！');
+            if (!$user_list = MemberRepository::search($keyword,['m_starte' => MemberEnum::ACTIVITEMEMBER],$column,$page,$page_num,'m_time',$asc)){
+                $this->setMessage('暂无成员信息！');
                 return [];
             }
         }
 
         unset($user_list['first_page_url'], $user_list['from'],
-            $user_list['from'], $user_list['last_page_url'],
-            $user_list['next_page_url'], $user_list['path'],
-            $user_list['prev_page_url'], $user_list['to']);
-
-        if (empty($user_list['data'])) {
-            $this->setMessage('没有成员!');
-        }
+              $user_list['last_page_url'],  $user_list['from'],
+              $user_list['next_page_url'],  $user_list['path'],
+              $user_list['prev_page_url'],  $user_list['to']);
 
         foreach ($user_list['data'] as &$value){
-            switch ($value['m_groupname'])
-            {
-                case 1:
-                    $value['m_groupname'] = '内部测试';
-                    break;
-                case 2:
-                    $value['m_groupname'] = '亦享成员';
-                    break;
-                case 3:
-                    $value['m_groupname'] = '至享成员';
-                    break;
-                case 4:
-                    $value['m_groupname'] = '悦享成员';
-                    break;
-                case 5:
-                    $value['m_groupname'] = '真享成员';
-                    break;
-                case 6:
-                    $value['m_groupname'] = '君享成员';
-                    break;
-                case 7:
-                    $value['m_groupname'] = '尊享成员';
-                    break;
-                case 8:
-                    $value['m_groupname'] = '内部测试';
-                    break;
-                case 9:
-                    $value['m_groupname'] = '待审核';
-                    break;
-                case 10:
-                    $value['m_groupname'] = '高级顾问';
-                    break;
-                case 11:
-                    $value['m_groupname'] = '临时成员';
-                    break;
-                default;
-            }
-            switch ($value['m_category']) {
-                case 1:
-                    $value['m_category'] = '商政名流';
-                    break;
-                case 2:
-                    $value['m_category'] = '企业精英';
-                    break;
-                case 3:
-                    $value['m_category'] = '名医专家';
-                    break;
-                case 4:
-                    $value['m_category'] = '文艺雅仕';
-                    break;
-                default ;
-            }
-            switch ($value['m_starte']) {
-                case 0:
-                    $value['m_starte'] = '成员显示';
-                    break;
-                case 1:
-                    $value['m_starte'] = '成员禁用';
-                    break;
-                case 2:
-                    $value['m_starte'] = '官员显示';
-                    break;
-                case 3:
-                    $value['m_starte'] = '官员禁用';
-                    break;
-                default ;
-            }
-            switch ($value['m_sex']) {
-                case 1:
-                    $value['m_sex'] = '先生';
-                    break;
-                case 2:
-                    $value['m_sex'] = '女士';
-                    break;
-                default ;
-            }
+            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
         }
+
             $this->setMessage('获取成功！');
             return $user_list;
+    }
+
+    /**
+     * 根据成员分类获取成员列表
+     * @param $data
+     * @return array|null
+     */
+    public function getMemberCategoryList($data)
+    {
+        $memberInfo = $this->auth->user();
+        $page           = $data['page'] ?? 1;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
+        $page_num       = $data['page_num'] ?? 20;
+        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
+        $where          = ['m_category' => $data['category'],'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
+        $groupMember    = [
+            MemberEnum::HONOURENJOY,
+            MemberEnum::YUEENJOY,
+            MemberEnum::ADVISER,
+            MemberEnum::ALSOENJOY,
+            MemberEnum::TOENJOY,
+            MemberEnum::REALLYENJOY,
+            MemberEnum::YOUENJOY
+        ];
+
+        if (in_array($memberInfo['m_groupname'],$groupMember)){
+            if(!$user_list = MemberRepository::getList($where,$column,'m_time',$asc,$page,$page_num)){
+                $this->setMessage('暂无成员信息！');
+                return [];
+            }
+        }else {
+            if (!$user_list = MemberRepository::getList(['m_category' => $data['category'],'m_starte' => MemberEnum::ACTIVITEMEMBER],$column,'m_time',$asc,$page,$page_num)){
+                $this->setMessage('暂无成员信息！');
+                return [];
+            }
+        }
+
+        unset($user_list['first_page_url'], $user_list['from'],
+              $user_list['last_page_url'],  $user_list['from'],
+              $user_list['next_page_url'],  $user_list['path'],
+              $user_list['prev_page_url'],  $user_list['to']);
+
+        foreach ($user_list['data'] as &$value){
+            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+        }
+
+        $this->setMessage('获取成功！');
+        return $user_list;
     }
 
     /**

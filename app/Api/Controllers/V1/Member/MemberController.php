@@ -270,10 +270,10 @@ class MemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_user_list",
+     *     path="/api/v1/member/get_member_list",
      *     tags={"会员"},
-     *     summary="获取用户列表",
-     *     operationId="get_user_list",
+     *     summary="获取成员列表（模糊搜索）",
+     *     operationId="get_member_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -296,6 +296,15 @@ class MemberController extends ApiController
      *         name="keywords",
      *         in="query",
      *         description="搜索内容【会员卡号，成员中文名，成员英文名，成员类别，成员手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序方式[1 最早加入 2 最新加入]",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -326,26 +335,118 @@ class MemberController extends ApiController
      * )
      *
      */
-    public function getUserList()
+    public function getMemberList()
     {
         $rules = [
             'keywords'      => 'string',
             'page'          => 'integer',
             'page_num'      => 'integer',
+            'asc'           => 'integer',
         ];
         $messages = [
             'keywords.string'           => '关键字类型不正确',
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+            'asc.integer'               => '排序方式不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->memberService->getUserList($this->request);
+        $list = $this->memberService->getMemberList($this->request);
 
         return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_category_list",
+     *     tags={"会员"},
+     *     summary="根据查找分类获取会员列表",
+     *     operationId="get_member_category_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="成员类别[1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序方式[1 正序 2 倒叙]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberCategoryList()
+    {
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+            'category'      => 'integer',
+            'asc'           => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+            'category.integer'          => '成员分类不是整数',
+            'asc.integer'               => '排序方式不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->memberService->getMemberCategoryList($this->request);
+
+        return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
+    }
+
     /**
      * @OA\Get(
      *     path="/api/v1/member/get_user_info",
