@@ -304,6 +304,9 @@ $api->version('v1',function ($api){
             $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
             $api->get('home', 'CommonController@home')->name('获取首页');
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');
+            });
         });
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){

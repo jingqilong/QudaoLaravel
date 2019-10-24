@@ -83,7 +83,7 @@ class DetailService extends BaseService
             $where['theme_id']  = $theme_id;
         }
         if (!empty($is_recommend)){
-            $where['is_recommend']  = $is_recommend;
+            $where['is_recommend']  = ['>',0];
             $order = 'is_recommend';
         }
         $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id'];
