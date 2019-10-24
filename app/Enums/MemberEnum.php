@@ -147,7 +147,7 @@ class MemberEnum extends BaseEnum
      * @return mixed|string
      */
     public static function getGrade(int $value){
-        return isset(self::$grade[$value]) ? self::$labels[self::$status[$value]] : '';
+        return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : '';
     }
     /**
      * 获取状态label
@@ -155,7 +155,7 @@ class MemberEnum extends BaseEnum
      * @return mixed|string
      */
     public static function getCategory(int $value){
-        return isset(self::$category[$value]) ? self::$labels[self::$status[$value]] : '';
+        return isset(self::$category[$value]) ? self::$labels[self::$category[$value]] : '';
     }
 
     /**
@@ -164,7 +164,7 @@ class MemberEnum extends BaseEnum
      * @return mixed|string
      */
     public static function getSex(int $value){
-        return isset(self::$sex[$value]) ? self::$labels[self::$status[$value]] : '';
+        return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : '';
     }
 
 }

@@ -31,7 +31,7 @@ class OaMemberService extends BaseService
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['field' => '*'];
+        $column         = ['*'];
         $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::DISABLEMEMBER,MemberEnum::ACTIVITEOFFICER,MemberEnum::DISABLEOFFICER]]];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
 
@@ -49,82 +49,10 @@ class OaMemberService extends BaseService
             $this->setMessage('没有成员!');
         }
         foreach ($member_list['data'] as &$value){
-            switch ($value['m_groupname'])
-            {
-                case 1:
-                    $value['m_groupname'] = '内部测试';
-                    break;
-                case 2:
-                    $value['m_groupname'] = '亦享成员';
-                    break;
-                case 3:
-                    $value['m_groupname'] = '至享成员';
-                    break;
-                case 4:
-                    $value['m_groupname'] = '悦享成员';
-                    break;
-                case 5:
-                    $value['m_groupname'] = '真享成员';
-                    break;
-                case 6:
-                    $value['m_groupname'] = '君享成员';
-                    break;
-                case 7:
-                    $value['m_groupname'] = '尊享成员';
-                    break;
-                case 8:
-                    $value['m_groupname'] = '内部测试';
-                    break;
-                case 9:
-                    $value['m_groupname'] = '待审核';
-                    break;
-                case 10:
-                    $value['m_groupname'] = '高级顾问';
-                    break;
-                case 11:
-                    $value['m_groupname'] = '临时成员';
-                    break;
-                default;
-            }
-            switch ($value['m_category']) {
-                case 1:
-                    $value['m_category'] = '商政名流';
-                    break;
-                case 2:
-                    $value['m_category'] = '企业精英';
-                    break;
-                case 3:
-                    $value['m_category'] = '名医专家';
-                    break;
-                case 4:
-                    $value['m_category'] = '文艺雅仕';
-                    break;
-                default ;
-            }
-            switch ($value['m_starte']) {
-                case 0:
-                    $value['m_starte'] = '成员显示';
-                    break;
-                case 1:
-                    $value['m_starte'] = '成员禁用';
-                    break;
-                case 2:
-                    $value['m_starte'] = '官员显示';
-                    break;
-                case 3:
-                    $value['m_starte'] = '官员禁用';
-                    break;
-                default ;
-            }
-            switch ($value['m_sex']) {
-                case 1:
-                    $value['m_sex'] = '先生';
-                    break;
-                case 2:
-                    $value['m_sex'] = '女士';
-                    break;
-                default ;
-            }
+            $value['group_name']   = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']    = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['starte']      = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['sex']         = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
         }
         $this->setMessage('获取成功！');
         return $member_list;
