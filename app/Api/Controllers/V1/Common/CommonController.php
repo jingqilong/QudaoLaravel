@@ -4,26 +4,33 @@
 namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
-use App\Api\Middleware\MemberAuthJWT;
+use App\Services\Common\HomeService;
 use App\Services\Common\SmsService;
 use App\Services\Member\MemberService;
-use Dingo\Api\Http\Request;
 
 class CommonController extends ApiController
 {
     public $smsService;
     public $memberService;
+    public $homeService;
 
     /**
      * QiNiuController constructor.
      * @param SmsService $smsService
      * @param MemberService $memberService
+     * @param HomeService $homeService
      */
-    public function __construct(SmsService $smsService,MemberService $memberService)
+    public function __construct(SmsService $smsService,
+                                MemberService $memberService,
+                                HomeService $homeService)
     {
         parent::__construct();
-        $this->smsService = $smsService;
-        $this->memberService = $memberService;
+        $this->smsService       = $smsService;
+        $this->memberService    = $memberService;
+        $this->homeService      = $homeService;
+        if (isset($this->request['token'])){
+            $this->middleware('member.jwt.auth');
+        }
     }
 
     /**
@@ -130,7 +137,6 @@ class CommonController extends ApiController
             'mobile.required'   => '请输入手机号',
             'mobile.regex'      => '手机号格式有误',
         ];
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
@@ -166,14 +172,26 @@ class CommonController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="获取成功！",
+     *         description="获取成功",
+     *         @OA\JsonContent(ref=""),
+     *         @OA\MediaType(
+     *             mediaType="application/xml",
+     *             @OA\Schema(required={"code", "message"})
+     *         ),
      *     ),
+     *     @OA\Response(
+     *         response="100",
+     *         description="获取失败",
+     *         @OA\JsonContent(ref=""),
+     *     )
      * )
      *
      */
     public function home(){
-        if (isset($this->request['token'])){
-            app(MemberAuthJWT::class)->handle(Request::class);
+        $res = $this->homeService->getHome();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->homeService->error];
         }
+        return ['code' => 200, 'message' => $this->homeService->message,'data' => $res];
     }
 }

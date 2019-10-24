@@ -7,11 +7,13 @@ use App\Repositories\OaAdminRolesRepository;
 use App\Repositories\OaDepartmentRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeService extends BaseService
 {
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -82,13 +84,11 @@ class EmployeeService extends BaseService
 
     public function getEmployeeList($data)
     {
-        $employeeInfo = $this->auth->user();dd($employeeInfo);
-
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
-        $column         = ['field' => '*'];
+        $column         = ['*'];
 
-        if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'m_time','desc',$page,$page_num)){
+        if (!$employee_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$page_num)){
             $this->setError('没有员工信息！');
             return false;
         }
@@ -104,9 +104,14 @@ class EmployeeService extends BaseService
             $this->setMessage('暂无数据!');
             return $employee_list;
         }
+        $department_ids = array_column($employee_list['data'],'department_id');
+        $department_list = OaDepartmentRepository::getList(['id' => ['in',$department_ids]],['id','name']);
         foreach ($employee_list['data'] as &$value)
         {
-            $value['parent']     = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
+            $value['department_name'] = '未知';
+            if ($departments = $this->searchArray($department_list,'id',$value['department_id'])){
+                $value['department_name'] = reset($departments)['name'];
+            }
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
         }
@@ -203,9 +208,19 @@ class EmployeeService extends BaseService
 
 
     /**
+     * 员工本人信息
      * @return mixed
      */
-    public function getUserInfo(string $name)
+    public function getUserInfo()
+    {
+        return OaEmployeeRepository::getUser();
+    }
+
+    /**
+     * 查看员工个人信息
+     * @return mixed
+     */
+    public function getEmployeeInfo(string $name)
     {
         return OaEmployeeRepository::getOne(['name' => $name]);
     }

@@ -22,11 +22,11 @@ class EmployessController extends ApiController
 
 
     /**
-     * @OA\Post(
-     *     path="/api/v1/member/get_employee_list",
+     * @OA\Get(
+     *     path="/api/v1/oa/get_employee_list",
      *     tags={"OA"},
      *     summary="获取OA员工列表",
-     *     description="sang" ,
+     *     description="" ,
      *     operationId="get_employee_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -118,7 +118,7 @@ class EmployessController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(name="username",in="query",description="员工姓名(前端传值)",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="username",in="query",description="员工ID",required=true,@OA\Schema(type="integer",)),
      *     @OA\Response(response=100,description="获取员工失败",),
      * )
      *
@@ -129,10 +129,11 @@ class EmployessController extends ApiController
     public function getEmployeeInfo()
     {
         $rules = [
-            'username'   => 'required',
+            'username'   => 'required|integer',
         ];
         $messages = [
-            'username.required' => '请填写员工姓名',
+            'username.required' => '员工ID不能为空',
+            'username.integer'  => '员工ID必须为整数',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -140,7 +141,7 @@ class EmployessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->employeeService->getUserInfo($this->request['username']);
+        $res = $this->employeeService->getEmployeeInfo($this->request['id']);
         if ($res['code'] == 200){
             return ['code' => 200,'data' => $res];
         }

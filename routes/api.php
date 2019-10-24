@@ -53,13 +53,13 @@ $api->version('v1',function ($api){
                 $api->post('refresh','OaController@refresh')->name('刷新token');
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
                 #OA部门
-                $api->get('get_depart','OaController@getDepart')->name("获取部门");
-                $api->post('add_depart','OaController@addDepart')->name("添加部门");
-                $api->post('update_depart','OaController@updateDepart')->name("修改部门");
-                $api->delete('del_depart','OaController@delDepart')->name("删除部门");
-                $api->get('get_depart_list','OaController@getDepartList')->name("获取部门列表");
+                $api->get('get_depart','DepartController@getDepart')->name("获取部门");
+                $api->post('add_depart','DepartController@addDepart')->name("添加部门");
+                $api->post('update_depart','DepartController@updateDepart')->name("修改部门");
+                $api->delete('del_depart','DepartController@delDepart')->name("删除部门");
+                $api->get('get_depart_list','DepartController@getDepartList')->name("获取部门列表");
                 #OA员工
-                $api->post('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
+                $api->get('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取OA员工信息');
                 $api->post('add_employee','EmployessController@addEmployee')->name('添加OA员工信息');
                 $api->delete('del_employee','EmployessController@delEmployee')->name("删除OA员工");
