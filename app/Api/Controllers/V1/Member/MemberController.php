@@ -361,6 +361,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_member_category_list",
      *     tags={"会员"},
+     *     description="jing" ,
      *     summary="根据成员分类查找会员列表",
      *     operationId="get_member_category_list",
      *     @OA\Parameter(
@@ -387,7 +388,7 @@ class MemberController extends ApiController
      *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -429,13 +430,11 @@ class MemberController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'category'      => 'integer',
             'asc'           => 'integer',
         ];
         $messages = [
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
-            'category.integer'          => '成员分类不是整数',
             'asc.integer'               => '排序方式不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);

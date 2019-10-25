@@ -254,13 +254,16 @@ $api->version('v1',function ($api){
 
         //贷款模块
         $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
-            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
-                $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
                 $api->delete('del_loan', 'LoanController@delLoan')->name('删除贷款订单');
                 $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取贷款订单列表');
+            });
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
                 $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
             });
+
         });
 
         //企业咨询模块

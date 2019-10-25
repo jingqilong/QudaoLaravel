@@ -223,25 +223,27 @@ class MemberService extends BaseService
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
-        $category       = $data['category'] ?? 0;
+        $category       = $data['category'] == '' ? 0 : $data['category'];
         $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category','m_img_id'];
         $where          = ['m_category' => $category,'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-
-        if ($category == 0){
-            if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
+        if (MemberEnum::isset($memberInfo['m_groupname'])){
+            if ($category == 0){
+                if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
+                    $this->setMessage('暂无成员信息！');
+                    return [];
+                }
+            }
+            if (!$user_list = MemberRepository::getList($where, $column, 'm_time', $asc, $page, $page_num)) {
                 $this->setMessage('暂无成员信息！');
                 return [];
             }
         }
-        if (!$user_list = MemberRepository::getList($where, $column, 'm_time', $asc, $page, $page_num)) {
+
+        if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
             $this->setMessage('暂无成员信息！');
             return [];
         }
-//        $user_list = $this->
-        unset($user_list['first_page_url'], $user_list['from'],
-              $user_list['last_page_url'],  $user_list['from'],
-              $user_list['next_page_url'],  $user_list['path'],
-              $user_list['prev_page_url'],  $user_list['to']);
+        $user_list = $this->removePagingField($user_list);
 
         $img_ids        = array_column($user_list['data'],'m_img_id');
         $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
