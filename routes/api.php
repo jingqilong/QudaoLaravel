@@ -319,6 +319,7 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');
+                $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
         });
         //支付模块模块
