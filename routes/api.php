@@ -175,6 +175,7 @@ $api->version('v1',function ($api){
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
+                $api->get('get_sign_list','RegisterController@getSignList')->name('获取活动签到列表');
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
 
                 $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
