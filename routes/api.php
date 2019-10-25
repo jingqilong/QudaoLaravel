@@ -229,6 +229,7 @@ $api->version('v1',function ($api){
                 $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
                 $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
                 $api->post('add_view_member','ServiceController@addViewMember')->name('添加成员可查看成员');
+                $api->post('add_grade_view','ServiceController@addGradeView')->name('添加等级可查看成员');
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
             });
@@ -255,13 +256,15 @@ $api->version('v1',function ($api){
         //贷款模块
         $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->get('get_loan_order_info', 'LoanController@getLoanOrderInfo')->name('根据ID查找贷款订单信息');
                 $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
                 $api->delete('del_loan', 'LoanController@delLoan')->name('删除贷款订单');
-                $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取贷款订单列表');
+                $api->get('get_loan_order_list', 'LoanController@getLoanOrderList')->name('获取所有贷款订单列表');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
                 $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
+                $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取成员本人贷款订单列表');
             });
 
         });

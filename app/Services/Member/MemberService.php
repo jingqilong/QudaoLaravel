@@ -255,7 +255,7 @@ class MemberService extends BaseService
             }
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['starte_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
             $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
         }
 

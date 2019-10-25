@@ -18,7 +18,6 @@ class MemberEnum extends BaseEnum
         'YOUENJOY'            => '君享成员',
         'HONOURENJOY'         => '尊享成员',
         'ZHIRENJOY'           => '致享成员',
-        'TOAUDIT'             => '待审核',
         'ADVISER'             => '高级顾问',
         'TEMPORARY'           => '临时成员',
         //成员分类
@@ -35,6 +34,8 @@ class MemberEnum extends BaseEnum
         //成员性别
         'MAN'                 => '先生',
         'WOMAN'               => '女士',
+        //成员身份
+        'OFFICER'             => '官员',
     ];
 
 
@@ -49,9 +50,8 @@ class MemberEnum extends BaseEnum
         6  => 'YOUENJOY',
         7  => 'HONOURENJOY',
         8  => 'ZHIRENJOY',
-        9  => 'TOAUDIT',
-        10 => 'ADVISER',
-        11 => 'TEMPORARY',
+        9  => 'ADVISER',
+        10 => 'TEMPORARY',
     ];
 
     //成员分类
@@ -80,6 +80,12 @@ class MemberEnum extends BaseEnum
         2 => 'WOMAN',
     ];
 
+    //成员身份
+    public static $identity = [
+
+        1 => 'OFFICER',
+    ];
+
     // 成员等级
     const TEST             = 1;    //内部测试
 
@@ -97,11 +103,9 @@ class MemberEnum extends BaseEnum
 
     const ZHIRENJOY        = 8;    //致享成员
 
-    const TOAUDIT          = 9;    //待审核
+    const ADVISER          = 9;    //高级顾问
 
-    const ADVISER          = 10;   //高级顾问
-
-    const TEMPORARY        = 11;   //临时成员
+    const TEMPORARY        = 10;   //临时成员
 
 
     //成员分类
@@ -130,6 +134,9 @@ class MemberEnum extends BaseEnum
     const MAN               = 1;    //先生
 
     const WOMAN             = 2;    //女士
+
+    //成员身份
+    const OFFICER           = 1;    //官员
 
 
     /**

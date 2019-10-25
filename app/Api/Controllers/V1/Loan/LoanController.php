@@ -22,8 +22,8 @@ class LoanController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/loan/get_loan_list",
-     *     tags={"Loan"},
-     *     summary="获取贷款订单列表",
+     *     tags={"贷款"},
+     *     summary="获取贷款订单列表（前端使用）",
      *     operationId="get_loan_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -37,7 +37,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="成员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -72,6 +72,85 @@ class LoanController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $list = $this->personalService->getLoanList($this->request);
+        return ['code' => 200, 'message' => $this->personalService->message,'data' => $list];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/loan/get_loan_order_list",
+     *     tags={"贷款后台"},
+     *     summary="获取所有贷款订单列表（后台使用）",
+     *     operationId="get_loan_order_list",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *    @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序方式[1 正序 2 倒叙]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="Integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="Integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="Integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取贷款订单列表失败",),
+     * )
+     *
+     */
+    public function getLoanOrderList()
+    {
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+            'asc'           => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+            'asc.integer'               => '排序方式不是整数',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->personalService->getLoanOrderList($this->request);
+        if (!$list){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
         return ['code' => 200, 'message' => $this->personalService->message,'data' => $list];
     }
 
@@ -139,6 +218,64 @@ class LoanController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $list = $this->personalService->getLoanInfo($this->request);
+        if (!$list){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
+        return ['code' => 200, 'message' => $this->personalService->message,'data' => $list];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/loan/get_loan_order_info",
+     *     tags={"贷款后台"},
+     *     summary="根据ID查找贷款订单信息",
+     *     operationId="get_loan_order_info",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取贷款订单信息",),
+     * )
+     *
+     */
+    public function getLoanOrderInfo()
+    {
+        $rules = [
+            'id'                => 'required',
+        ];
+        $messages = [
+            'id.required'               => '请输入订单ID',
+        ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->personalService->getLoanOrderInfo($this->request);
         if (!$list){
             return ['code' => 100, 'message' => $this->personalService->error];
         }

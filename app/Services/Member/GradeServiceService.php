@@ -4,11 +4,13 @@ namespace App\Services\Member;
 
 use App\Repositories\MemberGradeServiceRepository;
 use App\Repositories\MemberRepository;
+use App\Repositories\OaGradeViewRepository;
 use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
+use function Sodium\add;
 
 class GradeServiceService extends BaseService
 {
@@ -133,7 +135,7 @@ class GradeServiceService extends BaseService
      * @return bool|null
      */
     public function addViewMember($request){
-        if ($request['member_id'] != 0){
+        if ($request['-'] != 0){
             if (!MemberRepository::exists(['m_id' => $request['member_id']])){
                 $this->setError('成员不存在！');
                 return false;
@@ -222,6 +224,31 @@ class GradeServiceService extends BaseService
             return false;
         }
         $this->setMessage('恢复成功！');
+        return true;
+    }
+
+
+    /**
+     * 添加等级可查看成员
+     * @param array $data
+     * @return bool
+     */
+    public function addGradeView(array $data)
+    {
+        $add_arr['grade']         = $data['grade'];
+        $add_arr['type']          = $data['type'];
+        $add_arr['value']         = $data['value'];
+        if (OaGradeViewRepository::exists($add_arr)){
+            $this->setError('信息已存在!');
+            return false;
+        }
+        $add_arr['created_at']    = time();
+        $add_arr['updated_at']   = time();
+        if (!OaGradeViewRepository::getAddId($add_arr)){
+            $this->setError('添加失败!');
+            return false;
+        }
+        $this->setMessage('添加成功！');
         return true;
     }
 }
