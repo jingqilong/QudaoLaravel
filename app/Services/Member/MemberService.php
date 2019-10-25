@@ -4,13 +4,10 @@ namespace App\Services\Member;
 
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
-use App\Repositories\MedicalDepartmentRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
-use App\Repositories\OaAdminPermissionsRepository;
-use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
@@ -176,20 +173,11 @@ class MemberService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
+        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category','m_img_id'];
         $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-        $groupMember    = [
-            MemberEnum::HONOURENJOY,
-            MemberEnum::YUEENJOY,
-            MemberEnum::ADVISER,
-            MemberEnum::ALSOENJOY,
-            MemberEnum::TOENJOY,
-            MemberEnum::REALLYENJOY,
-            MemberEnum::YOUENJOY
-        ];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
-        if (in_array($memberInfo['m_groupname'],$groupMember)){
+        if (MemberEnum::isset($memberInfo['m_groupname'])){
             if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
                 return [];
@@ -206,7 +194,14 @@ class MemberService extends BaseService
               $user_list['next_page_url'],  $user_list['path'],
               $user_list['prev_page_url'],  $user_list['to']);
 
+        $img_ids        = array_column($user_list['data'],'m_img_id');
+        $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
+
         foreach ($user_list['data'] as &$value){
+            $value['head_url']          = '';
+            if ($head_img = $this->searchArray($img_list,'id',$value['m_img_id'])){
+                $value['head_url']     = reset($head_img)['img_url'];
+            }
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
             $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
@@ -224,40 +219,38 @@ class MemberService extends BaseService
      */
     public function getMemberCategoryList($data)
     {
-        $memberInfo = $this->auth->user();
+        $memberInfo     = $this->auth->user();
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
-        $where          = ['m_category' => $data['category'],'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-        $groupMember    = [
-            MemberEnum::HONOURENJOY,
-            MemberEnum::YUEENJOY,
-            MemberEnum::ADVISER,
-            MemberEnum::ALSOENJOY,
-            MemberEnum::TOENJOY,
-            MemberEnum::REALLYENJOY,
-            MemberEnum::YOUENJOY
-        ];
+        $category       = $data['category'] ?? 0;
+        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category','m_img_id'];
+        $where          = ['m_category' => $category,'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
 
-        if (in_array($memberInfo['m_groupname'],$groupMember)){
-            if(!$user_list = MemberRepository::getList($where,$column,'m_time',$asc,$page,$page_num)){
-                $this->setMessage('暂无成员信息！');
-                return [];
-            }
-        }else {
-            if (!$user_list = MemberRepository::getList(['m_category' => $data['category'],'m_starte' => MemberEnum::ACTIVITEMEMBER],$column,'m_time',$asc,$page,$page_num)){
+        if ($category == 0){
+            if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
                 $this->setMessage('暂无成员信息！');
                 return [];
             }
         }
-
+        if (!$user_list = MemberRepository::getList($where, $column, 'm_time', $asc, $page, $page_num)) {
+            $this->setMessage('暂无成员信息！');
+            return [];
+        }
+//        $user_list = $this->
         unset($user_list['first_page_url'], $user_list['from'],
               $user_list['last_page_url'],  $user_list['from'],
               $user_list['next_page_url'],  $user_list['path'],
               $user_list['prev_page_url'],  $user_list['to']);
 
+        $img_ids        = array_column($user_list['data'],'m_img_id');
+        $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
+
         foreach ($user_list['data'] as &$value){
+            $value['head_url']          = '';
+            if ($head_img  = $this->searchArray($img_list,'id',$value['m_img_id'])){
+                $value['head_url']      = reset($head_img)['img_url'];
+            }
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
             $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
@@ -273,10 +266,18 @@ class MemberService extends BaseService
      * @return mixed
      */
     public function getUserInfo(){
-        if ($user = MemberRepository::getUser()){
-            return $user;
+        if (!$user = MemberRepository::getUser()){
+            return false;
         }
-        return false;
+        $img                        = CommonImagesRepository::getOne(['id' => $user['m_img_id']],['img_url']);
+        $user['head_portrait']      = reset($img);
+        $user['group_name']         = empty($user['m_groupname']) ? '' : MemberEnum::getGrade($user['m_groupname']);
+        $user['category_name']      = empty($user['m_category']) ? '' : MemberEnum::getCategory($user['m_category']);
+        $user['starte']             = empty($user['m_starte']) ? '' : MemberEnum::getStatus($user['m_starte']);
+        $user['sex']                = empty($user['m_sex']) ? '' : MemberEnum::getSex($user['m_sex']);
+        unset($user['m_password']);
+
+        return $user;
     }
 
     /**
@@ -624,9 +625,9 @@ class MemberService extends BaseService
     {
         //$password = Hash::make($data['m_password']);
         $upd_repwd = Hash::make($data['m_repwd']);
-        /*if ($resd = MemberRepository::getFields(['m_id' => $data['m_id']])){dd($resd);
+        if ($resd = MemberRepository::getFields(['m_id' => $data['m_id']])){
             return ['code' => 1,'message' => '原始密码不正确！'];
-        }*/
+        }
         if (!$res = MemberRepository::getUpdId(['m_id' => $data['m_id']],['m_password' => $upd_repwd])){
             return ['code' => 0,'message' => '修改失败！'];
         }
