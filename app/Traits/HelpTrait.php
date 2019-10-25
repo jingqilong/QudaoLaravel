@@ -58,6 +58,29 @@ trait HelpTrait
     }
 
     /**
+     * 静态访问数组中查询指定键值的数据
+     * @param $array
+     * @param $filed
+     * @param $value
+     * @return array|bool
+     */
+    public static function searchArrays($array, $filed, $value){
+        if (!in_array($value,array_column($array,$filed))){
+            return false;
+        }
+        $res = [];
+        foreach ($array as $k => $v){
+            if (is_array($v) && $v[$filed] == $value){
+                $res[] = $v;continue;
+            }
+            if ($k == $filed && $v == $value){
+                $res = $array;break;
+            }
+        }
+        return $res;
+    }
+
+    /**
      * 检查数组中是否存在指定键对应值
      * @param $array
      * @param $filed
@@ -202,5 +225,18 @@ trait HelpTrait
                 break;
         }
         return $discount_amount;
+    }
+
+    /**
+     * 使用分页的时候，去除多余的字段
+     * @param $list
+     * @return mixed
+     */
+    public function removePagingField($list){
+        unset($list['first_page_url'], $list['from'],
+            $list['from'], $list['last_page_url'],
+            $list['next_page_url'], $list['path'],
+            $list['prev_page_url'], $list['to']);
+        return $list;
     }
 }

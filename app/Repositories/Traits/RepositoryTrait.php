@@ -270,7 +270,7 @@ trait RepositoryTrait
      * @param null $pageNum
      * @param null $order
      * @param null $desc_asc
-     * @return bool|null
+     * @return mixed
      */
     protected function search(array $keywords, $where = [], $column = ['*'], $page=null, $pageNum=null, $order=null, $desc_asc=null){
         $model = $this->model;

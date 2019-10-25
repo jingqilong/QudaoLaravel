@@ -215,9 +215,9 @@ $api->version('v1',function ($api){
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
-
-
-                #成员权限
+            });
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+                #成员权限（后台）
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
                 $api->post('edit_service','ServiceController@editService')->name('修改服务');
@@ -293,6 +293,18 @@ $api->version('v1',function ($api){
             });
         });
 
+
+        //商城模块
+        $api->group(['prefix' => 'shop', 'namespace' => 'Shop'], function ($api){
+            #OA 商城后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('add_activity_goods','ActivityController@addActivityGoods')->name('添加活动商品');
+                $api->post('edit_activity_goods','ActivityController@editActivityGoods')->name('修改活动商品');
+                $api->get('get_activity_goods_list','ActivityController@getActivityGoodsList')->name('获取活动商品列表');
+
+            });
+        });
+
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
             //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
@@ -307,6 +319,7 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');
+                $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
         });
         //支付模块模块

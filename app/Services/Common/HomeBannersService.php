@@ -2,6 +2,7 @@
 namespace App\Services\Common;
 
 
+use App\Enums\CommonHomeEnum;
 use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
@@ -25,7 +26,8 @@ class HomeBannersService extends BaseService
         }
         foreach ($banners as &$banner){
             $banner['image'] = CommonImagesRepository::getField(['id' => $banner['image_id']],'img_url');
-            unset($banner['image_id'],$banner['type']);
+            $banner['type_name'] = CommonHomeEnum::getBannerType($banner['type']);
+            unset($banner['image_id']);
         }
         return $banners;
     }

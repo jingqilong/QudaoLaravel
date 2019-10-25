@@ -134,7 +134,7 @@ class DetailService extends BaseService
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
         }
         $this->setMessage('获取成功！');
-        return $list;
+        return $list['data'];
     }
 
     /**
@@ -259,10 +259,7 @@ class DetailService extends BaseService
                 return false;
             }
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
