@@ -361,7 +361,8 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_member_category_list",
      *     tags={"会员"},
-     *     summary="根据查找分类获取会员列表",
+     *     description="jing" ,
+     *     summary="根据成员分类查找会员列表",
      *     operationId="get_member_category_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -384,7 +385,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="category",
      *         in="query",
-     *         description="成员类别[1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
+     *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -396,7 +397,7 @@ class MemberController extends ApiController
      *         description="排序方式[1 正序 2 倒叙]",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="Integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -405,7 +406,7 @@ class MemberController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="Integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -414,7 +415,7 @@ class MemberController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="Integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -429,13 +430,11 @@ class MemberController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'category'      => 'integer',
             'asc'           => 'integer',
         ];
         $messages = [
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
-            'category.integer'          => '成员分类不是整数',
             'asc.integer'               => '排序方式不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -451,7 +450,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_user_info",
      *     tags={"会员"},
-     *     summary="获取用户信息",
+     *     summary="获取成员自己的信息",
      *     operationId="get_user_info",
      *     @OA\Parameter(
      *         name="sign",
@@ -485,9 +484,9 @@ class MemberController extends ApiController
     public function getUserInfo()
     {
         if ($user = $this->memberService->getUserInfo()){
-            return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['user' => $user]];
+            return ['code' => 200, 'message' => '成员信息获取成功！', 'data' => ['user' => $user]];
         }
-        return ['code' => 100, 'message' => '用户信息获取失败！'];
+        return ['code' => 100, 'message' => '成员信息获取失败！'];
     }
 
     /**

@@ -78,7 +78,7 @@ class LoanController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/loan/get_loan_info",
-     *     tags={"Loan"},
+     *     tags={"贷款"},
      *     summary="获取贷款订单",
      *     operationId="get_loan_info",
      *     @OA\Parameter(
@@ -149,7 +149,7 @@ class LoanController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/loan/add_loan",
-     *     tags={"Loan"},
+     *     tags={"贷款"},
      *     summary="添加贷款订单信息",
      *     operationId="add_loan",
      *     @OA\Parameter(
@@ -164,7 +164,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="成员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -314,7 +314,7 @@ class LoanController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/loan/upd_loan",
-     *     tags={"Loan"},
+     *     tags={"贷款后台"},
      *     summary="修改贷款订单信息",
      *     operationId="upd_loan",
      *     @OA\Parameter(
@@ -329,7 +329,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="OA token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -489,7 +489,7 @@ class LoanController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/loan/del_loan",
-     *     tags={"Loan"},
+     *     tags={"贷款后台"},
      *     summary="删除贷款订单信息",
      *     operationId="del_loan",
      *     @OA\Parameter(
@@ -504,7 +504,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="oa token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",

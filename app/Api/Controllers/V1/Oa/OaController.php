@@ -219,10 +219,6 @@ class OaController extends ApiController
      * )
      *
      */
-    /**
-     * Get user info.
-     * @return array
-     */
     public function getUserInfo()
     {
         if ($user = $this->employeeService->getUserInfo()){
@@ -231,4 +227,58 @@ class OaController extends ApiController
         return ['code' => 100, 'message' => '用户信息获取失败！'];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/set_grade_view",
+     *     tags={"OA"},
+     *     summary="设置会员等级可查看等级",
+     *     description="jing" ,
+     *     operationId="set_grade_view",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型[1会员等级查看 2指定查看]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="value",
+     *         in="query",
+     *         description="可查看的等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function setGradeView()
+    {
+
+    }
 }

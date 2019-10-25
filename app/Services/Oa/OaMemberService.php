@@ -24,9 +24,10 @@ class OaMemberService extends BaseService
 
     /**
      * 获取成员列表
-     * @return array|bool|null
+     * @param array $data
+     * @return mixed
      */
-    public function getMemberList()
+    public function getMemberList(array $data)
     {
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
