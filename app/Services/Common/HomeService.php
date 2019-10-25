@@ -26,13 +26,12 @@ class HomeService extends BaseService
      */
     public function getHome()
     {
-        $detailsService = new DetailService();
         #获取banner图
         $res['banners']     = HomeBannersService::getHomeBanners();
         #获取积分展示图
         $res['score']       = ActivityService::getHomeShow();
         #获取推荐精选活动
-        $res['activities']  = $detailsService->getHomeList(['page_num' => 4,'is_recommend' => 1]);
+        $res['activities']  = app(DetailService::class)->getHomeList(['page_num' => 4,'is_recommend' => 1]);
         #获取成员风采
         $res['members']     = MemberService::getHomeShowMemberList(8);
         #获取好物推荐
