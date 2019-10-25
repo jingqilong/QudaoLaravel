@@ -2,16 +2,16 @@
 namespace App\Services\Activity;
 
 
-use App\Enums\ActivityCommentEnum;
-use App\Repositories\ActivityCollectRepository;
-use App\Repositories\ActivityCommentsRepository;
-use App\Repositories\ActivityDetailRepository;
-use App\Repositories\ActivityGuestRepository;
-use App\Repositories\ActivityHostsRepository;
-use App\Repositories\ActivityLinksRepository;
-use App\Repositories\ActivityRegisterRepository;
-use App\Repositories\ActivityThemeRepository;
-use App\Repositories\CommonImagesRepository;
+use App\Repositories\{
+    ActivityCollectRepository,
+    ActivityDetailRepository,
+    ActivityGuestRepository,
+    ActivityHostsRepository,
+    ActivityLinksRepository,
+    ActivityRegisterRepository,
+    ActivityThemeRepository,
+    CommonImagesRepository
+};
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;

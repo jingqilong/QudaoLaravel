@@ -225,7 +225,6 @@ class QiNiuService extends BaseService
             'filesystems.disks.qiniu.domains' => $config['domains']
         ]);
         $disk = QiniuStorage::disk('qiniu');
-        $model = $this->getModel('my_images');
         $result = [];
         $count = 0;
         foreach ($files as $info){
@@ -242,9 +241,9 @@ class QiNiuService extends BaseService
                 continue;
             }
             $url = (string)$disk->downloadUrl($file_name);
-            if (!$id = $model->insertGetId([
+            if (!$id = CommonImagesRepository::getAddId([
                 'type' => ImageTypeEnum::getConst(QiNiuEnum::$module[$storage_space]),
-                'img_url' => $url,
+                'img_url' => $url.'',
                 'create_at' => time()
             ])){
                 Loggy::write('error','图片添加失败，图片名称：'.$name.'  七牛云地址：'.$url.' 类型：'.QiNiuEnum::$module[$storage_space]);

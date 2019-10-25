@@ -5,7 +5,10 @@ namespace App\Api\Controllers\V1;
 use App\Api\Controllers\ApiController;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Services\Common\EventProcessorService;
+use EasyWeChat\Factory;
+use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use Illuminate\Support\Facades\Schema;
+use Ixudra\Curl\Facades\Curl;
 
 class TestApiController extends ApiController
 {
@@ -116,10 +119,17 @@ class TestApiController extends ApiController
      *
      */
     public function index(){
-        try{
-            return EventProcessorService::eventReceiver('send_sms','18394377667','测试短信');
-        } catch (EventDoesNotExistsException $e) {
-            return $e->getMessage();
+//        try{
+//            return EventProcessorService::eventReceiver('send_sms','18394377667','测试短信');
+//        } catch (EventDoesNotExistsException $e) {
+//            return $e->getMessage();
+//        }
+        $config = config('wechat.official_account.default');
+        $app = Factory::officialAccount($config);
+        try {
+            return $app->customer_service->list();
+        } catch (InvalidConfigException $e) {
+            return '无效的配置异常';
         }
     }
 
