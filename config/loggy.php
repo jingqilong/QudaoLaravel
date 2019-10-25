@@ -27,5 +27,10 @@ return [
             'daily' => true,
             'level' => 'debug'
         ],
+        'umspay' => [
+            'log' => 'umspay.log',
+            'daily' => true,
+            'level' => 'debug'
+        ],
     ]
 ];

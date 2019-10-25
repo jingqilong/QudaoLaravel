@@ -99,16 +99,40 @@ class RegisterService extends BaseService
      */
     public function getRegisterList($request)
     {
+        $keywords       = $request['keywords'] ?? '';
+        $status         = $request['status'] ?? '';
+        $status_arr     = $request['status_arr'] ?? '';
+        $activity_id    = $request['activity_id'] ?? '';
+        $is_sign        = $request['is_sign'] ?? '';
         $page           = $request['page'] ?? 1;
         $page_num       = $request['page_num'] ?? 20;
-        if (!$list = ActivityRegisterRepository::getList(['id' =>['>',0]],['*'],'id','desc',$page,$page_num)){
+        $where          = ['id' => ['>',0]];
+        if (!empty($status)){
+            $where['status'] = $status;
+        }
+        if (!empty($status_arr)){
+            $where['status'] = ['in',$status_arr];
+        }
+        if (!empty($activity_id)){
+            $where['activity_id'] = $activity_id;
+        }
+        if (!empty($is_sign)){
+            if ($is_sign == 1){
+                $where['is_register'] = ['>',0];
+            }else{
+                $where['is_register'] = 0;
+            }
+        }
+        if (!empty($keywords)){
+            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,'id','desc',$page,$page_num);
+        }else{
+            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc',$page,$page_num);
+        }
+        if (!$list){
             $this->setError('获取失败！');
             return false;
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;

@@ -815,6 +815,15 @@ class ServiceController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="member_id",
+     *         in="query",
+     *         description="成员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="view_user_id",
      *         in="query",
      *         description="可查看成员ID【优先】",
@@ -851,10 +860,13 @@ class ServiceController extends ApiController
     public function addViewMember()
     {
         $rules = [
+            'member_id'         => 'required|integer',
             'view_user_id'      => 'integer',
         ];
         $messages = [
-            'view_user_id.integer'     => '可查看成员ID必须为整数',
+            'member_id.required'        => '成员ID不能为空',
+            'member_id.integer'         => '成员ID必须为整数',
+            'view_user_id.integer'      => '可查看成员ID必须为整数',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
@@ -868,7 +880,7 @@ class ServiceController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }
-        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->gradeServiceService->message];
     }
 
 

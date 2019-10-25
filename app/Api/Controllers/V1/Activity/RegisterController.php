@@ -5,6 +5,7 @@ namespace App\Api\Controllers\V1\Activity;
 
 
 use App\Api\Controllers\ApiController;
+use App\Enums\ActivityRegisterEnum;
 use App\Services\Activity\RegisterService;
 
 class RegisterController extends ApiController
@@ -48,6 +49,24 @@ class RegisterController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索内容【报名名称、报名手机号、签到码】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="报名状态：1、待审核，2、待支付，3、待评价，4、已完成，5、未通过，6、已取消",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -74,10 +93,12 @@ class RegisterController extends ApiController
      */
     public function getRegisterList(){
         $rules = [
+            'status'        => 'in:1,2,3,4,5,6',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'status.in'             => '报名状态不存在',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
@@ -86,6 +107,107 @@ class RegisterController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->registerService->getRegisterList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_sign_list",
+     *     tags={"精选活动后台"},
+     *     summary="获取活动签到列表",
+     *     description="sang" ,
+     *     operationId="get_sign_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索内容【报名名称、报名手机号、签到码】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_sign",
+     *         in="query",
+     *         description="是否签到，1已签到，2未签到",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getSignList(){
+        $rules = [
+            'activity_id'   => 'integer',
+            'is_sign'       => 'in:1,2',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'activity_id.integer'   => '活动ID必须为整数',
+            'is_sign.in'            => '是否签到取值有误',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getRegisterList(array_merge($this->request,['status_arr' => [ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]));
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
