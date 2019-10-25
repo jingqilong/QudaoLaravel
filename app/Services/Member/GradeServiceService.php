@@ -3,6 +3,7 @@ namespace App\Services\Member;
 
 
 use App\Repositories\MemberGradeServiceRepository;
+use App\Repositories\MemberRepository;
 use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
@@ -132,6 +133,12 @@ class GradeServiceService extends BaseService
      * @return bool|null
      */
     public function addViewMember($request){
+        if ($request['member_id'] != 0){
+            if (!MemberRepository::exists(['m_id' => $request['member_id']])){
+                $this->setError('成员不存在！');
+                return false;
+            }
+        }
         if (isset($request['view_user_id'])){
             $where = ['m_id' => $request['view_user_id']];
         }else{
@@ -156,19 +163,18 @@ class GradeServiceService extends BaseService
             }
             $where = [$user_iden => $view_user];
         }
-        $user = $this->auth->user();
         if (!$view_user_id = OaMemberRepository::getField($where,'m_id')){
             $this->setError('可查看成员不存在！');
             return false;
         }
         if (MemberSpecifyViewRepository::exists([
-            'user_id'       => $user->m_id,
+            'user_id'       => $request['member_id'],
             'view_user_id'  => $view_user_id,])){
             $this->setError('可查看成员已存在，请勿重复添加！');
             return false;
         }
         if (!$id = MemberSpecifyViewRepository::getAddId([
-            'user_id'       => $user->m_id,
+            'user_id'       => $request['member_id'],
             'view_user_id'  => $view_user_id,
             'created_at'    => time()
         ])){
@@ -176,7 +182,7 @@ class GradeServiceService extends BaseService
             return false;
         }
         $this->setMessage('添加成功！');
-        return $id;
+        return true;
     }
 
     /**
