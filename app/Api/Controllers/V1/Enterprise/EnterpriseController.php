@@ -21,8 +21,8 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_list",
-     *     tags={"Enterprise企业咨询(前端页面)"},
-     *     summary="获取企业咨询订单列表(小程序使用)",
+     *     tags={"企业咨询(前端页面)"},
+     *     summary="获取本人企业咨询订单列表(前端)",
      *     operationId="get_enterprise_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -36,7 +36,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="成员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -98,7 +98,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_info",
-     *     tags={"Enterprise企业咨询(前端页面)"},
+     *     tags={"企业咨询(前端页面)"},
      *     summary="获取企业咨询订单",
      *     operationId="get_enterprise_info",
      *     @OA\Parameter(
@@ -159,7 +159,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/enterprise/add_enterprise",
-     *     tags={"Enterprise企业咨询(前端页面)"},
+     *     tags={"企业咨询(前端页面)"},
      *     summary="添加企业咨询订单信息",
      *     operationId="add_enterprise",
      *     @OA\Parameter(
@@ -274,7 +274,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/enterprise/upd_enterprise",
-     *     tags={"Enterprise企业咨询(前端页面)"},
+     *     tags={"企业咨询(前端页面)"},
      *     summary="修改企业咨询订单信息",
      *     operationId="upd_enterprise",
      *     @OA\Parameter(
@@ -401,7 +401,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/enterprise/del_enterprise",
-     *     tags={"Enterprise企业咨询(前端页面)"},
+     *     tags={"企业咨询(前端页面)"},
      *     summary="删除企业咨询订单信息",
      *     operationId="del_enterprise",
      *     @OA\Parameter(

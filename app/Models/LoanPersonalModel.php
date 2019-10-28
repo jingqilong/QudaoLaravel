@@ -27,7 +27,7 @@ class LoanPersonalModel extends Model
     protected $primaryKey = 'id';
     
     
-    protected $fillable = ['id','name','mobile','price','ent_name','ent_title','address','cardid','reference_name','status','remark','created_at','updated_at','reservation_at'];
+    protected $fillable = ['id','name','mobile','price','ent_name','ent_title','address','status','remark','created_at','updated_at','reservation_at'];
 
     
 

@@ -22,49 +22,6 @@ class DepartController extends ApiController
     }
 
     /**
-     * @OA\Get(
-     *     path="/api/v1/oa/get_depart",
-     *     tags={"OA部门"},
-     *     summary="查找获取部门",
-     *     operationId="get_depart",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *      ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="用户TOKEN",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=100,
-     *         description="获取部门失败",
-     *     ),
-     * )
-     *
-     */
-    /**
-     * @return array
-     */
-    public function getDepart()
-    {
-        $depart = $this->departmentService->getDepart();
-        if ($depart['code'] !== 0){
-            return ['code' => 200, 'data' => $depart];
-        }
-        return ['code' => 100, 'message' => $depart['message']];
-    }
-
-    /**
      * @OA\Post(
      *     path="/api/v1/oa/add_depart",
      *     tags={"OA部门"},
@@ -167,7 +124,7 @@ class DepartController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="数据库部门id号(前端传值)",
+     *         description="部门记录id号",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -179,7 +136,7 @@ class DepartController extends ApiController
      *         description="部门名称（修改名称）",
      *         required=true,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -188,7 +145,7 @@ class DepartController extends ApiController
      *         description="上级部门id",
      *         required=true,
      *         @OA\Schema(
-     *             type="int",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -254,7 +211,7 @@ class DepartController extends ApiController
      *         description="数据库部门id号(前端传值)",
      *         required=true,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -317,7 +274,7 @@ class DepartController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -326,7 +283,7 @@ class DepartController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(

@@ -31,12 +31,16 @@ class PersonalService extends BaseService
     public function getLoanList(array $data)
     {
         $memberInfo = $this->auth->user();
-        if (!$list = LoanPersonalRepository::getList(['user_id' => $memberInfo['m_id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        $type       = $data['type'];
+        $where      = ['user_id' => $memberInfo['m_id'],'type' => $type,'status' => ['in',[LoanEnum::SUBMITTED,LoanEnum::INREVIEW,LoanEnum::PASS,LoanEnum::FAILURE]]];
+        if (!$list  = LoanPersonalRepository::getList($where)){
             $this->setMessage('没有数据！');
             return [];
         }
         foreach ($list as &$value)
         {
+            $value['status_name']       =   empty($value['status']) ? '' : LoanEnum::getStatus($value['status']);
+            $value['type_name']         =   empty($value['type']) ? '' : LoanEnum::getType($value['type']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
@@ -78,15 +82,22 @@ class PersonalService extends BaseService
 
     /**
      * 获取贷款订单信息
-     * @param array $data
+     * @param string $id
      * @return mixed
      */
-    public function getLoanInfo(array $data)
+    public function getLoanInfo(string $id)
     {
-        if (!$list = LoanPersonalRepository::getOne(['id' => $data['id'],'type' => $data['type'],'status' => ['in',[1,2,3,4]]])){
+        $status      = ['in',[LoanEnum::SUBMITTED,LoanEnum::INREVIEW,LoanEnum::PASS,LoanEnum::FAILURE]];
+        if (!LoanPersonalRepository::exists(['id' => $id])){
             $this->setError('没有查到数据！');
             return false;
         }
+        if (!$list = LoanPersonalRepository::getOne(['id' => $id,'status' => $status])){
+            $this->setError('没有查到数据！');
+            return false;
+        }
+        $list['type_name']         =   empty($list['type']) ? '' : LoanEnum::getType($list['type']);
+        $list['status_name']       =   empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
         $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
         $list['created_at']        =   date('Y-m-d H:m:s',$list['created_at']);
         $list['updated_at']        =   date('Y-m-d H:m:s',$list['updated_at']);
@@ -108,7 +119,7 @@ class PersonalService extends BaseService
         $data['user_id']        = $memberInfo['m_id'];
         $data['created_at']     = time();
         $data['reservation_at'] = strtotime($data['reservation_at']);
-        $data['status']         = '1';
+        $data['status']         = LoanEnum::ONESELF;
 
         if (!$res = LoanPersonalRepository::getAddId($data)){
             $this->setError('预约失败,请重试！');
@@ -129,7 +140,7 @@ class PersonalService extends BaseService
         unset($data['sign'], $data['token'], $data['id']);
         $data['updated_at']     = time();
         $data['reservation_at'] = strtotime($data['reservation_at']);
-        $data['status']         = '1';  // 修改数据后  状态值从新开始
+        $data['status']         = LoanEnum::SUBMITTED;  // 修改数据后  状态值从新开始
 
         if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],$data)){
             $this->setError('修改失败,请重试！');
@@ -150,7 +161,7 @@ class PersonalService extends BaseService
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],['status' => LoanEnum::DELETE])){
             $this->setError('删除失败！');
             return false;
         }

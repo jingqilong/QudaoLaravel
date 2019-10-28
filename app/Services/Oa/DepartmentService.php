@@ -10,20 +10,6 @@ class DepartmentService extends BaseService
 {
 
     /**
-     * @return array|null
-     * @return array
-     * @desc 获取部门
-     */
-    public function getDepart()
-    {
-        if (!$depart = OaDepartmentRepository::getAll()){
-            return ['code' => 0, 'message' => '没有部门存在，请添加部门！'];
-        }
-        return $depart;
-    }
-
-
-    /**
      * @param array $data
      * @return mixed
      * @desc 添加新部门
@@ -93,11 +79,22 @@ class DepartmentService extends BaseService
     public function updateDepart(array $data)
     {
         if (!$departInfo = OaDepartmentRepository::getOne(['id' => $data['id']])){
-            $this->setError('未查到该部门信息！请重试');
+            $this->setError('未查到该部门信息！');
             return false;
         }
-        $data['updated_at'] = time();
-        if (!$id = OaDepartmentRepository::getUpdId(['id' => $data['id']],['name' => $data['name'],'updated_at' => $data['updated_at']])){
+        if (!$parentInfo = OaDepartmentRepository::getOne(['id' => $data['parent_id']])){
+            $this->setError('父级部门不存在！');
+            return false;
+        }
+
+        $upd_arr = [
+            'name'        => $data['name'],
+            'path'        => $parentInfo['path'].$data['id'].',',
+            'level'       => $parentInfo['level'] + 1,
+            'parent_id'   => $data['parent_id'],
+            'updated_at'  => time(),
+        ];
+        if (!$id = OaDepartmentRepository::getUpdId(['id' => $data['id']],$upd_arr)){
             $this->setError('修改部门信息失败！');
             return false;
         }

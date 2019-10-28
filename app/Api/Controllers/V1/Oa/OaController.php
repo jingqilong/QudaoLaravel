@@ -67,11 +67,6 @@ class OaController extends ApiController
      * )
      *
      */
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return array|JsonResponse|string
-     */
     public function login()
     {
         $rules = [

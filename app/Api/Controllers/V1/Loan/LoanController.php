@@ -158,7 +158,7 @@ class LoanController extends ApiController
      * @OA\Get(
      *     path="/api/v1/loan/get_loan_info",
      *     tags={"贷款"},
-     *     summary="获取贷款订单",
+     *     summary="根据ID获取贷款订单信息",
      *     operationId="get_loan_info",
      *     @OA\Parameter(
      *          name="sign",
@@ -172,7 +172,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="成员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -187,29 +187,18 @@ class LoanController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="type",
-     *         in="query",
-     *         description="操作类型(1本人预约;2推荐预约)",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(response=100,description="获取贷款订单列表",),
+     *     @OA\Response(response=100,description="根据ID获取贷款订单信息",),
      * )
      *
      */
     public function getLoanInfo()
     {
         $rules = [
-            'id'                => 'required',
-            'type'              => 'required|between:1,2',
+            'id'                => 'required|integer',
         ];
         $messages = [
-            'id.required'               => '请输入预约姓名',
-            'type.required'             => '请输入操作类型',
-            'type.between'              => '操作类型不正确',
+            'id.required'       => '请输入订单ID',
+            'id.integer'        => '订单ID必须为整数',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -217,7 +206,7 @@ class LoanController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->personalService->getLoanInfo($this->request);
+        $list = $this->personalService->getLoanInfo($this->request['id']);
         if (!$list){
             return ['code' => 100, 'message' => $this->personalService->error];
         }
@@ -319,7 +308,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="name",
      *          in="query",
-     *          description="姓名或被推荐人姓名",
+     *          description="姓名",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -328,7 +317,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="mobile",
      *          in="query",
-     *          description="手机号或被推荐人手机号",
+     *          description="手机号",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -337,7 +326,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="ent_name",
      *          in="query",
-     *          description="推荐人企业名称或被推荐人推荐人企业名称",
+     *          description="企业名称",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -346,7 +335,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="ent_title",
      *          in="query",
-     *          description="推荐人职位或被推荐人职位",
+     *          description="职位",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -365,24 +354,6 @@ class LoanController extends ApiController
      *          name="address",
      *          in="query",
      *          description="面谈地址",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="reference_name",
-     *          in="query",
-     *          description="推荐人姓名",
-     *          required=false,
-     *          @OA\Schema(
-     *              type="string",
-     *          )
-     *      ),
-     *     @OA\Parameter(
-     *          name="cardid",
-     *          in="query",
-     *          description="推荐人卡号",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -419,7 +390,6 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
-            'cardid'            => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -431,7 +401,6 @@ class LoanController extends ApiController
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
-            'cardid.required'           => '获取预约人的卡号',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
