@@ -251,6 +251,13 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
             });
+            #房产租赁后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('add_facility', 'FacilityController@addFacility')->name('添加房产设施');
+                $api->delete('delete_facility', 'FacilityController@deleteFacility')->name('删除房产设施');
+                $api->post('edit_facility', 'FacilityController@editFacility')->name('修改房产设施');
+                $api->get('facility_list', 'FacilityController@facilityList')->name('获取房产设施列表');
+            });
         });
 
         //贷款模块
@@ -323,6 +330,7 @@ $api->version('v1',function ($api){
             $api->post('send_captcha', 'CommonController@sendCaptcha')->name('发送短信验证码');
             $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
+            $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');

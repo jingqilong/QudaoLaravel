@@ -107,7 +107,7 @@ class ImagesController extends ApiController
             'page_num'      => 'integer',
         ];
         $messages = [
-            'order.integer'         => '排序取值有误',
+            'order.in'              => '排序取值有误',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
