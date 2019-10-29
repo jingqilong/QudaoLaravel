@@ -4,10 +4,12 @@ namespace App\Services\Oa;
 
 use App\Repositories\OaDepartmentRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * @param array $data
@@ -64,18 +66,6 @@ class DepartmentService extends BaseService
      * @return mixed
      * @desc 修改部门
      */
-    /*public function updateDepart(array $data)
-    {
-        if ($depart = OaDepartmentRepository::getOne(['parent_id' => $data['parent_id'],'path' => $data['path'],'level' => $data['level']]))
-        {
-            if (!$res = OaDepartmentRepository::updateDepartment($data)){
-                return ['code' => 0, 'message' => '修改失败'];
-            }
-            return ['code' => 1, 'message' => '修改成功'];
-        }
-        return ['code' => 0, 'message' => '查询不到该部门'];
-
-    }*/
     public function updateDepart(array $data)
     {
         if (!$departInfo = OaDepartmentRepository::getOne(['id' => $data['id']])){
@@ -130,10 +120,8 @@ class DepartmentService extends BaseService
                 return false;
         }
 
-        unset($depart_list['first_page_url'], $depart_list['from'],
-            $depart_list['from'], $depart_list['last_page_url'],
-            $depart_list['next_page_url'], $depart_list['path'],
-            $depart_list['prev_page_url'], $depart_list['to']);
+        $this->removePagingField($depart_list);
+
         if (empty($depart_list['data'])){
             $this->setMessage('暂无数据!');
             return $depart_list;

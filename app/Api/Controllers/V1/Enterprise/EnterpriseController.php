@@ -57,7 +57,7 @@ class EnterpriseController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -66,7 +66,7 @@ class EnterpriseController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取企业咨询订单列表失败",),
@@ -90,6 +90,83 @@ class EnterpriseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $list = $this->enterpriseService->getEnterpriseList($this->request);
+
+        return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $list];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/enterprise/get_enterprise_order_list",
+     *     tags={"企业咨询(后端页面)"},
+     *     summary="获取本人企业咨询订单列表(后端)",
+     *     operationId="get_enterprise_order_list",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索内容【项目名称，服务类型】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取企业咨询订单列表失败",),
+     * )
+     *
+     */
+    public function getEnterpriseOrderList()
+    {
+        $rules = [
+            'keywords'          => 'string',
+            'page'              => 'integer',
+            'page_num'          => 'integer',
+        ];
+        $messages = [
+            'keywords.string'           => '请正确输入搜索条件',
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->enterpriseService->getEnterpriseOrderList($this->request);
 
         return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $list];
     }
@@ -273,10 +350,10 @@ class EnterpriseController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/enterprise/upd_enterprise",
-     *     tags={"企业咨询(前端页面)"},
+     *     path="/api/v1/enterprise/upd_order_enterprise",
+     *     tags={"企业咨询(后端页面)"},
      *     summary="修改企业咨询订单信息",
-     *     operationId="upd_enterprise",
+     *     operationId="upd_order_enterprise",
      *     @OA\Parameter(
      *          name="sign",
      *          in="query",
@@ -289,7 +366,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="oa token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -334,7 +411,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *          name="service_type",
      *          in="query",
-     *          description="服务类型",
+     *          description="服务类型 1企业咨询 2餐饮咨询 3公司咨询 4商业咨询",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -362,7 +439,7 @@ class EnterpriseController extends ApiController
      * )
      *
      */
-    public function updEnterprise()
+    public function updOrderEnterprise()
     {
         $rules = [
             'id'                => 'required',
@@ -388,7 +465,7 @@ class EnterpriseController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->enterpriseService->updEnterprise($this->request);
+        $res = $this->enterpriseService->updOrderEnterprise($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->enterpriseService->error];
         }
