@@ -17,7 +17,7 @@ class AdminOperationLogService extends BaseService
      */
     public function getOperationLog($page, $pageNum)
     {
-        if (!$list = OaAdminOperationLogRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$list = OaAdminOperationLogRepository::getList(['id' => ['>',0]],['*'],'id','desc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
         }

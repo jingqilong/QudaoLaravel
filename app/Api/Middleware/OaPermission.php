@@ -69,7 +69,7 @@ class OaPermission extends BaseMiddleware
             'method'    => $request->method(),
             'ip'        => $request->getClientIp(),
             'input'     => json_encode($input),
-            'created_at'=> date('Y-m-d H:m:s')
+            'created_at'=> date('Y-m-d H:m:s',time())
         ];
         OaAdminOperationLogRepository::getAddId($add_log);
     }

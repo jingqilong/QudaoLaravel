@@ -48,7 +48,7 @@ class FacilitiesService extends BaseService
             $this->setError('设施已删除！');
             return false;
         }
-        if (HouseDetailsRepository::exists(['facilities_ids' => ['like','%'.$id.'%']])){
+        if (HouseDetailsRepository::exists(['facilities_ids' => ['like','%'.$id.',%']])){
             $this->setError('该设施正在使用，无法删除！');
             return false;
         }
@@ -113,7 +113,7 @@ class FacilitiesService extends BaseService
         foreach ($list['data'] as &$value){
             $value['icon'] = '';
             if ($icon = $this->searchArray($icon_list,'id',$value['icon_id'])){
-                $value['icon'] = $icon['img_url'];
+                $value['icon'] = reset($icon)['img_url'];
             }
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);

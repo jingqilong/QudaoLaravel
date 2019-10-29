@@ -250,13 +250,34 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'house', 'namespace' => 'House'], function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
+                $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
+                $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
             });
             #房产租赁后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                #房产设施
                 $api->post('add_facility', 'FacilityController@addFacility')->name('添加房产设施');
                 $api->delete('delete_facility', 'FacilityController@deleteFacility')->name('删除房产设施');
                 $api->post('edit_facility', 'FacilityController@editFacility')->name('修改房产设施');
                 $api->get('facility_list', 'FacilityController@facilityList')->name('获取房产设施列表');
+
+                #房产朝向
+                $api->post('add_toward', 'TowardController@addToward')->name('添加房产朝向');
+                $api->delete('delete_toward', 'TowardController@deleteToward')->name('删除房产朝向');
+                $api->post('edit_toward', 'TowardController@editToward')->name('修改房产朝向');
+                $api->get('toward_list', 'TowardController@towardList')->name('获取房产朝向列表');
+
+                #房产户型
+                $api->post('add_unit', 'UnitController@addUnit')->name('添加房产户型');
+                $api->delete('delete_unit', 'UnitController@deleteUnit')->name('删除房产户型');
+                $api->post('edit_unit', 'UnitController@editUnit')->name('修改房产户型');
+                $api->get('unit_list', 'UnitController@unitList')->name('获取房产户型列表');
+
+                #房产租赁方式
+                $api->post('add_lease', 'LeaseController@addLease')->name('添加房产租赁方式');
+                $api->delete('delete_lease', 'LeaseController@deleteLease')->name('删除房产租赁方式');
+                $api->post('edit_lease', 'LeaseController@editLease')->name('修改房产租赁方式');
+                $api->get('lease_list', 'LeaseController@leaseList')->name('获取房产租赁方式列表');
             });
         });
 
