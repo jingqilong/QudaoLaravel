@@ -297,9 +297,23 @@ class DetailsService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
+            #处理地址
+            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
+            $value['area_address']  = $area_address;
+            $value['lng']           = $lng;
+            $value['lat']           = $lat;
+            #处理价格
+            $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+
+            $value['decoration_title'] = HouseEnum::getDecoration($value['decoration']);
+            $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]]);
+            $value['images']        = array_column($image_list,'img_url');
+            $value['category_title']      = HouseEnum::getCategory($value['category']);
+            $value['publisher_title']     = HouseEnum::getPublisher($value['publisher']);
+            $value['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$value['facilities_ids']),['id','title','icon_id']);
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
-            $value['deleted_at'] = date('Y-m-d H:i:s',$value['deleted_at']);
+            $value['deleted_at'] = $value['deleted_at'] ==0 ? '':date('Y-m-d H:i:s',$value['deleted_at']);
         }
         $this->setMessage('获取成功！');
         return $list;
