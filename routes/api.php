@@ -246,6 +246,30 @@ $api->version('v1',function ($api){
 
         });
 
+        //医疗模块
+        $api->group(['prefix' => 'medical', 'namespace' => 'Medical'], function ($api) {
+            $api->group(['middleware' => 'member.jwt.auth'], function ($api) {
+                $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
+                $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
+                $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
+            });
+            #添加医院
+            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+                $api->post('add_hospitals', 'HospitalsController@addHospitals')->name('添加医疗医院');
+                $api->delete('delete_hospitals', 'HospitalsController@deleteHospitals')->name('删除医疗医院');
+                $api->post('edit_hospitals', 'HospitalsController@editHospitals')->name('修改医疗医院');
+                $api->get('hospitals_list', 'HospitalsController@hospitalsList')->name('获取医疗医院列表');
+            });
+            #添加科室
+            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+                $api->post('add_departments', 'DepartmentsController@addDepartments')->name('添加医疗科室');
+                $api->delete('delete_departments', 'DepartmentsController@deleteDepartments')->name('删除医疗科室');
+                $api->post('edit_departments', 'DepartmentsController@editDepartments')->name('修改医疗科室');
+                $api->get('departments_list', 'DepartmentsController@departmentsList')->name('获取医疗科室列表');
+            });
+        });
+
+
         //房产模块
         $api->group(['prefix' => 'house', 'namespace' => 'House'], function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
