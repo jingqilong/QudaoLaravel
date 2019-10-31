@@ -252,7 +252,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'], function ($api) {
                 $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
-                $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
+                $api->get('doctors_list', 'DoctorsController@doctorsList')->name('获取医生列表');
             });
             #添加医院
             $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
@@ -260,6 +260,13 @@ $api->version('v1',function ($api){
                 $api->delete('delete_hospitals', 'HospitalsController@deleteHospitals')->name('删除医疗医院');
                 $api->post('edit_hospitals', 'HospitalsController@editHospitals')->name('修改医疗医院');
                 $api->get('hospitals_list', 'HospitalsController@hospitalsList')->name('获取医疗医院列表');
+            });
+            #添加医生
+            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+                $api->post('add_doctors', 'DoctorsController@addDoctors')->name('添加医生');
+                $api->delete('delete_doctors', 'DoctorsController@deleteDoctors')->name('删除医生');
+                $api->post('edit_doctors', 'DoctorsController@editDoctors')->name('修改医生信息');
+                $api->get('doctors_list_page', 'DoctorsController@doctorsListPage')->name('获取医生列表');
             });
             #添加科室
             $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
