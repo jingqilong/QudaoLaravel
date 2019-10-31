@@ -22,11 +22,13 @@ class HouseFacilitiesRepository extends ApiRepository
     }
 
     /**
+     * 获取设施列表
      * @param array $ids
+     * @param array $column
      * @return array|null
      */
-    protected function getFacilitiesList(array $ids){
-        if (!$list = $this->getList(['id' => ['in',$ids]],['title','icon_id'])){
+    protected function getFacilitiesList(array $ids,$column = ['title','icon_id']){
+        if (!$list = $this->getList(['id' => ['in',$ids]],$column)){
             return [];
         }
         $icon_ids = array_column($list,'icon_id');

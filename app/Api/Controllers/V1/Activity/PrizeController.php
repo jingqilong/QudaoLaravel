@@ -455,4 +455,85 @@ class PrizeController extends ApiController
         }
         return ['code' => 200, 'message' => $this->activityPrizeService->message, 'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_winning_list",
+     *     tags={"精选活动后台"},
+     *     summary="获取中奖列表",
+     *     description="sang" ,
+     *     operationId="get_winning_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getWinningList(){
+        $rules = [
+            'activity_id'   => 'integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'activity_id.integer'       => '活动ID必须为整数',
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityPrizeService->getWinningList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityPrizeService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityPrizeService->message, 'data' => $res];
+    }
 }

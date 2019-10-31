@@ -88,7 +88,7 @@ class WeChatService extends BaseService
             'data' => [
                 'token' => '',
                 'wx_user_info'  => $user_arr,
-                'sysy_user_info'=> []
+                'sys_user_info'=> []
             ]
         ];
     }
