@@ -22,6 +22,7 @@ class HouseFacilitiesRepository extends ApiRepository
     }
 
     /**
+     * 获取设施列表
      * @param array $ids
      * @return array|null
      */

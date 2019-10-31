@@ -173,6 +173,7 @@ $api->version('v1',function ($api){
                 $api->delete('activity_delete_prize','PrizeController@activityDeletePrize')->name('删除活动奖品');
                 $api->post('activity_edit_prize','PrizeController@activityEditPrize')->name('修改奖品信息');
                 $api->get('get_prize_list','PrizeController@getPrizeList')->name('获取活动奖品列表');
+                $api->get('get_winning_list','PrizeController@getWinningList')->name('获取中奖列表');
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
                 $api->get('get_sign_list','RegisterController@getSignList')->name('获取活动签到列表');
@@ -249,12 +250,16 @@ $api->version('v1',function ($api){
         //房产模块
         $api->group(['prefix' => 'house', 'namespace' => 'House'], function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
-                $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
             });
             #房产租赁后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                #房产详情
+                $api->post('add_house', 'OaHouseController@addHouse')->name('添加房源');
+                $api->delete('delete_house', 'OaHouseController@deleteHouse')->name('删除房源');
+                $api->post('edit_house', 'OaHouseController@editHouse')->name('修改房源');
+                $api->get('house_list', 'OaHouseController@houseList')->name('获取房产列表');
                 #房产设施
                 $api->post('add_facility', 'FacilityController@addFacility')->name('添加房产设施');
                 $api->delete('delete_facility', 'FacilityController@deleteFacility')->name('删除房产设施');

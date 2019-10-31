@@ -8,6 +8,7 @@ use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -144,10 +145,7 @@ class PrizeService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -239,6 +237,58 @@ class PrizeService extends BaseService
         //TODO 此处添加抽奖成功后的事务
         $this->setMessage('恭喜你中奖啦！');
         return '恭喜您抽中了'.$winning['title'].',奖品将在活动现场发放给您！';
+    }
+
+    /**
+     * 获取中奖纪录
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getWinningList($request)
+    {
+        $page       = $request['page'] ?? 1 ;
+        $page_num   = $request['page_num'] ?? 20;
+        $activity_id= $request['activity_id'] ?? 0;
+        $where      = ['id' => ['>',0]];
+        if (!empty($activity_id)){
+            if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
+                $this->setError('活动不存在！');
+                return false;
+            }
+            $where = ['activity_id' => $activity_id];
+        }
+        if (!$list = ActivityWinningRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $member_ids = array_column($list['data'],'member_id');
+        $members = MemberRepository::getList(['m_id' => ['in',$member_ids]],['m_id','m_cname']);
+        $activity_ids = array_column($list['data'],'activity_id');
+        $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
+        $prize_ids = array_column($list['data'],'prize_id');
+        $prizes = ActivityPrizeRepository::getList(['id' => ['in',$prize_ids]],['id','name','title','image_ids']);
+        foreach ($list['data'] as &$value){
+            $activity = $this->searchArray($activities,'id',$value['activity_id']);
+            $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';
+
+            $member = $this->searchArray($members,'m_id',$value['member_id']);
+            $value['member_name'] = $member ? reset($member)['m_cname'] : '未知';
+
+            $prize = $this->searchArray($prizes,'id',$value['prize_id']);
+            $value['prize_name'] = $prize ? reset($prize)['name'] : '未知';
+            $value['prize_title'] = $prize ? reset($prize)['title'] : '未知';
+
+            $value['is_get']        = $value['is_get'] == 1?'已领取':'未领取';
+            $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
+            unset($value['member_id'],$value['activity_id'],$value['prize_id']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

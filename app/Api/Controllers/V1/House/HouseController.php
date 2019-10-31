@@ -61,7 +61,7 @@ class HouseController extends ApiController
      *     @OA\Parameter(
      *         name="area_code",
      *         in="query",
-     *         description="地址地区代码，例如：【310000,310100,310106,310106013,】",
+     *         description="地址地区代码，例如：【310000,310100,310106,310106013】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -151,7 +151,7 @@ class HouseController extends ApiController
      *     @OA\Parameter(
      *         name="storey",
      *         in="query",
-     *         description="楼层，【楼层 | 总楼层】",
+     *         description="楼层，【楼层 / 总楼层】",
      *         required=true,
      *         @OA\Schema(
      *             type="string"

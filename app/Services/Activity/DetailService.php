@@ -94,7 +94,7 @@ class DetailService extends BaseService
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'start_time','desc',$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
