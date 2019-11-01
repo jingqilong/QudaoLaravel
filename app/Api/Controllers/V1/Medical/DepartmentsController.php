@@ -11,6 +11,7 @@ class DepartmentsController extends ApiController
 {
     public $departmentsServices;
 
+
     /**
      * DepartmentsController constructor.
      * @param $departmentsServices
