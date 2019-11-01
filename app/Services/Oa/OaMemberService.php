@@ -38,7 +38,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['deleted_at','m_id','m_num','m_cname','m_ename','m_groupname','m_starte','m_workunits','m_time','m_phone','m_address','m_category','m_sex'];
+        $column         = ['deleted_at','m_id','m_num','m_cname','m_ename','m_groupname','m_starte','m_workunits','m_time','m_phone','m_address','m_category','m_sex','m_identity'];
         $where          = ['deleted_at' => 0];
         if (!empty($keyword)){
             $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
@@ -63,6 +63,7 @@ class OaMemberService extends BaseService
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
             $value['starte_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
             $value['sex_name']          = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['identity_name']     = empty($value['m_identity']) ? '' : MemberEnum::getIdentity($value['m_identity']);
         }
         $this->setMessage('获取成功！');
         return $member_list;

@@ -35,6 +35,7 @@ class MemberEnum extends BaseEnum
         'WOMAN'               => '女士',
         //成员身份
         'OFFICER'             => '官员',
+        'MEMBER'              => '成员',
     ];
 
 
@@ -82,6 +83,7 @@ class MemberEnum extends BaseEnum
     public static $identity = [
 
         1 => 'OFFICER',
+        2 => 'MEMBER',
     ];
 
     // 成员等级
@@ -134,6 +136,8 @@ class MemberEnum extends BaseEnum
     //成员身份
     const OFFICER           = 1;    //官员
 
+    const MEMBER            = 2;    //成员
+
 
     /**
      * 获取状态label
@@ -168,6 +172,14 @@ class MemberEnum extends BaseEnum
      */
     public static function getSex(int $value){
         return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : '';
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getIdentity(int $value){
+        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : '';
     }
 
 }
