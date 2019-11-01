@@ -245,6 +245,9 @@ $api->version('v1',function ($api){
             $api->post('official_account_login','WeChatController@officialAccountLogin')->name('微信公众号登录');
             $api->post('official_account_bind_mobile','WeChatController@officialAccountBindMobile')->name('微信公众号登录绑定手机号');
 
+            $api->post('we_chat_login','WeChatController@weChatLogin')->name('微信登录');
+            $api->post('we_chat_bind_mobile','WeChatController@weChatBindMobile')->name('微信登录绑定手机号');
+
         });
 
         //医疗模块
