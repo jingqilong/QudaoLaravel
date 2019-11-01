@@ -156,10 +156,9 @@ class PrizeService extends BaseService
             $value['images']     = [];
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';
-            if (!empty($value['images_ids'])){
-                $image_ids = explode(',',$value['images_ids']);
-                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
-                    $image_list     = array_column($image_list,'img_url');
+            if (!empty($value['image_ids'])){
+                $image_ids = explode(',',$value['image_ids']);
+                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
                     $value['images']= $image_list;
                 }
             }

@@ -192,7 +192,12 @@ class DetailsService extends BaseService
      */
     public function editHouse($request, int $publisher, int $publisher_id)
     {
-        if (!HouseDetailsRepository::exists(['id' => $request['id']])){
+        $where = ['id' => $request['id']];
+        if ($publisher == HouseEnum::PERSON){
+            $where['publisher']     = $publisher;
+            $where['publisher_id']  = $publisher_id;
+        }
+        if (!HouseDetailsRepository::exists($where)){
             $this->setError('房源不存在！');
             return false;
         }
@@ -317,6 +322,11 @@ class DetailsService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    public function getHomeList($request)
+    {
+
     }
 }
             
