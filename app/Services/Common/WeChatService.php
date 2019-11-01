@@ -2,7 +2,9 @@
 namespace App\Services\Common;
 
 
+use App\Enums\CommonImagesEnum;
 use App\Enums\MemberBindEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
@@ -46,7 +48,7 @@ class WeChatService extends BaseService
      * @return array|bool
      */
     public function miniBindMobile($request){
-        //获取缓存中的session_key和openid
+        //获取缓存
         if (Cache::has("miniLogin$request[code]")){
             $wx_data = Cache::get("miniLogin$request[code]");
             //清除缓存
@@ -313,14 +315,15 @@ class WeChatService extends BaseService
                 if (!MemberRelationRepository::getAddId($relation_user)){
                     $this->setError('绑定失败！');
                     DB::rollBack();
-                    Loggy::write('error','微信公众号绑定手机号，推荐用户推荐关系添加失败！推荐码：'.$referral_user['m_phone'].'，手机号：'.$mobile);
+                    Loggy::write('error','微信绑定手机号，推荐用户推荐关系添加失败！推荐码：'.$referral_user['m_phone'].'，手机号：'.$mobile);
                     return false;
                 }
             }
-            if (!$user_id = MemberRepository::addUser($mobile)){
+            $m_img_id = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
+            if (!$user_id = MemberRepository::addUser($mobile,['m_img_id' => $m_img_id,'m_cname' => $cacheData['nickname']])){
                 $this->setError('绑定失败！');
                 DB::rollBack();
-                Loggy::write('error','微信公众号绑定手机号，新用户创建失败！手机号：'.$mobile);
+                Loggy::write('error','微信绑定手机号，新用户创建失败！手机号：'.$mobile);
                 return false;
             }
             $relation_data = [
@@ -334,7 +337,7 @@ class WeChatService extends BaseService
             if (!MemberRelationRepository::getAddId($relation_data)){
                 $this->setError('绑定失败！');
                 DB::rollBack();
-                Loggy::write('error','微信公众号绑定手机号，新用户推荐关系创建失败！手机号：'.$mobile);
+                Loggy::write('error','微信绑定手机号，新用户推荐关系创建失败！手机号：'.$mobile);
                 return false;
             }
         }
