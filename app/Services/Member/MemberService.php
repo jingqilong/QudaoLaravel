@@ -186,7 +186,7 @@ class MemberService extends BaseService
                 return [];
             }
         }else {
-            if (!$user_list = MemberRepository::search($keyword,['m_starte' => MemberEnum::ACTIVITEMEMBER],$column,$page,$page_num,'m_time',$asc)){
+            if (!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
                 return [];
             }

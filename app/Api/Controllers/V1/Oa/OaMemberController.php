@@ -19,10 +19,10 @@ class OaMemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/oa/get_member_list",
+     *     path="/api/v1/oa/member_list",
      *     tags={"OA成员管理"},
      *     summary="获取成员列表(OA)",
-     *     operationId="get_member_list",
+     *     operationId="member_list",
      *     @OA\Parameter(
      *          name="sign",
      *          in="query",
@@ -51,12 +51,21 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="时间排序【1正序 2倒叙】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -65,14 +74,14 @@ class OaMemberController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取成员列表失败",),
      * )
      *
      */
-    public function getMemberList()
+    public function memberList()
     {
         $rules = [
             'page'          => 'integer',
