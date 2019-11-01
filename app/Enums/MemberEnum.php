@@ -26,16 +26,16 @@ class MemberEnum extends BaseEnum
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
         //成员或官员状态
-        'ACTIVITEMEMBER'      => '激活成员',
-        'DISABLEMEMBER'       => '禁用成员',
-        'ACTIVITEOFFICER'     => '激活官员',
-        'DISABLEOFFICER'      => '禁用官员',
-        'DELETEMEMBER'        => '删除成员',
+        'ACTIVITEMEMBER'      => '成员激活中',
+        'DISABLEMEMBER'       => '成员禁用中',
+        'ACTIVITEOFFICER'     => '官员激活中',
+        'DISABLEOFFICER'      => '官员禁用中',
         //成员性别
         'MAN'                 => '先生',
         'WOMAN'               => '女士',
         //成员身份
         'OFFICER'             => '官员',
+        'MEMBER'              => '成员',
     ];
 
 
@@ -70,7 +70,6 @@ class MemberEnum extends BaseEnum
         1 => 'DISABLEMEMBER',
         2 => 'ACTIVITEOFFICER',
         3 => 'DISABLEOFFICER',
-        9 => 'DELETEMEMBER',
     ];
 
     //成员性别
@@ -84,6 +83,7 @@ class MemberEnum extends BaseEnum
     public static $identity = [
 
         1 => 'OFFICER',
+        2 => 'MEMBER',
     ];
 
     // 成员等级
@@ -127,8 +127,6 @@ class MemberEnum extends BaseEnum
 
     const DISABLEOFFICER    = 3;    //禁用官员
 
-    const DELETEMEMBER      = 9;    //删除成员
-
 
     //成员性别
     const MAN               = 1;    //先生
@@ -137,6 +135,8 @@ class MemberEnum extends BaseEnum
 
     //成员身份
     const OFFICER           = 1;    //官员
+
+    const MEMBER            = 2;    //成员
 
 
     /**
@@ -172,6 +172,14 @@ class MemberEnum extends BaseEnum
      */
     public static function getSex(int $value){
         return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : '';
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getIdentity(int $value){
+        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : '';
     }
 
 }

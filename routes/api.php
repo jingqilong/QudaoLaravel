@@ -80,7 +80,7 @@ $api->version('v1',function ($api){
                 $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
 
                 #OA成员管理
-                $api->get('get_member_list','OaMemberController@getMemberList')->name('获取成员列表');
+                $api->get('member_list','OaMemberController@memberList')->name('获取成员列表');
                 $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
                 $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
                 $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
