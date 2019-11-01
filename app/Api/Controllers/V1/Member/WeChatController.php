@@ -72,7 +72,7 @@ class WeChatController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $result = $this->weChatService->miniLogin($this->request);
+        $result = $this->weChatService->miniLogin($this->request['code']);
         if($result['code'] == 0) {
             return ['code' => 100, 'message' => $this->weChatService->error];
         }
