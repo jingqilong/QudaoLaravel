@@ -295,6 +295,9 @@ $api->version('v1',function ($api){
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
                 $api->delete('delete_self_house', 'HouseController@deleteSelfHouse')->name('个人删除房源');
                 $api->get('get_home_list', 'HouseController@getHomeList')->name('获取房产首页列表');
+
+                $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
+                $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
             });
             #房产租赁后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {

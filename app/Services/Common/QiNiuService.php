@@ -152,8 +152,8 @@ class QiNiuService extends BaseService
      * @return bool|string  返回图片上传后存入数据表中的id
      */
     public function uploadQiniu($module, $name, $path){
-        $config = $this->module_config_test[$module];//测试
-//        $config = $this->module_config[$module];
+//        $config = $this->module_config_test[$module];//测试
+        $config = $this->module_config[$module];
         $model = $this->getModel('my_images');
         //获取七牛云配置
         config([
@@ -259,7 +259,10 @@ class QiNiuService extends BaseService
     }
 
 
-
+    /**
+     * 上传切割图至七牛云并更新正式服中的数据
+     * @return array
+     */
     public function migrationBigImage(){
         /**
          * 1，读取所有文件

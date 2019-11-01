@@ -32,6 +32,10 @@ class HouseEnum extends BaseEnum
         'PASS'          => '通过',
         'NOPASS'        => '未通过',
         'RENTED'        => '已出租',
+        //预约状态
+        'RESERVATION'   => '正在预约',
+        'RESERVATIONOK' => '预约成功',
+        'RESERVATIONNO' => '预约失败',
     ];
 
     #租期
@@ -72,6 +76,13 @@ class HouseEnum extends BaseEnum
         4 => 'RENTED',
     ];
 
+    #预约状态
+    public static $reservation_status = [
+        1 => 'RESERVATION',
+        2 => 'RESERVATIONOK',
+        3 => 'RESERVATIONNO',
+    ];
+
     // 租期
     const HOUR          = 1;    //时
     const DAY           = 2;    //天
@@ -99,6 +110,11 @@ class HouseEnum extends BaseEnum
     const PASS          = 2;    //通过
     const NOPASS        = 3;    //未通过
     const RENTED        = 4;    //已出租
+
+    // 预约状态
+    const RESERVATION   = 1;    //预约中
+    const RESERVATIONOK = 2;    //预约成功
+    const RESERVATIONNO = 3;    //预约失败
 
 
     /**
@@ -144,5 +160,14 @@ class HouseEnum extends BaseEnum
      */
     public static function getStatus(int $value){
         return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    }
+
+    /**
+     * 获取预约状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getReservationStatus(int $value){
+        return isset(self::$reservation_status[$value]) ? self::$labels[self::$reservation_status[$value]] : '';
     }
 }

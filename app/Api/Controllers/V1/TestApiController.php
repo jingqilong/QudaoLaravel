@@ -5,6 +5,7 @@ namespace App\Api\Controllers\V1;
 use App\Api\Controllers\ApiController;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Services\Common\EventProcessorService;
+use App\Services\Common\QiNiuService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use Illuminate\Support\Facades\Schema;
@@ -124,13 +125,18 @@ class TestApiController extends ApiController
 //        } catch (EventDoesNotExistsException $e) {
 //            return $e->getMessage();
 //        }
-        $config = config('wechat.official_account.default');
-        $app = Factory::officialAccount($config);
-        try {
-            return $app->customer_service->list();
-        } catch (InvalidConfigException $e) {
-            return '无效的配置异常';
-        }
+
+//        $config = config('wechat.official_account.default');
+//        $app = Factory::officialAccount($config);
+//        try {
+//            return $app->customer_service->list();
+//        } catch (InvalidConfigException $e) {
+//            return '无效的配置异常';
+//        }
+
+//        $qiniu = new QiNiuService();
+//        return $qiniu->migrationBigImage();
+//        return $qiniu->uploadQiniu('Goods','主图.jpg','C:\phpStudy\PHPTutorial\WWW\QudaoLaravel\public\upload\主图.jpg');
     }
 
 

@@ -17,7 +17,7 @@ class HouseReservationModel extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * 数据表中的主键
@@ -25,11 +25,24 @@ class HouseReservationModel extends Model
      * @var bool
      */
     protected $primaryKey = 'id';
-
+    /**
+   * 模型日期列的存储格式
+   *
+   * @var string
+   */
+    protected $dateFormat = 'U';
 
     protected $fillable = ['id','house_id','name','mobile','time','memo','member_id','state','created_at','updated_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 }
 
