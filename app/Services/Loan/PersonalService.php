@@ -57,6 +57,9 @@ class PersonalService extends BaseService
      */
     public function getLoanOrderList(array $data)
     {
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
+        }
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;

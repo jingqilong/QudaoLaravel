@@ -105,7 +105,7 @@ class LoanController extends ApiController
      *         description="排序方式[1 正序 2 倒叙]",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -114,7 +114,7 @@ class LoanController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -123,7 +123,7 @@ class LoanController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取贷款订单列表失败",),
@@ -135,12 +135,10 @@ class LoanController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'asc'           => 'integer',
         ];
         $messages = [
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
-            'asc.integer'               => '排序方式不是整数',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
