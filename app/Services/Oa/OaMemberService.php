@@ -40,7 +40,7 @@ class OaMemberService extends BaseService
         $keywords       = $data['keywords'] ?? null;
         $column         = ['deleted_at','m_id','m_num','m_cname','m_ename','m_groupname','m_starte','m_workunits','m_time','m_phone','m_address','m_category','m_sex','m_identity'];
         $where          = ['deleted_at' => 0];
-        if (!empty($keyword)){
+        if (!empty($keywords)){
             $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
             if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
