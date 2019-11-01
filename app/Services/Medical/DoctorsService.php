@@ -2,7 +2,9 @@
 namespace App\Services\Medical;
 
 
+use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
+use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -14,19 +16,27 @@ class DoctorsService extends BaseService
 
     public function addDoctors($request)
     {
-
+        $label_ids = explode(',',$request['department_ids']);
+        if (count($label_ids) != MedicalDepartmentsRepository::exists(['id' => ['in',$label_ids]])){
+            $this->setError('科室不存在！');
+            return false;
+        }
         $add_arr = [
             'name'              => $request['name'],
             'title'             => $request['title'],
             'sex'               => $request['sex'],
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
-            'recommend'         => $request['introduction'],
+            'label_ids'         => $request['label_ids'] ?? '',
             'hospitals_id'      => $request['hospitals_id'],
-            'department_id'     => $request['department_id'],
+            'department_ids'    => $request['department_ids'] ?? '',
         ];
         if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
             $this->setError('医生已存在！');
+            return false;
+        }
+        if (!MediclaHospitalsRepository::exists(['id' => $add_arr['hospitals_id']])){
+            $this->setError('医院不存在！');
             return false;
         }
 
@@ -36,13 +46,98 @@ class DoctorsService extends BaseService
         $add_arr['member_id']  = 0;
         $add_arr['created_at'] = time();
         $add_arr['updated_at'] = time();
-        $add_arr['recommend']   = $request['recommend'] == 1 ? time() : 0;
+        $add_arr['recommend']  = $request['recommend'] == 1 ? time() : 0;
         if (MedicalDoctorsRepository::getAddId($add_arr)){
             $this->setMessage('添加成功！');
             return true;
         }
         $this->setError('添加失败！');
         return false;
+    }
+
+    /**
+     * 删除医生信息
+     * @param $id
+     * @return bool
+     */
+    public function deleteDoctors($id)
+    {
+        if (!MedicalDoctorsRepository::exists(['id' => $id])){
+            $this->setError('医生信息已删除！');
+            return false;
+        }
+        if (MedicalDoctorsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+            $this->setMessage('删除成功！');
+            return true;
+        }
+        $this->setError('删除失败！');
+        return false;
+    }
+
+    /**
+     * 修改醫生信息
+     * @param $request
+     * @return bool
+     */
+    public function editDoctors($request)
+    {
+        $label_ids = explode(',',$request['department_ids']);
+        if (count($label_ids) != MedicalDepartmentsRepository::exists(['id' => ['in',$label_ids]])){
+            $this->setError('科室不存在！');
+            return false;
+        }
+        $add_arr = [
+            'name'              => $request['name'],
+            'title'             => $request['title'],
+            'sex'               => $request['sex'],
+            'good_at'           => $request['good_at'],
+            'introduction'      => $request['introduction'],
+            'label_ids'         => $request['label_ids'] ?? '',
+            'hospitals_id'      => $request['hospitals_id'],
+            'department_ids'    => $request['department_ids'] ?? '',
+        ];
+        if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
+            $this->setError('医生已存在！');
+            return false;
+        }
+        if (!MediclaHospitalsRepository::exists(['id' => $add_arr['hospitals_id']])){
+            $this->setError('医院不存在！');
+            return false;
+        }
+
+        if ($memberInfo = MemberRepository::getOne(['m_cname' => $request['name']])){
+            $add_arr['member_id'] = $memberInfo['m_id'];
+        }
+        $add_arr['member_id']  = 0;
+        $add_arr['updated_at'] = time();
+        $add_arr['recommend']  = $request['recommend'] == 1 ? time() : 0;
+        if (MedicalDoctorsRepository::getUpdId(['id' => $request['id']],$add_arr)){
+            $this->setMessage('修改成功！');
+            return true;
+        }
+        $this->setError('修改失败！');
+        return false;
+    }
+
+    public function getDoctorsListPage($request)
+    {
+        $page           = $request['page'] ?? 1;
+        $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
+        $page_num       = $request['page_num'] ?? 20;
+        $keywords       = $request['keywords'] ?? null;
+        $where          = ['id' => ['<>',0]];
+        if (!empty($keywords)){
+            $keyword        = [$keywords => ['name','sex','department_id']];
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'create_at',$asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if ($list = MedicalDoctorsRepository::getList($where,['*'],'create_at',$asc,$page,$page_num)){
+
+            }
+        }
+
     }
 }
             

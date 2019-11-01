@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\MedicalDoctorLablesModel;
+use App\Models\MedicalDoctorLabelsModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class MedicalDoctorLablesRepository extends ApiRepository
+class MedicalDoctorLabelsRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class MedicalDoctorLablesRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(MedicalDoctorLablesModel $model)
+    public function __construct(MedicalDoctorLabelsModel $model)
     {
         $this->model = $model;
     }

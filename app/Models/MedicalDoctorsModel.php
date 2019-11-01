@@ -27,7 +27,7 @@ class MedicalDoctorsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','name','sex','title','good_at','introduction','recommend','hospitals_id','department_id','created_at','updated_at'];
+    protected $fillable = ['id','member_id','name','sex','title','good_at','label_ids','introduction','recommend','hospitals_id','department_ids','created_at','updated_at','deleted_at'];
 
 
 

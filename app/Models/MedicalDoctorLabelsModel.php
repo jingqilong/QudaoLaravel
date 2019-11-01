@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class MedicalDoctorLablesModel extends Model
+class MedicalDoctorLabelsModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class MedicalDoctorLablesModel extends Model
      *
      * @var string
      */
-    protected $table = 'medical_doctor_lables';
+    protected $table = 'medical_doctor_labels';
 
      /**
      * 表明模型是否应该被打上时间戳

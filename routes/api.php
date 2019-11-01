@@ -275,6 +275,13 @@ $api->version('v1',function ($api){
                 $api->post('edit_departments', 'DepartmentsController@editDepartments')->name('修改医疗科室');
                 $api->get('departments_list', 'DepartmentsController@departmentsList')->name('获取医疗科室列表');
             });
+            #添加医生标签
+            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+                $api->post('add_doctorLabels', 'DoctorLabelsController@addDoctorLabels')->name('添加医生标签');
+                $api->delete('delete_doctorLabels', 'DoctorLabelsController@deleteDoctorLabels')->name('删除医生标签');
+                $api->post('edit_doctorLabels', 'DoctorLabelsController@editDoctorLabels')->name('修改医生标签');
+                $api->get('doctorLabels_list', 'DoctorLabelsController@doctorLabelsList')->name('获取医生标签列表');
+            });
         });
 
 
