@@ -748,7 +748,7 @@ class HouseController extends ApiController
         $rules = [
             'area_code'     => 'integer',
             'unit_id'       => 'integer',
-            'rent_range'    => 'regex:',
+            'rent_range'    => 'regex:/^\d+[-][\d]*$/',
             'rent_order'    => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',

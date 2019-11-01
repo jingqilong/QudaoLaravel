@@ -127,31 +127,6 @@ class DetailsService extends BaseService
         return $house;
     }
 
-    /**
-     * 加工房产地址，将地区码转换成详细地址，并获取经纬度
-     * @param $codes
-     * @param $append
-     * @return mixed
-     */
-    protected function  makeAddress($codes, $append){
-        $codes      = trim($codes,',');
-        $area_codes = explode(',',$codes);
-        $area_list  = CommonAreaRepository::getList(['code' => ['in',$area_codes]],['code','name','lng','lat']);
-        $area_address = '';
-        foreach ($area_codes as $code){
-            if ($area = $this->searchArray($area_list,'code',$code)){
-                $area_address .= reset($area)['name'];
-            }
-        }
-        $area_address .= $append;
-        $lng = '';
-        $lat = '';
-        if ($area_l_l = $this->searchArray($area_list,'code',end($area_codes))){
-            $lng = reset($area_l_l)['lng'];
-            $lat = reset($area_l_l)['lat'];
-        }
-        return [$area_address,$lng,$lat];
-    }
 
     /**
      * 软删除房源
@@ -326,7 +301,63 @@ class DetailsService extends BaseService
 
     public function getHomeList($request)
     {
-
+        $keywords   = $request['keywords'] ?? '';
+        $area_code  = $request['area_code'] ?? '';
+        $unit_id    = $request['unit_id'] ?? '';
+        $rent_range = $request['rent_range'] ?? '';
+        $rent_order = $request['rent_order'] ?? '';
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        if (!empty($area_code)){
+            $where['area_code'] = ['like','%'.$area_code.',%'];
+        }
+        if (!empty($unit_id)){
+            $where['unit_id'] = $unit_id;
+        }
+        if (!empty($rent_range)){
+            $range = explode('-',$rent_range);
+            $where['rent'] = ['range',[reset($range),end($range)]];
+        }
+        if (!empty($rent_order)){
+            $order      = 'rent';
+            $desc_asc   = $rent_order == 1 ? 'asc' : 'desc';
+        }
+        $column = ['id','title','area_code','describe','rent','tenancy','leasing_title','decoration','image_ids','storey','unit_title','condo_name','toward_title','category'];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['title','leasing_title', 'unit_title', 'toward_title']];
+            if (!$list = HouseDetailsViewRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = HouseDetailsViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        foreach ($list['data'] as &$value){
+            #处理地址
+            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],'',3);
+            $value['area_address']  = $area_address;
+            $value['storey']        = $value['storey'].'层';
+            #处理价格
+            $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+            $value['decoration'] = HouseEnum::getDecoration($value['decoration']);
+            $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]]);
+            $value['images']        = array_column($image_list,'img_url');
+            $value['category']      = HouseEnum::getCategory($value['category']);
+            unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

@@ -310,7 +310,7 @@ class MemberService extends BaseService
             //return ['code'=>1,'message'=>'success','data'=>['decrypt_data'=>$decrypt_data,'wx_data'=>$wx_data]];
             if (!isset($wx_data['unionid'])){
                 Loggy::write('error',"v2/WeChatController.php Line:70,message:获取unionid失败,请重试");
-                //return ['code'=>0,'message'=>'获取unionid失败,请重试'];
+                return ['code'=>0,'message'=>'获取unionid失败,请重试'];
             }
             $result = $this->miniWechatLogin($wx_data['openid'],$accessToken['access_token'],isset($wx_data['unionid'])?$wx_data['unionid']:0);
         } catch (DecryptException $e) {
