@@ -168,13 +168,16 @@ class MemberService extends BaseService
     public function getMemberList($data)
     {
         $memberInfo = $this->auth->user();
+        if (empty($data['asc'])){
+            $data['asc']  = 1;
+        }
 
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category','m_img_id'];
-        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
+        $column         = ['m_id','m_num','m_sex','m_ename','m_groupname','m_workunits','m_time','m_category','m_starte','m_img_id'];
+        $where          = ['deleted_at' => 0];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
         if (MemberEnum::isset($memberInfo['m_groupname'])){
@@ -189,10 +192,7 @@ class MemberService extends BaseService
             }
         }
 
-        unset($user_list['first_page_url'], $user_list['from'],
-              $user_list['last_page_url'],  $user_list['from'],
-              $user_list['next_page_url'],  $user_list['path'],
-              $user_list['prev_page_url'],  $user_list['to']);
+        $this->removePagingField($user_list);
 
         $img_ids        = array_column($user_list['data'],'m_img_id');
         $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
@@ -204,8 +204,8 @@ class MemberService extends BaseService
             }
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['status_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['sex_name']          = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
         }
 
             $this->setMessage('获取成功！');

@@ -33,7 +33,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $column         = ['m_id','m_num','m_cname','m_ename','m_groupname','m_workunits','m_time','m_phone','m_address','m_category','m_sex'];
-        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::DISABLEMEMBER,MemberEnum::ACTIVITEOFFICER,MemberEnum::DISABLEOFFICER]]];
+        $where          = ['deleted_at' => 0];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
 
         if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
@@ -78,7 +78,7 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if (!$memberInfo['m_starte']  == MemberEnum::DELETEMEMBER){
+        if (!$memberInfo['deleted_at']  != 0){
             $this->setError('用户已被删除，有需求请联系超级管理员!');
             return false;
         }
@@ -105,15 +105,19 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::exists(['m_id' => $id])){
+        if (!OaMemberRepository::exists(['m_id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
         if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
-            $this->setError('用户信息获取失败!');
+            $this->setError('没有该成员!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DELETEMEMBER])){
+        if ($memberInfo['deleted_at']  != 0){
+            $this->setError('用户已被删除!');
+            return false;
+        }
+        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['deleted_at' => time()])){
             $this->setError('删除成员失败!');
             return false;
         }

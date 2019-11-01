@@ -26,11 +26,10 @@ class MemberEnum extends BaseEnum
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
         //成员或官员状态
-        'ACTIVITEMEMBER'      => '激活成员',
-        'DISABLEMEMBER'       => '禁用成员',
-        'ACTIVITEOFFICER'     => '激活官员',
-        'DISABLEOFFICER'      => '禁用官员',
-        'DELETEMEMBER'        => '删除成员',
+        'ACTIVITEMEMBER'      => '成员激活中',
+        'DISABLEMEMBER'       => '成员禁用中',
+        'ACTIVITEOFFICER'     => '官员激活中',
+        'DISABLEOFFICER'      => '官员禁用中',
         //成员性别
         'MAN'                 => '先生',
         'WOMAN'               => '女士',
@@ -70,7 +69,6 @@ class MemberEnum extends BaseEnum
         1 => 'DISABLEMEMBER',
         2 => 'ACTIVITEOFFICER',
         3 => 'DISABLEOFFICER',
-        9 => 'DELETEMEMBER',
     ];
 
     //成员性别
@@ -126,8 +124,6 @@ class MemberEnum extends BaseEnum
     const ACTIVITEOFFICER   = 2;    //激活官员
 
     const DISABLEOFFICER    = 3;    //禁用官员
-
-    const DELETEMEMBER      = 9;    //删除成员
 
 
     //成员性别
