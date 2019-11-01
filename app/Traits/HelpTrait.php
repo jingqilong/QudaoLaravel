@@ -4,6 +4,8 @@
 namespace App\Traits;
 
 
+use App\Repositories\CommonAreaRepository;
+
 trait HelpTrait
 {
     /**
@@ -238,5 +240,36 @@ trait HelpTrait
               $list['next_page_url'], $list['path'],
               $list['prev_page_url'], $list['to']);
         return $list;
+    }
+
+    /**
+     * 加工房产地址，将地区码转换成详细地址，并获取经纬度
+     * @param $codes
+     * @param $append
+     * @param null $level
+     * @return mixed
+     */
+    protected function  makeAddress($codes, $append, $level = null){
+        $codes      = trim($codes,',');
+        $area_codes = explode(',',$codes);
+        $where      = ['code' => ['in',$area_codes]];
+        if (!empty($level)){
+            $where['level'] = $level;
+        }
+        $area_list  = CommonAreaRepository::getList($where,['code','name','lng','lat']);
+        $area_address = '';
+        foreach ($area_codes as $code){
+            if ($area = $this->searchArray($area_list,'code',$code)){
+                $area_address .= reset($area)['name'];
+            }
+        }
+        $area_address .= $append;
+        $lng = '';
+        $lat = '';
+        if ($area_l_l = $this->searchArray($area_list,'code',end($area_codes))){
+            $lng = reset($area_l_l)['lng'];
+            $lat = reset($area_l_l)['lat'];
+        }
+        return [$area_address,$lng,$lat];
     }
 }

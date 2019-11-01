@@ -237,7 +237,7 @@ trait RepositoryTrait
 
     /**
      * 把条件加进模型中
-     * @param $model
+     * @param Model $model
      * @param $where
      * @return Model
      */
@@ -250,6 +250,10 @@ trait RepositoryTrait
                 switch (reset($v)){
                     case 'in':
                         $model = $model->whereIn($k, end($v));
+                        break;
+                    case 'range':
+                        $range = end($v);
+                        $model = $model->whereRaw($k.' > '.reset($range) . ' and ' . $k .' < '. end($range));
                         break;
                     default:
                         $model = $model->where($k, reset($v), end($v));
