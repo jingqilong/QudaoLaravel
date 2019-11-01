@@ -290,6 +290,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
+                $api->delete('delete_self_house', 'HouseController@deleteSelfHouse')->name('个人删除房源');
             });
             #房产租赁后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
