@@ -2,6 +2,7 @@
 namespace App\Services\Medical;
 
 
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MediclaHospitalsRepository;
@@ -119,6 +120,11 @@ class DoctorsService extends BaseService
         return false;
     }
 
+    /**
+     * 获取医生列表（OA）
+     * @param $request
+     * @return bool|mixed|null
+     */
     public function getDoctorsListPage($request)
     {
         if (empty($request['asc'])){
@@ -128,15 +134,16 @@ class DoctorsService extends BaseService
         $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
-        $where          = ['id' => ['>',0]];
+        $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
-            $keyword        = [$keywords => ['name','sex','department_id']];
-            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'create_at',$asc)){
+            $keyword        = [$keywords => ['name','sex','department_ids']];
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'created_at',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if ($list = MedicalDoctorsRepository::getList($where,['*'],'create_at',$asc,$page,$page_num)){
+            //if ($list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
+            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -147,6 +154,20 @@ class DoctorsService extends BaseService
             return $list;
         }
 
+        foreach ($list['data'] as &$value){
+            //$department_ids        = explode(',',$value['department_ids']);
+            //$img_ids               = array_column($department_ids,'');dd($img_ids);
+            //$department_list       = MedicalDepartmentsRepository::getList(['id' => ['in',$department_ids]],['id','img_url']);
+            $img_list        = CommonImagesRepository::getList(['id' => $value['img_id']],['id','img_url']);
+            $value['hospitals_url']          = '';
+            if ($hospitals_img = $this->searchArray($img_list,'id',$value['img_id'])){
+                $value['hospitals_url']     = reset($hospitals_img)['img_url'];
+            }
+
+        }
+
+        $this->setMessage('获取成功!');
+        return $list;
 
     }
 }

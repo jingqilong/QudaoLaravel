@@ -202,10 +202,10 @@ class MemberService extends BaseService
             if ($head_img = $this->searchArray($img_list,'id',$value['m_img_id'])){
                 $value['head_url']     = reset($head_img)['img_url'];
             }
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['status_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex_name']          = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']     =  MemberEnum::getCategory($value['m_category']);
+            $value['status_name']       =  MemberEnum::getStatus($value['m_starte']);
+            $value['sex_name']          =  MemberEnum::getSex($value['m_sex']);
         }
 
             $this->setMessage('获取成功！');

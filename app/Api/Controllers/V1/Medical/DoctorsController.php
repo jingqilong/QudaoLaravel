@@ -397,7 +397,7 @@ class DoctorsController extends ApiController
      * @OA\Get(
      *     path="/api/v1/medical/doctors_list_page",
      *     tags={"医疗医院后台"},
-     *     summary="获取医生列表",
+     *     summary="获取医生列表(oa)",
      *     description="jing" ,
      *     operationId="doctors_list_page",
      *     @OA\Parameter(
