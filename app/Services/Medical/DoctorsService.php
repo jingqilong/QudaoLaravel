@@ -121,11 +121,14 @@ class DoctorsService extends BaseService
 
     public function getDoctorsListPage($request)
     {
+        if (empty($request['asc'])){
+            $request['asc'] = 1;
+        }
         $page           = $request['page'] ?? 1;
         $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
-        $where          = ['id' => ['<>',0]];
+        $where          = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['name','sex','department_id']];
             if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'create_at',$asc)){
@@ -134,9 +137,16 @@ class DoctorsService extends BaseService
             }
         }else{
             if ($list = MedicalDoctorsRepository::getList($where,['*'],'create_at',$asc,$page,$page_num)){
-
+                $this->setError('获取失败！');
+                return false;
             }
         }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+
 
     }
 }

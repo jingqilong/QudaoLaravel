@@ -334,6 +334,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->get('get_loan_order_info', 'LoanController@getLoanOrderInfo')->name('根据ID查找贷款订单信息');
                 $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
+                $api->post('audit_loan', 'LoanController@auditLoan')->name('审核贷款订单');
                 $api->delete('del_loan', 'LoanController@delLoan')->name('删除贷款订单');
                 $api->get('get_loan_order_list', 'LoanController@getLoanOrderList')->name('获取所有贷款订单列表');
             });

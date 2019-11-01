@@ -430,7 +430,7 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="asc",
      *         in="query",
-     *         description="排序方式【0 时间正序 2 时间倒叙】",
+     *         description="排序方式【1 时间正序 2 时间倒叙】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -465,7 +465,6 @@ class DoctorsController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'asc'           => 'integer',
         ];
         $messages = [
             'page.integer'              => '页码必须为整数',

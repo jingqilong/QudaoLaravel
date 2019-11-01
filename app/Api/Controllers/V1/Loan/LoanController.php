@@ -547,7 +547,16 @@ class LoanController extends ApiController
      *              type="string",
      *          )
      *      ),
-     *     @OA\Response(response=100,description="添加贷款订单失败",),
+     *     @OA\Parameter(
+     *          name="status",
+     *          in="query",
+     *          description="状态【1 已提交 2审核中 3 审核失败 4审核通过 9 已删除】",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="修改贷款订单失败",),
      * )
      *
      */
@@ -644,6 +653,78 @@ class LoanController extends ApiController
         $id = $this->request['id'];
         $res = $this->personalService->delLoan($id);
         if (!$res){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
+        return ['code' => 200, 'message' => $this->personalService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/loan/audit_loan",
+     *     tags={"贷款后台"},
+     *     summary="审核预约贷款",
+     *     description="jing" ,
+     *     operationId="audit_loan",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit",
+     *         in="query",
+     *         description="审核结果，1通过，2驳回",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="审核失败",
+     *     ),
+     * )
+     *
+     */
+    public function auditLoan(){
+        $rules = [
+            'id'            => 'required|integer',
+            'audit'         => 'required|in:1,2',
+        ];
+        $messages = [
+            'id.required'               => '贷款ID不能为空',
+            'id.integer'                => '贷款ID必须为整数',
+            'audit.required'            => '审核结果不能为空',
+            'audit.in'                  => '审核结果取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->personalService->auditLoan($this->request['id'],$this->request['audit']);
+        if ($res === false){
             return ['code' => 100, 'message' => $this->personalService->error];
         }
         return ['code' => 200, 'message' => $this->personalService->message];
