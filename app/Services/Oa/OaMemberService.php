@@ -153,10 +153,6 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if ($memberInfo['m_starte'] == MemberEnum::DELETEMEMBER){
-            $this->setError('成员已被删除!');
-            return false;
-        }
 
         switch ($memberInfo['m_starte'])
         {
