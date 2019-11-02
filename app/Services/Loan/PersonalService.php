@@ -64,7 +64,11 @@ class PersonalService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $column         = ['*'];
-        $where          = ['deleted_at' => 0,'type' => $data['type']];
+        $type           = $data['type'] ?? null;
+        $where          = ['deleted_at' => 0];
+        if ($type !== null){
+            $where['type']  = $type;
+        }
         if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
             $this->setError('获取失败！');
             return false;
