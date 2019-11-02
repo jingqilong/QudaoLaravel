@@ -12,7 +12,7 @@ class LoanEnum extends BaseEnum
         //房产  审核状态
         'SUBMIT'              => '已提交',
         'PASS'                => '审核通过',
-        'NOPASS'              => '审核失败',
+        'NOPASS'              => '审核驳回',
         'ONESELF'             => '本人预约',
         'OTHERS'              => '推荐他人预约',
         'MILLION'             => '一百万',
