@@ -291,13 +291,15 @@ $api->version('v1',function ($api){
         //房产模块
         $api->group(['prefix' => 'house', 'namespace' => 'House'], function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                #房源发布
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
                 $api->delete('delete_self_house', 'HouseController@deleteSelfHouse')->name('个人删除房源');
                 $api->get('get_home_list', 'HouseController@getHomeList')->name('获取房产首页列表');
-
+                #预约
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
+                $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
             });
             #房产租赁后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
@@ -306,6 +308,7 @@ $api->version('v1',function ($api){
                 $api->delete('delete_house', 'OaHouseController@deleteHouse')->name('删除房源');
                 $api->post('edit_house', 'OaHouseController@editHouse')->name('修改房源');
                 $api->get('house_list', 'OaHouseController@houseList')->name('获取房产列表');
+                $api->post('audit_house', 'OaHouseController@auditHouse')->name('审核房源');
                 #房产设施
                 $api->post('add_facility', 'FacilityController@addFacility')->name('添加房产设施');
                 $api->delete('delete_facility', 'FacilityController@deleteFacility')->name('删除房产设施');
@@ -329,6 +332,9 @@ $api->version('v1',function ($api){
                 $api->delete('delete_lease', 'LeaseController@deleteLease')->name('删除房产租赁方式');
                 $api->post('edit_lease', 'LeaseController@editLease')->name('修改房产租赁方式');
                 $api->get('lease_list', 'LeaseController@leaseList')->name('获取房产租赁方式列表');
+                #预约
+                $api->get('all_reservation_list', 'ReservationController@allReservationList')->name('预约列表');
+                $api->post('audit_reservation', 'ReservationController@auditReservation')->name('审核预约');
             });
         });
 
@@ -415,6 +421,9 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
+            });
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
             });
         });
         //支付模块模块

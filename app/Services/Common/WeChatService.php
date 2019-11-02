@@ -222,15 +222,15 @@ class WeChatService extends BaseService
      * @return array
      */
     public function login($code, $user_arr, $access_token){
-        if (!isset($user_arr['unionid'])){
-            $this->setError('请先关注我们的公众号!');
+        if (!isset($user_arr['open_id'])){
+            $this->setError('授权失败!');
             return ['code' => 0];
         }
-        $openId     = $user_arr['open_id'] ??'';
+        $openId     = $user_arr['open_id'];
         $nickname   = $user_arr['nickname'] ?? '';
         $avatar     = $user_arr['avatar'] ?? '';
-        $unionid    = $user_arr['unionid'];
-        if ($bind = MemberBindRepository::exists(['identifier' => $unionid])){
+        $unionid    = $user_arr['unionid'] ?? '';
+        if ($bind = MemberBindRepository::exists(['identifier' => $openId])){
             if (!empty($bind['user_id'])){
                 if ($member = MemberRepository::getOne(['m_id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
@@ -251,11 +251,11 @@ class WeChatService extends BaseService
             $time = time();
             $bind_add = [
                 'identity_type' => MemberBindEnum::WECHAT,
-                'identifier'    => $unionid,
+                'identifier'    => $openId,
                 'credential'    => $access_token,
                 'last_login'    => $time,
                 'ip_address'    => request()->ip(),
-                'additional'    => $openId,
+                'additional'    => $unionid,
                 'created_at'    => $time
             ];
             if (!MemberBindRepository::getAddId($bind_add)){
@@ -267,7 +267,7 @@ class WeChatService extends BaseService
         $cacheData = [
             'nickname'  => $nickname,
             'avatar'    => $avatar,
-            'unionid'   => $unionid
+            'openid'    => $openId
         ];
         Cache::put("officialAccountLogin$code",$cacheData,3600);
         $this->setMessage('未绑定手机号!');
@@ -342,7 +342,7 @@ class WeChatService extends BaseService
             }
         }
         $bind_upd = ['user_id' => $user_id,'verified_at' => time()];
-        if (!MemberBindRepository::getUpdId(['identifier' => $cacheData['unionnid']],$bind_upd)){
+        if (!MemberBindRepository::getUpdId(['identifier' => $cacheData['openid']],$bind_upd)){
             $this->setError('绑定失败！');
             DB::rollBack();
             return false;

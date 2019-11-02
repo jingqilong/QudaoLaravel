@@ -3,6 +3,7 @@ namespace App\Services\House;
 
 
 use App\Enums\HouseEnum;
+use App\Enums\MemberEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
@@ -11,7 +12,9 @@ use App\Repositories\HouseFacilitiesRepository;
 use App\Repositories\HouseLeasingRepository;
 use App\Repositories\HouseTowardRepository;
 use App\Repositories\HouseUnitRepository;
+use App\Repositories\MemberRepository;
 use App\Services\BaseService;
+use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 
 class DetailsService extends BaseService
@@ -358,6 +361,46 @@ class DetailsService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 审核房源
+     * @param $id
+     * @param $audit
+     * @return bool
+     */
+    public function auditHouse($id, $audit)
+    {
+        if (!$house = HouseDetailsViewRepository::getOne(['id' => $id])){
+            $this->setError('房源不存在！');
+            return false;
+        }
+        if ($house['status'] > HouseEnum::PENDING){
+            $this->setError('预约已审核！');
+            return false;
+        }
+        $status = ($audit == 1) ? HouseEnum::PASS : HouseEnum::NOPASS;
+        if (!HouseDetailsViewRepository::getUpdId(['id' => $id],['status' => $status])){
+            $this->setError('审核失败！');
+            return false;
+        }
+        #通知用户
+        if ($house['publisher'] == HouseEnum::PERSON)
+        if ($member = MemberRepository::getOne(['m_id' => $house['publisher_id']])){
+            $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
+            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            #短信通知
+            if (!empty($member['m_phone'])){
+                $smsService = new SmsService();
+                $sms_template = [
+                    HouseEnum::PASS         => '尊敬的'.$member_name.'您好！您发布的房源已经通过审核，现已上架，感谢您的使用！',
+                    HouseEnum::NOPASS       => '尊敬的'.$member_name.'您好！您发布的房源由于信息不完善未通过审核，完善信息后可再次发起审核！',
+                ];
+                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+            }
+        }
+        $this->setMessage('审核成功！');
+        return true;
     }
 }
             

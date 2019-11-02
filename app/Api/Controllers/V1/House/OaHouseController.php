@@ -702,4 +702,76 @@ class OaHouseController extends ApiController
         }
         return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/house/audit_house",
+     *     tags={"房产租赁后台"},
+     *     summary="审核房源",
+     *     description="sang" ,
+     *     operationId="audit_house",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="房源ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit",
+     *         in="query",
+     *         description="审核结果，1通过，2驳回",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="审核失败",
+     *     ),
+     * )
+     *
+     */
+    public function auditHouse(){
+        $rules = [
+            'id'            => 'required|integer',
+            'audit'         => 'required|in:1,2',
+        ];
+        $messages = [
+            'id.required'               => '房源ID不能为空',
+            'id.integer'                => '房源ID必须为整数',
+            'audit.required'            => '审核结果不能为空',
+            'audit.in'                  => '审核结果取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->detailService->auditHouse($this->request['id'],$this->request['audit']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->detailService->error];
+        }
+        return ['code' => 200, 'message' => $this->detailService->message];
+    }
 }
