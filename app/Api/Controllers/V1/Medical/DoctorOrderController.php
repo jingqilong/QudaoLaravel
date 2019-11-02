@@ -5,29 +5,29 @@ namespace App\Api\Controllers\V1\Medical;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Medical\DoctorsService;
+use App\Services\Medical\OrdersService;
 
-class DoctorsController extends ApiController
+class DoctorOrderController extends ApiController
 {
-    public $doctorsService;
+    public $OrdersService;
 
     /**
      * DoctorsController constructor.
-     * @param $doctorsService
+     * @param $OrdersService
      */
-    public function __construct(DoctorsService $doctorsService)
+    public function __construct(OrdersService $OrdersService)
     {
         parent::__construct();
-        $this->doctorsService = $doctorsService;
+        $this->OrdersService = $OrdersService;
     }
 
     /**
      * @OA\Post(
-     *     path="/api/v1/medical/add_doctors",
-     *     tags={"医疗医院后台"},
-     *     summary="添加医生",
+     *     path="/api/v1/medical/add_doctorOrders",
+     *     tags={"医疗医院前端"},
+     *     summary="添加预约",
      *     description="jing" ,
-     *     operationId="add_doctors",
+     *     operationId="add_doctorOrders",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -40,7 +40,7 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="OA token",
+     *         description="用户 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -49,71 +49,26 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="name",
      *         in="query",
-     *         description="医生姓名",
+     *         description="预约人姓名",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="img_id",
-     *         in="query",
-     *         description="医生照片",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
      *         name="sex",
      *         in="query",
-     *         description="医生性别[1 男 2女]",
+     *         description="性别[1 男 2女]",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="title",
+     *         name="age",
      *         in="query",
-     *         description="职称",
+     *         description="年龄",
      *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="good_at",
-     *         in="query",
-     *         description="擅长介绍",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="label_ids",
-     *         in="query",
-     *         description="医生标签ids【格式：1,2,3,4】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="introduction",
-     *         in="query",
-     *         description="简介",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *  ),
-     *     @OA\Parameter(
-     *         name="recommend",
-     *         in="query",
-     *         description="推荐[0 不推荐 1推荐]",
-     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -121,19 +76,46 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="hospitals_id",
      *         in="query",
-     *         description="医院ID",
-     *         required=false,
+     *         description="预约医院id",
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="department_ids",
+     *         name="doctor_id",
      *         in="query",
-     *         description="科室ids【格式：1,2,3,4】",
+     *         description="预约医生id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="appointment_at",
+     *         in="query",
+     *         description="预约时间",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="end_time",
+     *         in="query",
+     *         description="预约截止时间[可以不填写]",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *  ),
+     *     @OA\Parameter(
+     *         name="description",
+     *         in="query",
+     *         description="病史描述",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -143,45 +125,45 @@ class DoctorsController extends ApiController
      * )
      *
      */
-    public function addDoctors(){
+    public function addDoctorOrder(){
         $rules = [
-            'title'             => 'required|string',
             'name'              => 'required|string',
-            'img_id'            => 'required|integer',
             'sex'               => 'required|integer',
-            'good_at'           => 'required|string',
-            'introduction'      => 'string',
-            'label_ids'         => 'string',
+            'age'               => 'required|integer',
+            'doctor_id'         => 'required|integer',
+            'description'       => 'string',
+            'appointment_at'    => 'required|date',
+            'end_time'          => 'required|date',
             'recommend'         => 'required|integer',
             'hospitals_id'      => 'required|integer',
             'department_ids'    => 'string',
         ];
         $messages = [
-            'name.required'             => '医生姓名不能为空',
-            'name.string'               => '医生姓名必须为字符串',
-            'img_id.required'           => '医生头像不能为空',
-            'img_id.integer'            => '医生头像必须为整数',
-            'title.string'              => '医生职称必须为字符串',
-            'title.required'            => '医生职称不能为空',
-            'sex.required'              => '医生性别不能为空',
-            'sex.integer'               => '医生姓名不是整数',
-            'good_at.string'            => '擅长介绍必须为字符串',
-            'good_at.required'          => '擅长介绍不能为空',
-            'introduction.string'       => '简介必须为字符串',
-            'label_ids.string'          => '照片上传格式不正确',
+            'name.required'             => '预约人姓名不能为空',
+            'name.string'               => '预约人姓名必须为字符串',
+            'sex.required'              => '预约人性别不能为空',
+            'sex.integer'               => '预约人姓名不是整数',
+            'age.required'              => '预约人性别不能为空',
+            'age.integer'               => '预约人姓名不是整数',
+            'description.string'        => '病情描述必须为字符串',
             'hospitals_id.integer'      => '医院ID不是整数',
             'hospitals_id.required'     => '医院ID不能为空',
-            'department_id.string'      => '科室ids格式不正确',
+            'doctor_id.integer'         => '医生ID不是整数',
+            'doctor_id.required'        => '医生ID不能为空',
+            'appointment_at.date'       => '预约时间',
+            'appointment_at.required'   => '医院ID不能为空',
+            'end_time.integer'          => '医院ID不是整数',
+            'end_time.required'         => '医院ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->doctorsService->addDoctors($this->request);
+        $res = $this->OrdersService->addDoctors($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->doctorsService->message];
+            return ['code' => 200, 'message' => $this->OrdersService->message];
         }
-        return ['code' => 100, 'message' => $this->doctorsService->error];
+        return ['code' => 100, 'message' => $this->OrdersService->error];
     }
 
     /**
@@ -236,11 +218,11 @@ class DoctorsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->doctorsService->deleteDoctors($this->request['id']);
+        $res = $this->OrdersService->deleteDoctors($this->request['id']);
         if ($res){
-            return ['code' => 200, 'message' => $this->doctorsService->message];
+            return ['code' => 200, 'message' => $this->OrdersService->message];
         }
-        return ['code' => 100, 'message' => $this->doctorsService->error];
+        return ['code' => 100, 'message' => $this->OrdersService->error];
     }
     /**
      * @OA\Post(
@@ -410,11 +392,11 @@ class DoctorsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->doctorsService->editDoctors($this->request);
+        $res = $this->OrdersService->editDoctors($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->doctorsService->message];
+            return ['code' => 200, 'message' => $this->OrdersService->message];
         }
-        return ['code' => 100, 'message' => $this->doctorsService->error];
+        return ['code' => 100, 'message' => $this->OrdersService->error];
     }
 
     /**
@@ -498,11 +480,11 @@ class DoctorsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->doctorsService->getDoctorsListPage($this->request);
+        $res = $this->OrdersService->getDoctorsListPage($this->request);
         if ($res === false){
-            return ['code' => 100, 'message' => $this->doctorsService->error];
+            return ['code' => 100, 'message' => $this->OrdersService->error];
         }
-        return ['code' => 200, 'message' => $this->doctorsService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
     }
 
 }

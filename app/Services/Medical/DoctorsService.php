@@ -26,6 +26,7 @@ class DoctorsService extends BaseService
             'name'              => $request['name'],
             'title'             => $request['title'],
             'sex'               => $request['sex'],
+            'img_id'            => $request['img_id'],
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
             'label_ids'         => $request['label_ids'] ?? '',
@@ -142,7 +143,6 @@ class DoctorsService extends BaseService
                 return false;
             }
         }else{
-            //if ($list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
             if (!$list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
@@ -154,21 +154,31 @@ class DoctorsService extends BaseService
             return $list;
         }
 
-        foreach ($list['data'] as &$value){
-            //$department_ids        = explode(',',$value['department_ids']);
-            //$img_ids               = array_column($department_ids,'');dd($img_ids);
-            //$department_list       = MedicalDepartmentsRepository::getList(['id' => ['in',$department_ids]],['id','img_url']);
-            $img_list        = CommonImagesRepository::getList(['id' => $value['img_id']],['id','img_url']);
-            $value['hospitals_url']          = '';
-            if ($hospitals_img = $this->searchArray($img_list,'id',$value['img_id'])){
-                $value['hospitals_url']     = reset($hospitals_img)['img_url'];
-            }
+        $value['doctor_img_url']      = '';
+        $value['hospital_name']       = '';
+        $value['department_name']          = [];
+        $value['label_name']          = [];
 
+        foreach ($list['data'] as &$value){
+            $img_list        = CommonImagesRepository::getList(['id' => $value['img_id']],['id','img_url']);
+            if ($doctor_img = $this->searchArray($img_list,'id',$value['img_id'])){
+                $value['doctor_img_url']     = reset($doctor_img)['img_url'];
+            }
+            if ($hospital = MediclaHospitalsRepository::getOne(['id' => $value['hospitals_id']])){
+                $value['hospital_name'] = $hospital['name'];
+            }
+            $department_ids  = explode(',',$value['department_ids']);
+            if ($department_info = MedicalDepartmentsRepository::getList(['id' => ['in',$department_ids]],['id','name'])){
+                $value['department_name'] = $department_info;
+            }
+            $label_ids = explode(',',$value['label_ids']);
+            if ($label_info = MedicalDepartmentsRepository::getList(['id' => ['in',$label_ids]],['id','name'])){
+                $value['label_name'] = $label_info;
+            }
         }
 
         $this->setMessage('获取成功!');
         return $list;
-
     }
 }
             
