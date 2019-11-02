@@ -10,11 +10,9 @@ class LoanEnum extends BaseEnum
 
     public static $labels=[
         //房产  审核状态
-        'SUBMITTED'           => '已提交',
-        'INREVIEW'            => '审核中',
+        'SUBMIT'              => '已提交',
         'PASS'                => '审核通过',
-        'FAILURE'             => '审核失败',
-        'DELETE'              => '已删除',
+        'NOPASS'              => '审核失败',
         'ONESELF'             => '本人预约',
         'OTHERS'              => '推荐他人预约',
         'MILLION'             => '一百万',
@@ -25,11 +23,9 @@ class LoanEnum extends BaseEnum
     ];
 
     public static $status = [
-        1 => 'SUBMITTED',   //已提交
-        2 => 'INREVIEW',    //审核中
-        3 => 'PASS',        //审核通过
-        4 => 'FAILURE',     //审核失败
-        9 => 'DELETE',      //已删除
+        0 => 'SUBMIT',      //已提交
+        1 => 'PASS',        //审核通过
+        2 => 'NOPASS',      //审核失败
     ];
 
     public static $price = [
