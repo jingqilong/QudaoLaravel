@@ -3,9 +3,12 @@ namespace App\Services\House;
 
 
 use App\Enums\HouseEnum;
+use App\Enums\MemberEnum;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
+use App\Repositories\MemberRepository;
 use App\Services\BaseService;
+use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 
 class ReservationService extends BaseService
@@ -81,6 +84,68 @@ class ReservationService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 审核预约
+     * @param $id
+     * @param $audit
+     * @return bool
+     */
+    public function auditReservation($id, $audit)
+    {
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id])){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] > HouseEnum::PENDING){
+            $this->setError('预约已审核！');
+            return false;
+        }
+        $status = ($audit == 1) ? HouseEnum::PASS : HouseEnum::NOPASS;
+        if (!HouseReservationRepository::getUpdId(['id' => $id],['state' => $status])){
+            $this->setError('审核失败！');
+            return false;
+        }
+        #通知用户
+        if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
+            $member_name = $reservation['name'];
+            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            #短信通知
+            if (!empty($member['m_phone'])){
+                $smsService = new SmsService();
+                $sms_template = [
+                    HouseEnum::PASS         => '尊敬的'.$member_name.'您好！您的看房预约已经通过审核，看房时间：'.date('Y-m-d H:i',$reservation['time']).'，我们的负责人稍后会跟您联系，请耐心等待！',
+                    HouseEnum::NOPASS       => '尊敬的'.$member_name.'您的看房预约未通过审核，再看看其他房源吧！',
+                ];
+                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+            }
+        }
+        $this->setMessage('审核成功！');
+        return true;
+    }
+
+    /**
+     * 获取被预约列表
+     * @param $house_id
+     * @param $member_id
+     * @return array|null
+     */
+    public function isReservationList($house_id, $member_id)
+    {
+        if (!$house = HouseDetailsRepository::exists(['id' => $house_id,'publisher' => HouseEnum::PERSON,'publisher_id' => $member_id])){
+            $this->setError('房源不存在！');
+            return false;
+        }
+        if (!$house_list = HouseReservationRepository::getList(['house_id' => $house_id,'state' => HouseEnum::RESERVATIONOK],['id','time'])){
+            $this->setMessage('暂无预约！');
+            return [];
+        }
+        foreach ($house_list as &$value){
+            $value['time']  = date('Y-m-d H:i:s',$value['time']);
+        }
+        $this->setMessage('获取成功！');
+        return $house_list;
     }
 }
             
