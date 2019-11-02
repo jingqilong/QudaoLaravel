@@ -45,7 +45,16 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【卡号，姓名，手机号,项目对接名称,审核状态：1已提交 2审核中 3审核通过 4审核失败】",
+     *         description="搜索内容【卡号，姓名，手机号,项目对接名称】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序【1 正序 2 倒叙  默认 正序】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",

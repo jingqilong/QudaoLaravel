@@ -10,31 +10,23 @@ class ProjectEnum extends BaseEnum
 
     public static $labels=[
         //项目对接  审核状态
-        'SUBMITTED'           => '已提交',
-        'INREVIEW'            => '审核中',
+        'SUBMIT'              => '已提交',
         'PASS'                => '审核通过',
-        'FAILURE'             => '审核失败',
-        'DELETE'              => '已删除',
+        'NOPASS'              => '审核驳回',
     ];
 
     public static $status = [
-        1 => 'SUBMITTED',   //已提交
-        2 => 'INREVIEW',    //审核中
-        3 => 'PASS',        //审核通过
-        4 => 'FAILURE',     //审核失败
-        9 => 'DELETE',      //已删除
+        0 => 'SUBMIT',      //已提交
+        1 => 'PASS',        //审核通过
+        2 => 'NOPASS',      //审核失败
     ];
 
     //项目对接  审核状态
-    const SUBMITTED         = 1;    //已提交
+    const PASS              = 1;    //审核通过
 
-    const INREVIEW          = 2;    //审核中
+    const NOPASS            = 2;    //审核失败
 
-    const PASS              = 3;    //审核通过
-
-    const FAILURE           = 4;    //审核失败
-
-    const DELETE            = 9;    //已删除
+    const SUBMIT            = 0;    //待审核
 
     /**
      * 获取状态label

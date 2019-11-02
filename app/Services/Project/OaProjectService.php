@@ -6,10 +6,12 @@ use App\Enums\ProjectEnum;
 use App\Repositories\OaProjectOrderRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class OaProjectService extends BaseService
 {
+    use HelpTrait;
 
     protected $auth;
 
@@ -29,28 +31,33 @@ class OaProjectService extends BaseService
      */
     public function getProjectOrderList(array $data)
     {
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
+        }
+
+        $asc         =   $data['asc'] == 1 ? 'asc' : 'desc';
         $page        =   $data['page'] ?? 1;
         $page_num    =   $data['page_num'] ?? 20;
         $keywords    =   $data['keywords'] ?? null;
-        $column      =   ['field' => '*'];
-        $status      =   [
-                    ProjectEnum::SUBMITTED,
-                    ProjectEnum::INREVIEW,
-                    ProjectEnum::PASS,
-                    ProjectEnum::FAILURE
-                ];
-        $where       = ['status' => ['in',$status]];
-        $keyword     = [$keywords => ['name','mobile','project_name','status']];
+        $column      =   ['*'];
+        $where       =   ['deleted_at' => 0];
 
-        if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at','desc')){
-            $this->setMessage('没有搜索到此类型订单！');
-            return [];
+        if (!empty($keywords)){
+            $keyword     =   [$keywords => ['name','mobile','project_name','status']];
+            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
+                $this->setMessage('没有数据！');
+                return [];
+        }else{
+                if (!$list = OaProjectOrderRepository::getList($where,$column,'created_at',$asc)){
+                    $this->setMessage('没有数据！');
+                    return [];
+                }
+            }
+
+
         }
 
-        unset($list['first_page_url'], $list['from'],
-              $list['last_page_url'],  $list['from'],
-              $list['next_page_url'],  $list['path'],
-              $list['prev_page_url'],  $list['to']);
+        $this->removePagingField($list);
 
         if (empty($list['data'])) {
             $this->setMessage('没有搜索到此类型订单!');
@@ -58,24 +65,7 @@ class OaProjectService extends BaseService
 
         foreach ($list['data'] as &$value)
         {
-            switch ($value['status']) {
-                case ProjectEnum::SUBMITTED:
-                    $value['status'] = '已提交';
-                    break;
-                case ProjectEnum::INREVIEW:
-                    $value['status'] = '审核中';
-                    break;
-                case ProjectEnum::PASS:
-                    $value['status'] = '审核通过';
-                    break;
-                case ProjectEnum::FAILURE:
-                    $value['status'] = '审核失败';
-                    break;
-                case ProjectEnum::DELETE:
-                    $value['status'] = '已删除';
-                    break;
-                default ;
-            }
+            $value['status_name']       =   ProjectEnum::getStatus($value['status']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
