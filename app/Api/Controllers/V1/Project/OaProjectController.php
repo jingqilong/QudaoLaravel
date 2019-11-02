@@ -45,10 +45,19 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【卡号，姓名，手机号,项目对接名称】",
+     *         description="搜索内容【手机号，姓名，项目对接名称】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【0待审核 1审核通过 2审核失败】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -87,10 +96,12 @@ class OaProjectController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
+            'status'        => 'in:0,1,2',
         ];
         $messages = [
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
+            'status.in'                 => '状态值不存在 ',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

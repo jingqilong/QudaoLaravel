@@ -39,11 +39,15 @@ class OaProjectService extends BaseService
         $page        =   $data['page'] ?? 1;
         $page_num    =   $data['page_num'] ?? 20;
         $keywords    =   $data['keywords'] ?? null;
+        $status      =   $data['status'] ?? null;
         $column      =   ['*'];
         $where       =   ['deleted_at' => 0];
 
+        if ($status !== null){
+            $where['status']  = $status;
+        }
         if (!empty($keywords)){
-            $keyword     =   [$keywords => ['name','mobile','project_name','status']];
+            $keyword     =   [$keywords => ['name','mobile','project_name']];
             if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)) {
                 $this->setError('获取失败！');
                 return false;
