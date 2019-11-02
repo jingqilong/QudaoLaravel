@@ -9,11 +9,13 @@ use App\Repositories\OaAdminRoleMenuRepository;
 use App\Repositories\OaAdminRolePermissionsRepository;
 use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminMenuService extends BaseService
 {
+    use HelpTrait;
     #错误信息
     public $error;
 
@@ -264,9 +266,20 @@ class AdminMenuService extends BaseService
                 $res[] = ['id'    => 0, 'title' => '顶级菜单', 'icon'  => ''];
                 break;
         }
-        if (!$list = OaAdminMenuRepository::getList($where,['id','title','icon'])){
+        if (!$list = OaAdminMenuRepository::getList($where,['id','title','icon','parent_id'])){
             $this->setMessage('暂无数据！');
             return [];
+        }
+        $parent_ids = array_column($list,'parent_id');
+        $parent_list = OaAdminMenuRepository::getList(['id' => ['in',$parent_ids]],['id','title']);
+        foreach ($list as &$value){
+            if ($value['parent_id'] == 0){
+                $value['title'] = reset($res)['title'] . ' - ' . $value['title'];
+            }
+            if ($parent = $this->searchArray($parent_list,'id',$value['parent_id'])){
+                $value['title'] = reset($parent)['title'] . ' - ' . $value['title'];
+            }
+            unset($value['parent_id']);
         }
         $this->setMessage('获取成功！');
         return array_merge($res,$list);
