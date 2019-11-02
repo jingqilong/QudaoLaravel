@@ -27,6 +27,9 @@ class OaPermission extends BaseMiddleware
         $path       = substr($raw_path,strripos($raw_path,"oa") + 2);
         $auth       = Auth::guard('oa_api');
         $user       = $auth->user();
+        if (in_array($path,['/login','/logout','/refresh','/get_user_info'])){
+            return $next($request);
+        }
         if (!empty($user->permissions)){
             $permissions_ids = explode(',', $user->permissions);
         }else{
@@ -44,7 +47,7 @@ class OaPermission extends BaseMiddleware
                     return $next($request);
                 }
                 $http_method = explode(',',$value['http_method']);
-                $http_path   = explode(',',$value['http_path']);//dd($http_path);
+                $http_path   = explode(',',$value['http_path']);
                 if (in_array($method, $http_method) && in_array($path, $http_path)){
                     $this->recordLog($request,$user->id);
                     return $next($request);
