@@ -197,7 +197,7 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="状态 1已提交 2审核中 3审核通过 4审核失败 9已删除",
+     *         description="状态 【1审核通过 2审核驳回 】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -211,13 +211,13 @@ class OaProjectController extends ApiController
     {
         $rules = [
             'id'            => 'required|integer',
-            'status'        => 'required|integer',
+            'status'        => 'required|in:1,2',
         ];
         $messages = [
             'id.required'        => '请填写ID',
             'id.integer'         => 'ID必须为整数',
             'status.required'    => '请填写状态值',
-            'status.integer'     => '状态值必须为整数',
+            'status.in'          => '审核值不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

@@ -44,25 +44,21 @@ class OaProjectService extends BaseService
 
         if (!empty($keywords)){
             $keyword     =   [$keywords => ['name','mobile','project_name','status']];
-            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
-                $this->setMessage('没有数据！');
-                return [];
+            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)) {
+                $this->setError('获取失败！');
+                return false;
+            }
         }else{
-                if (!$list = OaProjectOrderRepository::getList($where,$column,'created_at',$asc)){
-                    $this->setMessage('没有数据！');
-                    return [];
+                if (!$list = OaProjectOrderRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
+                    $this->setError('获取失败！');
+                    return false;
                 }
             }
-
-
-        }
-
         $this->removePagingField($list);
-
         if (empty($list['data'])) {
-            $this->setMessage('没有搜索到此类型订单!');
+            $this->setMessage('没有数据!');
+            return $list;
         }
-
         foreach ($list['data'] as &$value)
         {
             $value['status_name']       =   ProjectEnum::getStatus($value['status']);
@@ -90,32 +86,7 @@ class OaProjectService extends BaseService
             $this->setError('没有查到该订单信息!');
             return false;
         }
-
-        if ($orderInfo['status'] == ProjectEnum::DELETE){
-            $this->setError('该订单已被删除，如有需求请联系超级管理员！');
-            return false;
-        }
-
-        if (!empty($orderInfo)) {
-            switch ($orderInfo['status']) {
-                case ProjectEnum::SUBMITTED:
-                    $orderInfo['status'] = '已提交';
-                    break;
-                case ProjectEnum::INREVIEW:
-                    $orderInfo['status'] = '审核中';
-                    break;
-                case ProjectEnum::PASS:
-                    $value['status'] = '审核通过';
-                    break;
-                case ProjectEnum::FAILURE:
-                    $orderInfo['status'] = '审核失败';
-                    break;
-                case ProjectEnum::DELETE:
-                    $orderInfo['status'] = '已删除';
-                    break;
-                default ;
-            }
-        }
+        $orderInfo['status_name']       =   ProjectEnum::getStatus($orderInfo['status']);
         $orderInfo['reservation_at']    =   date('Y-m-d H:m:s',$orderInfo['reservation_at']);
         $orderInfo['created_at']        =   date('Y-m-d H:m:s',$orderInfo['created_at']);
         $orderInfo['updated_at']        =   date('Y-m-d H:m:s',$orderInfo['updated_at']);
@@ -132,25 +103,16 @@ class OaProjectService extends BaseService
     public function setProjectOrderStatusById(array $data)
     {
         $id = $data['id'];
-        unset($data['sign'],$data['token'],$data['id']);
-
-        $statusGroup = [2,3,4];
-        if (!in_array($data['status'],$statusGroup)){
-            $this->setError('审核类型不存在！');
-            return false;
-        }
-
-        if (!$orderInfo = OaProjectOrderRepository::exists(['id' => $id])){
+        if (!OaProjectOrderRepository::exists(['id' => $id])){
             $this->setError('无此订单!');
             return false;
         }
+        $upd_arr = [
+            'status'      => $data['status'] == 1 ? ProjectEnum::PASS : ProjectEnum::NOPASS,
+            'updated_at'  => time(),
+        ];
 
-        if (!$orderInfo = OaProjectOrderRepository::getOne(['id' => $id])){
-            $this->setError('没有查到该订单信息!');
-            return false;
-        }
-
-        if ($updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$data)){
+        if ($updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$upd_arr)){
             if ($data['status'] == ProjectEnum::PASS){
                 //TODO 此处可以添加报名后发通知的事务
                 #发送短信
