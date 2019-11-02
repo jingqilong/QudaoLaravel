@@ -64,7 +64,7 @@ class PersonalService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $column         = ['*'];
-        $where          = ['deleted_at' => 0];
+        $where          = ['deleted_at' => 0,'type' => $data['type']];
         if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -73,8 +73,9 @@ class PersonalService extends BaseService
 
         foreach ($list['data'] as &$value)
         {
-            $value['type_name']         =   empty($value['type']) ? '' : LoanEnum::getType($value['type']);
-            $value['status_name']       =   empty($value['status']) ? '' : LoanEnum::getStatus($value['status']);
+            $value['type_name']         =   LoanEnum::getType($value['type']);
+            $value['status_name']       =   LoanEnum::getStatus($value['status']);
+            $value['price_name']        =   LoanEnum::getPrice($value['price']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);

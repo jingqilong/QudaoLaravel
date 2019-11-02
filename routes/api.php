@@ -253,9 +253,13 @@ $api->version('v1',function ($api){
         //医疗模块
         $api->group(['prefix' => 'medical', 'namespace' => 'Medical'], function ($api) {
             $api->group(['middleware' => 'member.jwt.auth'], function ($api) {
-                $api->post('add_house_order', 'HouseController@sendCaptcha')->name('增加房产订单');
+                $api->post('add_doctor_order', 'DoctorOrderController@addDoctorOrder')->name('添加医疗预约');
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
                 $api->get('doctors_list', 'DoctorsController@doctorsList')->name('获取医生列表');
+            });
+            #添加医院
+            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+                $api->get('doctor_order_list', 'DoctorOrderController@doctorOrderList')->name('获取医疗预约列表');
             });
             #添加医院
             $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
