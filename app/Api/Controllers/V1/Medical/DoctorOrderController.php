@@ -56,6 +56,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="预约人手机",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="sex",
      *         in="query",
      *         description="性别[1 男 2女]",
@@ -74,7 +83,7 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="hospitals_id",
+     *         name="hospital_id",
      *         in="query",
      *         description="预约医院id",
      *         required=true,
@@ -88,7 +97,7 @@ class DoctorOrderController extends ApiController
      *         description="预约医生id",
      *         required=true,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -128,32 +137,33 @@ class DoctorOrderController extends ApiController
     public function addDoctorOrder(){
         $rules = [
             'name'              => 'required|string',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
             'sex'               => 'required|integer',
             'age'               => 'required|integer',
             'doctor_id'         => 'required|integer',
             'description'       => 'string',
             'appointment_at'    => 'required|date',
-            'end_time'          => 'required|date',
-            'recommend'         => 'required|integer',
-            'hospitals_id'      => 'required|integer',
+            'end_time'          => 'date',
+            'hospital_id'       => 'required|integer',
             'department_ids'    => 'string',
         ];
         $messages = [
             'name.required'             => '预约人姓名不能为空',
             'name.string'               => '预约人姓名必须为字符串',
+            'mobile.required'           => '预约手机不能为空',
+            'mobile.regex'              => '预约手机格式不正确',
             'sex.required'              => '预约人性别不能为空',
             'sex.integer'               => '预约人姓名不是整数',
             'age.required'              => '预约人性别不能为空',
-            'age.integer'               => '预约人姓名不是整数',
-            'description.string'        => '病情描述必须为字符串',
-            'hospitals_id.integer'      => '医院ID不是整数',
-            'hospitals_id.required'     => '医院ID不能为空',
+            'age.integer'               => '年龄格式错误',
+            'description.string'        => '病情描述详情必须为字符串',
+            'hospital_id.integer'       => '医院ID不是整数',
+            'hospital_id.required'      => '医院ID不能为空',
             'doctor_id.integer'         => '医生ID不是整数',
             'doctor_id.required'        => '医生ID不能为空',
-            'appointment_at.date'       => '预约时间',
-            'appointment_at.required'   => '医院ID不能为空',
-            'end_time.integer'          => '医院ID不是整数',
-            'end_time.required'         => '医院ID不能为空',
+            'appointment_at.date'       => '预约时间格式不正确',
+            'appointment_at.required'   => '预约时间不能为空',
+            'end_time.date'             => '截止时间格式不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -261,6 +271,77 @@ class DoctorOrderController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->OrdersService->getDoctorOrderList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+    }
+
+  /**
+     * @OA\Get(
+     *     path="/api/v1/medical/set_doctor_order",
+     *     tags={"医疗医院后台"},
+     *     summary="审核预约列表状态(oa)",
+     *     description="jing" ,
+     *     operationId="set_doctor_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约订单id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="审核状态【1审核通过 2审核驳回】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function setDoctorOrder(){
+        $rules = [
+            'id'            => 'required|integer',
+            'status'        => 'in:0,1,2',
+        ];
+        $messages = [
+            'id.required'               => '预约id不能为空',
+            'id.integer'                => '预约id不是整数',
+            'status.in'                 => '审核类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OrdersService->setDoctorOrder($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
         }
