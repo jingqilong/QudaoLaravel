@@ -70,72 +70,15 @@ class WeChatService extends BaseService
         try{
             $config         = config('wechat.official_account.default');
             $app            = Factory::officialAccount($config);
+
             $access_token   = $app->oauth->getAccessToken($code);
-            $app->oauth->setAccessToken($access_token);
-            $user           = $app->oauth->user();
+            $user           = $app->oauth->user($access_token);
             $user_arr       = $user->getOriginal();
         }catch (\Exception $e){
             $this->setError($e->getMessage());
             return ['code' => 0];
         }
         return $this->login($code,$user_arr,$access_token);
-//        if (!isset($user_arr['unionid'])){
-//            $this->setError('请先关注我们的公众号!');
-//            return ['code' => 0];
-//        }
-//        $openId = $user->getId();
-//        $nickname = $user->getNickname();
-//        $avatar = $user->getAvatar();
-//        $unionid = $user_arr['unionid'];
-//        if ($bind = MemberBindRepository::exists(['identifier' => $unionid])){
-//            if (!empty($bind['user_id'])){
-//                if ($member = MemberRepository::getOne(['m_id' => $bind['user_id']])){
-//                    $this->setMessage('登录成功！');
-//                    return [
-//                        'code'  => 1,
-//                        'data'  => [
-//                            'token' => MemberRepository::getToken($member['m_id']),
-//                            'wx_user_info'  => $user_arr,
-//                            'sysy_user_info'=> $member
-//                        ]
-//                    ];
-//                }
-//                $this->setError('登录失败！');
-//                return ['code' => 0];
-//            }
-//        }
-//        if (empty($bind)){
-//            $time = time();
-//            $bind_add = [
-//                'identity_type' => MemberBindEnum::WECHAT,
-//                'identifier'    => $unionid,
-//                'credential'    => $access_token,
-//                'last_login'    => $time,
-//                'ip_address'    => request()->ip(),
-//                'additional'    => $openId,
-//                'created_at'    => $time
-//            ];
-//            if (!MemberBindRepository::getAddId($bind_add)){
-//                $this->setError('登录失败！');
-//                return ['code' => 0];
-//            }
-//        }
-//        //缓存信息，用于绑定手机号使用
-//        $cacheData = [
-//            'nickname'  => $nickname,
-//            'avatar'    => $avatar,
-//            'unionid'   => $unionid
-//        ];
-//        Cache::put("officialAccountLogin$code",$cacheData,3600);
-//        $this->setMessage('未绑定手机号!');
-//        return [
-//            'code' => 2,
-//            'data' => [
-//                'token' => '',
-//                'wx_user_info'  => $user_arr,
-//                'sys_user_info'=> []
-//            ]
-//        ];
     }
 
     /**
@@ -222,13 +165,13 @@ class WeChatService extends BaseService
      * @return array
      */
     public function login($code, $user_arr, $access_token){
-        if (!isset($user_arr['open_id'])){
+        if (!isset($user_arr['openid'])){
             $this->setError('授权失败!');
             return ['code' => 0];
         }
-        $openId     = $user_arr['open_id'];
+        $openId     = $user_arr['openid'];
         $nickname   = $user_arr['nickname'] ?? '';
-        $avatar     = $user_arr['avatar'] ?? '';
+        $avatar     = $user_arr['headimgurl'] ?? ($user_arr['avatar'] ?? '');
         $unionid    = $user_arr['unionid'] ?? '';
         if ($bind = MemberBindRepository::exists(['identifier' => $openId])){
             if (!empty($bind['user_id'])){

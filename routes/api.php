@@ -138,6 +138,7 @@ $api->version('v1',function ($api){
             #精选生活OA后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 $api->post('add_merchant','OaPrimeController@addMerchant')->name('添加商户');
+                $api->post('disabled_merchant','OaPrimeController@disabledMerchant')->name('禁用或启用商户');
             });
             $api->post('login','PrimeController@login')->name('登录');
         });

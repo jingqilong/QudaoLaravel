@@ -122,5 +122,30 @@ class MerchantService extends BaseService
         $this->setError('添加失败！');
         return true;
     }
+
+    /**
+     * 开启或禁用商户
+     * @param $merchant_id
+     * @return bool
+     */
+    public function disabledMerchant($merchant_id)
+    {
+        if (!$merchant = PrimeMerchantRepository::getOne(['id' => $merchant_id])){
+            $this->setError('商户信息不存在！');
+            return false;
+        }
+        $upd_arr = ['updated_at' => time(),'disabled' => 0];
+        $message = '开启';
+        if ($merchant['disabled'] == 0){
+            $upd_arr['disabled'] = time();
+            $message = '禁用';
+        }
+        if (PrimeMerchantRepository::getUpdId(['id' => $merchant_id],$upd_arr)){
+            $this->setMessage($message.'成功！');
+            return true;
+        }
+        $this->setError($message.'失败！');
+        return true;
+    }
 }
             
