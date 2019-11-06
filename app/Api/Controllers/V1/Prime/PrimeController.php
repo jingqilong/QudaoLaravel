@@ -5,28 +5,26 @@ namespace App\Api\Controllers\V1\Prime;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Oa\EmployeeService;
-use App\Services\Prime\ShopsService;
-use Illuminate\Http\JsonResponse;
+use App\Services\Prime\MerchantService;
 
 class PrimeController extends ApiController
 {
-    protected $shopsService;
+    protected $merchantService;
 
     /**
      * TestApiController constructor.
-     * @param $shopsService
+     * @param MerchantService $merchantService
      */
-    public function __construct(ShopsService $shopsService)
+    public function __construct(MerchantService $merchantService)
     {
         parent::__construct();
-        $this->shopsService = $shopsService;
+        $this->merchantService = $merchantService;
     }
 
     /**
      * @OA\Post(
      *     path="/api/v1/prime/login",
-     *     tags={"精选服务模块"},
+     *     tags={"精选生活"},
      *     summary="登录",
      *     description="sang" ,
      *     operationId="login",
@@ -40,9 +38,9 @@ class PrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="account",
+     *         name="mobile",
      *         in="query",
-     *         description="账户【用户名、手机号】",
+     *         description="手机号",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -64,29 +62,24 @@ class PrimeController extends ApiController
      * )
      *
      */
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return array|JsonResponse|string
-     */
     public function login()
     {
         $rules = [
-            'account'   => 'required',
+            'mobile'   => ['required','regex:/^1[3456789][0-9]{9}$/'],
             'password' => 'required|string|min:6',
         ];
         $messages = [
-            'account.required' => '请输入账户',
+            'mobile.required'   => '请输入手机号',
+            'mobile.regex'      => '手机号格式有误',
             'password.required' => '请输入密码',
-            'password.min' => '密码最少6位',
+            'password.min'      => '密码最少6位',
         ];
 
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->shopsService->login($this->request['account'],$this->request['password']);
+        $res = $this->merchantService->login($this->request['mobile'],$this->request['password']);
         if (is_string($res)){
             return ['code' => 100, 'message' => $res];
         }
@@ -96,7 +89,7 @@ class PrimeController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/prime/logout",
-     *     tags={"精选服务模块"},
+     *     tags={"精选生活"},
      *     summary="退出登录",
      *     description="sang" ,
      *     operationId="logout",
@@ -125,14 +118,9 @@ class PrimeController extends ApiController
      * )
      *
      */
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return array
-     */
     public function logout()
     {
-        if ($this->shopsService->logout($this->request['token'])){
+        if ($this->merchantService->logout($this->request['token'])){
             return ['code' => 200, 'message' => '退出成功！'];
         }
         return ['code' => 100, 'message' => '退出失败！'];
@@ -141,7 +129,7 @@ class PrimeController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/prime/refresh",
-     *     tags={"精选服务模块"},
+     *     tags={"精选生活"},
      *     summary="刷新TOKEN",
      *     description="sang" ,
      *     operationId="refresh",
@@ -170,14 +158,9 @@ class PrimeController extends ApiController
      * )
      *
      */
-    /**
-     * Refresh a token.
-     *
-     * @return mixed
-     */
     public function refresh()
     {
-        if ($token = $this->shopsService->refresh($this->request['token'])){
+        if ($token = $this->merchantService->refresh($this->request['token'])){
             return ['code' => 200, 'message' => '刷新成功！', 'data' => ['token' => $token]];
         }
         return ['code' => 100, 'message' => '刷新失败！'];
@@ -187,7 +170,7 @@ class PrimeController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/prime/get_user_info",
-     *     tags={"精选服务模块"},
+     *     tags={"精选生活"},
      *     summary="获取用户信息",
      *     description="sang" ,
      *     operationId="get_user_info",
@@ -216,13 +199,9 @@ class PrimeController extends ApiController
      * )
      *
      */
-    /**
-     * Get user info.
-     * @return array
-     */
     public function getUserInfo()
     {
-        if ($user = $this->shopsService->getUserInfo()){
+        if ($user = $this->merchantService->getUserInfo()){
             return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['user' => $user]];
         }
         return ['code' => 100, 'message' => '用户信息获取失败！'];

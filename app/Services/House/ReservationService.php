@@ -77,9 +77,20 @@ class ReservationService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $house_ids = array_column($list['data'],'house_id');
+        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','area_code','address','rent','tenancy']);
         foreach ($list['data'] as &$value){
-            $value['house'] = [];
-            $value['state']= HouseEnum::getReservationStatus($value['state']);
+            $value['house_title'] = '';
+            $value['area_address'] = '';
+            $value['rent'] = '';
+            if ($house = $this->searchArray($house_list,'id',$value['house_id'])){
+                $house = reset($house);
+                $value['house_title']           = $house['title'];
+                list($area_address,$lng,$lat)   = $this->makeAddress($house['area_code'],$house['address']);
+                $value['area_address']          = $area_address;
+                $value['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
+            }
+            $value['state_title']= HouseEnum::getReservationStatus($value['state']);
             $value['time']  = date('Y-m-d H:i:s',$value['time']);
         }
         $this->setMessage('获取成功！');

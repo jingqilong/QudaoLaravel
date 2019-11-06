@@ -13,6 +13,7 @@ use App\Repositories\HouseLeasingRepository;
 use App\Repositories\HouseTowardRepository;
 use App\Repositories\HouseUnitRepository;
 use App\Repositories\MemberRepository;
+use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
@@ -293,6 +294,7 @@ class DetailsService extends BaseService
             $value['images']        = array_column($image_list,'img_url');
             $value['category_title']      = HouseEnum::getCategory($value['category']);
             $value['publisher_title']     = HouseEnum::getPublisher($value['publisher']);
+            $value['publisher_name']      = $this->getPublisherName($value['publisher'],$value['publisher_id']);
             $value['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$value['facilities_ids']),['id','title','icon_id']);
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
@@ -401,6 +403,23 @@ class DetailsService extends BaseService
         }
         $this->setMessage('审核成功！');
         return true;
+    }
+
+    /**
+     * 获取发布人手机号
+     * @param $publisher
+     * @param $publisher_id
+     * @return string|null
+     */
+    public function getPublisherName($publisher, $publisher_id){
+        $name = '';
+        if ($publisher == HouseEnum::PERSON){
+            $name = MemberRepository::getField(['m_id' => $publisher_id],'m_phone');
+        }
+        if ($publisher == HouseEnum::PLATFORM){
+            $name = OaEmployeeRepository::getField(['id' => $publisher_id],'mobile');
+        }
+        return $name;
     }
 }
             

@@ -43,10 +43,6 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->any('we_chat_pay_call_back', 'WeChatPayController@weChatPayCallBack')->name('微信小程序微信支付回调接口');
         });
-        //微信公众号授权回调
-        $api->group(['prefix' => 'member','namespace' => 'Member'], function($api){
-            $api->get('oauth_callback','WeChatController@oauthCallback')->name('微信公众号授权回调');
-        });
     });
     //需要验签的接口
     $api->group(['prefix' => 'v1','middleware' => ['cors', 'sign'],'namespace' => 'App\Api\Controllers\V1'], function ($api) {
@@ -131,12 +127,17 @@ $api->version('v1',function ($api){
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
 
-        //精选服务模块
+        //精选生活
         $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
+            #精选生活后台
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
                 $api->post('logout','PrimeController@logout')->name('退出');
                 $api->post('refresh','PrimeController@refresh')->name('刷新token');
                 $api->get('get_user_info','PrimeController@getUserInfo')->name('获取用户信息');
+            });
+            #精选生活OA后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+                $api->post('add_merchant','OaPrimeController@addMerchant')->name('添加商户');
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
