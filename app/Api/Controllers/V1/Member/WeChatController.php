@@ -338,7 +338,7 @@ class WeChatController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         //短信验证
-        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::BINDMOBILE, $this->request['code']);
+        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::BINDMOBILE, $this->request['captcha']);
         if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
         }

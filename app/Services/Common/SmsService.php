@@ -54,7 +54,7 @@ class SmsService extends BaseService
         if ($time > ($sms['created_at'] + 300)){
             CommonSmsRepository::getUpdId(['id' => $sms['id']], ['status' => 1]);
             return '短信已过期，请重新获取！';
-        }dd($sms);
+        }
         if ($code != $sms['code']){
             return '验证码有误，请重新输入！';
         }else{
