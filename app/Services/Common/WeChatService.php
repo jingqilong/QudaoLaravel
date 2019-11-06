@@ -165,11 +165,11 @@ class WeChatService extends BaseService
      * @return array
      */
     public function login($code, $user_arr, $access_token){
-        if (!isset($user_arr['open_id'])){
+        if (!isset($user_arr['openid'])){
             $this->setError('授权失败!');
             return ['code' => 0];
         }
-        $openId     = $user_arr['open_id'];
+        $openId     = $user_arr['openid'];
         $nickname   = $user_arr['nickname'] ?? '';
         $avatar     = $user_arr['headimgurl'] ?? ($user_arr['avatar'] ?? '');
         $unionid    = $user_arr['unionid'] ?? '';
