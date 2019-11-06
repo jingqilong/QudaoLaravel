@@ -350,15 +350,4 @@ class WeChatController extends ApiController
         }
         return ['code' => 200, 'message' => $this->weChatService->message,'data' => $result];
     }
-
-    /**
-     * 微信公众号授权回调
-     * @return array
-     */
-    public function oauthCallback(){
-        if (isset($this->request['code'])){
-            return ['code' => 200,'message' => '获取成功！','data' => ['code' => $this->request['code']]];
-        }
-        return ['code' => 100,'message' => '获取失败！'];
-    }
 }
