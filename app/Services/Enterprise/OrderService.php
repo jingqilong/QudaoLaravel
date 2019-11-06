@@ -3,6 +3,7 @@ namespace App\Services\Enterprise;
 
 
 
+use App\Enums\EnterEnum;
 use App\Repositories\EnterpriseOrderRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -39,6 +40,7 @@ class OrderService extends BaseService
 
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at'];
         if (!empty($keywords)){
+
             $keyword = [$keywords => ['enterprise_name','service_type']];
             if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num)){
                 $this->setMessage('没有数据！');
@@ -78,11 +80,15 @@ class OrderService extends BaseService
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $where          = ['in',[1,2,3,4]];
+        $type           = $data['type'] ?? null;
+        $where          = ['deleted_at' => 0];
 
-        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at'];
+        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
+        if ($type !== null){
+            $where['service_type'] = $type;
+        }
         if (!empty($keywords)){
-            $keyword = [$keywords => ['enterprise_name','service_type']];
+            $keyword = [$keywords => ['enterprise_name']];
             if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num)){
                 $this->setMessage('没有数据！');
                 return [];
@@ -93,7 +99,7 @@ class OrderService extends BaseService
                 return [];
             }
         }
-        $this->removePagingField($list);
+        $list = $this->removePagingField($list);
 
         if (empty($list['data'])){
             $this->setMessage('没有获取到数据！');
@@ -101,6 +107,8 @@ class OrderService extends BaseService
         }
         foreach ($list['data'] as &$value)
         {
+            $value['type_name']         =   EnterEnum::getType($value['service_type']);
+            $value['status_name']       =   EnterEnum::getStatus($value['status']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);

@@ -122,7 +122,16 @@ class EnterpriseController extends ApiController
      *      @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【项目名称，服务类型】",
+     *         description="搜索内容【项目名称】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="项目类型【1企业咨询  2餐饮咨询  3公司咨询  4商业咨询】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",

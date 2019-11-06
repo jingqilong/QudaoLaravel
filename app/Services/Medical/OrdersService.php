@@ -172,10 +172,9 @@ class OrdersService extends BaseService
 
     /**
      * 获取成员自己预约列表状态
-     * @param $request
      * @return array|bool|null
      */
-    public function doctorsList($request)
+    public function doctorsList()
     {
         $memberInfo = $this->auth->user();
         if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id']])){
