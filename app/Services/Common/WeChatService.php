@@ -71,7 +71,7 @@ class WeChatService extends BaseService
             $config         = config('wechat.official_account.default');
             $app            = Factory::officialAccount($config);
             $access_token   = $app->oauth->getAccessToken($code);
-            $app->oauth->setAccessToken($access_token);
+//            $app->oauth->setAccessToken($access_token);
             $user           = $app->oauth->user();
             $user_arr       = $user->getOriginal();
         }catch (\Exception $e){
