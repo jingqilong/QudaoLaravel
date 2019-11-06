@@ -42,53 +42,12 @@ class EnterpriseController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *      @OA\Parameter(
-     *         name="keywords",
-     *         in="query",
-     *         description="搜索内容【项目名称，服务类型】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="页码",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page_num",
-     *         in="query",
-     *         description="每页显示条数",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
      *     @OA\Response(response=100,description="获取企业咨询订单列表失败",),
      * )
      *
      */
     public function getEnterpriseList()
     {
-        $rules = [
-            'keywords'          => 'string',
-            'page'              => 'integer',
-            'page_num'          => 'integer',
-        ];
-        $messages = [
-            'keywords.string'           => '请正确输入搜索条件',
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
-        ];
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
         $list = $this->enterpriseService->getEnterpriseList($this->request);
 
         return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $list];
@@ -199,7 +158,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
+     *         description="用户 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -296,7 +255,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *          name="service_type",
      *          in="query",
-     *          description="服务类型",
+     *          description="服务类型 1企业咨询  2餐饮咨询  3公司咨询  4商业咨询",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -330,7 +289,7 @@ class EnterpriseController extends ApiController
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
             'enterprise_name'   => 'required',
-            'service_type'      => 'required',
+            'service_type'      => 'required|integer',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -339,6 +298,7 @@ class EnterpriseController extends ApiController
             'mobile.regex'              => '请正确填写手机号',
             'enterprise_name.required'  => '请输入企业咨询名称',
             'service_type.required'     => '请输入企业咨询服务类型',
+            'service_type.integer'      => '企业咨询服务类型不能为空',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
@@ -487,7 +447,7 @@ class EnterpriseController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/enterprise/del_enterprise",
-     *     tags={"企业咨询(前端页面)"},
+     *     tags={"企业咨询(后端页面)"},
      *     summary="删除企业咨询订单信息",
      *     operationId="del_enterprise",
      *     @OA\Parameter(

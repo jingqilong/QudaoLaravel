@@ -33,33 +33,21 @@ class OrderService extends BaseService
     {
         $memberInfo = $this->auth->user();
 
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
-        $keywords       = $data['keywords'] ?? null;
-        $where          = ['name' => $memberInfo['m_cname'],'mobile' => $memberInfo['m_phone'],'status' => ['in',[1,2,3,4]]];
-
-        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at'];
-        if (!empty($keywords)){
-
-            $keyword = [$keywords => ['enterprise_name','service_type']];
-            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num)){
-                $this->setMessage('没有数据！');
-                return [];
-            }
-        }else{
-            if (!$list = EnterpriseOrderRepository::search([],$where,$column,$page,$page_num,'created_at','desc')){
-                $this->setMessage('没有数据！');
-                return [];
-            }
+        $where          = ['deleted_at' => 0,'user_id' => $memberInfo['m_id']];
+        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
+        if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc')){
+            $this->setMessage('没有数据！');
+            return [];
         }
-        $this->removePagingField($list);
-
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $list = $this->removePagingField($list);
         foreach ($list['data'] as &$value)
         {
+            $value['type_name']         =   EnterEnum::getType($value['service_type']);
+            $value['status_name']       =   EnterEnum::getStatus($value['status']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
@@ -124,11 +112,12 @@ class OrderService extends BaseService
      */
     public function getEnterpriseInfo(string $id)
     {
-        if (!$list = EnterpriseOrderRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
+        if (!$list = EnterpriseOrderRepository::getOne(['id' => $id,'deleted_at' => 0])){
             $this->setError('查询不到该条数据！');
             return false;
         }
-
+        $list['type_name']         =   EnterEnum::getType($list['service_type']);
+        $list['status_name']       =   EnterEnum::getStatus($list['status']);
         $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
         $list['created_at']        =   date('Y-m-d H:m:s',$list['created_at']);
         $list['updated_at']        =   date('Y-m-d H:m:s',$list['updated_at']);
@@ -146,14 +135,19 @@ class OrderService extends BaseService
     public function addEnterprise(array $data)
     {
         $memberInfo = $this->auth->user();
-        unset($data['sign'], $data['token']);
-
-        $data['created_at']     = time();
-        $data['reservation_at'] = strtotime($data['reservation_at']);
-        $data['status']         = '1';
-        $data['user_id']        = $memberInfo['m_id'];
-
-        if (!$res = EnterpriseOrderRepository::getAddId($data)){
+        $status                 = EnterEnum::SUBMIT;
+        $add_arr = [
+            'user_id'           => $memberInfo['m_id'],
+            'name'              => $data['name'],
+            'mobile'            => $data['mobile'],
+            'enterprise_name'   => $data['enterprise_name'],
+            'service_type'      => $data['service_type'],
+            'remark'            => $data['remark'],
+            'status'            => $status,
+            'created_at'        => time(),
+            'reservation_at'    => strtotime($data['reservation_at']),
+        ];
+        if (!$res = EnterpriseOrderRepository::getAddId($add_arr)){
             $this->setError('预约失败,请重试！');
             return false;
         }
@@ -198,11 +192,11 @@ class OrderService extends BaseService
      */
     public function delEnterprise(string $id)
     {
-        if (!$EnterpriseInfo = EnterpriseOrderRepository::getOne(['id' => $id])){
+        if (!$EnterpriseInfo = EnterpriseOrderRepository::exists(['id' => $id])){
             $this->setError('没有查找到该数据,请重试！');
             return false;
         }
-        if (!$res = EnterpriseOrderRepository::getUpdId(['id' => $id],['status' => '9'])){
+        if (!EnterpriseOrderRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
         }

@@ -370,15 +370,12 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_enterprise', 'EnterpriseController@addEnterprise')->name('根据ID添加企业咨询订单');
                 $api->post('upd_enterprise', 'EnterpriseController@updEnterprise')->name('根据ID修改企业咨询订单');
-                $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('根据ID删除企业咨询订单');
                 $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取本人企业咨询订单列表');
                 $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
             });
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
-                $api->post('upd_order_enterprise', 'EnterpriseController@updOrderEnterprise')->name('根据ID修改企业咨询订单');
-                $api->delete('del_order_enterprise', 'EnterpriseController@delOrderEnterprise')->name('根据ID删除企业咨询订单');
+                $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('根据ID删除企业咨询订单');
                 $api->get('get_order_enterprise_list', 'EnterpriseController@getOrderEnterpriseList')->name('获取企业咨询订单列表');
-                $api->get('get_order_enterprise_info', 'EnterpriseController@getOrderEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
                 $api->post('set_order_enterprise_info', 'EnterpriseController@setOrderEnterpriseInfo')->name('设置企业咨询订单状态');
                 $api->get('get_enterprise_order_list', 'EnterpriseController@getEnterpriseOrderList')->name('获取本人企业咨询订单列表(后端)');
             });
