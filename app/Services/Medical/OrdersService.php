@@ -63,6 +63,7 @@ class OrdersService extends BaseService
     }
 
     /**
+     * 获取预约列表(oa)
      * @param $data
      * @return bool|mixed|null
      */
@@ -167,6 +168,37 @@ class OrdersService extends BaseService
         }
         $this->setError('审核失败，请重试!');
         return false;
+    }
+
+    /**
+     * 获取成员自己预约列表状态
+     * @param $request
+     * @return array|bool|null
+     */
+    public function doctorsList($request)
+    {
+        $memberInfo = $this->auth->user();
+        if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id']])){
+            $this->setMessage('暂时没有预约订单');
+            return [];
+        }
+        if (empty($list)){
+            $this->setError('暂时没有预约订单');
+            return false;
+        }
+        foreach ($list as &$value){
+            if ($doctor_name = MedicalDoctorsRepository::getOne(['id' => $value['doctor_id']])){
+                $value['doctor_name'] = $doctor_name['name'];
+            }
+            if ($hospitals_name = MediclaHospitalsRepository::getOne(['id' => $value['hospital_id']])){
+                $value['hospitals_name'] = $hospitals_name['name'];
+            }
+            $value['status_name']       =  DoctorEnum::getStatus($value['status']);
+            $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+        }
+
+        $this->setMessage('获取成功！');
+        return $list;
     }
 
 }

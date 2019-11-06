@@ -348,4 +348,44 @@ class DoctorOrderController extends ApiController
         return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/doctors_list",
+     *     tags={"医疗医院前端"},
+     *     summary="获取成员自己预约列表状态",
+     *     description="jing" ,
+     *     operationId="doctors_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function doctorsList(){
+        $res = $this->OrdersService->doctorsList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+    }
+
 }
