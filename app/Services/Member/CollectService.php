@@ -2,23 +2,16 @@
 namespace App\Services\Member;
 
 
-<<<<<<< HEAD
 use App\Services\BaseService;
-=======
 use App\Enums\CollectTypeEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\MemberCollectRepository;
-use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
->>>>>>> 2e541989ec91e68f57750ff11922323c8a522e7f
 
 class CollectService extends BaseService
 {
-
-<<<<<<< HEAD
-=======
     use HelpTrait;
     protected $auth;
 
@@ -95,6 +88,5 @@ class CollectService extends BaseService
         $this->setMessage('收藏成功！');
         return true;
     }
->>>>>>> 2e541989ec91e68f57750ff11922323c8a522e7f
 }
             
