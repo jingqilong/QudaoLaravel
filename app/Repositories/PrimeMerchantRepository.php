@@ -32,7 +32,7 @@ class PrimeMerchantRepository extends ApiRepository
      * @return array|JsonResponse|string
      */
     protected function login ($mobile,$password){
-        if (!$user = $this->model->where(['mobile' => $mobile])->first(['id','password'])){
+        if (!$user = $this->model->where(['mobile' => $mobile])->first()){
             return ['code' => 100, 'message' => '账户不存在'];
         }
         if (!Hash::check($password, $user->password)){

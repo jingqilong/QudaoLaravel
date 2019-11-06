@@ -6,7 +6,6 @@ namespace App\Api\Controllers\V1\Prime;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Prime\MerchantService;
-use Illuminate\Http\JsonResponse;
 
 class OaPrimeController extends ApiController
 {
@@ -230,6 +229,67 @@ class OaPrimeController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->merchantService->addMerchant($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->merchantService->error];
+        }
+        return ['code' => 200, 'message' => $this->merchantService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/prime/disabled_merchant",
+     *     tags={"精选生活OA后台"},
+     *     summary="禁用或启用商户",
+     *     description="sang" ,
+     *     operationId="disabled_merchant",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="merchant_id",
+     *         in="query",
+     *         description="商户ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="操作失败",
+     *     ),
+     * )
+     *
+     */
+    public function disabledMerchant(){
+        $rules = [
+            'merchant_id'       => 'required|integer',
+        ];
+        $messages = [
+            'merchant_id.required'  => '商户ID不能为空',
+            'merchant_id.integer'   => '商户ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->merchantService->disabledMerchant($this->request['merchant_id']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->merchantService->error];
         }
