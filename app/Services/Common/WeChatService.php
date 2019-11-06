@@ -173,7 +173,8 @@ class WeChatService extends BaseService
         $nickname   = $user_arr['nickname'] ?? '';
         $avatar     = $user_arr['headimgurl'] ?? ($user_arr['avatar'] ?? '');
         $unionid    = $user_arr['unionid'] ?? '';
-        if ($bind = MemberBindRepository::exists(['identifier' => $openId])){dd($bind);
+        if ($bind = MemberBindRepository::exists(['identifier' => $openId])){
+            return ['code' => 1,'data' => $bind];
             if (!empty($bind['user_id'])){
                 if ($member = MemberRepository::getOne(['m_id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
