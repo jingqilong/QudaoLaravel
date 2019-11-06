@@ -127,12 +127,17 @@ $api->version('v1',function ($api){
             $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
 
-        //精选服务模块
+        //精选生活
         $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
+            #精选生活后台
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
                 $api->post('logout','PrimeController@logout')->name('退出');
                 $api->post('refresh','PrimeController@refresh')->name('刷新token');
                 $api->get('get_user_info','PrimeController@getUserInfo')->name('获取用户信息');
+            });
+            #精选生活OA后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+                $api->post('add_merchant','OaPrimeController@addMerchant')->name('添加商户');
             });
             $api->post('login','PrimeController@login')->name('登录');
         });
