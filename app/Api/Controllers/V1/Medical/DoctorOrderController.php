@@ -381,7 +381,7 @@ class DoctorOrderController extends ApiController
      *
      */
     public function doctorsList(){
-        $res = $this->OrdersService->doctorsList($this->request);
+        $res = $this->OrdersService->doctorsList();
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
         }

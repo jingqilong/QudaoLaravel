@@ -27,7 +27,7 @@ class EnterpriseOrderModel extends Model
     protected $primaryKey = 'id';
     
     
-    protected $fillable = ['id','name','mobile','enterprise_name','service_type','status','remark','created_at','reservation_at','updated_at'];
+    protected $fillable = ['id','name','mobile','enterprise_name','service_type','status','remark','created_at','reservation_at','updated_at','deleted_at'];
 
     
 
