@@ -173,7 +173,7 @@ class WeChatService extends BaseService
         $nickname   = $user_arr['nickname'] ?? '';
         $avatar     = $user_arr['headimgurl'] ?? ($user_arr['avatar'] ?? '');
         $unionid    = $user_arr['unionid'] ?? '';
-        if ($bind = MemberBindRepository::exists(['identifier' => $openId])){
+        if ($bind = MemberBindRepository::getOne(['identifier' => $openId])){
             if (!empty($bind['user_id'])){
                 if ($member = MemberRepository::getOne(['m_id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
@@ -181,8 +181,7 @@ class WeChatService extends BaseService
                         'code'  => 1,
                         'data'  => [
                             'token' => MemberRepository::getToken($member['m_id']),
-                            'wx_user_info'  => $user_arr,
-                            'sysy_user_info'=> $member
+                            'user_info'=> $member
                         ]
                     ];
                 }
@@ -218,8 +217,7 @@ class WeChatService extends BaseService
             'code' => 2,
             'data' => [
                 'token' => '',
-                'wx_user_info'  => $user_arr,
-                'sys_user_info'=> []
+                'user_info'=> []
             ]
         ];
     }
@@ -229,7 +227,7 @@ class WeChatService extends BaseService
      * @param $mobile
      * @param $referral_code
      * @param $cacheData
-     * @return bool
+     * @return mixed
      */
     public function bindMobile($mobile, $referral_code, $cacheData){
         DB::beginTransaction();
@@ -292,7 +290,13 @@ class WeChatService extends BaseService
         }
         $this->setMessage('绑定成功！');
         DB::commit();
-        return true;
+        return [
+            'code'  => 1,
+            'data'  => [
+                'token'     => MemberRepository::getToken($member['m_id']),
+                'user_info' => $member
+            ]
+        ];
     }
 }
             

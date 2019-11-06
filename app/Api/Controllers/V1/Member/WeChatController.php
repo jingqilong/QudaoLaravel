@@ -310,7 +310,7 @@ class WeChatController extends ApiController
      *   @OA\Parameter(in="query",name="system",description="系统，小程序：mini，公众号：officialAccount",required=true,@OA\Schema(type="string",)),
      *   @OA\Parameter(in="query",name="mobile",description="手机号",required=true,@OA\Schema(type="string",)),
      *   @OA\Parameter(in="query",name="captcha",description="验证码",required=true,@OA\Schema(type="string",)),
-     *   @OA\Parameter(in="query",name="referral_code",description="推荐码",required=false,@OA\Schema(type="string",)),
+     *   @OA\Parameter(in="query",name="referral_code",description="推荐码",required=true,@OA\Schema(type="string",)),
      *   @OA\Response(response="default", description="操作成功：返回用户手机号:mobile、用户token")
      * )
      */
@@ -320,6 +320,7 @@ class WeChatController extends ApiController
             'system'        => 'required|in:mini,officialAccount',
             'mobile'        => 'required|regex:/^1[3456789][0-9]{9}$/',
             'captcha'       => 'required|max:4|min:4',
+            'referral_code' => 'required',
         ];
         $messages = [
             'code.required'             => 'code不能为空！',
@@ -330,13 +331,14 @@ class WeChatController extends ApiController
             'captcha.required'          => '验证码不能为空！',
             'captcha.max'               => '验证码长度为4位！',
             'captcha.min'               => '验证码长度为4位！',
+            'referral_code.required'    => '推荐码不能为空！',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
         //短信验证
-        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::BINDMOBILE, $this->request['code']);
+        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::BINDMOBILE, $this->request['captcha']);
         if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
         }
