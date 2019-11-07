@@ -45,7 +45,7 @@ class DoctorLabelsService extends BaseService
             $this->setError('医生标签已删除！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['department_id' => $id])){
+        if (MedicalDoctorsRepository::exists(['department_ids' => $id])){
             $this->setError('该医生标签正在使用，无法删除！');
             return false;
         }
@@ -71,12 +71,8 @@ class DoctorLabelsService extends BaseService
         }
         $upd_arr = [
             'name'     => $request['name'],
+            'updated_at' => time(),
         ];
-        if (MedicalDoctorLabelsRepository::exists(['name' => $upd_arr['name']])){
-            $this->setError('医生标签已存在！');
-            return false;
-        }
-        $upd_arr['updated_at'] = time();
         if (MedicalDoctorLabelsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
             return true;

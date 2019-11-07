@@ -88,32 +88,34 @@ class DoctorsService extends BaseService
             $this->setError('科室不存在！');
             return false;
         }
-        $add_arr = [
+        $upd_arr = [
             'name'              => $request['name'],
             'title'             => $request['title'],
             'sex'               => $request['sex'],
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
             'label_ids'         => $request['label_ids'] ?? '',
-            'hospitals_id'      => $request['hospitals_id'],
+            'hospitals_id'      => $request['hospitals_id'] == 0 ? 0 : time(),
+            'recommend'         => $request['recommend'],
             'department_ids'    => $request['department_ids'] ?? '',
+            'updated_at'        => time(),
         ];
         if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
             $this->setError('医生已存在！');
             return false;
         }
-        if (!MediclaHospitalsRepository::exists(['id' => $add_arr['hospitals_id']])){
+        if (!MediclaHospitalsRepository::exists(['id' => $upd_arr['hospitals_id']])){
             $this->setError('医院不存在！');
             return false;
         }
 
         if ($memberInfo = MemberRepository::getOne(['m_cname' => $request['name']])){
-            $add_arr['member_id'] = $memberInfo['m_id'];
+            $upd_arr['member_id'] = $memberInfo['m_id'];
         }
-        $add_arr['member_id']  = 0;
-        $add_arr['updated_at'] = time();
-        $add_arr['recommend']  = $request['recommend'] == 1 ? time() : 0;
-        if (MedicalDoctorsRepository::getUpdId(['id' => $request['id']],$add_arr)){
+        if (empty($memberInfo['m_id'])){
+            $upd_arr['member_id'] = '';
+        }
+        if (MedicalDoctorsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
             return true;
         }
@@ -175,6 +177,7 @@ class DoctorsService extends BaseService
             if ($label_info = MedicalDepartmentsRepository::getList(['id' => ['in',$label_ids]],['id','name'])){
                 $value['label_name'] = $label_info;
             }
+            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
         }
 
         $this->setMessage('获取成功!');
