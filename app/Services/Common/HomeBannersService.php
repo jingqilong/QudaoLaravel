@@ -43,7 +43,7 @@ class HomeBannersService extends BaseService
         $add_arr = [
             'type'          => $type,
             'show_time'     => strtotime($request['show_time']),
-            'related_id'    => $request['related_id'],
+            'related_id'    => $request['related_id'] ?? 0,
             'image_id'      => $request['image_id'],
             'url'           => $request['url'] ?? '',
             'created_at'    => time(),

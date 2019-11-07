@@ -45,5 +45,57 @@ class ImagesService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * 查询数据列表是，帮助获取数据列表中的图片数据
+     * @param array $list       数据列表
+     * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @return array
+     */
+    protected function getListImages(array $list, array $column){
+        if (empty($list) || empty($column)){
+            $this->setError('数据列表或查询列为空！');
+            return $list;
+        }
+        $all_str = '';
+        foreach ($column as $key=>$v){
+            $image_str = array_column($list,$key);
+            $part_str = '';
+            foreach ($image_str as $str){
+                $part_str .= rtrim($str,',') . ',';
+            }
+            $all_str .= rtrim($part_str,',') . ',';
+        }
+        $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
+        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url']);
+
+        foreach ($list as &$item){
+            foreach ($column as $k=>$v){
+                if (isset($item[$k])){
+                    if ($v == 'single'){
+                        $ids = explode(',',$item[$k]);
+                        $item[rtrim($k,'_id').'_url'] = '';
+                        $image_column = rtrim(rtrim($k,'_id'),'_ids').'_url';
+                        if ($image = self::searchArray($all_image_list,'id',reset($ids))){
+                            $item[$image_column] = reset($image)['img_url'];
+                        }
+                    }
+                    if ($v == 'several'){
+                        $ids = explode(',',$item[$k]);
+                        $images_column = rtrim(rtrim($k,'_id'),'_ids').'_urls';
+                        $urls = [];
+                        foreach ($ids as $id){
+                            if ($image = self::searchArray($all_image_list,'id',$id)){
+                                $urls[] = reset($image);
+                            }
+                        }
+                        $item[$images_column] = $urls;
+                    }
+                }
+            }
+        }
+        $this->setMessage('查询成功！');
+        return $list;
+    }
 }
             

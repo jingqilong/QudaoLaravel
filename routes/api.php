@@ -129,18 +129,25 @@ $api->version('v1',function ($api){
 
         //精选生活
         $api->group(['prefix' => 'prime','namespace' => 'Prime'],function ($api){
-            #精选生活后台
-            $api->group(['middleware' => 'prime.jwt.auth'],function($api){
-                $api->post('logout','PrimeController@logout')->name('退出');
-                $api->post('refresh','PrimeController@refresh')->name('刷新token');
-                $api->get('get_user_info','PrimeController@getUserInfo')->name('获取用户信息');
+            #精选生活商户后台
+            $api->group(['prefix' => 'admin','middleware' => 'prime.jwt.auth'],function($api){
+                $api->post('logout','AdminPrimeController@logout')->name('退出');
+                $api->post('refresh','AdminPrimeController@refresh')->name('刷新token');
+                $api->get('get_user_info','AdminPrimeController@getUserInfo')->name('获取用户信息');
+
+                $api->post('add_product','ProductPrimeController@addProduct')->name('添加产品');
+                $api->delete('delete_product','ProductPrimeController@deleteProduct')->name('删除产品');
+                $api->post('edit_product','ProductPrimeController@editProduct')->name('修改产品');
+                $api->get('product_list','ProductPrimeController@productList')->name('获取产品列表');
             });
             #精选生活OA后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 $api->post('add_merchant','OaPrimeController@addMerchant')->name('添加商户');
                 $api->post('disabled_merchant','OaPrimeController@disabledMerchant')->name('禁用或启用商户');
+                $api->post('edit_merchant','OaPrimeController@editMerchant')->name('修改商户');
+                $api->get('merchant_list','OaPrimeController@merchantList')->name('获取商户列表');
             });
-            $api->post('login','PrimeController@login')->name('登录');
+            $api->post('admin/login','AdminPrimeController@login')->name('登录');
         });
 
         //精选活动模块（后台）

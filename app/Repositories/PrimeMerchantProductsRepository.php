@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\PrimeMerchatProductsModel;
+use App\Models\PrimeMerchantProductsModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class PrimeMerchatProductsRepository extends ApiRepository
+class PrimeMerchantProductsRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class PrimeMerchatProductsRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(PrimeMerchatProductsModel $model)
+    public function __construct(PrimeMerchantProductsModel $model)
     {
         $this->model = $model;
     }

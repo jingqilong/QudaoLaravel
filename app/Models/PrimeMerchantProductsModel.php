@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class PrimeMerchatProductsModel extends Model
+class PrimeMerchantProductsModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class PrimeMerchatProductsModel extends Model
      *
      * @var string
      */
-    protected $table = 'prime_merchat_products';
+    protected $table = 'prime_merchant_products';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -30,7 +30,15 @@ class PrimeMerchatProductsModel extends Model
     protected $fillable = ['id','merchant_id','type','title','describe','price','image_ids','is_recommend','created_at','updated_at'];
 
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }
 
  

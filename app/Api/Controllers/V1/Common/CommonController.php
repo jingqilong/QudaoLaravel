@@ -254,7 +254,7 @@ class CommonController extends ApiController
      *         name="related_id",
      *         in="query",
      *         description="相关ID，例如：类别为精选活动，此值为活动ID",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer"
      *         )
@@ -291,7 +291,7 @@ class CommonController extends ApiController
                 'required',
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])$/'
             ],
-            'related_id'    => 'required|integer',
+            'related_id'    => 'integer',
             'image_id'      => 'required|integer',
             'url'           => 'url',
         ];
@@ -300,7 +300,6 @@ class CommonController extends ApiController
             'type.in'           => 'banner类型不存在',
             'show_time.required'=> '展示时间不能为空！',
             'show_time.regex'   => '展示时间格式有误，示例：2019-10-26',
-            'related_id.required'=> '相关ID不能为空！',
             'related_id.integer'=> '相关ID必须为整数',
             'image_id.required' => 'banner图不能为空！',
             'image_id.integer'  => 'banner图ID必须为整数',
