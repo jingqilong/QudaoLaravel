@@ -224,7 +224,7 @@ class OrderService extends BaseService
             $this->setError('无此订单!');
             return false;
         }
-        if ($orderInfo !== EnterEnum::SUBMIT){
+        if ($orderInfo['status'] !== EnterEnum::SUBMIT){
             $this->setError('状态不能进行二次审核!');
             return false;
         }
