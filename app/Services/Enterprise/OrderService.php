@@ -224,10 +224,6 @@ class OrderService extends BaseService
             $this->setError('无此订单!');
             return false;
         }
-        if ($orderInfo['status'] !== EnterEnum::SUBMIT){
-            $this->setError('状态不能进行二次审核!');
-            return false;
-        }
         $upd_arr = [
             'status'      => $request['status'] == 1 ? EnterEnum::PASS : EnterEnum::NOPASS,
             'updated_at'  => time(),
