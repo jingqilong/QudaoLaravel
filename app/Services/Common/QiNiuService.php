@@ -243,7 +243,7 @@ class QiNiuService extends BaseService
             }
             $url = (string)$disk->downloadUrl($file_name);
             if (!$id = CommonImagesRepository::getAddId([
-                'type' => CommonImagesEnum::getConst(QiNiuEnum::$module[$storage_space]),
+                'type' => CommonImagesEnum::$image_type[$storage_space],
                 'img_url' => $url.'',
                 'create_at' => time()
             ])){
