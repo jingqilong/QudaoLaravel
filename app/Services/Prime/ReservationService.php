@@ -159,7 +159,7 @@ class ReservationService extends BaseService
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
                 $sms_template = [
-                    PrimeTypeEnum::RESERVATIONOK => '尊敬的'.$member_name.'您好！您的精选生活预约已经通过审核，预约时间：'.date('Y年m月d日 H点i分',$reservation['time']).'，我们的负责人稍后会跟您联系，请耐心等待！',
+                    PrimeTypeEnum::RESERVATIONOK => '尊敬的'.$member_name.'您好！您的精选生活预约已经通过审核，预约时间：'.date('Y年m月d日 H点i分',$reservation['time']).'！',
                     PrimeTypeEnum::RESERVATIONNO => '尊敬的'.$member_name.'您的精选生活预约未通过审核，再看看其他服务吧！',
                 ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
