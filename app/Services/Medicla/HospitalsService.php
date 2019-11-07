@@ -77,10 +77,6 @@ class HospitalsService extends BaseService
             'name'          => $request['name'],
             'introduction'  => $request['introduction'],
         ];
-        if (MediclaHospitalsRepository::getOne(['name' => $request['name']])){
-            $this->setError('医院已存在！');
-            return false;
-        }
         $add_arr['recommend']   = $request['recommend'] == 1 ? time() : 0;
         $upd_arr['updated_at'] = time();
         if (MediclaHospitalsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
