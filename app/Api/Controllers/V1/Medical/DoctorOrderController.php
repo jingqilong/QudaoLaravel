@@ -278,7 +278,7 @@ class DoctorOrderController extends ApiController
     }
 
   /**
-     * @OA\Get(
+     * @OA\Post(
      *     path="/api/v1/medical/set_doctor_order",
      *     tags={"医疗医院后台"},
      *     summary="审核预约列表状态(oa)",
