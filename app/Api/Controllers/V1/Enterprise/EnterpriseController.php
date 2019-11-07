@@ -58,7 +58,7 @@ class EnterpriseController extends ApiController
      * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_order_list",
      *     tags={"企业咨询(后端页面)"},
-     *     summary="获取本人企业咨询订单列表(后端)",
+     *     summary="获取企业咨询订单列表(后端)",
      *     operationId="get_enterprise_order_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -502,5 +502,77 @@ class EnterpriseController extends ApiController
         }
         return ['code' => 200, 'message' => $this->enterpriseService->message];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/enterprise/set_enterprise_order",
+     *     tags={"企业咨询(后端页面)"},
+     *     summary="审核预约列表状态(oa)",
+     *     description="jing" ,
+     *     operationId="set_enterprise_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约订单id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="审核状态【1审核通过 2审核驳回  0默认全部】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function setEnterpriseOrder(){
+        $rules = [
+            'id'            => 'required|integer',
+            'status'        => 'in:0,1,2',
+        ];
+        $messages = [
+            'id.required'               => '预约id不能为空',
+            'id.integer'                => '预约id不是整数',
+            'status.in'                 => '审核类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->enterpriseService->setEnterpriseOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->enterpriseService->error];
+        }
+        return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $res];
+    }
+
 
 }

@@ -234,14 +234,14 @@ class HospitalsController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
-            'recommend'     => 'required|integer',
+            'recommend'     => 'required|in:0,1',
         ];
         $messages = [
             'id.required'           => '医疗医院ID不能为空',
             'id.integer'            => '医疗医院ID必须为整数',
             'name.required'         => '医疗医院标题不能为空',
             'recommend.required'    => '医疗医院推荐不能为空',
-            'recommend.integer'     => '医疗医院推荐码不正确',
+            'recommend.in'          => '医疗医院推荐类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

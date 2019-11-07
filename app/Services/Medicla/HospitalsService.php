@@ -2,6 +2,7 @@
 namespace App\Services\Medicla;
 
 
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MediclaHospitalsRepository;
@@ -75,13 +76,10 @@ class HospitalsService extends BaseService
         $upd_arr = [
             'name'          => $request['name'],
             'introduction'  => $request['introduction'],
+            'recommend'     => $request['recommend'] == 1 ? time() : 0,
+            'updated_at'    => time(),
         ];
-        if (MediclaHospitalsRepository::getOne(['name' => $request['name']])){
-            $this->setError('医院已存在！');
-            return false;
-        }
-        $add_arr['recommend']   = $request['recommend'] == 1 ? time() : 0;
-        $upd_arr['updated_at'] = time();
+
         if (MediclaHospitalsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
             return true;
@@ -109,6 +107,10 @@ class HospitalsService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
+            if ($img_url = CommonImagesRepository::getOne(['id' => $value['img_url']])){
+                $value['hospital_url']  = $img_url['img_url'];
+            }
+            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
         }

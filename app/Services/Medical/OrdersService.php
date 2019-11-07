@@ -160,7 +160,7 @@ class OrdersService extends BaseService
             #发送短信
             if (!empty($orderInfo)){
                 $sms = new SmsService();
-                $content = '您好！您预约的《'.$hospital['name'].'》,《'.$doctor['name'].'》医生专诊,没有通过审核,请您联系客服0000-00000再次预约，谢谢！';
+                $content = '您好！您预约的《'.$hospital['name'].'》,《'.$doctor['name'].'》医生专诊,未通过审核,请您联系客服0000-00000再次预约，谢谢！';
                 $sms->sendContent($orderInfo['mobile'],$content);
             }
             $this->setMessage('审核失败,消息已发送给联系人！');
