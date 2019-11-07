@@ -56,6 +56,15 @@ class DepartmentsController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="describe",
+     *         in="query",
+     *         description="医疗科室描述",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -188,7 +197,7 @@ class DepartmentsController extends ApiController
      *     @OA\Parameter(
      *         name="describe",
      *         in="query",
-     *         description="医疗科室说明",
+     *         description="医疗科室描述",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
