@@ -4,6 +4,7 @@
 namespace App\Services\Common;
 
 
+use App\Enums\CommonImagesEnum;
 use App\Enums\ImageTypeEnum;
 use App\Enums\QiNiuEnum;
 use App\Repositories\CommonImagesRepository;
@@ -242,7 +243,7 @@ class QiNiuService extends BaseService
             }
             $url = (string)$disk->downloadUrl($file_name);
             if (!$id = CommonImagesRepository::getAddId([
-                'type' => ImageTypeEnum::getConst(QiNiuEnum::$module[$storage_space]),
+                'type' => CommonImagesEnum::getConst(QiNiuEnum::$module[$storage_space]),
                 'img_url' => $url.'',
                 'create_at' => time()
             ])){

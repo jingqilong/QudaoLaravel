@@ -71,11 +71,12 @@ class ImagesService extends BaseService
 
         foreach ($list as &$item){
             foreach ($column as $k=>$v){
-                if (isset($item[$k])){
+                if (array_key_exists($k, $item)){
                     if ($v == 'single'){
                         $ids = explode(',',$item[$k]);
                         $item[rtrim($k,'_id').'_url'] = '';
                         $image_column = rtrim(rtrim($k,'_id'),'_ids').'_url';
+                        $item[$image_column] = '';
                         if ($image = self::searchArray($all_image_list,'id',reset($ids))){
                             $item[$image_column] = reset($image)['img_url'];
                         }

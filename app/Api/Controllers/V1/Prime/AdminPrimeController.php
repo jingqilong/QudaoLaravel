@@ -6,19 +6,24 @@ namespace App\Api\Controllers\V1\Prime;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Prime\MerchantService;
+use App\Services\Prime\ReservationService;
+use Illuminate\Support\Facades\Auth;
 
 class AdminPrimeController extends ApiController
 {
     protected $merchantService;
+    protected $reservationService;
 
     /**
      * TestApiController constructor.
      * @param MerchantService $merchantService
+     * @param ReservationService $reservationService
      */
-    public function __construct(MerchantService $merchantService)
+    public function __construct(MerchantService $merchantService,ReservationService $reservationService)
     {
         parent::__construct();
-        $this->merchantService = $merchantService;
+        $this->merchantService      = $merchantService;
+        $this->reservationService   = $reservationService;
     }
 
     /**
