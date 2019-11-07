@@ -77,10 +77,6 @@ class DepartmentsService extends BaseService
             'describe'   => $request['describe'],
             'updated_at' => time(),
         ];
-        if (MedicalDepartmentsRepository::exists(['id' => $request['id']])){
-            $this->setError('医疗科室已存在！');
-            return false;
-        }
         if (MedicalDepartmentsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
             return true;
