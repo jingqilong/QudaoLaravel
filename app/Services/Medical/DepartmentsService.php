@@ -46,7 +46,7 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已删除！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['department_id' => $id])){
+        if (MedicalDoctorsRepository::exists(['department_ids' => $id])){
             $this->setError('该医疗科室正在使用，无法删除！');
             return false;
         }
