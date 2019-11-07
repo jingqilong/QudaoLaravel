@@ -540,7 +540,7 @@ class EnterpriseController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="审核状态【1审核通过 2审核驳回】",
+     *         description="审核状态【1审核通过 2审核驳回  0默认全部】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -567,7 +567,7 @@ class EnterpriseController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->enterpriseService->setDoctorOrder($this->request);
+        $res = $this->enterpriseService->setEnterpriseOrder($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->enterpriseService->error];
         }

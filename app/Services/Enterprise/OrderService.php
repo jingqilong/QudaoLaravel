@@ -65,7 +65,6 @@ class OrderService extends BaseService
      */
     public function getEnterpriseOrderList(array $data)
     {
-
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
@@ -78,14 +77,14 @@ class OrderService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
-            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num)){
+            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at','desc')){
                 $this->setMessage('没有数据！');
                 return [];
             }
         }else{
-            if (!$list = EnterpriseOrderRepository::search([],$where,$column,$page,$page_num,'created_at','desc')){
-                $this->setMessage('没有数据！');
-                return [];
+            if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
+                $this->setError('没有数据！');
+                return false;
             }
         }
         $list = $this->removePagingField($list);
@@ -213,7 +212,7 @@ class OrderService extends BaseService
      * @param $request
      * @return bool|null
      */
-    public function setDoctorOrder($request)
+    public function setEnterpriseOrder($request)
     {
 
         if (!EnterpriseOrderRepository::exists(['id' => $request['id']])){

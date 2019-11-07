@@ -2,6 +2,7 @@
 namespace App\Services\Medicla;
 
 
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MediclaHospitalsRepository;
@@ -109,6 +110,10 @@ class HospitalsService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
+            if ($img_url = CommonImagesRepository::getOne(['id' => $value['img_url']])){
+                $value['hospital_url']  = $img_url['img_url'];
+            }
+            $value['recommend']  = empty($value['recommend']) ? 0 : 1;
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
         }
