@@ -95,25 +95,14 @@ class DoctorsService extends BaseService
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
             'label_ids'         => $request['label_ids'] ?? '',
-            'hospitals_id'      => $request['hospitals_id'] == 0 ? 0 : time(),
+            'hospitals_id'      => $request['hospitals_id'],
             'recommend'         => $request['recommend'],
             'department_ids'    => $request['department_ids'] ?? '',
             'updated_at'        => time(),
         ];
-        if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
-            $this->setError('医生已存在！');
-            return false;
-        }
-        if (!MediclaHospitalsRepository::exists(['id' => $upd_arr['hospitals_id']])){
+        if (!MediclaHospitalsRepository::exists(['id' => $request['hospitals_id']])){
             $this->setError('医院不存在！');
             return false;
-        }
-
-        if ($memberInfo = MemberRepository::getOne(['m_cname' => $request['name']])){
-            $upd_arr['member_id'] = $memberInfo['m_id'];
-        }
-        if (empty($memberInfo['m_id'])){
-            $upd_arr['member_id'] = '';
         }
         if (MedicalDoctorsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');

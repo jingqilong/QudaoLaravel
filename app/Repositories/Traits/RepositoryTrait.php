@@ -301,4 +301,24 @@ trait RepositoryTrait
         $result = $model->get($column);
         return $result ? $result->toArray() : null;
     }
+
+    /**
+     * 获取指定列表
+     * @param array $ids
+     * @param array $column
+     * @return array|null
+     */
+    protected function getAssignList(array $ids, $column=['*']){
+        if (empty($ids)){
+            return [];
+        }
+        $all_ids = [];
+        foreach ($ids as $str){
+            $str_arr = explode(',',$str);
+            $all_ids = array_merge($all_ids,$str_arr);
+        }
+        $all_ids = array_unique($all_ids);
+        $list = $this->getList(['id' => ['in',$all_ids]],$column);
+        return $list;
+    }
 }

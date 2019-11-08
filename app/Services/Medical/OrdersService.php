@@ -3,10 +3,13 @@ namespace App\Services\Medical;
 
 
 use App\Enums\DoctorEnum;
+use App\Repositories\CommonImagesRepository;
+use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -174,7 +177,7 @@ class OrdersService extends BaseService
      * 获取成员自己预约列表状态
      * @return array|bool|null
      */
-    public function doctorsList()
+    public function doctorsOrderList()
     {
         $memberInfo = $this->auth->user();
         if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id']])){
@@ -194,6 +197,49 @@ class OrdersService extends BaseService
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+        }
+
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 成员获取医生列表
+     * @return array|bool|null
+     */
+    public function doctorsList($data)
+    {
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $column         = ['id','name','img_id','title','good_at','introduction','hospitals_id','department_ids'];
+        if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据!');
+            return $list;
+        }
+        $list['data'] = ImagesService::getListImages($list['data'],['img_id' => 'single']);
+        $department_ids  = array_column($list['data'],'department_ids');
+        $hospitals_ids   = array_column($list['data'],'hospitals_id');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
+
+        foreach ($list['data'] as &$value){
+            $value['departments']    = [];
+            $value['hospitals_name'] = '';
+            $department_arr = explode(',',$value['department_ids']);
+            foreach ($department_arr as $item){
+                if ($department = $this->searchArray($department_list,'id',$item)){
+                    $value['departments'][] = reset($department);
+                }
+            }
+            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospitals_id'])){
+                $value['hospitals_name'] = reset($hospitals)['name'];
+            }
+            unset($value['hospitals_id'],$value['img_id'],$value['department_ids']);
         }
 
         $this->setMessage('获取成功！');

@@ -104,7 +104,7 @@ class DetailService extends BaseService
                 return false;
             }
         }
-        $list = $this->removePagingField($list);
+       $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
