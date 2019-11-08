@@ -350,11 +350,11 @@ class DoctorOrderController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/medical/doctors_list",
+     *     path="/api/v1/medical/doctors_order_list",
      *     tags={"医疗医院前端"},
      *     summary="获取成员自己预约列表状态",
      *     description="jing" ,
-     *     operationId="doctors_list",
+     *     operationId="doctors_order_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -380,8 +380,66 @@ class DoctorOrderController extends ApiController
      * )
      *
      */
+    public function doctorsOrderList(){
+        $res = $this->OrdersService->doctorsOrderList();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/doctors_list",
+     *     tags={"医疗医院前端"},
+     *     summary="成员获取医生列表",
+     *     description="jing" ,
+     *     operationId="doctors_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
     public function doctorsList(){
-        $res = $this->OrdersService->doctorsList();
+        $res = $this->OrdersService->doctorsList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
         }

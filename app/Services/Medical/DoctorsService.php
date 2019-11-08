@@ -100,10 +100,6 @@ class DoctorsService extends BaseService
             'department_ids'    => $request['department_ids'] ?? '',
             'updated_at'        => time(),
         ];
-        if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
-            $this->setError('医生已存在！');
-            return false;
-        }
         if (!MediclaHospitalsRepository::exists(['id' => $upd_arr['hospitals_id']])){
             $this->setError('医院不存在！');
             return false;
