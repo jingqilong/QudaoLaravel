@@ -79,7 +79,7 @@ class ReservationService extends BaseService
                 $status         = reset($order)['status'];
             }
             $value['time']              = date('Y年m月d日 H点i分',$value['time']);
-            $value['state']             = PrimeTypeEnum::getReservationStatus($value['state']);
+            $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
             $value['payment_status']    = OrderEnum::getStatus($status,'未付款');
             $value['amount']            = round($amount / 100,2).'元';
             $value['payment_amount']    = round($payment_amount / 100,2).'元';
