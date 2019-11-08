@@ -100,16 +100,9 @@ class DoctorsService extends BaseService
             'department_ids'    => $request['department_ids'] ?? '',
             'updated_at'        => time(),
         ];
-        if (!MediclaHospitalsRepository::exists(['id' => $upd_arr['hospitals_id']])){
+        if (!MediclaHospitalsRepository::exists(['id' => $request['hospitals_id']])){
             $this->setError('医院不存在！');
             return false;
-        }
-
-        if ($memberInfo = MemberRepository::getOne(['m_cname' => $request['name']])){
-            $upd_arr['member_id'] = $memberInfo['m_id'];
-        }
-        if (empty($memberInfo['m_id'])){
-            $upd_arr['member_id'] = '';
         }
         if (MedicalDoctorsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
