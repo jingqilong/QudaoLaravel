@@ -247,14 +247,19 @@ trait HelpTrait
      * @param $codes
      * @param $append
      * @param null $level
+     * @param bool $after   为true表示该等级以下地区
      * @return mixed
      */
-    protected function  makeAddress($codes, $append, $level = null){
+    protected function  makeAddress($codes, $append, $level = null,$after = false){
         $codes      = trim($codes,',');
         $area_codes = explode(',',$codes);
         $where      = ['code' => ['in',$area_codes]];
         if (!empty($level)){
-            $where['level'] = $level;
+            if ($after){
+                $where['level'] = ['>',$level];
+            }else{
+                $where['level'] = $level;
+            }
         }
         $area_list  = CommonAreaRepository::getList($where,['code','name','lng','lat']);
         $area_address = '';

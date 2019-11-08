@@ -64,6 +64,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="area_code",
+     *         in="query",
+     *         description="地址地区代码，例如：【310000,310100,310106,310106013】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="address",
      *         in="query",
      *         description="活动地点",
@@ -199,6 +208,7 @@ class ActivityController extends ApiController
     public function addActivity(){
         $rules = [
             'name'          => 'required',
+            'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -219,6 +229,8 @@ class ActivityController extends ApiController
         ];
         $messages = [
             'name.required'         => '活动名称不能为空',
+            'area_code.required'    => '地区编码不能为空',
+            'area_code.regex'       => '地区编码格式有误',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
@@ -351,6 +363,15 @@ class ActivityController extends ApiController
      *         name="name",
      *         in="query",
      *         description="活动名称",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="area_code",
+     *         in="query",
+     *         description="地址地区代码，例如：【310000,310100,310106,310106013】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -493,6 +514,7 @@ class ActivityController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
+            'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -515,6 +537,8 @@ class ActivityController extends ApiController
             'id.required'           => '活动ID不能为空',
             'id.integer'            => '活动ID必须为整数',
             'name.required'         => '活动名称不能为空',
+            'area_code.required'    => '地区编码不能为空',
+            'area_code.regex'       => '地区编码格式有误',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
