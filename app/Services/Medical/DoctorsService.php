@@ -95,11 +95,15 @@ class DoctorsService extends BaseService
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
             'label_ids'         => $request['label_ids'] ?? '',
-            'hospitals_id'      => $request['hospitals_id'] == 0 ? 0 : time(),
+            'hospitals_id'      => $request['hospitals_id'],
             'recommend'         => $request['recommend'],
             'department_ids'    => $request['department_ids'] ?? '',
             'updated_at'        => time(),
         ];
+        if (MedicalDoctorsRepository::exists(['name' => $request['name']])){
+            $this->setError('医生已存在！');
+            return false;
+        }
         if (!MediclaHospitalsRepository::exists(['id' => $upd_arr['hospitals_id']])){
             $this->setError('医院不存在！');
             return false;
