@@ -12,7 +12,10 @@ use App\Repositories\PrimeReservationRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService as CommonImagesService;
 use App\Services\Common\SmsService;
+use App\Services\Member\OrdersService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class ReservationService extends BaseService
 {
@@ -146,11 +149,24 @@ class ReservationService extends BaseService
             $this->setError('预约已审核！');
             return false;
         }
+        DB::beginTransaction();
+        $order_no = null;
+        if ($audit == 1){
+            #如果审核通过，生成订单
+            if (!$order_no = app(OrdersService::class)->placeOrder($reservation['member_id'],0,OrderEnum::PRIME)){
+                Loggy::write('error','精选生活预约审核失败！失败原因：订单生成失败！预约ID：'.$id);
+                DB::rollBack();
+                $this->setError('审核失败！');
+                return false;
+            }
+        }
         $status = ($audit == 1) ? PrimeTypeEnum::RESERVATIONOK : PrimeTypeEnum::RESERVATIONNO;
-        if (!PrimeReservationRepository::getUpdId($where,['state' => $status])){
+        if (!PrimeReservationRepository::getUpdId($where,['state' => $status,'order_no' => $order_no])){
             $this->setError('审核失败！');
+            DB::rollBack();
             return false;
         }
+        DB::commit();
         #通知用户
         if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
             $member_name = $reservation['name'];
@@ -166,6 +182,64 @@ class ReservationService extends BaseService
             }
         }
         $this->setMessage('审核成功！');
+        return true;
+    }
+
+    /**
+     * 结算账单
+     * @param $request
+     * @param null $merchant_id
+     * @return bool
+     */
+    public function billSettlement($request, $merchant_id = null)
+    {
+        $where = ['id' => $request['id']];
+        if (!empty($merchant_id)){
+            $where['merchant_id'] = $merchant_id;
+        }
+        if (!$reservation = PrimeReservationRepository::getOne($where)){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] !== PrimeTypeEnum::RESERVATIONOK){
+            $this->setError('该预约未成功，无法结算！');
+            return false;
+        }
+        if (empty($reservation['order_no'])){
+            $this->setError('该预约未生成订单，无法结算！');
+            return false;
+        }
+        if (!$order = MemberOrdersRepository::getOne(['order_no' => $reservation['order_no']])){
+            $this->setError('该预约订单未找到，无法结算！');
+            return false;
+        }
+        if ($order['status'] == OrderEnum::STATUSSUCCESS){
+            $this->setError('该预约订单已结算！');
+            return false;
+        }
+        DB::beginTransaction();
+        $order_upd = [
+            'amount'            => $request['amount'] * 100,
+            'payment_amount'    => $request['payment_amount'] * 100,
+            'status'            => OrderEnum::STATUSSUCCESS,
+            'updated_at'        => time()
+        ];
+        if (!MemberOrdersRepository::getUpdId(['order_no' => $reservation['order_no']],$order_upd)){
+            DB::rollBack();
+            $this->setError('结算失败！');
+            return false;
+        }
+        $reservation_upd = [
+            'order_image_ids'   => $request['image_ids'],
+            'updated_at'        => time()
+        ];
+        if (!PrimeReservationRepository::getUpdId(['id' => $reservation['id']],$reservation_upd)){
+            DB::rollBack();
+            $this->setError('结算失败！');
+            return false;
+        }
+        DB::commit();
+        $this->setMessage('结算成功！');
         return true;
     }
 }

@@ -7,6 +7,7 @@ namespace App\Api\Controllers\V1\Member;
 use App\Api\Controllers\ApiController;
 use App\Services\Member\OrdersService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends ApiController
 {
@@ -97,10 +98,11 @@ class OrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->ordersService->placeOrder($this->request['amount'],$this->request['order_type']);
-        if (is_string($res)){
-            return ['code' => 100, 'message' => $res];
+        $member = Auth::guard('member_api')->user();
+        $res = $this->ordersService->placeOrder($member->m_id,$this->request['amount'],$this->request['order_type']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->ordersService->error];
         }
-        return ['code' => 200, 'message' => '下单成功！', 'data' => $res];
+        return ['code' => 200, 'message' => $this->ordersService->message, 'data' => ['order_no' => $res]];
     }
 }

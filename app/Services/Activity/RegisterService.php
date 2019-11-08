@@ -124,7 +124,7 @@ class RegisterService extends BaseService
             }
         }
         if (!empty($keywords)){
-            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,'id','desc',$page,$page_num);
+            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],$page,$page_num,'id','desc');
         }else{
             $list = ActivityRegisterRepository::getList($where,['*'],'id','desc',$page,$page_num);
         }
