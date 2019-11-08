@@ -142,6 +142,8 @@ $api->version('v1',function ($api){
 
                 $api->get('get_reservation_list','ReservationController@getReservationList')->name('获取预约列表');
                 $api->post('audit_reservation','ReservationController@auditReservation')->name('审核预约');
+
+                $api->post('bill_settlement','ReservationController@billSettlement')->name('账单结算');
             });
             #精选生活OA后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
@@ -150,7 +152,13 @@ $api->version('v1',function ($api){
                 $api->post('edit_merchant','OaPrimeController@editMerchant')->name('修改商户');
                 $api->get('merchant_list','OaPrimeController@merchantList')->name('获取商户列表');
 
+                $api->post('add_product','OaProductPrimeController@addProduct')->name('添加产品');
+                $api->delete('delete_product','OaProductPrimeController@deleteProduct')->name('删除产品');
+                $api->post('edit_product','OaProductPrimeController@editProduct')->name('修改产品');
+                $api->get('product_list','OaProductPrimeController@productList')->name('获取产品列表');
+
                 $api->post('audit','ReservationController@audit')->name('审核预约');
+                $api->get('reservation_list','ReservationController@reservationList')->name('获取预约列表');
             });
             #精选生活
             $api->group(['middleware' => 'member.jwt.auth'],function($api){

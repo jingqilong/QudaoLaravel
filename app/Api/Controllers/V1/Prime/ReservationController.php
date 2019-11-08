@@ -242,6 +242,100 @@ class ReservationController extends ApiController
 
 
     /**
+     * @OA\Get(
+     *     path="/api/v1/prime/reservation_list",
+     *     tags={"精选生活OA后台"},
+     *     summary="获取预约列表",
+     *     description="sang" ,
+     *     operationId="reservation_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索【订单号，预约人姓名，预约人手机号，备注】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="状态",
+     *         in="query",
+     *         description="状态，默认1正在预约，2预约成功，3预约失败",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function reservationList(){
+        $rules = [
+            'keywords'      => 'string',
+            'state'         => 'in:1,2,3',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'keywords.string'           => '关键字类型不正确',
+            'state.in'                  => '状态字段取值有误',
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->reservationList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+
+    /**
      * @OA\Post(
      *     path="/api/v1/prime/admin/audit_reservation",
      *     tags={"精选生活商户后台"},
@@ -380,6 +474,104 @@ class ReservationController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->reservationService->auditReservation($this->request['id'],$this->request['audit']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/prime/admin/bill_settlement",
+     *     tags={"精选生活商户后台"},
+     *     summary="账单结算",
+     *     description="sang" ,
+     *     operationId="bill_settlement",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="商户 TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="amount",
+     *         in="query",
+     *         description="订单总金额，例如【200，或200.9】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="payment_amount",
+     *         in="query",
+     *         description="实际支付总金额，例如【199，或200.9】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_ids",
+     *         in="query",
+     *         description="消费凭单图片ID串",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="结算失败",
+     *     ),
+     * )
+     *
+     */
+    public function billSettlement(){
+        $rules = [
+            'id'            => 'required|integer',
+            'amount'        => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
+            'payment_amount'=> 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
+            'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
+        ];
+        $messages = [
+            'id.required'           => '预约ID不能为空',
+            'id.integer'            => '预约ID必须为整数',
+            'amount.required'       => '请输入订单总金额',
+            'amount.regex'          => '订单总金额格式有误，应为整数或两位小数',
+            'payment_amount.required'   => '请输入实际支付总金额',
+            'payment_amount.regex'      => '实际支付总金额格式有误，应为整数或两位小数',
+            'image_ids.required'    => '请传入消费凭单照片',
+            'image_ids.regex'       => '消费凭单图片ID格式有误',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->billSettlement($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }

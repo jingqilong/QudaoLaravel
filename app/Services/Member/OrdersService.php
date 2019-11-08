@@ -23,25 +23,29 @@ class OrdersService extends BaseService
 
     /**
      * 创建订单
+     * @param $member_id
      * @param $amount
      * @param $order_type
-     * @return array|string
+     * @return bool|null
      */
-    public function placeOrder($amount, $order_type)
+    public function placeOrder($member_id,$amount, $order_type)
     {
-        $user = $this->auth->user();
-        if (Cache::get(md5($user->m_id.$order_type.$amount))){
-            return '请勿重复提交！';
+        if (Cache::get(md5($member_id.$order_type.$amount))){
+            $this->setError('请勿重复提交！');
+            return false;
         }
-        if (!$order_id = MemberOrdersRepository::addOrder($amount, $amount, $user->m_id,$order_type)){
-            Loggy::write('order','订单创建失败！用户id：'.$user->m_id.'  金额：'.$amount.'， 订单类型：');
-            return '订单创建失败！';
+        if (!$order_id = MemberOrdersRepository::addOrder($amount, $amount, $member_id,$order_type)){
+            Loggy::write('order','订单创建失败！用户id：'.$member_id.'  金额：'.$amount.'， 订单类型：');
+            $this->setError('订单创建失败！');
+            return false;
         }
         if (!$order_no = MemberOrdersRepository::getField([ 'id' => $order_id],'order_no')){
-            Loggy::write('order','订单号获取失败！用户id：'.$user->m_id.'  金额：'.$amount.'， 订单类型：');
-            return '订单号获取失败！';
+            Loggy::write('order','订单号获取失败！用户id：'.$member_id.'  金额：'.$amount.'， 订单类型：');
+            $this->setError('订单号获取失败！');
+            return false;
         }
-        return ['order_no' => $order_no];
+        $this->setMessage('下单成功！');
+        return $order_no;
     }
 }
             
