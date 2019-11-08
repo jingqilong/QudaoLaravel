@@ -29,7 +29,15 @@ class MedicalDoctorLabelsModel extends Model
 
     protected $fillable = ['id','name','created_at','updated_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 }
 

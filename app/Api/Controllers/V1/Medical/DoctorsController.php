@@ -47,6 +47,15 @@ class DoctorsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="member_id",
+     *         in="query",
+     *         description="会员id【是会员需要传入】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="name",
      *         in="query",
      *         description="医生姓名",
@@ -145,6 +154,7 @@ class DoctorsController extends ApiController
      */
     public function addDoctors(){
         $rules = [
+            'member_id'         => 'integer',
             'title'             => 'required|string',
             'name'              => 'required|string',
             'img_id'            => 'required|integer',
@@ -157,6 +167,7 @@ class DoctorsController extends ApiController
             'department_ids'    => 'string',
         ];
         $messages = [
+            'member_id.integer'         => '会员id必须为整数',
             'name.required'             => '医生姓名不能为空',
             'name.string'               => '医生姓名必须为字符串',
             'img_id.required'           => '医生头像不能为空',
@@ -164,7 +175,7 @@ class DoctorsController extends ApiController
             'title.string'              => '医生职称必须为字符串',
             'title.required'            => '医生职称不能为空',
             'sex.required'              => '医生性别不能为空',
-            'sex.integer'               => '医生姓名不是整数',
+            'sex.integer'               => '医生性别必须为整数',
             'good_at.string'            => '擅长介绍必须为字符串',
             'good_at.required'          => '擅长介绍不能为空',
             'introduction.string'       => '简介必须为字符串',

@@ -6,6 +6,7 @@ use App\Enums\DoctorEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
+use App\Repositories\MedicalHospitalRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Services\BaseService;
@@ -53,10 +54,21 @@ class OrdersService extends BaseService
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'],
             'status'             =>  DoctorEnum::SUBMIT,
-            'appointment_at'     =>  strtotime($request['appointment_at'] ?? 0),
-            'end_time'           =>  strtotime($request['end_time'] ?? 0),
-            'created_at'         =>  strtotime($request['created_at'] ?? 0),
+            'appointment_at'     =>  strtotime($request['appointment_at']),
+            'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
+        if ($add_arr['appointment_at'] < time()){
+            $this->setError('不能预约已经逝去的日子!');
+            return false;
+        }
+        if (!empty($add_arr['end_time']) && ($add_arr['end_time'] < $add_arr['appointment_at'])){
+            $this->setError('截止时间必须大于预约时间!');
+            return false;
+        }
+        if (MedicalOrdersRepository::exists($add_arr)){
+            $this->setError('预约已提交!');
+            return false;
+        }
         if (!$res = MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
@@ -75,7 +87,6 @@ class OrdersService extends BaseService
         if (empty($data['asc'])){
             $data['asc']  = 1;
         }
-
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
@@ -98,17 +109,24 @@ class OrdersService extends BaseService
                 return false;
             }
         }
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setError('没有数据!');
             return false;
         }
-        $list = $this->removePagingField($list);
+        $doctor_ids      = array_column($list['data'],'doctor_id');
+        $hospitals_ids   = array_column($list['data'],'hospital_id');
+        $doctor_list     = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
+        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
+
         foreach ($list['data'] as &$value){
-            if ($doctor_name = MedicalDoctorsRepository::getOne(['id' => $value['doctor_id']])){
-                $value['doctor_name'] = $doctor_name['name'];
+            $value['doctor_name']    = '';
+            $value['hospital_name']  = '';
+            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
+                $value['hospital_name'] = reset($hospitals)['name'];
             }
-            if ($hospitals_name = MediclaHospitalsRepository::getOne(['id' => $value['hospital_id']])){
-                $value['hospitals_name'] = $hospitals_name['name'];
+            if ($doctor = $this->searchArray($doctor_list,'id',$value['doctor_id'])){
+                $value['doctor_name'] = reset($doctor)['name'];
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
