@@ -172,7 +172,7 @@ class DoctorsService extends BaseService
             }
             $labels_arr = explode(',',$value['label_ids']);
             foreach ($labels_arr as $item){
-                if ($label = $this->searchArray($labels_arr,'id',$item)){
+                if ($label = $this->searchArray($labels_list,'id',$item)){
                     $value['labels'][] = reset($label);
                 }
             }
