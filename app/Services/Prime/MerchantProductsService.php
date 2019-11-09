@@ -158,6 +158,7 @@ class MerchantProductsService extends BaseService
             }
             $value['type_title']    = PrimeTypeEnum::getType($value['type']);
             $value['price'] = empty($value['price']) ? '0' : round($value['price'] / 100,2);
+            $value['is_recommend'] = empty($value['is_recommend']) ? 1 : 2;
         }
         $this->setMessage('获取成功！');
         return $list;
