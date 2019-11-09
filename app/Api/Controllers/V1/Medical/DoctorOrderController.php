@@ -101,6 +101,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="服务类型 1看病 2手术 3住院",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="appointment_at",
      *         in="query",
      *         description="预约时间",
@@ -141,6 +150,7 @@ class DoctorOrderController extends ApiController
             'sex'               => 'required|integer',
             'age'               => 'required|integer',
             'doctor_id'         => 'required|integer',
+            'type'              => 'required|in:1,2,3',
             'description'       => 'string',
             'appointment_at'    => 'required|date',
             'end_time'          => 'date',
@@ -154,11 +164,13 @@ class DoctorOrderController extends ApiController
             'mobile.regex'              => '预约手机格式不正确',
             'sex.required'              => '预约人性别不能为空',
             'sex.integer'               => '预约人姓名不是整数',
-            'age.required'              => '预约人性别不能为空',
+            'age.required'              => '预约人年龄不能为空',
             'age.integer'               => '年龄格式错误',
             'description.string'        => '病情描述详情必须为字符串',
             'hospital_id.integer'       => '医院ID不是整数',
             'hospital_id.required'      => '医院ID不能为空',
+            'type.in'                   => '服务类型存在',
+            'type.required'             => '服务类型不能为空',
             'doctor_id.integer'         => '医生ID不是整数',
             'doctor_id.required'        => '医生ID不能为空',
             'appointment_at.date'       => '预约时间格式不正确',

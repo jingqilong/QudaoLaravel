@@ -27,7 +27,7 @@ class MedicalOrdersModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','name','mobile','sex','age','hospital_id','doctor_id','appointment_at','status','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','member_id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','appointment_at','status','created_at','updated_at','deleted_at'];
 
     /**
      * The attributes that should be cast to native types.
@@ -39,6 +39,7 @@ class MedicalOrdersModel extends Model
         'created_at'     => 'datetime',
         'updated_at'     => 'datetime',
         'deleted_at'     => 'datetime',
+        'end_time'       => 'datetime',
     ];
 
 

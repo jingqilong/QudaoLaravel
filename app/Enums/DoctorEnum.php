@@ -13,8 +13,11 @@ class DoctorEnum extends BaseEnum
         'SUBMIT'              => '待审核',
         'PASS'                => '审核通过',
         'NOPASS'              => '审核驳回',
+        'SEEDOCTOR'           => '看病',
+        'SURGERY'             => '手术',
+        'INHOSPATIL'          => '住院',
         'MAN'                 => '男',
-        'WOMAN'               => '女',
+        'WOMANTIL'            => '女',
     ];
 
     public static $status = [
@@ -25,8 +28,9 @@ class DoctorEnum extends BaseEnum
 
 
     public static $type = [
-        1 => 'ONESELF',   //1本人预约
-        2 => 'OTHERS',    //2推荐他人预约
+        1 => 'SEEDOCTOR',   //1看病
+        2 => 'SURGERY',     //2手术
+        3 => 'INHOSPATIL',  //3住院
     ];
 
     public static $sex = [
@@ -43,9 +47,16 @@ class DoctorEnum extends BaseEnum
     const SUBMIT            = 0;    //待审核
 
     //type  类型
-    const MAN              = 1;    //男
+    const SEEDOCTOR              = 1;    //看病
 
-    const WOMAN            = 2;    //女
+    const SURGERY                = 2;    //手术
+
+    const INHOSPATIL             = 3;    //住院
+
+    //sex  类型
+    const MAN                    = 1;    //男
+
+    const WOMAN                  = 2;    //女
 
 
 

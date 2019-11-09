@@ -32,7 +32,7 @@ class OrdersService extends BaseService
     /**
      * 添加预约
      * @param $request
-     * @return bool
+     * @return array|bool
      */
     public function addDoctorOrders($request)
     {
@@ -50,10 +50,13 @@ class OrdersService extends BaseService
             'name'               =>  $request['name'],
             'mobile'             =>  $request['mobile'],
             'sex'                =>  $request['sex'],
+            'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'],
             'status'             =>  DoctorEnum::SUBMIT,
+            'type'               =>  $request['type'],
+            'created_at'         =>  time(),
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
@@ -69,7 +72,7 @@ class OrdersService extends BaseService
             $this->setError('预约已提交!');
             return false;
         }
-        if (!$res = MedicalOrdersRepository::getAddId($add_arr)){
+        if (!MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
         }
@@ -130,6 +133,7 @@ class OrdersService extends BaseService
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+            $value['type_name']         =  DoctorEnum::getType($value['type']);
         }
 
         $this->setMessage('获取成功！');
@@ -215,6 +219,7 @@ class OrdersService extends BaseService
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+            $value['type_name']         =  DoctorEnum::getType($value['type']);
         }
 
         $this->setMessage('获取成功！');
