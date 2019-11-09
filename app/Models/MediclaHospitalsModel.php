@@ -10,7 +10,7 @@ class MediclaHospitalsModel extends Model
      *
      * @var string
      */
-    protected $table = 'medicla_hospitals';
+    protected $table = 'medical_hospitals';
 
      /**
      * 表明模型是否应该被打上时间戳

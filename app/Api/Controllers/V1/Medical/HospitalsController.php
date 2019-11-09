@@ -5,7 +5,7 @@ namespace App\Api\Controllers\V1\Medical;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Medicla\HospitalsService;
+use App\Services\Medical\HospitalsService;
 
 class HospitalsController extends ApiController
 {
