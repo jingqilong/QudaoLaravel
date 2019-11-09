@@ -489,5 +489,64 @@ class DoctorOrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/doctors_order",
+     *     tags={"医疗医院前端"},
+     *     summary="根据id获取成员自己预约详情",
+     *     description="jing" ,
+     *     operationId="doctors_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="订单id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function doctorsOrder(){
+        $rules = [
+            'id'          => 'required|integer',
+        ];
+        $messages = [
+            'id.required'      => '订单id不能为空',
+            'id.integer'       => '订单id必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OrdersService->doctorsOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+    }
 
 }

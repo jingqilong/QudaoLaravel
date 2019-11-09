@@ -214,16 +214,26 @@ class OrdersService extends BaseService
             $this->setError('暂时没有预约订单');
             return false;
         }
+        $hospitals_ids   = array_column($list,'hospital_id');
+        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
+        $doctor_ids   = array_column($list,'doctor_id');
+        $doctors_list  = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
+
         foreach ($list as &$value){
-            if ($doctor_name = MedicalDoctorsRepository::getOne(['id' => $value['doctor_id']])){
-                $value['doctor_name'] = $doctor_name['name'];
+            $value['hospitals_name'] = '';
+            $value['doctors_name'] = '';
+            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
+                $value['hospitals_name'] = reset($hospitals)['name'];
             }
-            if ($hospitals_name = MediclaHospitalsRepository::getOne(['id' => $value['hospital_id']])){
-                $value['hospitals_name'] = $hospitals_name['name'];
+            if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
+                $value['doctors_name'] = reset($doctors)['name'];
             }
-            $value['status_name']       =  DoctorEnum::getStatus($value['status']);
-            $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
-            $value['type_name']         =  DoctorEnum::getType($value['type']);
+            $value['status']    = DoctorEnum::getStatus($value['status']);
+            $value['type']      = DoctorEnum::getType($value['type']);
+            unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
+                  $value['status'],$value['type'],$value['department_ids'],
+                  $value['created_at'],$value['updated_at'],$value['deleted_at'],
+            );
         }
 
         $this->setMessage('获取成功！');
@@ -257,7 +267,7 @@ class OrdersService extends BaseService
             $this->setMessage('暂无数据!');
             return $list;
         }
-        $list['data'] = ImagesService::getListImages($list['data'],['img_id' => 'single']);
+        $list['data']    = ImagesService::getListImages($list['data'],['img_id' => 'single']);
         $department_ids  = array_column($list['data'],'department_ids');
         $hospitals_ids   = array_column($list['data'],'hospitals_id');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
@@ -280,6 +290,37 @@ class OrdersService extends BaseService
 
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     *根据id获取成员自己预约详情
+     * @param $request
+     * @return bool|null
+     */
+    public function doctorsOrder($request)
+    {
+        if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('没有此订单!');
+            return false;
+        }
+        if (!$hospital = MediclaHospitalsRepository::getOne(['id' => $orderInfo['hospital_id']])){
+            $this->setError('无效订单!');
+            return false;
+        }
+        if (!$doctor = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']])){
+            $this->setError('无效订单!');
+            return false;
+        }
+        $orderInfo['hospital_name']   = $hospital['name'];
+        $orderInfo['doctor_name']     = $doctor['name'];
+        $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
+        $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
+        $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
+        unset($orderInfo['member_id'],$orderInfo['doctor_id'],
+              $orderInfo['sex'],      $orderInfo['hospital_id'],
+              $orderInfo['status'],   $orderInfo['type']);
+        $this->setMessage('查找成功!');
+        return $orderInfo;
     }
 
 }
