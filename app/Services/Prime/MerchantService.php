@@ -50,7 +50,7 @@ class MerchantService extends BaseService
         $user = $this->auth->user();
         $user_info = $user->toArray();
         $user_info['logo'] = CommonImagesRepository::getField(['id' => $user_info['logo_id']],'img_url');
-        unset($user_info['logo_id']);
+        unset($user_info['logo_id'],$user_info['disabled'],$user_info['created_at'],$user_info['updated_at']);
         return ['user' => $user_info, 'token' => $token];
     }
 
@@ -115,6 +115,10 @@ class MerchantService extends BaseService
         $display_img_count = count(explode(',',$request['display_img_ids']));
         if (($display_img_count % 3) > 0){
             $this->setError('展示图数量必须以3的倍数上传，最少3张');
+            return false;
+        }
+        if ($display_img_count > 18){
+            $this->setError('展示图数量最多18张');
             return false;
         }
         $merchant_add_arr = [
@@ -212,6 +216,10 @@ class MerchantService extends BaseService
         $display_img_count = count(explode(',',$request['display_img_ids']));
         if (($display_img_count % 3) > 0){
             $this->setError('展示图数量必须以3的倍数上传，最少3张');
+            return false;
+        }
+        if ($display_img_count > 18){
+            $this->setError('展示图数量最多18张');
             return false;
         }
         $upd_arr = [
@@ -371,6 +379,82 @@ class MerchantService extends BaseService
             $value['area_address']       = $area_address;
             $value['type_title']         = PrimeTypeEnum::getType($value['type']);
             $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : round($value['expect_spend'] / 100,2).'元';
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 推荐或取消推荐
+     * @param $merchant_id
+     * @param $is_recommend
+     * @return bool
+     */
+    public function isRecommend($merchant_id, $is_recommend)
+    {
+        if (!$merchant = PrimeMerchantRepository::getOne(['id' => $merchant_id])){
+            $this->setError('商户不存在！');
+            return false;
+        }
+        if ($merchant['disabled'] > 0){
+            $this->setError('该商户已被禁用！');
+            return false;
+        }
+        if (!$merchant_info = PrimeMerchantInfoRepository::getOne(['merchant_id' => $merchant_id])){
+            $this->setError('商户信息不存在！');
+            return false;
+        }
+        $upd_arr = [
+            'is_recommend'  => $is_recommend == 1 ? time() : 0,
+            'updated_at'    => time()
+        ];
+        if (!PrimeMerchantInfoRepository::getUpdId(['merchant_id' => $merchant_id],$upd_arr)){
+            $this->setError('操作失败！');
+            return false;
+        }
+        $this->setMessage('操作成功！');
+        return true;
+    }
+
+    /**
+     * 首页列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    protected function getHomeList($request){
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $type       = $request['type'] ?? null;
+        $keywords   = $request['keywords'] ?? null;
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['disabled' => 0];
+        $column     = ['id','name','banner_ids','address','star','expect_spend','discount'];
+        if (!empty($type)){
+            $where['type'] = $type;
+        }
+        if (!empty($keywords)){
+            $keywords = [$keywords => ['name','mobile','realname','license']];
+            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data'] = CommonImagesService::getListImages($list['data'], ['banner_ids'=> 'single']
+        );
+        foreach ($list['data'] as &$value){
+            $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
+            unset($value['banner_ids'],$value['logo_id']);
         }
         $this->setMessage('获取成功！');
         return $list;

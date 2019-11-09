@@ -3,6 +3,7 @@ namespace App\Services\Prime;
 
 
 use App\Enums\PrimeTypeEnum;
+use App\Repositories\PrimeMerchantInfoRepository;
 use App\Repositories\PrimeMerchantProductsRepository;
 use App\Repositories\PrimeMerchantRepository;
 use App\Services\BaseService;
@@ -22,7 +23,7 @@ class MerchantProductsService extends BaseService
      */
     public function addProduct($request, $merchant_id, $type = null)
     {
-        if (!$merchant = PrimeMerchantRepository::getOne(['id' => $merchant_id])){
+        if (!$merchant = PrimeMerchantInfoRepository::getOne(['merchant_id' => $merchant_id])){
             $this->setError('该商户不存在！');
             return false;
         }

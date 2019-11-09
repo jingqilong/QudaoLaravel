@@ -40,10 +40,7 @@ class PrimeMerchantModel extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password',
-        'disabled',
-        'created_at',
-        'updated_at',
+        'password'
     ];
 
     /**
