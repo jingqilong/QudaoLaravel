@@ -148,7 +148,7 @@ class MerchantProductsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data'] = CommonImagesService::getListImages($list['data'], ['image_ids'=>'single']);
+        $list['data'] = CommonImagesService::getListImages($list['data'], ['image_ids'=>'several']);
         $merchant_ids = array_column($list['data'],'merchant_id');
         $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
         foreach ($list['data'] as &$value){
