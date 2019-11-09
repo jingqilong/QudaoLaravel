@@ -4,6 +4,7 @@ namespace App\Services\Medical;
 
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
+use App\Repositories\MedicalDoctorLabelsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
@@ -158,7 +159,7 @@ class DoctorsService extends BaseService
         $labels_ids      = array_column($list['data'],'label_ids');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $labels_list     = MediclaHospitalsRepository::getAssignList($labels_ids,['id','name']);
+        $labels_list     = MedicalDoctorLabelsRepository::getAssignList($labels_ids,['id','name']);
 
         foreach ($list['data'] as &$value){
             $value['departments']    = [];
