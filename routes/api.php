@@ -134,6 +134,7 @@ $api->version('v1',function ($api){
                 $api->post('logout','AdminPrimeController@logout')->name('退出');
                 $api->post('refresh','AdminPrimeController@refresh')->name('刷新token');
                 $api->get('get_user_info','AdminPrimeController@getUserInfo')->name('获取用户信息');
+                $api->post('edit_merchant','AdminPrimeController@editMerchant')->name('修改个人信息');
 
                 $api->post('add_product','ProductPrimeController@addProduct')->name('添加产品');
                 $api->delete('delete_product','ProductPrimeController@deleteProduct')->name('删除产品');

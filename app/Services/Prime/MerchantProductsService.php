@@ -156,7 +156,7 @@ class MerchantProductsService extends BaseService
                 $value['merchant_name'] = reset($merchant)['name'];
             }
             $value['type_title']    = PrimeTypeEnum::getType($value['type']);
-            $value['price_title'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
+            $value['price'] = empty($value['price']) ? '0' : round($value['price'] / 100,2);
         }
         $this->setMessage('获取成功！');
         return $list;

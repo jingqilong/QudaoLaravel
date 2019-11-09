@@ -32,7 +32,7 @@ class PrimeMerchantModel extends Authenticatable implements JWTSubject
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','password','mobile','realname','logo_id','type','license','license_img_id','area_code','banner_ids','display_img_ids','address','describe','expect_spend','discount','disabled','created_at','updated_at'];
+    protected $fillable = ['id','name','account','password','mobile','realname','logo_id','disabled','created_at','updated_at'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -41,6 +41,9 @@ class PrimeMerchantModel extends Authenticatable implements JWTSubject
      */
     protected $hidden = [
         'password',
+        'disabled',
+        'created_at',
+        'updated_at',
     ];
 
     /**

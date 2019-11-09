@@ -4,10 +4,13 @@ namespace App\Services\Prime;
 
 use App\Enums\PrimeTypeEnum;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\PrimeMerchantInfoRepository;
 use App\Repositories\PrimeMerchantRepository;
+use App\Repositories\PrimeMerchantViewRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Services\Common\ImagesService as CommonImagesService;
 
@@ -26,21 +29,29 @@ class MerchantService extends BaseService
 
     /**
      * 用户登录，返回用户信息和TOKEN
-     * @param $mobile
+     * @param $account
      * @param $password
      * @return mixed|string
      */
-    public function login($mobile, $password){
-
-        if (!PrimeMerchantRepository::exists(['mobile' => $mobile])){
+    public function login($account, $password){
+        //兼容账户登录、手机号登录
+        $mobile_regex = '/^(1(([35789][0-9])|(47)))\d{8}$/';
+        $account_type = 'account';
+        if (preg_match($mobile_regex, $account)) {
+            $account_type = 'mobile';
+        }
+        if (!PrimeMerchantRepository::exists([$account_type => $account])){
             return '用户不存在！';
         }
-        $token = PrimeMerchantRepository::login($mobile,$password);
+        $token = PrimeMerchantRepository::login([$account_type => $account, 'password' => $password]);
         if (is_array($token)){
             return $token['message'];
         }
         $user = $this->auth->user();
-        return ['user' => $user, 'token' => $token];
+        $user_info = $user->toArray();
+        $user_info['logo'] = CommonImagesRepository::getField(['id' => $user_info['logo_id']],'img_url');
+        unset($user_info['logo_id']);
+        return ['user' => $user_info, 'token' => $token];
     }
 
 
@@ -89,6 +100,10 @@ class MerchantService extends BaseService
      */
     public function addMerchant($request)
     {
+        if (PrimeMerchantRepository::exists(['account' => $request['account']])){
+            $this->setError('账户名已被使用');
+            return false;
+        }
         if (PrimeMerchantRepository::exists(['mobile' => $request['mobile']])){
             $this->setError('手机号已被使用');
             return false;
@@ -97,33 +112,55 @@ class MerchantService extends BaseService
             $this->setError('该商户名已被使用');
             return false;
         }
-        $add_arr = [
-            'name'          => $request['name'],
-            'mobile'        => $request['mobile'],
-            'realname'      => $request['realname'],
-            'logo_id'       => $request['logo_id'],
-            'type'          => $request['type'],
-            'license'       => $request['license'] ?? '',
-            'license_img_id' => $request['license_img_id'] ?? '',
-            'area_code'     => $request['area_code'] ?? '',
-            'address'       => $request['address'] ?? '',
-            'banner_ids'    => $request['banner_ids'],
-            'display_img_ids' => $request['display_img_ids'],
-            'describe'      => $request['describe'],
-            'expect_spend'  => $request['expect_spend'] ?? '',
-            'discount'      => $request['discount'] ?? '',
+        $display_img_count = count(explode(',',$request['display_img_ids']));
+        if (($display_img_count % 3) > 0){
+            $this->setError('展示图数量必须以3的倍数上传，最少3张');
+            return false;
+        }
+        $merchant_add_arr = [
+            'name'              => $request['name'],
+            'account'           => $request['account'],
+            'mobile'            => $request['mobile'],
+            'realname'          => $request['realname'],
+            'logo_id'           => $request['logo_id'],
         ];
-        if (PrimeMerchantRepository::exists($add_arr)){
+        $info_add_arr = [
+            'type'              => $request['type'],
+            'license'           => $request['license'] ?? '',
+            'license_img_id'    => $request['license_img_id'] ?? '',
+            'area_code'         => $request['area_code'] ?? '',
+            'address'           => $request['address'] ?? '',
+            'banner_ids'        => $request['banner_ids'],
+            'display_img_ids'   => $request['display_img_ids'],
+            'shorttitle'        => $request['shorttitle'],
+            'describe'          => $request['describe'],
+            'star'              => $request['star'] ?? 0,
+            'expect_spend'      => $request['expect_spend'] ?? '',
+            'discount'          => $request['discount'] ?? '',
+        ];
+        if (PrimeMerchantRepository::exists($merchant_add_arr)){
             $this->setError('该商户已添加');
             return false;
         }
-        $add_arr['password']    = Hash::make($request['password']);
-        $add_arr['created_at']  = time();
-        $add_arr['updated_at']  = time();
-        if (PrimeMerchantRepository::getAddId($add_arr)){
-            $this->setMessage('添加成功！');
-            return true;
+        if (PrimeMerchantInfoRepository::exists($info_add_arr)){
+            $this->setError('该商户已添加');
+            return false;
         }
+        $merchant_add_arr['password']    = Hash::make($request['password']);
+        $merchant_add_arr['created_at']  = time();
+        $merchant_add_arr['updated_at']  = time();
+        $info_add_arr['created_at']  = time();
+        $info_add_arr['updated_at']  = time();
+        DB::beginTransaction();
+        if ($merchant_id = PrimeMerchantRepository::getAddId($merchant_add_arr)){
+            $info_add_arr['merchant_id'] = $merchant_id;
+            if (PrimeMerchantInfoRepository::getAddId($info_add_arr)){
+                DB::commit();
+                $this->setMessage('添加成功！');
+                return true;
+            }
+        }
+        DB::rollBack();
         $this->setError('添加失败！');
         return true;
     }
@@ -154,7 +191,7 @@ class MerchantService extends BaseService
     }
 
     /**
-     * 修改商户信息
+     * OA修改商户信息
      * @param $request
      * @return bool
      */
@@ -164,39 +201,117 @@ class MerchantService extends BaseService
             $this->setError('该商户不存在');
             return false;
         }
-        if (PrimeMerchantRepository::exists(['mobile' => $request['mobile']])){
+        if (PrimeMerchantRepository::exists(['mobile' => $request['mobile'],'id' => ['<>',$request['id']]])){
             $this->setError('手机号已被使用');
             return false;
         }
-        if (PrimeMerchantRepository::exists(['name' => $request['name']])){
+        if (PrimeMerchantRepository::exists(['name' => $request['name'],'id' => ['<>',$request['id']]])){
             $this->setError('该商户名已被使用');
             return false;
         }
+        $display_img_count = count(explode(',',$request['display_img_ids']));
+        if (($display_img_count % 3) > 0){
+            $this->setError('展示图数量必须以3的倍数上传，最少3张');
+            return false;
+        }
         $upd_arr = [
-            'name'          => $request['name'],
-            'mobile'        => $request['mobile'],
-            'realname'      => $request['realname'],
-            'logo_id'       => $request['logo_id'],
-            'type'          => $request['type'],
-            'license'       => $request['license'] ?? '',
-            'license_img_id' => $request['license_img_id'] ?? '',
-            'area_code'     => $request['area_code'] ?? '',
-            'address'       => $request['address'] ?? '',
-            'banner_ids'    => $request['banner_ids'],
-            'display_img_ids' => $request['display_img_ids'],
-            'describe'      => $request['describe'],
-            'expect_spend'  => $request['expect_spend'] ?? '',
-            'discount'      => $request['discount'] ?? '',
+            'name'              => $request['name'],
+            'mobile'            => $request['mobile'],
+            'realname'          => $request['realname'],
+            'logo_id'           => $request['logo_id'],
+        ];
+        $info_upd_arr = [
+            'type'              => $request['type'],
+            'license'           => $request['license'] ?? '',
+            'license_img_id'    => $request['license_img_id'] ?? '',
+            'area_code'         => $request['area_code'] ?? '',
+            'address'           => $request['address'] ?? '',
+            'banner_ids'        => $request['banner_ids'],
+            'display_img_ids'   => $request['display_img_ids'],
+            'shorttitle'        => $request['shorttitle'],
+            'describe'          => $request['describe'],
+            'star'              => $request['star'] ?? 0,
+            'expect_spend'      => $request['expect_spend'] ?? '',
+            'discount'          => $request['discount'] ?? '',
         ];
         if (PrimeMerchantRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该商户已添加');
             return false;
         }
-        $upd_arr['updated_at']  = time();
-        if (PrimeMerchantRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            $this->setMessage('修改成功！');
-            return true;
+        if (PrimeMerchantInfoRepository::exists(array_merge($info_upd_arr,['merchant_id' => ['<>',$request['id']]]))){
+            $this->setError('该商户已添加');
+            return false;
         }
+        $upd_arr['updated_at']      = time();
+        $info_upd_arr['updated_at'] = time();
+        DB::beginTransaction();
+        if (PrimeMerchantRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            if (PrimeMerchantInfoRepository::getUpdId(['merchant_id' => $request['id']],$info_upd_arr)){
+                DB::commit();
+                $this->setMessage('修改成功！');
+                return true;
+            }
+        }
+        DB::rollBack();
+        $this->setError('修改失败！');
+        return true;
+    }
+
+    /**
+     * 商户修改自己信息
+     * @param $request
+     * @return bool
+     */
+    public function userEditMerchant($request)
+    {
+        $merchant = Auth::guard('prime_api')->user();
+        if (PrimeMerchantRepository::exists(['mobile' => $request['mobile'],'id' => ['<>',$merchant->id]])){
+            $this->setError('手机号已被使用');
+            return false;
+        }
+        if (PrimeMerchantRepository::exists(['name' => $request['name'],'id' => ['<>',$merchant->id]])){
+            $this->setError('名称已被使用');
+            return false;
+        }
+        $display_img_count = count(explode(',',$request['display_img_ids']));
+        if (($display_img_count % 3) > 0){
+            $this->setError('展示图数量必须以3的倍数上传，最少3张');
+            return false;
+        }
+        $upd_arr = [
+            'name'              => $request['name'],
+            'mobile'            => $request['mobile'],
+            'realname'          => $request['realname'],
+            'logo_id'           => $request['logo_id'],
+        ];
+        $info_upd_arr = [
+            'address'           => $request['address'] ?? '',
+            'banner_ids'        => $request['banner_ids'],
+            'display_img_ids'   => $request['display_img_ids'],
+            'shorttitle'        => $request['shorttitle'],
+            'describe'          => $request['describe'],
+            'expect_spend'      => $request['expect_spend'] ?? '',
+            'discount'          => $request['discount'] ?? '',
+        ];
+        if (PrimeMerchantRepository::exists(array_merge($upd_arr,['id' => ['<>',$merchant->id]]))){
+            $this->setError('该商户已添加');
+            return false;
+        }
+        if (PrimeMerchantInfoRepository::exists(array_merge($info_upd_arr,['merchant_id' => ['<>',$merchant->id]]))){
+            $this->setError('该商户已添加');
+            return false;
+        }
+        $upd_arr['updated_at']      = time();
+        $info_upd_arr['updated_at'] = time();
+        DB::beginTransaction();
+        if (PrimeMerchantRepository::getUpdId(['id' => $merchant->id],$upd_arr)){
+            if (PrimeMerchantInfoRepository::getUpdId(['merchant_id' => $merchant->id],$info_upd_arr)){
+                DB::commit();
+                $this->setMessage('修改成功！');
+                return true;
+            }
+        }
+        DB::rollBack();
         $this->setError('修改失败！');
         return true;
     }
@@ -228,12 +343,12 @@ class MerchantService extends BaseService
         }
         if (!empty($keywords)){
             $keywords = [$keywords => ['name','mobile','realname','license']];
-            if (!$list = PrimeMerchantRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = PrimeMerchantRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
