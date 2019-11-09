@@ -285,7 +285,8 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'medical', 'namespace' => 'Medical'], function ($api) {
             $api->group(['middleware' => 'member.jwt.auth'], function ($api) {
                 $api->post('add_doctor_order', 'DoctorOrderController@addDoctorOrder')->name('添加医疗预约');
-                $api->get('doctors_order_list', 'DoctorOrderController@doctorsOrderList')->name('获取成员自己预约列表状态');
+                $api->get('doctors_order_list', 'DoctorOrderController@doctorsOrderList')->name('获取成员自己预约列表');
+                $api->get('doctors_order', 'DoctorOrderController@doctorsOrder')->name('根据id获取成员自己预约详情');
                 $api->get('doctors_list', 'DoctorOrderController@doctorsList')->name('获取医生列表');
                 $api->get('get_doctor', 'DoctorsController@getDoctor')->name('获取医生详情');
                 $api->get('hospital_list', 'HospitalsController@hospitalList')->name('获取医疗医院列表');
