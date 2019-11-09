@@ -221,18 +221,27 @@ class OrdersService extends BaseService
         return $list;
     }
 
+
     /**
      * 成员获取医生列表
-     * @return array|bool|null
+     * @param array $data
+     * @return bool|mixed|null
      */
-    public function doctorsList($data)
+    public function doctorsList(array $data)
     {
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $column         = ['id','name','img_id','title','good_at','introduction','hospitals_id','department_ids'];
-        if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
-            $this->setError('获取失败');
-            return false;
+        if (!empty($data['hospital_id'])){
+            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0,'hospitals_id' => $data['hospital_id']],$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败');
+                return false;
+            }
+        }else{
+            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){

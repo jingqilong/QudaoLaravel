@@ -414,6 +414,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="hospital_id",
+     *         in="query",
+     *         description="医院id【填写医院id 则搜索该医院下面的所有医生 不填写则是全部】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -439,6 +448,18 @@ class DoctorOrderController extends ApiController
      *
      */
     public function doctorsList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'      => '页码必须为整数',
+            'page_num.integer'  => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->OrdersService->doctorsList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
