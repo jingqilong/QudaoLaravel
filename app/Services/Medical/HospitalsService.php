@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Medicla;
+namespace App\Services\Medical;
 
 
 use App\Repositories\CommonImagesRepository;
