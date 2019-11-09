@@ -23,12 +23,12 @@ class HospitalsService extends BaseService
     {
         $add_arr = [
             'name'          => $request['name'],
-            'introduction'  => $request['introduction'],
         ];
         if (MediclaHospitalsRepository::exists(['name' => $add_arr['name']])){
-            $this->setError('医院已存在！');
+            $this->setError('医院名称已被使用！');
             return false;
         }
+        $add_arr['introduction']   =$request['introduction'];
         $add_arr['recommend']   = $request['recommend'] == 1 ? time() : 0;
         $add_arr['created_at'] = time();
         $add_arr['updated_at'] = time();
@@ -46,7 +46,7 @@ class HospitalsService extends BaseService
      */
     public function deleteHospitals($id)
     {
-        if (!MediclaHospitalsRepository::exists(['id' => $id])){
+        if (!MediclaHospitalsRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('医院已删除！');
             return false;
         }
@@ -54,7 +54,7 @@ class HospitalsService extends BaseService
             $this->setError('该医院下有医生，无法删除！');
             return false;
         }
-        if (MediclaHospitalsRepository::delete(['id' => $id])){
+        if (MediclaHospitalsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setMessage('删除成功！');
             return true;
         }
@@ -71,6 +71,10 @@ class HospitalsService extends BaseService
     public function editHospitals($request)
     {
         if (!MediclaHospitalsRepository::exists(['id' => $request['id']])){
+            $this->setError('医院信息不存在！');
+            return false;
+        }
+        if (!MediclaHospitalsRepository::exists(['name' => $request['name'],'id' => ['<>',$request['id']]])){
             $this->setError('医院信息不存在！');
             return false;
         }
@@ -112,7 +116,6 @@ class HospitalsService extends BaseService
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
-            unset($value['img_ids_url']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -140,7 +143,7 @@ class HospitalsService extends BaseService
         $list['data']    = ImagesService::getListImages($list['data'],['img_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
-            unset($value['img_ids_url'],$value['img_ids']);
+            unset($value['img_ids']);
         }
         $this->setMessage('获取成功！');
         return $list;

@@ -368,7 +368,7 @@ class DoctorOrderController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
         }
-        return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->OrdersService->message];
     }
 
     /**

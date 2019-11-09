@@ -100,6 +100,15 @@ class LoanController extends ApiController
      *         )
      *     ),
      *    @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索【1姓名 2手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *    @OA\Parameter(
      *         name="asc",
      *         in="query",
      *         description="排序方式[1 正序 2 倒叙]",
