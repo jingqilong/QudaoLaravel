@@ -276,7 +276,7 @@ class ReservationController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="状态",
+     *         name="state",
      *         in="query",
      *         description="状态，默认1正在预约，2预约成功，3预约失败",
      *         required=false,

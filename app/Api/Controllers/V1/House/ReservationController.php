@@ -225,6 +225,24 @@ class ReservationController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索【订单号，预约人姓名，预约人手机号，备注】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="state",
+     *         in="query",
+     *         description="状态，默认1正在预约，2预约成功，3预约失败",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -251,10 +269,13 @@ class ReservationController extends ApiController
      */
     public function allReservationList(){
         $rules = [
+            'keywords'      => 'string',
+            'state'         => 'in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'state.in'              => '状态字段取值有误',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
