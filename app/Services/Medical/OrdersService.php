@@ -32,7 +32,7 @@ class OrdersService extends BaseService
     /**
      * 添加预约
      * @param $request
-     * @return bool
+     * @return array|bool
      */
     public function addDoctorOrders($request)
     {
@@ -50,10 +50,13 @@ class OrdersService extends BaseService
             'name'               =>  $request['name'],
             'mobile'             =>  $request['mobile'],
             'sex'                =>  $request['sex'],
+            'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'],
             'status'             =>  DoctorEnum::SUBMIT,
+            'type'               =>  $request['type'],
+            'created_at'         =>  time(),
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
@@ -69,7 +72,7 @@ class OrdersService extends BaseService
             $this->setError('预约已提交!');
             return false;
         }
-        if (!$res = MedicalOrdersRepository::getAddId($add_arr)){
+        if (!MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
         }
@@ -92,14 +95,18 @@ class OrdersService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $status         = $data['status'] ?? null;
+        $type           = $data['type'] ?? null;
         $column         = ['*'];
         $where          = ['deleted_at' => 0];
         if ($status !== null){
             $where['status'] = $status;
         }
-        if (!empty($keywords)){
-            $keyword        = [$keywords => ['name','mobile']];
-            if(!$list = MedicalOrdersRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
+        if ($type !== null){
+            $where['type'] = $type;
+        }
+        if (!empty($keywords)) {
+            $keyword = [$keywords => ['name', 'mobile']];
+            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
@@ -111,8 +118,8 @@ class OrdersService extends BaseService
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
-            $this->setError('没有数据!');
-            return false;
+            $this->setMessage('没有数据!');
+            return [];
         }
         $doctor_ids      = array_column($list['data'],'doctor_id');
         $hospitals_ids   = array_column($list['data'],'hospital_id');
@@ -130,6 +137,7 @@ class OrdersService extends BaseService
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+            $value['type_name']         =  DoctorEnum::getType($value['type']);
         }
 
         $this->setMessage('获取成功！');
@@ -215,24 +223,34 @@ class OrdersService extends BaseService
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
+            $value['type_name']         =  DoctorEnum::getType($value['type']);
         }
 
         $this->setMessage('获取成功！');
         return $list;
     }
 
+
     /**
      * 成员获取医生列表
-     * @return array|bool|null
+     * @param array $data
+     * @return bool|mixed|null
      */
-    public function doctorsList($data)
+    public function doctorsList(array $data)
     {
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $column         = ['id','name','img_id','title','good_at','introduction','hospitals_id','department_ids'];
-        if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
-            $this->setError('获取失败');
-            return false;
+        if (!empty($data['hospital_id'])){
+            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0,'hospitals_id' => $data['hospital_id']],$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败');
+                return false;
+            }
+        }else{
+            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){

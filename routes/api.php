@@ -290,6 +290,7 @@ $api->version('v1',function ($api){
                 $api->post('add_doctor_order', 'DoctorOrderController@addDoctorOrder')->name('添加医疗预约');
                 $api->get('doctors_order_list', 'DoctorOrderController@doctorsOrderList')->name('获取成员自己预约列表状态');
                 $api->get('doctors_list', 'DoctorOrderController@doctorsList')->name('获取医生列表');
+                $api->get('get_doctor', 'DoctorsController@getDoctor')->name('获取医生详情');
                 $api->get('hospital_list', 'HospitalsController@hospitalList')->name('获取医疗医院列表');
             });
             #获取医疗订单列表

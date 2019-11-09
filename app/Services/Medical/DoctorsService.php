@@ -2,6 +2,7 @@
 namespace App\Services\Medical;
 
 
+use App\Enums\DoctorEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorLabelsRepository;
@@ -185,6 +186,57 @@ class DoctorsService extends BaseService
 
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+
+    /**
+     *  用户获取医生详情
+     * @param $request
+     * @return array|bool|null
+     */
+    public function getDoctorById($request)
+    {
+        if (!MedicalDoctorsRepository::exists(['id' => $request['id']])){
+            $this->setError('医生不存在!');
+            return false;
+        }
+        if (!$doctorInfo = MedicalDoctorsRepository::getOne(['id' => $request['id']])){
+            $this->setError('获取失败!');
+            return false;
+        }
+        if (!$hospital = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']])){
+            $this->setError('医院不存在!');
+            return false;
+        }
+        if (empty($doctorInfo)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $doctorInfo['departments']      = [];
+        $doctorInfo['labels']           = [];
+        $doctorInfo['img_url']          = CommonImagesRepository::getField(['id' => $doctorInfo['img_id']],'img_url');
+        $hospital                       = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']]);
+        $department_arr = explode(',',$doctorInfo['department_ids']);
+        if(!$department = MedicalDepartmentsRepository::getList(['id' => ['in',$department_arr]],['id','name'])){
+            return [];
+        }
+        $labels_arr = explode(',',$doctorInfo['label_ids']);
+        if(!$labels = MedicalDoctorLabelsRepository::getList(['id' => ['in',$labels_arr]],['id','name'])){
+            return [];
+        }
+        $doctorInfo['departments']    = $department;
+        $doctorInfo['labels']         = $labels;
+        $doctorInfo['sex_name']       = DoctorEnum::getSex($doctorInfo['sex']);
+        $doctorInfo['hospital_name']  = $hospital['name'];
+
+        unset($doctorInfo['created_at'],$doctorInfo['updated_at'],
+              $doctorInfo['img_id'],    $doctorInfo['sex'],
+              $doctorInfo['member_id'], $doctorInfo['recommend'],
+              $doctorInfo['label_ids'], $doctorInfo['department_ids'],
+              $doctorInfo['deleted_at'],$doctorInfo['hospitals_id']);
+
+        $this->setMessage('获取成功!');
+        return $doctorInfo;
     }
 }
             

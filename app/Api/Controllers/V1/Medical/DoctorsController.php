@@ -516,4 +516,64 @@ class DoctorsController extends ApiController
         return ['code' => 200, 'message' => $this->doctorsService->message,'data' => $res];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/get_doctor",
+     *     tags={"医疗医院前端"},
+     *     summary="获取医生列表(oa)",
+     *     description="jing" ,
+     *     operationId="get_doctor",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="医生id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getDoctor(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.integer'        => '医生id必须为整数',
+            'id.required'       => '医生id不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->doctorsService->getDoctorById($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->doctorsService->error];
+        }
+        return ['code' => 200, 'message' => $this->doctorsService->message,'data' => $res];
+    }
+
 }

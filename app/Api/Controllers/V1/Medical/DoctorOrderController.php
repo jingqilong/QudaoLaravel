@@ -101,6 +101,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="服务类型 1看病 2手术 3住院",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="appointment_at",
      *         in="query",
      *         description="预约时间",
@@ -141,6 +150,7 @@ class DoctorOrderController extends ApiController
             'sex'               => 'required|integer',
             'age'               => 'required|integer',
             'doctor_id'         => 'required|integer',
+            'type'              => 'required|in:1,2,3',
             'description'       => 'string',
             'appointment_at'    => 'required|date',
             'end_time'          => 'date',
@@ -154,11 +164,13 @@ class DoctorOrderController extends ApiController
             'mobile.regex'              => '预约手机格式不正确',
             'sex.required'              => '预约人性别不能为空',
             'sex.integer'               => '预约人姓名不是整数',
-            'age.required'              => '预约人性别不能为空',
+            'age.required'              => '预约人年龄不能为空',
             'age.integer'               => '年龄格式错误',
             'description.string'        => '病情描述详情必须为字符串',
             'hospital_id.integer'       => '医院ID不是整数',
             'hospital_id.required'      => '医院ID不能为空',
+            'type.in'                   => '服务类型存在',
+            'type.required'             => '服务类型不能为空',
             'doctor_id.integer'         => '医生ID不是整数',
             'doctor_id.required'        => '医生ID不能为空',
             'appointment_at.date'       => '预约时间格式不正确',
@@ -231,6 +243,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="服务类型 【1看病 2手术 3住院】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -260,11 +281,13 @@ class DoctorOrderController extends ApiController
             'page'          => 'integer',
             'page_num'      => 'integer',
             'status'        => 'in:0,1,2',
+            'type'          => 'in:1,2,3',
         ];
         $messages = [
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
             'status.in'                 => '状态值不存在',
+            'type.in'                   => '服务类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -414,6 +437,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="hospital_id",
+     *         in="query",
+     *         description="医院id【填写医院id 则搜索该医院下面的所有医生 不填写则是全部】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -439,6 +471,18 @@ class DoctorOrderController extends ApiController
      *
      */
     public function doctorsList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'      => '页码必须为整数',
+            'page_num.integer'  => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->OrdersService->doctorsList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
