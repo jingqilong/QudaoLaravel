@@ -243,6 +243,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="服务类型 【1看病 2手术 3住院】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -272,11 +281,13 @@ class DoctorOrderController extends ApiController
             'page'          => 'integer',
             'page_num'      => 'integer',
             'status'        => 'in:0,1,2',
+            'type'          => 'in:1,2,3',
         ];
         $messages = [
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
             'status.in'                 => '状态值不存在',
+            'type.in'                   => '服务类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

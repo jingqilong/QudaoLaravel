@@ -95,14 +95,18 @@ class OrdersService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $status         = $data['status'] ?? null;
+        $type           = $data['type'] ?? null;
         $column         = ['*'];
         $where          = ['deleted_at' => 0];
         if ($status !== null){
             $where['status'] = $status;
         }
-        if (!empty($keywords)){
-            $keyword        = [$keywords => ['name','mobile']];
-            if(!$list = MedicalOrdersRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
+        if ($type !== null){
+            $where['type'] = $type;
+        }
+        if (!empty($keywords)) {
+            $keyword = [$keywords => ['name', 'mobile']];
+            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
