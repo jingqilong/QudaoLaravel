@@ -56,6 +56,15 @@ class OaPrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="account",
+     *         in="query",
+     *         description="账户",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="password",
      *         in="query",
      *         description="密码",
@@ -148,7 +157,16 @@ class OaPrimeController extends ApiController
      *     @OA\Parameter(
      *         name="display_img_ids",
      *         in="query",
-     *         description="展示图ID串,不能低于3张",
+     *         description="展示图ID串,不能低于3张，以3的倍数上传",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="shorttitle",
+     *         in="query",
+     *         description="短标题，不能超过500字",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -161,6 +179,15 @@ class OaPrimeController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="star",
+     *         in="query",
+     *         description="商家星级,1-5个等级",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -191,6 +218,7 @@ class OaPrimeController extends ApiController
     public function addMerchant(){
         $rules = [
             'name'              => 'required',
+            'account'           => 'required|alpha_dash',
             'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
             'password'          => 'required|string|min:6|max:20',
             'realname'          => 'required',
@@ -199,11 +227,15 @@ class OaPrimeController extends ApiController
             'license_img_id'    => 'integer',
             'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
             'display_img_ids'   => 'required|regex:/^(\d+[,])*\d+$/',
+            'shorttitle'        => 'required|max:500',
             'describe'          => 'required|max:1000',
+            'star'              => 'in:1,2,3,4,5',
             'expect_spend'      => 'regex:/^\-?\d+(\.\d{1,2})?$/',
         ];
         $messages = [
             'name.required'             => '商户名不能为空',
+            'account.required'          => '账户不能为空',
+            'account.alpha_dash'        => '账户格式有误，可包含字母、数字、破折号、下划线',
             'mobile.required'           => '手机号不能为空',
             'mobile.regex'              => '手机号格式有误',
             'password.required'         => '请输入密码',
@@ -219,8 +251,11 @@ class OaPrimeController extends ApiController
             'banner_ids.regex'          => '商户banner图ID串格式有误',
             'display_img_ids.required'  => '商户展示图不能为空',
             'display_img_ids.regex'     => '商户展示图ID串格式有误',
+            'shorttitle.required'       => '短标题不能为空',
+            'shorttitle.max'            => '短标题不能超过500字',
             'describe.required'         => '商家描述不能为空',
             'describe.max'              => '商家描述不能超过一千字',
+            'star.in'                   => '商家星级不在范围',
             'expect_spend.length'       => '人均消费金额格式有误',
         ];
 
@@ -424,7 +459,16 @@ class OaPrimeController extends ApiController
      *     @OA\Parameter(
      *         name="display_img_ids",
      *         in="query",
-     *         description="展示图ID串,不能低于3张",
+     *         description="展示图ID串,不能低于3张，以3的倍数上传",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="shorttitle",
+     *         in="query",
+     *         description="短标题，不能超过500字",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -437,6 +481,15 @@ class OaPrimeController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="star",
+     *         in="query",
+     *         description="商家星级,1-5个等级",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -475,7 +528,9 @@ class OaPrimeController extends ApiController
             'license_img_id'    => 'integer',
             'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
             'display_img_ids'   => 'required|regex:/^(\d+[,])*\d+$/',
+            'shorttitle'        => 'required|max:500',
             'describe'          => 'required|max:1000',
+            'star'              => 'in:1,2,3,4,5',
             'expect_spend'      => 'regex:/^\-?\d+(\.\d{1,2})?$/',
         ];
         $messages = [
@@ -494,8 +549,11 @@ class OaPrimeController extends ApiController
             'banner_ids.regex'          => '商户banner图ID串格式有误',
             'display_img_ids.required'  => '商户展示图不能为空',
             'display_img_ids.regex'     => '商户展示图ID串格式有误',
+            'shorttitle.required'       => '短标题不能为空',
+            'shorttitle.max'            => '短标题不能超过500字',
             'describe.required'         => '商家描述不能为空',
             'describe.max'              => '商家描述不能超过一千字',
+            'star.in'                   => '商家星级不在范围',
             'expect_spend.length'       => '人均消费金额格式有误',
         ];
 

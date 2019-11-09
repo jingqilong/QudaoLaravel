@@ -27,15 +27,16 @@ class PrimeMerchantRepository extends ApiRepository
     /**
      * Get a JWT via given credentials.
      *
-     * @param $mobile
-     * @param $password
+     * @param array $account_password       包含账户和密码，账户、手机号
      * @return array|JsonResponse|string
      */
-    protected function login ($mobile,$password){
-        if (!$user = $this->model->where(['mobile' => $mobile])->first()){
+    protected function login (array $account_password = ['account' => '','password' => '']){
+        $where = $account_password;
+        unset($where['password']);
+        if (!$user = $this->model->where($where)->first()){
             return ['code' => 100, 'message' => '账户不存在'];
         }
-        if (!Hash::check($password, $user->password)){
+        if (!Hash::check($account_password['password'], $user->password)){
             return ['code' => 100, 'message' => '密码不正确'];
         }
         if ($user->disabled != 0){

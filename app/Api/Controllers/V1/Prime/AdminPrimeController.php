@@ -43,9 +43,9 @@ class AdminPrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="mobile",
+     *         name="account",
      *         in="query",
-     *         description="手机号",
+     *         description="账户，账户、手机号登录",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -70,12 +70,11 @@ class AdminPrimeController extends ApiController
     public function login()
     {
         $rules = [
-            'mobile'   => ['required','regex:/^1[3456789][0-9]{9}$/'],
-            'password' => 'required|string|min:6',
+            'account'   => 'required',
+            'password'  => 'required|string|min:6',
         ];
         $messages = [
-            'mobile.required'   => '请输入手机号',
-            'mobile.regex'      => '手机号格式有误',
+            'account.required'  => '请输入账户',
             'password.required' => '请输入密码',
             'password.min'      => '密码最少6位',
         ];
@@ -84,7 +83,7 @@ class AdminPrimeController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->merchantService->login($this->request['mobile'],$this->request['password']);
+        $res = $this->merchantService->login($this->request['account'],$this->request['password']);
         if (is_string($res)){
             return ['code' => 100, 'message' => $res];
         }
