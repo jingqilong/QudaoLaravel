@@ -61,16 +61,31 @@ class ReservationService extends BaseService
      */
     public function reservationList($request, $member_id = 0)
     {
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $state      = $request['state'] ?? null;
+        $keywords   = $request['keywords'] ?? null;
+        $order      = 'id';
+        $desc_asc   = 'desc';
         $where = ['id' => ['<>',0]];
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
+        if (!empty($state)){
+            $where['state'] = $state;
+        }
         $column = ['id','house_id','name','mobile','time','memo','state'];
-        if (!$list = HouseReservationRepository::getList($where,$column,'id','desc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        if (!empty($keywords)){
+            $keywords = [$keywords => ['name','mobile','memo']];
+            if (!$list = HouseReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = HouseReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
