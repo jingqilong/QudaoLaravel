@@ -331,6 +331,79 @@ class OaPrimeController extends ApiController
         return ['code' => 200, 'message' => $this->merchantService->message];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/prime/is_recommend",
+     *     tags={"精选生活OA后台"},
+     *     summary="推荐或取消推荐商户",
+     *     description="sang" ,
+     *     operationId="is_recommend",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="merchant_id",
+     *         in="query",
+     *         description="商户ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_recommend",
+     *         in="query",
+     *         description="是否推荐，1推荐，2取消推荐",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="操作失败",
+     *     ),
+     * )
+     *
+     */
+    public function isRecommend(){
+        $rules = [
+            'merchant_id'       => 'required|integer',
+            'is_recommend'      => 'required|in:1,2',
+        ];
+        $messages = [
+            'merchant_id.required'  => '商户ID不能为空',
+            'merchant_id.integer'   => '商户ID必须为整数',
+            'is_recommend.required' => '是否推荐不能为空',
+            'is_recommend.integer'  => '是否推荐取值有误',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->merchantService->isRecommend($this->request['merchant_id'],$this->request['is_recommend']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->merchantService->error];
+        }
+        return ['code' => 200, 'message' => $this->merchantService->message];
+    }
+
 
     /**
      * @OA\Post(
