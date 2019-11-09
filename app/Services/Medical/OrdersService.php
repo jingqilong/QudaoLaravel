@@ -118,8 +118,8 @@ class OrdersService extends BaseService
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
-            $this->setError('没有数据!');
-            return false;
+            $this->setMessage('没有数据!');
+            return [];
         }
         $doctor_ids      = array_column($list['data'],'doctor_id');
         $hospitals_ids   = array_column($list['data'],'hospital_id');
