@@ -6,13 +6,14 @@ namespace App\Repositories;
 
 use App\Models\PrimeMerchantModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class PrimeMerchantRepository extends ApiRepository
 {
-    use RepositoryTrait;
+    use RepositoryTrait,HelpTrait;
 
     /**
      * AdminUserRepository constructor.
@@ -58,8 +59,39 @@ class PrimeMerchantRepository extends ApiRepository
      */
     protected function getUser()
     {
-        $auth = Auth::guard('prime_api');
-        return $auth->user();
+        $auth       = Auth::guard('prime_api');
+        $user       = $auth->user();
+        $column     = ['id','name','account','mobile','realname','logo_id','type','license','license_img_id','area_code','banner_ids','display_img_ids','address','shorttitle','describe','expect_spend','discount'];
+        $user_info  = PrimeMerchantViewRepository::getOne(['id' => $user->id],$column);
+        list($area_address)         = $this->makeAddress($user_info['area_code'],$user_info['address']);
+        $user_info['area_address']  = $area_address;
+        $banner_ids         = explode(',',$user_info['banner_ids']);
+        $display_img_ids    = explode(',',$user_info['display_img_ids']);
+        $image_ids          = array_merge([$user_info['logo_id'],$user_info['license_img_id']],$banner_ids,$display_img_ids);
+        $image_list         = CommonImagesRepository::getList(['id' => ['in',$image_ids]],['id','img_url']);
+        $user_info['logo']  = '';
+        if ($logo = $this->searchArray($image_list,'id',$user_info['logo_id'])){
+            $user_info['logo'] = reset($logo)['img_url'];
+        }
+        $user_info['license_img'] = '';
+        if ($logo = $this->searchArray($image_list,'id',$user_info['license_img_id'])){
+            $user_info['license_img'] = reset($logo)['img_url'];
+        }
+        $user_info['banners'] = [];
+        foreach ($banner_ids as $banner_id){
+            if ($banner = $this->searchArray($image_list,'id',$banner_id)){
+                $user_info['banners'][] = $banner;
+            }
+        }
+        $user_info['display_imgs'] = [];
+        foreach ($display_img_ids as $display_img_id){
+            if ($display_img = $this->searchArray($image_list,'id',$display_img_id)){
+                $user_info['display_imgs'][] = $display_img;
+            }
+        }
+        unset($user_info['type'],$user_info['license_img_id'],
+            $user_info['area_code']);
+        return $user_info;
     }
 
     /**

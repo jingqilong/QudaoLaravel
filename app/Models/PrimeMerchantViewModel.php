@@ -27,7 +27,7 @@ class PrimeMerchantViewModel extends Model
     protected $primaryKey = 'o_id';
     
     
-    protected $fillable = ['id','name','account','mobile','realname','logo_id','type','license','license_img_id','area_code','banner_ids','display_img_ids','address','describe','expect_spend','discount','created_at','updated_at'];
+    protected $fillable = ['id','name','account','mobile','realname','logo_id','type','license','license_img_id','area_code','banner_ids','display_img_ids','address','shorttitle','describe','expect_spend','discount','disabled','created_at','updated_at'];
 
     protected $casts = [
         'created_at' => 'datetime',
