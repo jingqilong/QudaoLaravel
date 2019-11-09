@@ -7,6 +7,7 @@ use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 
 class HospitalsService extends BaseService
@@ -97,7 +98,7 @@ class HospitalsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MediclaHospitalsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' =>0],['*'],'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
@@ -106,13 +107,40 @@ class HospitalsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $list['data']    = ImagesService::getListImages($list['data'],['img_ids' => 'single']);
         foreach ($list['data'] as &$value){
-            if ($img_url = CommonImagesRepository::getOne(['id' => $value['img_url']])){
-                $value['hospital_url']  = $img_url['img_url'];
-            }
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
+            unset($value['img_ids_url']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 用户获取医院列表
+     * @param $request
+     * @return bool
+     */
+    public function getHospitalList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $column     = ['id','name','recommend','introduction','img_ids'];
+        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' =>0],$column,'recommend','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data']    = ImagesService::getListImages($list['data'],['img_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+            unset($value['img_ids_url'],$value['img_ids']);
         }
         $this->setMessage('获取成功！');
         return $list;
