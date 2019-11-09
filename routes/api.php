@@ -167,6 +167,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('reservation','ReservationController@reservation')->name('预约');
                 $api->get('get_home_list','PrimeController@getHomeList')->name('获取首页列表');
+                $api->get('get_merchant_detail','PrimeController@getMerchantDetail')->name('获取商户详情');
             });
             $api->post('admin/login','AdminPrimeController@login')->name('登录');
         });

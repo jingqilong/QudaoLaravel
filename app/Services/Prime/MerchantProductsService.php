@@ -148,7 +148,7 @@ class MerchantProductsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data'] = CommonImagesService::getListImages($list['data'], ['image_ids'=>'single']);
+        $list['data'] = CommonImagesService::getListImages($list['data'], ['image_ids'=>'several']);
         $merchant_ids = array_column($list['data'],'merchant_id');
         $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
         foreach ($list['data'] as &$value){
@@ -158,6 +158,7 @@ class MerchantProductsService extends BaseService
             }
             $value['type_title']    = PrimeTypeEnum::getType($value['type']);
             $value['price'] = empty($value['price']) ? '0' : round($value['price'] / 100,2);
+            $value['is_recommend'] = empty($value['is_recommend']) ? 2 : 1;
         }
         $this->setMessage('获取成功！');
         return $list;

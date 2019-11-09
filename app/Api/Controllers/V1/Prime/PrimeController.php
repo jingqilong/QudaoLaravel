@@ -114,4 +114,66 @@ class PrimeController extends ApiController
         }
         return ['code' => 100, 'message' => $this->merchantInfoService->error];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/get_merchant_detail",
+     *     tags={"精选生活"},
+     *     summary="获取商户详情",
+     *     description="sang" ,
+     *     operationId="get_merchant_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="merchant_id",
+     *         in="query",
+     *         description="商户ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     *     ),
+     * )
+     *
+     */
+    public function getMerchantDetail(){
+        $rules = [
+            'merchant_id'   => 'required|integer',
+        ];
+        $messages = [
+            'merchant_id.required'  => '商户ID不能为空',
+            'merchant_id.integer'   => '商户ID必须为整数'
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->merchantInfoService->getMerchantDetail($this->request['merchant_id']);
+        if ($res){
+            return ['code' => 200, 'message' => $this->merchantInfoService->message, 'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->merchantInfoService->error];
+    }
 }

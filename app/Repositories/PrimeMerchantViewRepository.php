@@ -30,16 +30,21 @@ class PrimeMerchantViewRepository extends ApiRepository
         if (!empty($type)){
             $where['type'] = $type;
         }
-        $column = ['id','name','display_img_ids','shorttitle','star'];
+        $column = ['id','name','banner_ids','display_img_ids','shorttitle','star'];
         if (!$merchant = $this->getOrderOne($where,'is_recommend','desc',$column)){
             return [];
+        }
+        $merchant['banner_url'] = '';
+        if ($banner_ids = explode(',',$merchant['banner_ids'])){
+            $banner = CommonImagesRepository::getOne(['id' => reset($banner_ids)]);
+            $merchant['banner_url'] = $banner['img_url'];
         }
         $merchant['display_imgs'] = [];
         if ($display_img_ids = explode(',',$merchant['display_img_ids'])){
             $display_img_list = CommonImagesRepository::getAssignList($display_img_ids);
             $merchant['display_imgs'] = array_column($display_img_list,'img_url');
         }
-        unset($merchant['display_img_ids']);
+        unset($merchant['banner_ids'],$merchant['display_img_ids']);
         return $merchant;
     }
 }
