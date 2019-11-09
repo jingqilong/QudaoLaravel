@@ -4,7 +4,9 @@ namespace App\Services\Enterprise;
 
 
 use App\Enums\EnterEnum;
+use App\Enums\MemberEnum;
 use App\Repositories\EnterpriseOrderRepository;
+use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
@@ -144,9 +146,14 @@ class OrderService extends BaseService
             'service_type'      => $data['service_type'],
             'remark'            => $data['remark'],
             'status'            => $status,
-            'created_at'        => time(),
             'reservation_at'    => strtotime($data['reservation_at']),
         ];
+
+        if (!EnterpriseOrderRepository::exists($add_arr)){
+            $this->setError('您已预约，请勿重复预约!');
+            return false;
+        }
+        $add_arr['created_at'] = time();
         if (!$res = EnterpriseOrderRepository::getAddId($add_arr)){
             $this->setError('预约失败,请重试！');
             return false;
@@ -164,7 +171,7 @@ class OrderService extends BaseService
     {
         $id = $data['id'];
 
-        if (!$enterpriseInfo = EnterpriseOrderRepository::getOne(['id' => $id])){
+        if (!$enterpriseInfo = EnterpriseOrderRepository::getOne(['id' => $id,'deleted_at' => 0])){
             $this->setError('没有找到该订单！');
             return false;
         }
@@ -195,7 +202,7 @@ class OrderService extends BaseService
      */
     public function delEnterprise(string $id)
     {
-        if (!$EnterpriseInfo = EnterpriseOrderRepository::exists(['id' => $id])){
+        if (!$EnterpriseInfo = EnterpriseOrderRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('没有找到该数据！');
             return false;
         }
@@ -214,12 +221,7 @@ class OrderService extends BaseService
      */
     public function setEnterpriseOrder($request)
     {
-
-        if (!EnterpriseOrderRepository::exists(['id' => $request['id']])){
-            $this->setError('无此订单!');
-            return false;
-        }
-        if (!$orderInfo = EnterpriseOrderRepository::getOne(['id' => $request['id']])){
+        if (!$orderInfo = EnterpriseOrderRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
             $this->setError('无此订单!');
             return false;
         }
@@ -232,30 +234,27 @@ class OrderService extends BaseService
             'updated_at'  => time(),
         ];
 
-        if ($updOrder = EnterpriseOrderRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            if ($request['status'] == EnterEnum::PASS){
-                //TODO 此处可以添加报名后发通知的事务
-                #发送短信
-                if (!empty($orderInfo)){
-                    $sms = new SmsService();
-                    $content = '您好！您预约的《'.$orderInfo['enterprise_name'].'》项目,已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！';
-                    $sms->sendContent($orderInfo['mobile'],$content);
-                }
-                $this->setMessage('审核通过,消息已发送给联系人！');
-                return true;
-            }
-            //TODO 此处可以添加报名后发通知的事务
-            #发送短信
-            if (!empty($orderInfo)){
-                $sms = new SmsService();
-                $content = '您好！您预约的《'.$orderInfo['enterprise_name'].'》未通过审核,请您联系客服0000-00000再次预约，谢谢！';
-                $sms->sendContent($orderInfo['mobile'],$content);
-            }
-            $this->setError('审核成功,状态《未通过》，消息已发送给联系人！');
+        if (!$updOrder = EnterpriseOrderRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('审核失败，请重试!');
             return false;
         }
-        $this->setError('审核失败，请重试!');
-        return false;
+        $status = $upd_arr['status'];
+        #通知用户
+        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['user_id']])){
+            $member_name = $orderInfo['name'];
+            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            #短信通知
+            if (!empty($comment['mobile'])){
+                $smsService = new SmsService();
+                $sms_template = [
+                    EnterEnum::PASS   => '尊敬的'.$member_name.'您好！您的《'.$orderInfo['enterprise_name'].'》已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
+                    EnterEnum::NOPASS => '尊敬的'.$member_name.'您好！您的《'.$orderInfo['enterprise_name'].'》未通过审核,请您联系客服0000-00000再次预约，谢谢！',
+                ];
+                $smsService->sendContent($orderInfo['mobile'],$sms_template[$status]);
+            }
+        }
+        $this->setMessage('审核成功！');
+        return true;
     }
 }
             

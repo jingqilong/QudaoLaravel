@@ -3,12 +3,14 @@ namespace App\Services\Medical;
 
 
 use App\Enums\DoctorEnum;
+use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalHospitalRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MediclaHospitalsRepository;
+use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
@@ -37,11 +39,11 @@ class OrdersService extends BaseService
     public function addDoctorOrders($request)
     {
         $memberInfo = $this->auth->user();
-        if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id']])){
+        if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id'],'deleted_at' => 0])){
             $this->setError('医院不存在！');
             return false;
         }
-        if (!MedicalDoctorsRepository::getOne(['id' => $request['doctor_id']])){
+        if (!MedicalDoctorsRepository::getOne(['id' => $request['doctor_id'],'deleted_at' => 0])){
             $this->setError('医生不存在！');
             return false;
         }
@@ -54,12 +56,16 @@ class OrdersService extends BaseService
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'],
-            'status'             =>  DoctorEnum::SUBMIT,
             'type'               =>  $request['type'],
             'created_at'         =>  time(),
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
+        $check_where    = ['member_id' =>  $memberInfo->m_id,'doctor_id' => $request['doctor_id'],'status' => DoctorEnum::SUBMIT];
+        if (!MedicalOrdersRepository::exists($check_where)){
+            $this->setError('您已预约，请勿重复预约!');
+            return false;
+        }
         if ($add_arr['appointment_at'] < time()){
             $this->setError('不能预约已经逝去的日子!');
             return false;
@@ -151,17 +157,8 @@ class OrdersService extends BaseService
      */
     public function setDoctorOrder($request)
     {
-
-        if (!MedicalOrdersRepository::exists(['id' => $request['id']])){
-            $this->setError('无此订单!');
-            return false;
-        }
         if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $request['id']])){
             $this->setError('无此订单!');
-            return false;
-        }
-        if (!$hospital = MediclaHospitalsRepository::getOne(['id' => $orderInfo['hospital_id']])){
-            $this->setError('无此医院!');
             return false;
         }
         if (!$doctor = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']])){
@@ -172,31 +169,28 @@ class OrdersService extends BaseService
             'status'      => $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS,
             'updated_at'  => time(),
         ];
-
-        if ($updOrder = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            if ($request['status'] == DoctorEnum::PASS){
-                //TODO 此处可以添加报名后发通知的事务
-                #发送短信
-                if (!empty($orderInfo)){
-                    $sms = new SmsService();
-                    $content = '您好！您预约的《'.$hospital['name'].'》,《'.$doctor['name'].'》医生专诊,已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！';
-                    $sms->sendContent($orderInfo['mobile'],$content);
-                }
-                $this->setMessage('审核通过,消息已发送给联系人！');
-                return $updOrder;
-            }
-            //TODO 此处可以添加报名后发通知的事务
-            #发送短信
-            if (!empty($orderInfo)){
-                $sms = new SmsService();
-                $content = '您好！您预约的《'.$hospital['name'].'》,《'.$doctor['name'].'》医生专诊,未通过审核,请您联系客服0000-00000再次预约，谢谢！';
-                $sms->sendContent($orderInfo['mobile'],$content);
-            }
-            $this->setMessage('审核失败,消息已发送给联系人！');
-            return $updOrder;
+        if (!$updOrder = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('审核失败，请重试!');
+            return false;
         }
-        $this->setError('审核失败，请重试!');
-        return false;
+        #通知用户
+        $status = $upd_arr['status'];
+        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['member_id']])){
+            $member_name = $orderInfo['name'];
+            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            #短信通知
+            if (!empty($member['m_phone'])){
+                $smsService = new SmsService();
+                $sms_template = [
+                    DoctorEnum::PASS   => '尊敬的'.$member_name.'您好！您预约的《'.$doctor['name'].'》医生专诊,已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
+                    DoctorEnum::NOPASS => '尊敬的'.$member_name.'您好！您预约的《'.$doctor['name'].'》医生专诊,未通过审核,请您联系客服0000-00000再次预约，谢谢！',
+                ];
+                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+            }
+        }
+        $this->setMessage('审核成功！');
+        return true;
+
     }
 
     /**
@@ -206,7 +200,7 @@ class OrdersService extends BaseService
     public function doctorsOrderList()
     {
         $memberInfo = $this->auth->user();
-        if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id']])){
+        if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id'],'deleted_at' => 0])){
             $this->setMessage('暂时没有预约订单');
             return [];
         }
@@ -303,16 +297,8 @@ class OrdersService extends BaseService
             $this->setError('没有此订单!');
             return false;
         }
-        if (!$hospital = MediclaHospitalsRepository::getOne(['id' => $orderInfo['hospital_id']])){
-            $this->setError('无效订单!');
-            return false;
-        }
-        if (!$doctor = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']])){
-            $this->setError('无效订单!');
-            return false;
-        }
-        $orderInfo['hospital_name']   = $hospital['name'];
-        $orderInfo['doctor_name']     = $doctor['name'];
+        $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
+        $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
