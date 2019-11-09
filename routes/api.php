@@ -152,9 +152,7 @@ $api->version('v1',function ($api){
                 $api->post('disabled_merchant','OaPrimeController@disabledMerchant')->name('禁用或启用商户');
                 $api->post('edit_merchant','OaPrimeController@editMerchant')->name('修改商户');
                 $api->get('merchant_list','OaPrimeController@merchantList')->name('获取商户列表');
-
                 $api->post('is_recommend','OaPrimeController@isRecommend')->name('推荐或取消推荐商户');
-
                 $api->post('add_product','OaProductPrimeController@addProduct')->name('添加产品');
                 $api->delete('delete_product','OaProductPrimeController@deleteProduct')->name('删除产品');
                 $api->post('edit_product','OaProductPrimeController@editProduct')->name('修改产品');
