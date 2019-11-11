@@ -123,8 +123,14 @@ $api->version('v1',function ($api){
                     $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
+            #用户地址管理
+            $api->group(['middleware' => 'member.jwt.auth'],function($api){
+                $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
+                $api->delete('delete_address','AddressController@deleteAddress')->name('用户删除地址');
+                $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
+                $api->post('address_list','AddressController@addressList')->name('用户获取地址');
+            });
             $api->post('login','OaController@login')->name('登录');
-            $api->post('add_employee','EmployessController@addEmployee')->name("添加员工");
         });
 
         //精选生活

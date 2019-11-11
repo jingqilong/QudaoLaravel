@@ -27,7 +27,7 @@ class MemberAddressModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','name','mobile','area_code','address','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','member_id','name','mobile','address','area_code','address','created_at','updated_at','deleted_at'];
 
 
 
