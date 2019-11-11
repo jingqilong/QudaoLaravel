@@ -37,17 +37,17 @@ class CollectService extends BaseService
                     return false;
                 }
                 break;
-            case CollectTypeEnum::GOODS:
+            case CollectTypeEnum::SHOP:
                 $this->setError('暂未开发！');
                 return false;
                 break;
-            case CollectTypeEnum::ESTATE:
+            case CollectTypeEnum::HOUSE:
                 if (!HouseDetailsRepository::exists(['id' => $target_id])){
                     $this->setError('房源不存在！');
                     return false;
                 }
                 break;
-            case CollectTypeEnum::PROJECT:
+            case CollectTypeEnum::PRIME:
                 $this->setError('暂未开发！');
                 return false;
                 break;

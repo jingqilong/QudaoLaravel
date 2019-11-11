@@ -318,7 +318,7 @@ class CommonController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/activity/is_collect",
+     *     path="/api/v1/common/is_collect",
      *     tags={"公共"},
      *     summary="收藏或取消收藏",
      *     description="sang" ,
