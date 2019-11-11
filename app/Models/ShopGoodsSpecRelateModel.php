@@ -27,7 +27,7 @@ class ShopGoodsSpecRelateModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','spec_ids','stock','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','spec_ids','stock','price','created_at','updated_at','deleted_at'];
 
     /**
      * The attributes that should be cast to native types.
