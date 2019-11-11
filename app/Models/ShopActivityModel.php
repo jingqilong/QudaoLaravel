@@ -29,7 +29,15 @@ class ShopActivityModel extends Model
 
     protected $fillable = ['id','goods_id','type','status','show_image','stop_time','created_at','updated_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 }
 

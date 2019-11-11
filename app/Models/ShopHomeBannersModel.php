@@ -29,7 +29,15 @@ class ShopHomeBannersModel extends Model
 
     protected $fillable = ['id','type','related_id','image_id','url','created_at','updated_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 }
 

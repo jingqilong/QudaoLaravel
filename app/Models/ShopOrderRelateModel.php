@@ -29,7 +29,16 @@ class ShopOrderRelateModel extends Model
 
     protected $fillable = ['id','order_id','status','express_company','express_price','express_number','address_id','shipment_at','created_at','updated_at','deleted_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
 }
 

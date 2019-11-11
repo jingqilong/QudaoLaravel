@@ -30,7 +30,16 @@ class ShopGoodsCategoryModel extends Model
     protected $fillable = ['id','name','icon_id','created_at','updated_at','deleted_at'];
 
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
 
  

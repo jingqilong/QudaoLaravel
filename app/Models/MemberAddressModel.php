@@ -30,7 +30,16 @@ class MemberAddressModel extends Model
     protected $fillable = ['id','member_id','name','mobile','address','area_code','address','created_at','updated_at','deleted_at'];
 
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
 
  
