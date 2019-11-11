@@ -92,7 +92,7 @@ class MerchantProductsService extends BaseService
             'image_ids'     => $request['image_ids'],
             'is_recommend'  => isset($request['is_recommend']) ? ($request['is_recommend']==1 ? time() : 0) : 0
         ];
-        if (PrimeMerchantProductsRepository::exists(array_merge($upd_arr,$where))){
+        if (PrimeMerchantProductsRepository::exists(array_merge($upd_arr,['merchant_id' =>['<>',$merchant_id]]))){
             $this->setError('该产品已添加！');
             return false;
         }

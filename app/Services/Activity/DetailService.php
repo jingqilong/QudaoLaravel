@@ -208,7 +208,7 @@ class DetailService extends BaseService
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
         ];
-        if (ActivityDetailRepository::exists($upd_arr)){
+        if (ActivityDetailRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该活动已存在！');
             return false;
         }
@@ -237,7 +237,7 @@ class DetailService extends BaseService
         $status         = $request['status'] ?? null;
         $is_member      = $request['is_member'] ?? null;
         $keywords       = $request['keywords'] ?? null;
-        $where          = ['id' => ['>',0]];
+        $where          = ['id' => ['>',0],'deleted_at' => 0];
         if (!empty($start_time)){
             $where['start_time']    = ['>',strtotime($start_time)];
         }
