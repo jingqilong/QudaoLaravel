@@ -35,7 +35,8 @@ class HomeService extends BaseService
         #获取成员风采
         $res['members']     = MemberService::getHomeShowMemberList(8);
         #获取好物推荐
-        $res['shop']        = ActivityService::getHomeRecommendGoods();
+        $res['shop']        = [];
+//        $res['shop']        = ActivityService::getHomeRecommendGoods();
         $this->setMessage('获取成功！');
         return $res;
     }

@@ -4,7 +4,7 @@ namespace App\Services\Shop;
 
 use App\Services\BaseService;
 
-class GoodsSpecClassService extends BaseService
+class GoodsSpecRelateService extends BaseService
 {
 
 }

@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ShopAuditModel;
+use App\Models\ShopOrderRelateModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ShopAuditRepository extends ApiRepository
+class ShopOrderRelateRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ShopAuditRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ShopAuditModel $model)
+    public function __construct(ShopOrderRelateModel $model)
     {
         $this->model = $model;
     }

@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ShopPocketLogModel;
+use App\Models\ShopGoodsSpecRelateModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ShopPocketLogRepository extends ApiRepository
+class ShopGoodsSpecRelateRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ShopPocketLogRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ShopPocketLogModel $model)
+    public function __construct(ShopGoodsSpecRelateModel $model)
     {
         $this->model = $model;
     }

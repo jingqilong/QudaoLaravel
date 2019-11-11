@@ -283,6 +283,7 @@ class DetailService extends BaseService
             #处理地址
             list($area_address) = $this->makeAddress($value['area_code'],$value['address'],1,true);
             $value['area_address']  = $area_address;
+            $value['is_recommend']  = $value['is_recommend'] != 0 ? 1 : 0;
             $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
             $value['start_time']    = date('Y-m-d H:m:i',$value['start_time']);
             $value['end_time']      = date('Y-m-d H:m:i',$value['end_time']);

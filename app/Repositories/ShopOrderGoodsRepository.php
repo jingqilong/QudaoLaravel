@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ShopGoodsCommonModel;
+use App\Models\ShopOrderGoodsModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ShopGoodsCommonRepository extends ApiRepository
+class ShopOrderGoodsRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ShopGoodsCommonRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ShopGoodsCommonModel $model)
+    public function __construct(ShopOrderGoodsModel $model)
     {
         $this->model = $model;
     }

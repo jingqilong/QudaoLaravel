@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ShopAddressModel;
+use App\Models\ShopHomeBannersModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ShopAddressRepository extends ApiRepository
+class ShopHomeBannersRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ShopAddressRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ShopAddressModel $model)
+    public function __construct(ShopHomeBannersModel $model)
     {
         $this->model = $model;
     }
