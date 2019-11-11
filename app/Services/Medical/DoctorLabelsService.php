@@ -69,7 +69,7 @@ class DoctorLabelsService extends BaseService
             $this->setError('医生标签信息不存在！');
             return false;
         }
-        if (MedicalDoctorLabelsRepository::exists(['id' => ['<>',$request['id'],'name' => $request['name']]])){
+        if (MedicalDoctorLabelsRepository::exists(['id' => ['<>',$request['id']],'name' => $request['name']])){
             $this->setError('医生标签已存在！');
             return false;
         }

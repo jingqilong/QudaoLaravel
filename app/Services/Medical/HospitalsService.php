@@ -74,7 +74,7 @@ class HospitalsService extends BaseService
             $this->setError('医院信息不存在！');
             return false;
         }
-        if (!MediclaHospitalsRepository::exists(['name' => $request['name'],'id' => ['<>',$request['id']]])){
+        if (!MediclaHospitalsRepository::exists(['id' => ['<>',$request['id']],'name' => $request['name']])){
             $this->setError('医院信息不存在！');
             return false;
         }
