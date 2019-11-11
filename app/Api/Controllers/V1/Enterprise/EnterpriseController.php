@@ -96,6 +96,15 @@ class EnterpriseController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *      @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【0审核中:默认  1审核通过  2审核驳回 】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
@@ -124,11 +133,13 @@ class EnterpriseController extends ApiController
             'keywords'          => 'string',
             'page'              => 'integer',
             'page_num'          => 'integer',
+            'status'            => 'in:0,1,2',
         ];
         $messages = [
             'keywords.string'           => '请正确输入搜索条件',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
+            'status.in'                 => '状态值不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

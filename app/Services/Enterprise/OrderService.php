@@ -71,11 +71,15 @@ class OrderService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $type           = $data['type'] ?? null;
+        $status         = $data['status'] ?? null;
         $where          = ['deleted_at' => 0];
 
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
         if ($type !== null){
             $where['service_type'] = $type;
+        }
+        if ($status !== null){
+            $where['status'] = $status;
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
