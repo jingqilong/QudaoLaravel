@@ -261,7 +261,7 @@ class ShopCarController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/shop/shop_car_list",
-     *     tags={"商城后台"},
+     *     tags={"商城"},
      *     summary="用户获取购物车商品列表",
      *     description="jing" ,
      *     operationId="shop_car_list",
