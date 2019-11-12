@@ -449,7 +449,7 @@ $api->version('v1',function ($api){
 
                 $api->post('add_goods','OaGoodsController@addGoods')->name('添加商品');
                 $api->delete('delete_goods','OaGoodsController@deleteGoods')->name('删除商品');
-                $api->post('is_putaway','OaGoodsController@isPutaway')->name('上下架商品');
+                $api->post('is_putaway_goods','OaGoodsController@isPutaway')->name('上下架商品');
                 $api->post('edit_goods','OaGoodsController@editGoods')->name('修改商品');
                 $api->get('goods_list','OaGoodsController@goodsList')->name('获取商品列表');
                 $api->get('get_goods_detail','OaGoodsController@getGoodsDetail')->name('获取商品详情');
@@ -464,6 +464,7 @@ $api->version('v1',function ($api){
                 $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
                 $api->delete('del_shop_car','ShopCarController@delShopCar')->name('用户删除购物车商品');
                 $api->post('change_car_num','ShopCarController@changeCarNum')->name('用户添加购物车商品数量');
+                $api->get('shop_car_list','ShopCarController@shopCarList')->name('用户获取购物车商品列表');
 
             });
         });
