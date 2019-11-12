@@ -453,6 +453,12 @@ $api->version('v1',function ($api){
                 $api->get('goods_list','OaGoodsController@goodsList')->name('获取商品列表');
 
             });
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
+                $api->delete('del_shop_car','ShopCarController@delShopCar')->name('用户删除购物车商品');
+                $api->post('change_car_num','ShopCarController@changeCarNum')->name('用户添加购物车商品数量');
+
+            });
         });
 
         //七牛云

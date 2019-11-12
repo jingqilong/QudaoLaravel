@@ -146,9 +146,9 @@ class AddressService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        if (empty($list)){
+        if (empty($list['data'])){
             $this->setMessage('暂无数据!');
-            return [];
+            return $list;
         }
         $list = $this->removePagingField($list);
         $value['area_address'] = '';
@@ -186,9 +186,9 @@ class AddressService extends BaseService
                 return false;
             }
         }
-        if (empty($list)){
+        if (empty($list['data'])){
             $this->setMessage('暂无数据!');
-            return [];
+            return $list;
         }
         $list = $this->removePagingField($list);
         $value['area_address'] = '';
