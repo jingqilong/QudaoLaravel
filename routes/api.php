@@ -447,6 +447,11 @@ $api->version('v1',function ($api){
                 $api->post('edit_activity_goods','ActivityController@editActivityGoods')->name('修改活动商品');
                 $api->get('get_activity_goods_list','ActivityController@getActivityGoodsList')->name('获取活动商品列表');
 
+                $api->post('add_goods','OaGoodsController@addGoods')->name('添加商品');
+                $api->delete('delete_goods','OaGoodsController@deleteGoods')->name('删除商品');
+                $api->post('edit_goods','OaGoodsController@editGoods')->name('修改商品');
+                $api->get('goods_list','OaGoodsController@goodsList')->name('获取商品列表');
+
             });
         });
 

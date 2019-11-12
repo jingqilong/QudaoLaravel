@@ -35,7 +35,7 @@ class ActivityService extends BaseService
      * @return array|mixed
      */
     public static function getHomeRecommendGoods(){
-        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['id','goods_id','name','price','banner_ids'])){
+        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['goods_id','name','price','banner_ids'])){
 //            self::setMessage('没有活动商品！');
             return [];
         }
