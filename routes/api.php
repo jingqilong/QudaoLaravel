@@ -459,6 +459,11 @@ $api->version('v1',function ($api){
                 $api->post('edit_category','OaGoodsCategoryController@editCategory')->name('修改商品类别');
                 $api->get('get_category_list','OaGoodsCategoryController@getCategoryList')->name('获取商品类别列表');
 
+                $api->post('add_announce','OaAnnounceController@addAnnounce')->name('添加首页公告');
+                $api->delete('delete_announce','OaAnnounceController@deleteAnnounce')->name('删除公告');
+                $api->post('edit_announce','OaAnnounceController@editAnnounce')->name('修改公告');
+                $api->get('get_announce_list','OaAnnounceController@getAnnounceList')->name('获取公告列表');
+
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
@@ -483,7 +488,11 @@ $api->version('v1',function ($api){
             $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
-                $api->post('add_home_banner', 'CommonController@addBanners')->name('添加首页banner');
+                $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
+                $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
+                $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
+                $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
+
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {

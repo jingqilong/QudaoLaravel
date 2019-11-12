@@ -237,7 +237,7 @@ class GoodsService extends BaseService
             }
             $v['price']         = empty($value['price']) ? 0 : round($value['price'] / 100,2);
             $v['is_recommend']  = $v['is_recommend'] !== 0 ? 1 : 0;
-            $v['status']        = ShopGoodsEnum::getStatus($v['status']);
+            $v['status_title']        = ShopGoodsEnum::getStatus($v['status']);
         }
         $this->setMessage('获取成功！');
         return $list;

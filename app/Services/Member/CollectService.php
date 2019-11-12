@@ -28,7 +28,7 @@ class CollectService extends BaseService
      * @param $target_id
      * @return bool
      */
-    public function is_collect($type, $target_id)
+    public function isCollect($type, $target_id)
     {
         switch ($type){
             case CollectTypeEnum::ACTIVITY:
