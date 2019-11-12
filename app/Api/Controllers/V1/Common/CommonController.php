@@ -206,116 +206,6 @@ class CommonController extends ApiController
         }
         return ['code' => 200, 'message' => $this->homeService->message,'data' => $res];
     }
-
-    /**
-     * @OA\Post(
-     *     path="/api/v1/common/add_home_banner",
-     *     tags={"首页配置"},
-     *     summary="添加首页banner",
-     *     description="sang" ,
-     *     operationId="mobile_exists",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="OA TOKEN",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="type",
-     *         in="query",
-     *         description="banner类型，1广告、2精选活动、3成员风采、4珍品商城、5房产租售、6精选生活",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="show_time",
-     *         in="query",
-     *         description="展示时间，表示从什么时候开始展示,示例：2019-10-26",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="related_id",
-     *         in="query",
-     *         description="相关ID，例如：类别为精选活动，此值为活动ID",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="image_id",
-     *         in="query",
-     *         description="banner图ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="url",
-     *         in="query",
-     *         description="相关链接，例如：类别为广告时，此值为广告跳转的地址",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="添加成功！",
-     *     ),
-     * )
-     *
-     */
-    public function addBanners(){
-        $rules = [
-            'type'          => 'required|in:1,2,3,4,5,6',
-            'show_time'     => [
-                'required',
-                'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])$/'
-            ],
-            'related_id'    => 'integer',
-            'image_id'      => 'required|integer',
-            'url'           => 'url',
-        ];
-        $messages = [
-            'type.required'     => 'banner类型不能为空！',
-            'type.in'           => 'banner类型不存在',
-            'show_time.required'=> '展示时间不能为空！',
-            'show_time.regex'   => '展示时间格式有误，示例：2019-10-26',
-            'related_id.integer'=> '相关ID必须为整数',
-            'image_id.required' => 'banner图不能为空！',
-            'image_id.integer'  => 'banner图ID必须为整数',
-            'url.url'           => '相关链接必须是一个有效的url',
-        ];
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $res = $this->homeBannersService->addBanners($this->request);
-        if (!$res){
-            return ['code' => 100,'message' => $this->homeBannersService->error];
-        }
-        return ['code' => 200, 'message' => $this->homeBannersService->message];
-    }
-
     /**
      * @OA\Post(
      *     path="/api/v1/common/is_collect",
@@ -381,7 +271,7 @@ class CommonController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->collectService->is_collect($this->request['type'],$this->request['target_id']);
+        $res = $this->collectService->isCollect($this->request['type'],$this->request['target_id']);
         if ($res){
             return ['code' => 200, 'message' => $this->collectService->message];
         }
