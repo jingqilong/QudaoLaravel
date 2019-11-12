@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
 use App\Repositories\ShopOrderGoodsRepository;
@@ -15,9 +16,10 @@ class GoodsSpecService extends BaseService
      * 使用json添加规格
      * @param $goods_id
      * @param $json_spec
+     * @param string $goods_keywords    商品的搜索关键字
      * @return bool
      */
-    public function addJsonSpec($goods_id, $json_spec)
+    public function addJsonSpec($goods_id, $json_spec, $goods_keywords = '')
     {
         $time = time();
         #检查商品是否已被购买，未购买则直接删除旧的规格
@@ -58,11 +60,13 @@ class GoodsSpecService extends BaseService
                     $this->setError('规格添加失败！');
                     return false;
                 }
-                if (!ShopGoodsSpecRepository::getUpdId(['id' => $spec['id']],['deleted_at' => 0])){
+                if (!ShopGoodsSpecRepository::getUpdId(['id' => $spec['id']],['image_id'  => $item['image_id'] ?? 0,'deleted_at' => 0])){
                     DB::rollBack();
                     $this->setError('规格添加失败！');
                     return false;
                 }
+                $goods_keywords = !strpos($goods_keywords,$item['spec_name']) ? ($goods_keywords.$item['spec_name']) : $goods_keywords;
+                $goods_keywords = !strpos($goods_keywords,$item['spec_value']) ? ($goods_keywords.$item['spec_value']) : $goods_keywords;
                 $spec_ids = $spec_ids . $spec['id'] . ',';
             }
             #添加规格关联
@@ -80,6 +84,7 @@ class GoodsSpecService extends BaseService
                 return false;
             }
         }
+        ShopGoodsRepository::getUpdId(['id' => $goods_id],['keywords' => $goods_keywords]);
         DB::commit();
         $this->setMessage('添加成功！');
         return true;

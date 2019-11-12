@@ -27,8 +27,15 @@ class ShopGoodsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','category','price','details','banner_ids','image_ids','stock','express_price','score_deduction','score_categories','gift_score','is_recommend','status','created_at','updated_at','deleted_at'];
-
+    protected $fillable = ['id','name','category','price','details','banner_ids','image_ids','stock','express_price','score_deduction','score_categories','gift_score','is_recommend','status','keywords','created_at','updated_at','deleted_at'];
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'keywords',
+    ];
     /**
      * The attributes that should be cast to native types.
      *

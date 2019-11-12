@@ -127,9 +127,10 @@ class OaGoodsCategoryController extends ApiController
      * )
      *
      */
-    public function deleteCategory(){$rules = [
-        'id'           => 'required|integer'
-    ];
+    public function deleteCategory(){
+        $rules = [
+            'id'           => 'required|integer'
+        ];
         $messages = [
             'id.required'      => '类别ID不能为空',
             'id.integer'       => '类别ID必须为整数'
@@ -197,15 +198,16 @@ class OaGoodsCategoryController extends ApiController
      *             type="integer",
      *         )
      *     ),
-     *     @OA\Response(response=100,description="添加失败",),
+     *     @OA\Response(response=100,description="修改失败",),
      * )
      *
      */
-    public function editCategory(){$rules = [
-        'id'                => 'required|integer',
-        'name'              => 'required',
-        'icon_id'           => 'required|integer'
-    ];
+    public function editCategory(){
+        $rules = [
+            'id'                => 'required|integer',
+            'name'              => 'required',
+            'icon_id'           => 'required|integer'
+        ];
         $messages = [
             'id.required'           => '类别ID不能为空',
             'id.integer'            => '类别ID必须为整数',
@@ -276,14 +278,15 @@ class OaGoodsCategoryController extends ApiController
      *             type="integer",
      *         )
      *     ),
-     *     @OA\Response(response=100,description="添加失败",),
+     *     @OA\Response(response=100,description="获取失败",),
      * )
      *
      */
-    public function getCategoryList(){$rules = [
-        'page'              => 'integer',
-        'page_num'          => 'integer',
-    ];
+    public function getCategoryList(){
+        $rules = [
+            'page'              => 'integer',
+            'page_num'          => 'integer',
+        ];
         $messages = [
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
