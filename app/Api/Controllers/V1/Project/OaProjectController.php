@@ -75,7 +75,7 @@ class OaProjectController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -84,7 +84,7 @@ class OaProjectController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取项目订单列表失败",),

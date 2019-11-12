@@ -150,7 +150,7 @@ trait RepositoryTrait
      */
     protected function firstOrCreate(array $where,array $data){
         $result=$this->model->firstOrCreate($where,$data);
-        return $result ? 1 : null;
+        return $result ? $result->toArray() : null;
     }
 
     /**

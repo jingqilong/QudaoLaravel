@@ -222,7 +222,7 @@ class OaGoodsController extends ApiController
         if ($res === false){
             return ['code' => 100,'message' => $this->goodsService->error];
         }
-        return ['code' => 200, 'message' => $this->goodsService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->goodsService->message];
     }
 
     public function deleteGoods(){}

@@ -284,6 +284,7 @@ class DetailsService extends BaseService
             #处理地址
             list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
             $value['area_address']  = $area_address;
+            $value['area_code']     = rtrim($value['area_code'],',');
             $value['lng']           = $lng;
             $value['lat']           = $lat;
             #处理价格

@@ -17,6 +17,19 @@ class GoodsService extends BaseService
      */
     public function addGoods($request)
     {
+                $spec = [
+            ['stock' => 58,'price' => 680,
+                'spec' => [
+                    ['spec_name' => '规格','spec_value' => '智启 0.5g*6片','image_id' => '131'],
+                ]
+            ],
+            ['stock' => 58,'price' => 2680,
+                'spec' => [
+                    ['spec_name' => '规格','spec_value' => '智创 0.5g*24片','image_id' => '131'],
+                ]
+            ],
+        ];
+//                dd(json_encode($spec));
         if (!ShopGoodsCategoryRepository::exists(['id' => $request['category']])){
             $this->setError('商品分类不存在！');
             return false;
@@ -35,7 +48,6 @@ class GoodsService extends BaseService
             'express_price'     => isset($request['stock']) ? $request['stock'] * 100 : 0,
             'score_deduction'   => $request['score_deduction'] ?? 0,
             'score_categories'  => $request['score_categories'] ?? '',
-            'is_recommend'      => isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0,
             'status'            => $request['status'],
         ];
         if (isset($request['gift_score'])){
@@ -45,6 +57,7 @@ class GoodsService extends BaseService
             $this->setError('该商品已添加！');
             return false;
         }
+        $add_arr['is_recommend'] = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $add_arr['created_at'] = $add_arr['updated_at'] = time();
         DB::beginTransaction();
         if (!$goods_id = ShopGoodsRepository::getAddId($add_arr)){
@@ -53,7 +66,6 @@ class GoodsService extends BaseService
             return false;
         }
         #处理规格
-        //TODO
         if (isset($request['spec_json'])){
             $goodsSpecService = new GoodsSpecService();
             if (!$goodsSpecService->addJsonSpec($goods_id,$request['spec_json'])){
@@ -62,12 +74,6 @@ class GoodsService extends BaseService
                 return false;
             }
         }
-        //        $spec = [
-//            ['stock' => 20,'price' => 500,'spec' => ['颜色' => '红色','容量' => '500','key' => 'value']],
-//            ['stock' => 30,'price' => 900,'spec' => ['颜色' => '红色','容量' => '1000','key' => 'value2']],
-//            ['stock' => 35,'price' => 500,'spec' => ['颜色' => '绿色','容量' => '500','key' => 'value']],
-//            ['stock' => 20,'price' => 900,'spec' => ['颜色' => '绿色','容量' => '1000','key' => 'value2']],
-//        ];
         DB::commit();
         $this->setMessage('添加成功！');
         return true;
