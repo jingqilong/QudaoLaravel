@@ -449,8 +449,15 @@ $api->version('v1',function ($api){
 
                 $api->post('add_goods','OaGoodsController@addGoods')->name('添加商品');
                 $api->delete('delete_goods','OaGoodsController@deleteGoods')->name('删除商品');
+                $api->post('is_putaway','OaGoodsController@isPutaway')->name('上下架商品');
                 $api->post('edit_goods','OaGoodsController@editGoods')->name('修改商品');
                 $api->get('goods_list','OaGoodsController@goodsList')->name('获取商品列表');
+                $api->get('get_goods_detail','OaGoodsController@getGoodsDetail')->name('获取商品详情');
+
+                $api->post('add_category','OaGoodsCategoryController@addCategory')->name('添加商品类别');
+                $api->delete('delete_category','OaGoodsCategoryController@deleteCategory')->name('删除商品类别');
+                $api->post('edit_category','OaGoodsCategoryController@editCategory')->name('修改商品类别');
+                $api->get('get_category_list','OaGoodsCategoryController@getCategoryList')->name('获取商品类别列表');
 
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {

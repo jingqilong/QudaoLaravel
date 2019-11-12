@@ -379,6 +379,7 @@ class MerchantService extends BaseService
             $value['area_address']       = $area_address;
             $value['type_title']         = PrimeTypeEnum::getType($value['type']);
             $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : round($value['expect_spend'] / 100,2).'元';
+            $value['is_recommend']       = $value['is_recommend'] == 0 ? 2 : 1;
         }
         $this->setMessage('获取成功！');
         return $list;
