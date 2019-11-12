@@ -123,13 +123,6 @@ $api->version('v1',function ($api){
                     $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
-            #用户地址管理
-            $api->group(['middleware' => 'member.jwt.auth'],function($api){
-                $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
-                $api->delete('delete_address','AddressController@deleteAddress')->name('用户删除地址');
-                $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
-                $api->post('address_list','AddressController@addressList')->name('用户获取地址');
-            });
             $api->post('login','OaController@login')->name('登录');
         });
 
@@ -256,6 +249,11 @@ $api->version('v1',function ($api){
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+                #用户地址管理
+                $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
+                $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
+                $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
+                $api->get('address_list','AddressController@addressList')->name('用户获取地址');
             });
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
                 #成员权限（后台）
@@ -272,6 +270,8 @@ $api->version('v1',function ($api){
                 $api->post('add_grade_view','ServiceController@addGradeView')->name('添加等级可查看成员');
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
+                #OA用户地址管理
+                $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
