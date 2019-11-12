@@ -259,7 +259,7 @@ class ShopCarController extends ApiController
     }
 
     /**
-     * @OA\Delete(
+     * @OA\Get(
      *     path="/api/v1/shop/shop_car_list",
      *     tags={"商城"},
      *     summary="用户获取购物车商品列表",
@@ -277,19 +277,10 @@ class ShopCarController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="OA token",
+     *         description="用户 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="query",
-     *         description="购物车 商品id",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -320,13 +311,10 @@ class ShopCarController extends ApiController
     public function shopCarList()
     {
         $rules = [
-            'id'            => 'required|integer',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'id.required'             => '商品id不能为空',
-            'id.integer'              => '商品id不是整数',
             'page.integer'            => '页码不是整数',
             'page_num.integer'        => '每页显示条数不是整数',
         ];
