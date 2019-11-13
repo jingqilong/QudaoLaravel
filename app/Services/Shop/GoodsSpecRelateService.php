@@ -29,7 +29,7 @@ class GoodsSpecRelateService extends BaseService
         $goods_list = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
         $goods_list = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);
         $spec_ids   = implode(',',array_column($spec_relate_list,'spec_ids'));
-        $spec_list  = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value']);
+        $spec_list  = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
         $result     = [];
         foreach ($spec_relate_list as $key => $value){
             $result[$key]['spec_relate_id'] = $value['id'];
@@ -45,7 +45,7 @@ class GoodsSpecRelateService extends BaseService
             $spec_str       = '';
             foreach ($value_spec_ids as $value_spec_id){
                 if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
-                    $spec_str   .= reset($item_spec)['spec_value'];
+                    $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
                 }
             }
             $result[$key]['spec'] = $spec_str;
