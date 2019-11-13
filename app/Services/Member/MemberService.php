@@ -800,7 +800,7 @@ class MemberService extends BaseService
             'm_address'           => empty($request['m_address']) ? null : $request['m_address'],
             'm_zipaddress'        => empty($request['m_zipaddress']) ? null : $request['m_zipaddress'],
             'm_socialposition'    => empty($request['m_socialposition']) ? null : $request['m_socialposition'],
-            'm_introduce'         => empty($request['m_introduce']) ? null : $request['im_introducentroduce']
+            'm_introduce'         => empty($request['m_introduce']) ? null : $request['m_introduce']
         ];
         if (MemberRepository::exists($edit_arr)){
             $this->setError('成员已存在!');
