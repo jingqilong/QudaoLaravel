@@ -201,6 +201,25 @@ class AddressService extends BaseService
         return $list;
     }
 
-
+    /**
+     * 获取用户默认地址，没有则获取第一条地址，如果没有添加地址则返回空
+     * @param $member_id
+     * @return array|null
+     */
+    protected function getDefaultAddress($member_id){
+        $where  = ['member_id' => $member_id];
+        $column = ['id','name','mobile','area_code','address'];
+        if (!$address = MemberAddressRepository::getOne(array_merge($where,['default' => 1]),$column)){
+            if (!$address = MemberAddressRepository::getOne($where,$column)){
+                $this->setMessage('没有默认地址！');
+                return [];
+            }
+        }
+        list($area_address)         = $this->makeAddress($address['area_code'],$address['address']);
+        $address['area_address']    = $area_address;
+        unset($address['area_code'],$address['address']);
+        $this->setMessage('获取成功！');
+        return $address;
+    }
 }
             

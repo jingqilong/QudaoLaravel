@@ -277,4 +277,24 @@ trait HelpTrait
         }
         return [$area_address,$lng,$lat];
     }
+
+    /**
+     * 计算二维数组中指定键的和
+     * @param $array
+     * @param $field
+     * @return int|mixed
+     */
+    protected function arrayFieldSum($array, $field){
+        if (empty($array)){
+            return 0;
+        }
+        $sum = 0;
+        foreach ($array as $value){
+            if (isset($value[$field])){
+                if (is_integer($value[$field]))
+                $sum += $value[$field];
+            }
+        }
+        return $sum;
+    }
 }

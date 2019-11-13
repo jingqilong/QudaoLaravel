@@ -475,6 +475,7 @@ $api->version('v1',function ($api){
                 $api->get('shop_car_list','ShopCarController@shopCarList')->name('用户获取购物车商品列表');
 
                 $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
+                $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
             });
         });
 
