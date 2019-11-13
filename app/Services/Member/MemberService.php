@@ -276,13 +276,19 @@ class MemberService extends BaseService
         $img_ids    = array_column($list['data'],'m_img_id');
         $img_list   = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
         foreach ($list['data'] as &$value){
+            $value['id']                = $value['m_id'] ?? '';
+            $value['name']              = $value['m_cname'] ?? '';
             $value['head_url']          = '';
             if ($head_img  = $this->searchArray($img_list,'id',$value['m_img_id'])){
                 $value['head_url']      = reset($head_img)['img_url'];
             }
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            unset($value['m_groupname'],$value['m_category'],$value['m_category'],$value['m_img_id']);
+            $value['work_name']         = $value['m_workunits'] ?? '';
+            unset($value['m_groupname'],$value['m_category'],
+                    $value['m_category'],$value['m_img_id'],
+                    $value['m_cname'],$value['m_id'],$value['m_workunits']
+                    );
         }
 
         $this->setMessage('获取成功！');
