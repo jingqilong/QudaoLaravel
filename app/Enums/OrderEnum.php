@@ -17,6 +17,7 @@ class OrderEnum extends BaseEnum
         'MEMBERRECHARGE'=> '会员充值',
         'ACTIVITY'      => '参加活动',
         'PRIME'         => '精选生活',
+        'SHOP'          => '商城',
     ];
 
     public static $status = [
@@ -30,6 +31,7 @@ class OrderEnum extends BaseEnum
         1 => 'MEMBERRECHARGE',
         2 => 'ACTIVITY',
         3 => 'PRIME',
+        4 => 'SHOP',
     ];
 
     //交易状态
@@ -49,6 +51,8 @@ class OrderEnum extends BaseEnum
     const ACTIVITY              = 2;    //订单类型-参加活动
 
     const PRIME                 = 3;    //订单类型-精选生活
+
+    const SHOP                  = 4;    //订单类型-商城
 
     /**
      * @param int $value        值

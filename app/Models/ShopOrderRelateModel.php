@@ -27,7 +27,7 @@ class ShopOrderRelateModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','order_id','status','express_company','express_price','express_number','address_id','remarks','shipment_at','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','order_id','status','express_company','express_price','express_number','address_id','remarks','receive_method','shipment_at','created_at','updated_at','deleted_at'];
 
     /**
      * The attributes that should be cast to native types.

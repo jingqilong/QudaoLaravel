@@ -36,7 +36,6 @@ class GoodsSpecRelateService extends BaseService
         $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
         $result             = [];
         foreach ($goods_spec_arr as $key => $value){
-            $result[$key]['spec_relate_id'] = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $price  =  reset($goods)['price'];
                 $result[$key] = [
@@ -54,9 +53,11 @@ class GoodsSpecRelateService extends BaseService
                     }
                 }
             }
-
-            $result[$key]['spec']   = $spec_str;
-            $result[$key]['number'] = $value['number'];
+            $result[$key]['goods_id']       = $value['goods_id'];
+            $result[$key]['spec_relate_id'] = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
+            $result[$key]['spec']           = $spec_str;
+            $result[$key]['number']         = $value['number'];
+            $result[$key]['cart_id']        = $value['cart_id'] ?? 0;
         }
         $this->setMessage('获取成功!');
         return $result;
