@@ -791,16 +791,16 @@ class MemberService extends BaseService
         }
         $edit_arr = [
             'm_id'                => $member_id,
-            'm_phone'             => $request['phone'],
-            'm_sex'               => $request['sex'],
-            'm_birthday'          => $request['birthday'],
-            'm_email'             => $request['email'],
-            'm_workunits'         => empty($request['workunits']) ? null : $request['workunits'],
-            'm_industry'          => empty($request['industry']) ? null : $request['industry'],
-            'm_address'           => empty($request['address']) ? null : $request['address'],
-            'm_zipaddress'        => empty($request['zipaddress']) ? null : $request['zipaddress'],
-            'm_socialposition'    => empty($request['socialposition']) ? null : $request['socialposition'],
-            'm_introduce'         => empty($request['introduce']) ? null : $request['introduce']
+            'm_phone'             => $request['m_phone'],
+            'm_sex'               => $request['m_sex'],
+            'm_birthday'          => $request['m_birthday'],
+            'm_email'             => $request['m_email'],
+            'm_workunits'         => empty($request['m_workunits']) ? null : $request['m_workunits'],
+            'm_industry'          => empty($request['m_industry']) ? null : $request['m_industry'],
+            'm_address'           => empty($request['m_address']) ? null : $request['m_address'],
+            'm_zipaddress'        => empty($request['m_zipaddress']) ? null : $request['m_zipaddress'],
+            'm_socialposition'    => empty($request['m_socialposition']) ? null : $request['m_socialposition'],
+            'm_introduce'         => empty($request['m_introduce']) ? null : $request['im_introducentroduce']
         ];
         if (MemberRepository::exists($edit_arr)){
             $this->setError('成员已存在!');
