@@ -134,12 +134,14 @@ class CartService extends BaseService
             $this->setMessage('暂无数据!');
             return $list;
         }
-        $goods_ids          = array_column($list['data'],'goods_id');
         $spec_relate_ids    = array_column($list['data'],'spec_relate_id');
         if (!$spec_relate_list = GoodsSpecRelateService::getListCommonInfo($spec_relate_ids)){
             Loggy::write('error','购物车列表，商品公共信息获取失败!');
             $this->setError('获取失败!');
             return false;
+        }
+        foreach ($list['data'] as $key =>  $value){
+            $spec_relate_list[$key ]['number'] = $value['number'];
         }
         $this->setMessage('获取成功!');
         return $spec_relate_list;
