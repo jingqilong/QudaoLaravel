@@ -8,6 +8,7 @@ use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Tolawho\Loggy\Facades\Loggy;
 
 class CartService extends BaseService
 {
@@ -135,6 +136,13 @@ class CartService extends BaseService
         }
         $goods_ids          = array_column($list['data'],'goods_id');
         $spec_relate_ids    = array_column($list['data'],'spec_relate_id');
+        if (!$spec_relate_list = GoodsSpecRelateService::getListCommonInfo($spec_relate_ids)){
+            Loggy::write('error','购物车列表，商品公共信息获取失败!');
+            $this->setError('获取失败!');
+            return false;
+        }
+        $this->setMessage('获取成功!');
+        return $spec_relate_list;
     }
 }
             

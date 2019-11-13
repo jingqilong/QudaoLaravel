@@ -176,7 +176,7 @@ class MemberService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_sex','m_ename','m_groupname','m_workunits','m_time','m_category','m_starte','m_img_id'];
+        $column         = ['m_id','m_cname','m_groupname','m_workunits','m_category','m_img_id'];
         $where          = ['deleted_at' => 0];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
@@ -196,20 +196,21 @@ class MemberService extends BaseService
 
         $img_ids        = array_column($user_list['data'],'m_img_id');
         $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
-
-        foreach ($user_list['data'] as &$value){
-            $value['head_url']          = '';
+        $result         = [];
+        foreach ($user_list['data'] as $key => $value){
+            $result[$key]['id']    = $value['m_id'];
+            $result[$key]['name']  = $value['m_cname'];
+            $result[$key]['head_url']          = '';
             if ($head_img = $this->searchArray($img_list,'id',$value['m_img_id'])){
-                $value['head_url']     = reset($head_img)['img_url'];
+                $result[$key]['head_url']     = reset($head_img)['img_url'];
             }
-            $value['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     =  MemberEnum::getCategory($value['m_category']);
-            $value['status_name']       =  MemberEnum::getStatus($value['m_starte']);
-            $value['sex_name']          =  MemberEnum::getSex($value['m_sex']);
+            $result[$key]['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
+            $result[$key]['category_name']     =  empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $result[$key]['m_workunits']       =  empty($value['m_workunits']) ? '' : $value['m_workunits'];
         }
 
             $this->setMessage('获取成功！');
-            return $user_list;
+            return $result;
     }
 
     /**
