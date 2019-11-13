@@ -250,6 +250,9 @@ class MemberService extends BaseService
      */
     public function getMemberCategoryList($data)
     {
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
+        }
         $memberInfo     =   $this->auth->user();
         $page           =   $data['page'] ?? 1;
         $asc            =   $data['asc'] == 1 ? 'asc' : 'desc';
