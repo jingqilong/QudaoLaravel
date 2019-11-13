@@ -471,6 +471,7 @@ $api->version('v1',function ($api){
                 $api->post('change_car_num','ShopCarController@changeCarNum')->name('用户添加购物车商品数量');
                 $api->get('shop_car_list','ShopCarController@shopCarList')->name('用户获取购物车商品列表');
 
+                $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
             });
         });
 
