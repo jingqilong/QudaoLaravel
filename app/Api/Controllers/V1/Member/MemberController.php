@@ -452,10 +452,10 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="asc",
      *         in="query",
-     *         description="排序方式[1 正序 2 倒叙]",
+     *         description="排序方式[1 正序(默认) 2 倒叙]",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -464,7 +464,7 @@ class MemberController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -473,7 +473,7 @@ class MemberController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -488,12 +488,12 @@ class MemberController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'asc'           => 'integer',
+            'asc'           => 'in:1,2',
         ];
         $messages = [
-            'page.integer'              => '页码不是整数',
-            'page_num.integer'          => '每页显示条数不是整数',
-            'asc.integer'               => '排序方式不是整数',
+            'page.integer'      => '页码不是整数',
+            'page_num.integer'  => '每页显示条数不是整数',
+            'asc.in'            => '排序方式不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
