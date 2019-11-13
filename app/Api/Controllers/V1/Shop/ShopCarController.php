@@ -324,7 +324,7 @@ class ShopCarController extends ApiController
         }
         $res = $this->cartService->shopCarList($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message];
+            return ['code' => 200, 'message' => $this->cartService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->cartService->error];
     }

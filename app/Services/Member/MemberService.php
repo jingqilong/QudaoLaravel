@@ -16,6 +16,7 @@ use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use EasyWeChat\Kernel\Exceptions\RuntimeException;
 use EasyWeChatComposer\Exceptions\DecryptException;
+use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -176,7 +177,7 @@ class MemberService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_sex','m_ename','m_groupname','m_workunits','m_time','m_category','m_starte','m_img_id'];
+        $column         = ['m_id','m_cname','m_groupname','m_workunits','m_category','m_img_id'];
         $where          = ['deleted_at' => 0];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
@@ -196,21 +197,51 @@ class MemberService extends BaseService
 
         $img_ids        = array_column($user_list['data'],'m_img_id');
         $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
-
-        foreach ($user_list['data'] as &$value){
-            $value['head_url']          = '';
+        $result         = [];
+        foreach ($user_list['data'] as $key => $value){
+            $result[$key]['id']    = $value['m_id'];
+            $result[$key]['name']  = $value['m_cname'];
+            $result[$key]['head_url']          = '';
             if ($head_img = $this->searchArray($img_list,'id',$value['m_img_id'])){
-                $value['head_url']     = reset($head_img)['img_url'];
+                $result[$key]['head_url']     = reset($head_img)['img_url'];
             }
-            $value['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     =  MemberEnum::getCategory($value['m_category']);
-            $value['status_name']       =  MemberEnum::getStatus($value['m_starte']);
-            $value['sex_name']          =  MemberEnum::getSex($value['m_sex']);
+            $result[$key]['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
+            $result[$key]['category_name']     =  empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $result[$key]['m_workunits']       =  empty($value['m_workunits']) ? '' : $value['m_workunits'];
         }
 
             $this->setMessage('获取成功！');
-            return $user_list;
+            return $result;
     }
+
+    /**
+     * 成员查看成员信息
+     * @param $request
+     * @return array|bool
+     */
+    public function getMemberInfo($request){
+        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_introduce','m_img_id','m_starte'];
+        if (!$memberInfo = MemberRepository::getOne(['m_id' => $request['id'],'deleted_at' => 0],$check_column)){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        $img = CommonImagesRepository::getOne(['id' => $memberInfo['m_img_id']],['img_url']);
+        if ($memberInfo['m_starte'] == MemberEnum::DISABLEMEMBER &&  $memberInfo['m_starte'] == MemberEnum::DISABLEOFFICER){
+            $this->setError('该成员已被禁用');
+            return false;
+        }
+        $member = [];
+        $member['id']       =  empty($memberInfo['m_id']) ? '' : $memberInfo['m_id'];
+        $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
+        $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
+        $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
+        $member['m_workunits']             =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
+        $member['img_url']                 =  $img['img_url'];
+
+        $this->setMessage('获取成功!');
+        return $member;
+    }
+
 
     /**
      * 根据成员分类获取成员列表

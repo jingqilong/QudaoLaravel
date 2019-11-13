@@ -74,7 +74,7 @@ class GoodsCategoryService extends BaseService
             $this->setError('类别不存在！');
             return false;
         }
-        if (ShopGoodsCategoryRepository::exists(['name' => $request['name']])){
+        if (ShopGoodsCategoryRepository::exists(['id' => ['<>',$request['id']],'name' => $request['name']])){
             $this->setError('类别名称已被使用！');
             return false;
         }
