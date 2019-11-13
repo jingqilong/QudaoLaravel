@@ -3,25 +3,27 @@ namespace App\Services\Shop;
 
 
 use App\Repositories\ShopGoodsRepository;
+use App\Repositories\ShopGoodsSpecRelateRepository;
+use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
+use App\Traits\HelpTrait;
 
 class OrderRelateService extends BaseService
 {
+    use HelpTrait;
 
+    /**
+     * @param $request
+     * @return mixed
+     */
     public function getPlaceOrderDetail($request)
     {
-        $goods_info = json_decode($request['goods_json'],true);
-        foreach ($goods_info as $item){
-            if (!isset($item['goods_id']) || !isset($item['number'])){
-                $this->setError('商品ID和数量不能为空！');
-                return false;
-            }
-        }
-        dd($goods_info);
-        if (!$goods = ShopGoodsRepository::getOne(['id' => $request['goods_id']])){
-            $this->setError('商品不存在！');
-            return false;
-        }
+        $goods_param        = json_decode($request['goods_json'],true);
+        $res['address']     = [];
+        $res['goods_info']  = GoodsSpecRelateService::getListCommonInfo($goods_param);
+        $this->setMessage('获取成功！');
+        return $res;
     }
 }
             
