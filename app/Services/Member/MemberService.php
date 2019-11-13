@@ -775,4 +775,43 @@ class MemberService extends BaseService
         }
         return $view_user_list['data'];
     }
+
+    /**
+     * 成员编辑个人信息
+     * @param $request
+     * @return bool
+     */
+    public function editMemberInfo($request)
+    {
+        $memberInfo = $this->auth->user();
+        $member_id     = $memberInfo->m_id;
+        if (!$member = MemberRepository::getOne(['m_id' => $member_id,'deleted_at' => 0])){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        $edit_arr = [
+            'm_id'                => $member_id,
+            'm_phone'             => $request['phone'],
+            'm_sex'               => $request['sex'],
+            'm_birthday'          => $request['birthday'],
+            'm_email'             => $request['email'],
+            'm_workunits'         => empty($request['workunits']) ? null : $request['workunits'],
+            'm_industry'          => empty($request['industry']) ? null : $request['industry'],
+            'm_address'           => empty($request['address']) ? null : $request['address'],
+            'm_zipaddress'        => empty($request['zipaddress']) ? null : $request['zipaddress'],
+            'm_socialposition'    => empty($request['socialposition']) ? null : $request['socialposition'],
+            'm_introduce'         => empty($request['introduce']) ? null : $request['introduce']
+        ];
+        if (MemberRepository::exists($edit_arr)){
+            $this->setError('成员已存在!');
+            return false;
+        }
+        if (!$member = MemberRepository::getUpdId(['m_id' => $member_id],$edit_arr)){
+            $this->setError('修改失败!');
+            return false;
+        }
+        $this->setMessage('修改成功!');
+        return true;
+
+    }
 }

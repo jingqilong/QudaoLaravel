@@ -971,9 +971,7 @@ class MemberController extends ApiController
             'm_cname.string'             => '请正确填写姓名',
             'm_cname.required'           => '请填写中文姓名',
             'm_email.email'              => '邮箱格式不正确',
-            'mbirthday.required'        => '邮箱格式不正确',
-            //'m_numcard.required'         => '请填写您的身份证号码',
-            //'m_numcard.regex'            => '您输入的身份证号码不是有效格式',
+            'm_birthday.required'        => '生日未填写',
             'm_address.required'         => '请填写您的地址',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -985,5 +983,70 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->memberService->error];
         }
         return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['memberId' => $member]];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/edit_member_info",
+     *     tags={"会员"},
+     *     summary="成员编辑个人信息",
+     *     operationId="edit_member_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(name="token",in="query",description="用户 token",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="birthday",in="query",description="生日【格式 2019-11-18】",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="email",in="query",description="邮箱",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="workunits",in="query",description="单位",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="industry",in="query",description="从事行业",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="address",in="query",description="地址",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="zipaddress",in="query",description="杂志寄送地址",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="socialposition",in="query",description="社会职务[泰基企业 董事长,老凤祥 董事长]",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMemberInfo()
+    {
+        $rules = [
+            'phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
+            'sex'                      => 'required|in:1,2',
+            'email'                    => 'required|email',
+            'birthday'                 => 'required',
+            'address'                  => 'required',
+        ];
+        $messages = [
+            'phone.required'           => '请填写手机号码',
+            'birthday.required'        => '请填写生日',
+            'phone.regex'              => '手机号码不正确',
+            'sex.required'             => '请填写性别',
+            'sex.integer'              => '请正确填写性别',
+            'email.email'              => '邮箱格式不正确',
+            'email.required'           => '邮箱格式不正确',
+            'address.required'         => '请填写您的地址',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $member = $this->memberService->editMemberInfo($this->request);
+        if (!$member){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
     }
 }
