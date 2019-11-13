@@ -28,7 +28,7 @@ class GoodsSpecRelateService extends BaseService
             }
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
-        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => $spec_relate_ids,'deleted_at' => 0]);
+        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0]);
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
         $goods_list         = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);

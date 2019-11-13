@@ -220,7 +220,7 @@ class MemberService extends BaseService
      * @return array|bool
      */
     public function getMemberInfo($request){
-        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_introduce','m_img_id','m_starte'];
+        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_position','m_introduce','m_img_id','m_starte'];
         if (!$memberInfo = MemberRepository::getOne(['m_id' => $request['id'],'deleted_at' => 0],$check_column)){
             $this->setError('成员不存在!');
             return false;
@@ -233,11 +233,17 @@ class MemberService extends BaseService
         $member = [];
         $member['id']       =  empty($memberInfo['m_id']) ? '' : $memberInfo['m_id'];
         $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
+        $member['position_name']           =  empty($memberInfo['m_position']) ? '' : $memberInfo['m_position'];
         $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
         $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
-        $member['m_workunits']             =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
+        $member['work_name']               =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
         $member['img_url']                 =  $img['img_url'];
-
+        unset($member['m_groupname'],$member['m_category'],
+              $member['m_category'], $member['m_img_id'],
+              $member['m_cname'],    $member['m_id'],
+              $member['m_workunits'],$member['m_socialposition'],
+              $member['m_position']
+        );
         $this->setMessage('获取成功!');
         return $member;
     }
@@ -246,52 +252,55 @@ class MemberService extends BaseService
     /**
      * 根据成员分类获取成员列表
      * @param $data
-     * @return array|null
+     * @return bool|mixed|null
      */
     public function getMemberCategoryList($data)
     {
-        $memberInfo     = $this->auth->user();
-        $page           = $data['page'] ?? 1;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $page_num       = $data['page_num'] ?? 20;
-        $category       = $data['category'] == '' ? 0 : $data['category'];
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category','m_img_id'];
-        $where          = ['m_category' => $category,'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-        if (MemberEnum::isset($memberInfo['m_groupname'])){
-            if ($category == 0){
-                if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
-                    $this->setMessage('暂无成员信息！');
-                    return [];
-                }
-            }
-            if (!$user_list = MemberRepository::getList($where, $column, 'm_time', $asc, $page, $page_num)) {
-                $this->setMessage('暂无成员信息！');
-                return [];
-            }
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
         }
-
-        if (!$user_list = MemberRepository::getList(['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]], $column, 'm_time', $asc, $page, $page_num)) {
-            $this->setMessage('暂无成员信息！');
-            return [];
+        $memberInfo     =   $this->auth->user();
+        $page           =   $data['page'] ?? 1;
+        $asc            =   $data['asc'] == 1 ? 'asc' : 'desc';
+        $page_num       =   $data['page_num'] ?? 20;
+        $category       =   $data['category'] ?? null;
+        $column         =   ['m_id','m_cname','m_groupname','m_socialposition','m_workunits','m_category','m_img_id'];
+        $where          =   ['deleted_at' => 0];
+        if (!empty($category)){
+            $where['m_category'] = $category;
+         }
+        if (MemberEnum::HONOURENJOY == $memberInfo->m_groupname){
+            $where['m_starte'] = ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]];
+        }else{
+            $where['m_starte'] =  MemberEnum::ACTIVITEMEMBER;
         }
-        $user_list = $this->removePagingField($user_list);
-
-        $img_ids        = array_column($user_list['data'],'m_img_id');
-        $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
-
-        foreach ($user_list['data'] as &$value){
+        if (!$list = MemberRepository::getList($where,$column, 'm_time',$asc,$page,$page_num)) {
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list       = $this->removePagingField($list);
+        $img_ids    = array_column($list['data'],'m_img_id');
+        $img_list   = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
+        foreach ($list['data'] as &$value){
+            $value['id']                = empty($value['m_id']) ? '' : $value['m_id'];
+            $value['name']              =  empty($value['m_cname']) ? '' : $value['m_cname'];
             $value['head_url']          = '';
             if ($head_img  = $this->searchArray($img_list,'id',$value['m_img_id'])){
                 $value['head_url']      = reset($head_img)['img_url'];
             }
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['group_name']               = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']            = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['work_name']                = empty($value['m_workunits']) ? '' : $value['m_workunits'];
+            $member['socialposition_name']     =  empty($value['m_socialposition']) ? '' : $value['m_socialposition'];
+            unset($value['m_groupname'],$value['m_category'],
+                    $value['m_category'],$value['m_img_id'],
+                    $value['m_cname'],$value['m_id'],
+                    $value['m_workunits'],$value['m_socialposition']
+                    );
         }
 
         $this->setMessage('获取成功！');
-        return $user_list;
+        return $list;
     }
 
     /**
