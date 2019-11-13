@@ -220,7 +220,7 @@ class MemberService extends BaseService
      * @return array|bool
      */
     public function getMemberInfo($request){
-        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_introduce','m_img_id','m_starte'];
+        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_position','m_introduce','m_img_id','m_starte'];
         if (!$memberInfo = MemberRepository::getOne(['m_id' => $request['id'],'deleted_at' => 0],$check_column)){
             $this->setError('成员不存在!');
             return false;
@@ -233,11 +233,17 @@ class MemberService extends BaseService
         $member = [];
         $member['id']       =  empty($memberInfo['m_id']) ? '' : $memberInfo['m_id'];
         $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
+        $member['position_name']           =  empty($memberInfo['m_position']) ? '' : $memberInfo['m_position'];
         $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
         $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
         $member['work_name']               =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
         $member['img_url']                 =  $img['img_url'];
-
+        unset($member['m_groupname'],$member['m_category'],
+              $member['m_category'], $member['m_img_id'],
+              $member['m_cname'],    $member['m_id'],
+              $member['m_workunits'],$member['m_socialposition'],
+              $member['m_position']
+        );
         $this->setMessage('获取成功!');
         return $member;
     }
