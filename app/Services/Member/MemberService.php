@@ -235,7 +235,7 @@ class MemberService extends BaseService
         $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
         $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
         $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
-        $member['m_workunits']             =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
+        $member['work_name']               =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
         $member['img_url']                 =  $img['img_url'];
 
         $this->setMessage('获取成功!');
@@ -258,7 +258,7 @@ class MemberService extends BaseService
         $asc            =   $data['asc'] == 1 ? 'asc' : 'desc';
         $page_num       =   $data['page_num'] ?? 20;
         $category       =   $data['category'] ?? null;
-        $column         =   ['m_id','m_cname','m_groupname','m_workunits','m_category','m_img_id'];
+        $column         =   ['m_id','m_cname','m_groupname','m_socialposition','m_workunits','m_category','m_img_id'];
         $where          =   ['deleted_at' => 0];
         if (!empty($category)){
             $where['m_category'] = $category;
@@ -276,18 +276,20 @@ class MemberService extends BaseService
         $img_ids    = array_column($list['data'],'m_img_id');
         $img_list   = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
         foreach ($list['data'] as &$value){
-            $value['id']                = $value['m_id'] ?? '';
-            $value['name']              = $value['m_cname'] ?? '';
+            $value['id']                = empty($value['m_id']) ? '' : $value['m_id'];
+            $value['name']              =  empty($value['m_cname']) ? '' : $value['m_cname'];
             $value['head_url']          = '';
             if ($head_img  = $this->searchArray($img_list,'id',$value['m_img_id'])){
                 $value['head_url']      = reset($head_img)['img_url'];
             }
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['work_name']         = $value['m_workunits'] ?? '';
+            $value['group_name']               = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']            = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['work_name']                = empty($value['m_workunits']) ? '' : $value['m_workunits'];
+            $member['socialposition_name']     =  empty($value['m_socialposition']) ? '' : $value['m_socialposition'];
             unset($value['m_groupname'],$value['m_category'],
                     $value['m_category'],$value['m_img_id'],
-                    $value['m_cname'],$value['m_id'],$value['m_workunits']
+                    $value['m_cname'],$value['m_id'],
+                    $value['m_workunits'],$value['m_socialposition']
                     );
         }
 
