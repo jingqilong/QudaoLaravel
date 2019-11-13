@@ -118,6 +118,11 @@ class CartService extends BaseService
         return $res;
     }
 
+    /**
+     * 用户获取个人的购物车列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
     public function shopCarList($request)
     {
         $memberInfo = $this->auth->user();
@@ -134,17 +139,51 @@ class CartService extends BaseService
             $this->setMessage('暂无数据!');
             return $list;
         }
-        $spec_relate_ids    = array_column($list['data'],'spec_relate_id');
-        if (!$spec_relate_list = GoodsSpecRelateService::getListCommonInfo($spec_relate_ids)){
+        if (!$spec_relate_list = GoodsSpecRelateService::getListCommonInfo($list['data'])){
             Loggy::write('error','购物车列表，商品公共信息获取失败!');
             $this->setError('获取失败!');
             return false;
         }
-        foreach ($list['data'] as $key =>  $value){
-            $spec_relate_list[$key ]['number'] = $value['number'];
-        }
         $this->setMessage('获取成功!');
         return $spec_relate_list;
+    }
+
+    /**
+     * OA获取购物车列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function listShopCar($request)
+    {
+        $page         = $request['page'] ?? 1;
+        $page_num     = $request['page_num'] ?? 20;
+        $keywords     = $request['keywords'] ?? null;
+        $where        = ['id' => ['>',0]];
+        if (!empty($keywords)){
+            $keyword   = [$keywords => ['name','mobile']];
+            if (!$list = ShopCartRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else{
+            if (!$list = ShopCartRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+                $this->setError('获取失败!');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据!');
+            return $list;
+        }
+        if (!$spec_relate_list = GoodsSpecRelateService::getListCommonInfo($list['data'])){
+            Loggy::write('error','OA获取购物车列表，商品公共信息获取失败!');
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list['data'] = $spec_relate_list;
+        $this->setMessage('获取成功!');
+        return $list;
     }
 }
             

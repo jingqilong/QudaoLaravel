@@ -329,4 +329,84 @@ class ShopCarController extends ApiController
         return ['code' => 100, 'message' => $this->cartService->error];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/list_shop_car",
+     *     tags={"商城后台"},
+     *     summary="OA获取购物车列表",
+     *     description="jing" ,
+     *     operationId="list_shop_car",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索【姓名  手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function listShopCar()
+    {
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'            => '页码不是整数',
+            'page_num.integer'        => '每页显示条数不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()) {
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->cartService->listShopCar($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->cartService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->cartService->error];
+    }
+
 }
