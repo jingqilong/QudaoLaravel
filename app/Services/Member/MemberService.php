@@ -16,6 +16,7 @@ use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use EasyWeChat\Kernel\Exceptions\RuntimeException;
 use EasyWeChatComposer\Exceptions\DecryptException;
+use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -212,6 +213,35 @@ class MemberService extends BaseService
             $this->setMessage('获取成功！');
             return $result;
     }
+
+    /**
+     * 成员查看成员信息
+     * @param $request
+     * @return array|bool
+     */
+    public function getMemberInfo($request){
+        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_introduce','m_img_id','m_starte'];
+        if (!$memberInfo = MemberRepository::getOne(['m_id' => $request['id'],'deleted_at' => 0],$check_column)){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        $img = CommonImagesRepository::getOne(['id' => $memberInfo['m_img_id']],['img_url']);
+        if ($memberInfo['m_starte'] == MemberEnum::DISABLEMEMBER &&  $memberInfo['m_starte'] == MemberEnum::DISABLEOFFICER){
+            $this->setError('该成员已被禁用');
+            return false;
+        }
+        $member = [];
+        $member['id']       =  empty($memberInfo['m_id']) ? '' : $memberInfo['m_id'];
+        $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
+        $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
+        $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
+        $member['m_workunits']             =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
+        $member['img_url']                 =  $img['img_url'];
+
+        $this->setMessage('获取成功!');
+        return $member;
+    }
+
 
     /**
      * 根据成员分类获取成员列表

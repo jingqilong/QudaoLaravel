@@ -242,6 +242,7 @@ $api->version('v1',function ($api){
                 $api->post('refresh','MemberController@refresh')->name('刷新token');
                 $api->get('get_user_info','MemberController@getUserInfo')->name('获取成员信息');
                 $api->get('get_member_list','MemberController@getMemberList')->name('获取成员列表');
+                $api->get('get_member_info','MemberController@getMemberInfo')->name('获取成员信息');
                 $api->get('get_member_category_list','MemberController@getMemberCategoryList')->name('根据查找分类获取成员列表');
                 $api->get('update_user_info','MemberController@updateUserInfo')->name('更改用户信息');
                 $api->any('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');

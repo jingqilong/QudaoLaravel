@@ -357,6 +357,64 @@ class MemberController extends ApiController
 
         return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_info",
+     *     tags={"会员"},
+     *     summary="成员查看成员信息",
+     *     operationId="get_member_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="用户id",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberInfo()
+    {
+        $rules = [
+            'id'           => 'required|integer',
+        ];
+        $messages = [
+            'id.required'           => '会员id不能为空',
+            'id.integer'            => '查看会员id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->memberService->getMemberInfo($this->request);
+
+        return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
+    }
     /**
      * @OA\Get(
      *     path="/api/v1/member/get_member_category_list",
