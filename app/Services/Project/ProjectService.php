@@ -58,7 +58,7 @@ class ProjectService extends BaseService
     public function getProjectInfo(string $id)
     {
         $user = $this->auth->user();
-        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'user_id' => $user->m_id],['id','name','mobile','project_name','remark','status'])){
+        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'user_id' => $user->m_id],['id','name','mobile','reservation_at','project_name','remark','status'])){
             $this->setError('暂无数据!');
             return false;
         }
