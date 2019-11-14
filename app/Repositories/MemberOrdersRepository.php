@@ -53,7 +53,7 @@ class MemberOrdersRepository extends ApiRepository
      * @param int $length
      * @return string
      */
-    private function getOrderNo($length = 8){
+    protected function getOrderNo($length = 8){
         $number = '0123456789';
         for ($i = 0, $num = '', $lc = strlen($number)-1; $i < $length; $i++) {
             $num .= $number[mt_rand(0, $lc)];

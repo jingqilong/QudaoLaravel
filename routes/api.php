@@ -74,6 +74,7 @@ $api->version('v1',function ($api){
                 $api->post('add_user','PermissionsController@addUser')->name("添加用户");
                 $api->get('menu_list','PermissionsController@menuList')->name("获取菜单列表");
                 $api->get('user_list','PermissionsController@userList')->name("获取用户列表");
+                $api->post('is_disabled','PermissionsController@isDisabled')->name("禁用或开启员工");
                 $api->get('permission_list','PermissionsController@permissionList')->name("获取权限列表");
                 $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
@@ -476,6 +477,8 @@ $api->version('v1',function ($api){
 
                 $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
                 $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
+                $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
+                $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
             });
         });
 

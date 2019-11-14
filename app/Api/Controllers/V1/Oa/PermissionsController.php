@@ -854,6 +854,66 @@ class PermissionsController extends ApiController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/v1/oa/is_disabled",
+     *     tags={"OA权限管理"},
+     *     summary="禁用或开启员工",
+     *     description="sang" ,
+     *     operationId="is_disabled",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="employee_id",
+     *         in="query",
+     *         description="员工ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="操作失败",
+     *     ),
+     * )
+     *
+     */
+    public function isDisabled(){
+        $rules = [
+            'employee_id'       => 'required|integer'
+        ];
+        $messages = [
+            'employee_id.required'      => '员工ID不能为空',
+            'employee_id.integer'       => '员工ID为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->employeeService->isDisabled($this->request['employee_id']);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->employeeService->error];
+        }
+        return ['code' => 200, 'message' => $this->employeeService->message];
+    }
+
+    /**
      * @OA\Get(
      *     path="/api/v1/oa/permission_list",
      *     tags={"OA权限管理"},

@@ -155,6 +155,15 @@ class OrderController extends ApiController
      *             type="integer",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="remarks",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="下单失败",
@@ -185,6 +194,202 @@ class OrderController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->orderRelateService->submitOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/goods_receiving",
+     *     tags={"商城"},
+     *     summary="确认收货",
+     *     description="sang" ,
+     *     operationId="goods_receiving",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="确认收货失败",
+     *     ),
+     * )
+     *
+     */
+    public function goodsReceiving(){
+        $rules = [
+            'order_relate_id'       => 'required|integer'
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->goodsReceiving($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/cancel_order",
+     *     tags={"商城"},
+     *     summary="取消订单",
+     *     description="sang" ,
+     *     operationId="cancel_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="取消订单失败",
+     *     ),
+     * )
+     *
+     */
+    public function cancelOrder(){
+        $rules = [
+            'order_relate_id'       => 'required|integer'
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->cancelOrder($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_my_order_list",
+     *     tags={"商城"},
+     *     summary="获取我的订单列表",
+     *     operationId="get_my_order_list",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="订单状态，0已取消，1待支付，2待发货（已支付），3已发货（待收货），4已收货",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取失败",),
+     * )
+     *
+     */
+    public function getMyOrderList(){
+        $rules = [
+            'status'        => 'in:0,1,2,3,4',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'status.in'             => '订单状态不存在',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getMyOrderList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }

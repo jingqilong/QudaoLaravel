@@ -186,5 +186,36 @@ class EmployeeService extends BaseService
         $this->setMessage('用户添加成功！');
         return true;
     }
+
+    /**
+     * 禁用或开启员工
+     * @param $employee_id
+     * @return bool
+     */
+    public function isDisabled($employee_id)
+    {
+        $current_employee = Auth::guard('oa_api')->user();
+        if ($current_employee->id == $employee_id){
+            $this->setError('不能操作您自己的账户！');
+            return false;
+        }
+        if (!$employee = OaEmployeeRepository::getOne(['id' => $employee_id])){
+            $this->setError('员工信息不存在！');
+            return false;
+        }
+        if ($employee['status'] == 0){
+            if (OaEmployeeRepository::getUpdId(['id' => $employee_id],['status' => 1,'updated_at' => time()])){
+                $this->setMessage('禁用成功！');
+                return true;
+            }
+        }else{
+            if (OaEmployeeRepository::getUpdId(['id' => $employee_id],['status' => 0,'updated_at' => time()])){
+                $this->setMessage('开启成功！');
+                return true;
+            }
+        }
+        $this->setError('操作失败！');
+        return false;
+    }
 }
             
