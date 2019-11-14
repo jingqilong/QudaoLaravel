@@ -4,6 +4,7 @@ namespace App\Services\Member;
 
 use App\Repositories\MemberAddressRepository;
 use App\Services\BaseService;
+use App\Services\Shop\OrderRelateService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,11 @@ class AddressService extends BaseService
         }
         list($area_address)         = $this->makeAddress($address['area_code'],$address['address']);
         $address['area_address']    = $area_address;
+        $address['free_shipping']   = 0;#默认不包邮
+        $area_code = explode(',',trim($address['area_code'],','));
+        if (array_intersect($area_code,OrderRelateService::$free_shipping_area_code)){
+            $address['free_shipping'] = 1;
+        }
         unset($address['area_code'],$address['address']);
         $this->setMessage('获取成功！');
         return $address;

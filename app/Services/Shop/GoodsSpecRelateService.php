@@ -53,11 +53,16 @@ class GoodsSpecRelateService extends BaseService
                     }
                 }
             }
+            if (isset($value['order_relate_id'])){
+                $result[$key]['order_relate_id']       = $value['order_relate_id'];
+            }
+            if (isset($value['cart_id'])){
+                $result[$key]['cart_id']       = $value['cart_id'];
+            }
             $result[$key]['goods_id']       = $value['goods_id'];
             $result[$key]['spec_relate_id'] = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
             $result[$key]['spec']           = $spec_str;
             $result[$key]['number']         = $value['number'];
-            $result[$key]['cart_id']        = $value['cart_id'] ?? 0;
         }
         $this->setMessage('获取成功!');
         return $result;

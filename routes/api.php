@@ -479,6 +479,8 @@ $api->version('v1',function ($api){
                 $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
                 $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
+                $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
+                $api->post('order_detail','OrderController@orderDetail')->name('获取订单详情');
             });
         });
 

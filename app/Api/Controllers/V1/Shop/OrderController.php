@@ -395,4 +395,64 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/order_detail",
+     *     tags={"商城"},
+     *     summary="获取订单详情",
+     *     description="sang" ,
+     *     operationId="order_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function orderDetail(){
+        $rules = [
+            'order_relate_id'       => 'required|integer'
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->orderDetail($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
 }

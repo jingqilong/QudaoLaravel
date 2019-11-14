@@ -4,11 +4,14 @@ namespace App\Services\Shop;
 
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
+use App\Enums\TradeEnum;
 use App\Repositories\MemberAddressRepository;
 use App\Repositories\MemberOrdersRepository;
+use App\Repositories\MemberTradesRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopOrderGoodsRepository;
 use App\Repositories\ShopOrderRelateRepository;
+use App\Repositories\ShopOrderRelateViewRepository;
 use App\Services\BaseService;
 use App\Services\Member\AddressService;
 use App\Services\Member\OrdersService;
@@ -20,6 +23,10 @@ use Tolawho\Loggy\Facades\Loggy;
 class OrderRelateService extends BaseService
 {
     use HelpTrait;
+
+    #包邮地区编码
+    public static $free_shipping_area_code = ['330000','320000','310000'];
+
 
     /**
      * 获取下单详情
@@ -35,12 +42,16 @@ class OrderRelateService extends BaseService
         $score_deduction    = [];
         $express_price      = 0;
         $total_price        = 0;
-        $score_category     = array_column($goods_list,'score_categories');
         //TODO 此处对接积分
         $member_score       = [
             [
                 'score'             => 2000,
                 'scorer_type'       => 1,
+                'score_title'       => '通用积分'
+            ],
+            [
+                'score'             => 100,
+                'scorer_type'       => 2,
                 'score_title'       => '通用积分'
             ]
         ];
@@ -50,30 +61,33 @@ class OrderRelateService extends BaseService
                 $express_price      += reset($goods)['express_price'];
                 $total_price        += reset($goods)['price'];
             }
-            $goods_score   = $this->searchArray($goods_list,'id',$value['goods_id']);
             if (empty(reset($goods)['score_categories'])){
                 break;
             }
-            $usable_member_score    = $this->searchArray($member_score,'scorer_type',reset($goods_score)['score_categories']);
-            $usable_score           = !empty($usable_member_score) ? reset($usable_member_score)['score'] : 0;
-            #当前商品的总抵扣积分
-            $goods_total_score  = reset($goods_score)['score_deduction'] * $value['number'];
-            $goods_score_type   = reset($goods_score)['score_categories'];
-            if (!isset($score_deduction[$goods_score_type])){
-                #当前积分类别可抵扣积分总和
-                $score_deduction[$goods_score_type]['total_score'] = $goods_total_score;
-                #当前用户可抵扣当前积分类别最大积分
-                $score_deduction[$goods_score_type]['usable_score'] = $usable_score > $score_deduction[$goods_score_type]['total_score'] ? $score_deduction[$goods_score_type]['total_score'] : $usable_score;
-                $score_deduction[$goods_score_type]['score_type'] = $goods_score_type;
-            }else{
-                #当前积分类别可抵扣积分总和
-                $score_deduction[$goods_score_type]['total_score'] = $goods_total_score + $score_deduction[$goods_score_type]['total_score'];
-                #当前用户可抵扣当前积分类别最大积分
-                $score_deduction[$goods_score_type]['usable_score'] = $usable_score > $score_deduction[$goods_score_type]['total_score'] ? $score_deduction[$goods_score_type]['total_score'] : $usable_score;
+            $score_categories = explode(',',trim(reset($goods)['score_categories'],','));
+            foreach ($score_categories as $score_category){
+                $usable_member_score    = $this->searchArray($member_score,'scorer_type',$score_category);
+                if (empty($usable_member_score)){
+                    break;
+                }
+                $usable_score           = reset($usable_member_score)['score'];
+                #当前商品的总抵扣积分
+                $goods_total_score  = reset($goods)['score_deduction'] * $value['number'];
+                if (!isset($score_deduction[$score_category])){
+                    #当前积分类别可抵扣积分总和
+                    $score_deduction[$score_category]['total_score'] = $goods_total_score;
+                    #当前用户可抵扣当前积分类别最大积分
+                    $score_deduction[$score_category]['usable_score'] = $usable_score > $score_deduction[$score_category]['total_score'] ? $score_deduction[$score_category]['total_score'] : $usable_score;
+                    $score_deduction[$score_category]['score_type'] = $score_category;
+                }else{
+                    #当前积分类别可抵扣积分总和
+                    $score_deduction[$score_category]['total_score'] = $goods_total_score + $score_deduction[$score_category]['total_score'];
+                    #当前用户可抵扣当前积分类别最大积分
+                    $score_deduction[$score_category]['usable_score'] = $usable_score > $score_deduction[$score_category]['total_score'] ? $score_deduction[$score_category]['total_score'] : $usable_score;
+                }
             }
         }
-
-        $express_title          = empty($express_price) ? '包邮' : '江浙沪地区包邮，其它地区总邮费：' . round($express_price / 100,2).'元';
+        $express_title          = empty($express_price) ? '包邮' : '江浙沪地区包邮，其它地区总邮费：' . sprintf('%.2f',round($express_price / 100,2)).'元';
         $member                 = Auth::guard('member_api')->user();
         #收货地址
         $res['address']         = AddressService::getDefaultAddress($member->m_id);
@@ -82,13 +96,13 @@ class OrderRelateService extends BaseService
         #邮费展示标签
         $res['express_title']   = $express_title;
         #邮费
-        $res['express_price']   = round($express_price / 100,2);
+        $res['express_price']   = sprintf('%.2f',round($express_price / 100,2));
         #购买所得积分
         $res['buy_score']       = $buy_score;
         #可抵扣积分
         $res['score_deduction'] = $score_deduction;
         #订单总金额
-        $res['total_price']     = round($total_price / 100,2);
+        $res['total_price']     = sprintf('%.2f',round($total_price / 100,2));
         $this->setMessage('获取成功！');
         return $res;
     }
@@ -101,18 +115,23 @@ class OrderRelateService extends BaseService
     public function submitOrder($request)
     {
         $member = Auth::guard('member_api')->user();
-        if (!MemberAddressRepository::exists(['id' => $request['address_id']])){
+        if (!$address = MemberAddressRepository::getOne(['id' => $request['address_id']])){
             $this->setError('收货地址不存在！');
             return false;
         }
-        $submit_order_info = $this->getPlaceOrderDetail($request);
+        $submit_order_info  = $this->getPlaceOrderDetail($request);
+        $express_price      = $submit_order_info['express_price'];
         $score_deduction    = $request['score_deduction'] ?? 0;
         $score_type         = $request['score_type'] ?? 0;
         $total_price        = $submit_order_info['total_price'];
         $is_score           = false;#表示是否使用积分，默认不使用
         #如果选择付费邮寄，金额 = 总金额 + 邮费
         if ($request['express_type'] == ShopOrderEnum::BY_MAIL){
-            $total_price = $total_price + $submit_order_info['express_price'];
+            $area_code = explode(',',trim($address['area_code'],','));
+            if (array_intersect($area_code,self::$free_shipping_area_code)){
+                $express_price = 0;
+            }
+            $total_price = $total_price + $express_price;
         }
         $payment_price = $total_price;
         DB::beginTransaction();
@@ -159,7 +178,7 @@ class OrderRelateService extends BaseService
             'order_id'          => $order_id,
             'member_id'         => $member->m_id,
             'status'            => $order_add_arr == OrderEnum::STATUSSUCCESS ? ShopOrderEnum::SHIP : ShopOrderEnum::PAYMENT,
-            'express_price'     => ($request['express_type'] == 1) ? $submit_order_info['express_price'] * 100 : 0,
+            'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
             'address_id'        => $request['address_id'],
             'remarks'           => $request['remarks'] ?? '',
             'receive_method'    => $request['express_type'],
@@ -222,7 +241,7 @@ class OrderRelateService extends BaseService
             $this->setError('您已经确认收货了，不要重复确认收货！');
             return false;
         }
-        if (ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::RECEIVED,'updated_at' => time()])){
+        if (ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::RECEIVED,'receive_at' => time(),'updated_at' => time()])){
             $this->setMessage('确认收货成功！');
             return true;
         }
@@ -259,31 +278,101 @@ class OrderRelateService extends BaseService
             $this->setError('您的订单已完成，无法取消！');
             return false;
         }
-        if (ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::CANCELED,'updated_at' => time()])){
-            $this->setMessage('取消订单成功！');
-            return true;
+        DB::beginTransaction();
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::CANCELED,'updated_at' => time()])){
+            $this->setError('取消订单失败！');
+            DB::rollBack();
+            return false;
         }
-        $this->setError('取消订单失败！');
-        return false;
+        if (MemberOrdersRepository::getUpdId(['id' => $order_relate['order_id']],['status' => OrderEnum::STATUSCLOSE,'updated_at' => time()])){
+            $this->setError('取消订单失败！');
+            DB::rollBack();
+            return false;
+        }
+        //TODO 此处退还积分
+        $this->setMessage('取消订单成功！');
+        return true;
     }
 
     /**
+     * 用户获取自己的订单列表
      * @param $request
      * @return mixed
      */
     public function getMyOrderList($request)
     {
+        $member = Auth::guard('member_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
-        $where      = ['id' => ['<>',0]];
+        $where      = ['id' => ['<>',0],'member_id' => $member->m_id];
         if (!is_null($status)){
             $where['status']    = $status;
         }
-//        if (!){
-//            $this->setError('获取失败！');
-//            return false;
-//        }
+        $column = ['id','status','payment_amount'];
+        if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $order_list = $this->removePagingField($order_list);
+        if (empty($order_list['data'])){
+            $this->setMessage('您还没有订单，快去购买吧！');
+            return $order_list;
+        }
+        $order_relate_ids   = array_column($order_list['data'],'id');
+        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
+        foreach ($order_list['data'] as &$value){
+            $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
+            if ($search_goods_list = $this->searchArray($order_goods_list,'order_relate_id',$value['id'])){
+                foreach ($search_goods_list as $item){
+                    if ($goods = $this->searchArray($goods_list,'order_relate_id',$item['order_relate_id'])){
+                        $value['goods_list'][] = reset($goods);
+                    }
+                }
+            }
+            $value['status'] = ShopOrderEnum::getStatus($value['status']);
+        }
+        $this->setMessage('获取成功！');
+        return $order_list;
+    }
+
+    /**
+     * 用户获取订单详情
+     * @param $order_relate_id
+     * @return mixed
+     */
+    public function orderDetail($order_relate_id)
+    {
+        $member = Auth::guard('member_api')->user();
+        $column = ['id','status','express_company','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at'];
+        if (!$order = ShopOrderRelateViewRepository::getOne(['id' => $order_relate_id,'member_id' => $member->m_id,'deleted_at' => 0],$column)){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        $order['status_title']  = ShopOrderEnum::getStatus($order['status']);
+        $order['receive_method']= ShopOrderEnum::getReceiveMethod($order['receive_method']);
+        $order['express_price'] = sprintf('%.2f',round($order['express_price'] / 100,2));
+        $order['amount']        = sprintf('%.2f',round($order['amount'] / 100,2));
+        $order['payment_amount']= sprintf('%.2f',round($order['payment_amount'] / 100,2));
+        $order['shipment_at']   = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
+        $order['receive_at']    = empty($order['receive_at']) ? 0 : date('Y-m-d H:i:s',$order['receive_at']);
+        $order['trade_no']          = '';
+        $order['transaction_no']    = '';
+        $order['trade_method']      = '';
+        if (!empty($order['trade_id'])){
+            if ($trade = MemberTradesRepository::getOne(['id' => $order['trade_id']])){
+                $order['trade_no']          = $trade['trade_no'];
+                $order['transaction_no']    = $trade['transaction_no'];
+                $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
+            }
+        }
+        list($order['receive_area_address'])  = $this->makeAddress($order['receive_area_code'],$order['receive_address']);
+        $order_goods_list       = ShopOrderGoodsRepository::getList(['order_relate_id' => $order['id']]);
+        $order['goods_list']    = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
+        unset($order['receive_area_code'],$order['receive_address']);
+        $this->setMessage('获取成功！');
+        return $order;
     }
 }
             
