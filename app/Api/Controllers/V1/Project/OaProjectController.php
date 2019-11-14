@@ -107,7 +107,6 @@ class OaProjectController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-
         $list = $this->OaProjectService->getProjectOrderList($this->request);
 
         return ['code' => 200, 'message' => $this->OaProjectService->message,'data' => $list];

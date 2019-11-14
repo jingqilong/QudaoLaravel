@@ -2,17 +2,15 @@
 namespace App\Services\Project;
 
 
-use App\Enums\MemberEnum;
 use App\Enums\ProjectEnum;
-use App\Repositories\MemberRepository;
 use App\Repositories\ProjectOrderRepository;
 use App\Services\BaseService;
-use App\Services\Common\SmsService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectService extends BaseService
 {
-
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -22,20 +20,32 @@ class ProjectService extends BaseService
     {
         $this->auth = Auth::guard('member_api');
     }
+
     /**
      * 获取项目对接订单列表  （前端使用）
+     * @param $request
      * @return mixed
      */
-    public function getProjectList()
+    public function getProjectList($request)
     {
         $user = $this->auth->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
         $where = ['user_id' => $user->m_id,'deleted_at' => 0];
-        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc')){
-            $this->setMessage('没有数据！');
-            return [];
+        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
         }
-        $list['status_name']       =   ProjectEnum::getStatus($list['status']);
-        $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据');
+            return$list;
+        }
+        foreach ($list['data'] as &$value){
+            $value['status_name']       =   ProjectEnum::getStatus($value['status']);
+            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
+            unset($value['deleted_at'],$value['status'],$value['updated_at'],$value['user_id'],$value['created_at']);
+        }
         $this->setMessage('查找成功');
         return $list;
     }
