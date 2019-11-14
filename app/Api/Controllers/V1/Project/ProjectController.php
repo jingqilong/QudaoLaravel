@@ -342,6 +342,7 @@ class ProjectController extends ApiController
      *     path="/api/v1/project/del_project",
      *     tags={"项目对接(前端调用)"},
      *     summary="删除项目订单信息",
+     *     deprecated=true,
      *     operationId="del_project",
      *     @OA\Parameter(
      *          name="sign",
