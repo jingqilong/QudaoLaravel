@@ -140,11 +140,7 @@ class ProjectService extends BaseService
             $this->setError('暂无数据!');
             return false;
         }
-        if ($ProjectInfo['deleted'] !== 0){
-            $this->setError('项目已被删除！请勿重新操作');
-            return false;
-        }
-        if (!ProjectOrderRepository::getUpdId(['id' => $id],['deleted' => 0])){
+        if (!ProjectOrderRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
         }
@@ -152,4 +148,3 @@ class ProjectService extends BaseService
         return true;
     }
 }
-            
