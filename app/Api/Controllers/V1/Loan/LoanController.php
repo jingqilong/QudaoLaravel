@@ -365,7 +365,7 @@ class LoanController extends ApiController
      *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
      *          required=true,
      *          @OA\Schema(
-     *              type="interger",
+     *              type="integer",
      *          )
      *      ),
      *     @OA\Parameter(
