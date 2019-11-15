@@ -2,11 +2,14 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
+use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
+use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
@@ -292,6 +295,40 @@ class GoodsService extends BaseService
         $result['recommend_goods']  = $goods_list['data'];
         $this->setMessage('获取成功！');
         return $result;
+    }
+
+    /**
+     * 获取商品详情
+     * @param $request
+     * @return bool|null
+     */
+    public function getGoodsDetailsById($request)
+    {
+        $column = ['id','name','price','banner_ids','labels',
+                    'stock','express_price','image_ids',
+                    'gift_score','score_deduction',
+                ];
+        if(!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'],'deleted_at' => 0],$column)){
+            $this->setError('商品不存在!');
+            return false;
+        }
+        $comments_where = ['related_id' => $goods_detail['id'],'status' => CommentsEnum::ACTIVITE,'type' => CommentsEnum::SHOP,'deleted_at' => 0];
+        $comments = CommonCommentsRepository::getOrderOne($comments_where,'created_at','desc');
+        $stock = ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_detail['id']],'stock');
+        $banner_ids = explode(',',$goods_detail['banner_ids']);
+        $image_ids  = explode(',',$goods_detail['image_ids']);
+        $goods_detail['banner_img']     = array_column(CommonImagesRepository::getList(['id' => ['in',$banner_ids]],['img_url']),'img_url');
+        $goods_detail['detail_img']     = array_column(CommonImagesRepository::getList(['id' => ['in',$image_ids]],['img_url']),'img_url');
+        $goods_detail['labels']         = explode(',',trim($goods_detail['labels'],','));
+        $goods_detail['price']          = $goods_detail['price'] = sprintf('%.2f',round($goods_detail['price'] / 100, 2));
+        $goods_detail['express_price']  = $goods_detail['express_price'] = sprintf('%.2f',round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['stock']          = $stock == false ? $goods_detail['stock'] : $stock;
+        $goods_detail['comment']        = empty($comments) ? [] : $comments;
+        unset($goods_detail['banner_ids'],$goods_detail['image_ids'],
+              $goods_detail['score_categories']
+            );
+        $this->setMessage('获取成功!');
+        return $goods_detail;
     }
 }
             
