@@ -481,6 +481,7 @@ $api->version('v1',function ($api){
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->post('order_detail','OrderController@orderDetail')->name('获取订单详情');
+                $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
             });
         });
 

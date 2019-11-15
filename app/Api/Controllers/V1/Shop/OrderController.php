@@ -455,4 +455,77 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/get_order_express_details",
+     *     tags={"商城"},
+     *     summary="用户根据订单号获取物流状态",
+     *     description="jing" ,
+     *     operationId="get_order_express_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="query",
+     *         description="快递公司编码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="number",
+     *         in="query",
+     *         description="快递单号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getOrderExpressDetails(){
+        $rules = [
+            'code'      => 'required|string',
+            'number'    => 'required|string',
+        ];
+        $messages = [
+            'code.required'     => '请输入快递公司编码',
+            'code.string'       => '快递公司格式错误',
+            'number.required'   => '请输入快递单号',
+            'number.string'     => '快递单号格式错误',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getOrderExpressDetails($this->request['code'],$this->request['number']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
 }

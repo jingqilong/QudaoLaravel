@@ -5,6 +5,7 @@ namespace App\Services\Shop;
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
+use App\Repositories\CommonExpressRepository;
 use App\Repositories\MemberAddressRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesRepository;
@@ -13,8 +14,8 @@ use App\Repositories\ShopOrderGoodsRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Repositories\ShopOrderRelateViewRepository;
 use App\Services\BaseService;
+use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
-use App\Services\Member\OrdersService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -373,6 +374,25 @@ class OrderRelateService extends BaseService
         unset($order['receive_area_code'],$order['receive_address']);
         $this->setMessage('获取成功！');
         return $order;
+    }
+
+    public function getOrderExpressDetails($code, $number)
+    {
+        if (!$expressInfo = CommonExpressRepository::getOne(['code' => $code,'status' => 1])){
+            $this->setError('快递公司不存在!');
+            return false;
+        }
+        $expressDetail = ExpressService::getExpressDetails($code, $number);
+        if ($expressDetail['status'] != 200){
+            $this->setError($expressDetail['message']);
+            return false;
+        }
+        $result['express_name'] = $expressInfo['company_name'];
+        $result['express_number'] = $expressDetail['nu'];
+        $result['ischeck'] = $expressDetail['ischeck'] == 0 ? '未签收' : '已签收';
+        $result['data'] = $expressDetail['data'];
+        $this->setMessage('获取成功!');
+        return $result;
     }
 }
             
