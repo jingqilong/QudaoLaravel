@@ -40,7 +40,7 @@ class GoodsSpecRelateService extends BaseService
                 $price  =  reset($goods)['price'];
                 $result[$key] = [
                     'goods_name'  => reset($goods)['name'],
-                    'goods_price' => round($price / 100,2),
+                    'goods_price' => sprintf('%.2f',round($price / 100,2)),
                     'main_img_url' => reset($goods)['banner_url'],
                 ];
             }

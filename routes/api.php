@@ -468,6 +468,9 @@ $api->version('v1',function ($api){
                 $api->post('edit_announce','OaAnnounceController@editAnnounce')->name('修改公告');
                 $api->get('get_announce_list','OaAnnounceController@getAnnounceList')->name('获取公告列表');
 
+                $api->get('get_shop_order_list','OaOrderController@getShopOrderList')->name('获取商城订单列表');
+                $api->get('get_order_detail','OaOrderController@getOrderDetail')->name('获取订单详情');
+                $api->post('shipment','OaOrderController@shipment')->name('发货');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
@@ -482,6 +485,7 @@ $api->version('v1',function ($api){
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->post('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
+                $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
             });
         });
 

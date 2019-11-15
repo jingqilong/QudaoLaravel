@@ -27,6 +27,7 @@ class OaGoodsCategoryController extends ApiController
      *     path="/api/v1/shop/add_category",
      *     tags={"商城后台"},
      *     summary="添加商品类别",
+     *     description="sang" ,
      *     operationId="add_category",
      *     @OA\Parameter(
      *          name="sign",
@@ -95,6 +96,7 @@ class OaGoodsCategoryController extends ApiController
      *     path="/api/v1/shop/delete_category",
      *     tags={"商城后台"},
      *     summary="删除商品类别",
+     *     description="sang" ,
      *     operationId="delete_category",
      *     @OA\Parameter(
      *          name="sign",
@@ -152,6 +154,7 @@ class OaGoodsCategoryController extends ApiController
      *     path="/api/v1/shop/edit_category",
      *     tags={"商城后台"},
      *     summary="修改商品类别",
+     *     description="sang" ,
      *     operationId="edit_category",
      *     @OA\Parameter(
      *          name="sign",
@@ -232,6 +235,7 @@ class OaGoodsCategoryController extends ApiController
      *     path="/api/v1/shop/get_category_list",
      *     tags={"商城后台"},
      *     summary="获取商品类别列表",
+     *     description="sang" ,
      *     operationId="get_category_list",
      *     @OA\Parameter(
      *          name="sign",

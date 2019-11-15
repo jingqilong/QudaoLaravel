@@ -2,20 +2,24 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\MemberEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
-use App\Repositories\CommonExpressRepository;
-use App\Repositories\MemberAddressRepository;
-use App\Repositories\MemberOrdersRepository;
-use App\Repositories\MemberTradesRepository;
-use App\Repositories\ShopGoodsRepository;
-use App\Repositories\ShopOrderGoodsRepository;
-use App\Repositories\ShopOrderRelateRepository;
-use App\Repositories\ShopOrderRelateViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
+use App\Repositories\{CommonExpressRepository,
+    MemberAddressRepository,
+    MemberOrdersRepository,
+    MemberRepository,
+    MemberTradesRepository,
+    ShopGoodsRepository,
+    ShopOrderGoodsRepository,
+    ShopOrderRelateRepository,
+    ShopOrderRelateViewRepository};
+use App\Services\Common\SmsService;
+use App\Services\Member\TradesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -134,7 +138,8 @@ class OrderRelateService extends BaseService
             }
             $total_price = $total_price + $express_price;
         }
-        $payment_price = $total_price;
+        $payment_price  = $total_price;
+        $trade_score    = 0;
         DB::beginTransaction();
         if (!empty($score_type)){
             if (!$score = $this->searchArray($submit_order_info['score_deduction'],'score_type',$score_type)){
@@ -150,6 +155,7 @@ class OrderRelateService extends BaseService
             $is_score   = true;
             #如果有积分抵扣，实际支付金额 = 总金额 - 抵扣积分
             $payment_price = $total_price - $score_deduction;
+            $trade_score   = $score_deduction;
             //TODO  此处扣除积分
         }
         #将总金额、实际支付金额单位分换算为元
@@ -171,6 +177,23 @@ class OrderRelateService extends BaseService
         if (!$order_id = MemberOrdersRepository::getAddId($order_add_arr)){
             $this->setError('订单创建失败！');
             Loggy::write('order','创建总订单记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
+            DB::rollBack();
+            return false;
+        }
+        #创建交易记录
+        $TradesService = new TradesService();
+        $trade_amount = $payment_price;
+        if ($payment_price === 0){
+            $trade_amount = $trade_score;
+        }
+        $trade_method = 0;
+        if ($trade_amount === 0 && $trade_score !== 0){
+            $trade_method = TradeEnum::SCORE;
+        }
+        $trade_status = $order_add_arr['status'] == OrderEnum::STATUSSUCCESS ? TradeEnum::STATUSSUCCESS : TradeEnum::STATUSTRADING;
+        if (!$TradesService->tradesUpdOrder($order_id,$member->m_id,0,$trade_amount,'+',$trade_method,$trade_status)){
+            $this->setError('订单创建失败！');
+            Loggy::write('order','创建交易记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
             DB::rollBack();
             return false;
         }
@@ -259,7 +282,7 @@ class OrderRelateService extends BaseService
     {
         $member = Auth::guard('member_api')->user();
         $where = ['member_id' => $member->m_id,'id' => $order_relate_id,'deleted_at' => 0];
-        if (!$order_relate = ShopOrderRelateRepository::getOne($where)){
+        if (!$order_relate = ShopOrderRelateViewRepository::getOne($where)){
             $this->setError('订单信息不存在！');
             return false;
         }
@@ -280,12 +303,20 @@ class OrderRelateService extends BaseService
             return false;
         }
         DB::beginTransaction();
+        #更新订单关联表信息
         if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::CANCELED,'updated_at' => time()])){
             $this->setError('取消订单失败！');
             DB::rollBack();
             return false;
         }
+        #更新订单总表信息
         if (MemberOrdersRepository::getUpdId(['id' => $order_relate['order_id']],['status' => OrderEnum::STATUSCLOSE,'updated_at' => time()])){
+            $this->setError('取消订单失败！');
+            DB::rollBack();
+            return false;
+        }
+        #更新交易表信息
+        if (MemberTradesRepository::getUpdId(['id' => $order_relate['trade_id']],['status' => TradeEnum::STATUSFAIL])){
             $this->setError('取消订单失败！');
             DB::rollBack();
             return false;
@@ -339,15 +370,19 @@ class OrderRelateService extends BaseService
     }
 
     /**
-     * 用户获取订单详情
+     * 获取订单详情
      * @param $order_relate_id
+     * @param null $member_id
      * @return mixed
      */
-    public function orderDetail($order_relate_id)
+    public function orderDetail($order_relate_id, $member_id = null)
     {
-        $member = Auth::guard('member_api')->user();
-        $column = ['id','status','express_company','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at'];
-        if (!$order = ShopOrderRelateViewRepository::getOne(['id' => $order_relate_id,'member_id' => $member->m_id,'deleted_at' => 0],$column)){
+        $where  = ['id' => $order_relate_id,'deleted_at' => 0];
+        if (!empty($member_id)){
+            $where['member_id'] = $member_id;
+        }
+        $column = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at'];
+        if (!$order = ShopOrderRelateViewRepository::getOne($where,$column)){
             $this->setError('订单不存在！');
             return false;
         }
@@ -368,10 +403,14 @@ class OrderRelateService extends BaseService
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
             }
         }
+        $order['express_company_code'] = '';
+        if (!empty($order['express_company_id'])){
+            $order['express_company_code'] = CommonExpressRepository::getField(['id' => $order['express_company_id']],'code');
+        }
         list($order['receive_area_address'])  = $this->makeAddress($order['receive_area_code'],$order['receive_address']);
         $order_goods_list       = ShopOrderGoodsRepository::getList(['order_relate_id' => $order['id']]);
         $order['goods_list']    = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
-        unset($order['receive_area_code'],$order['receive_address']);
+        unset($order['receive_area_code'],$order['receive_address'],$order['express_company_id']);
         $this->setMessage('获取成功！');
         return $order;
     }
@@ -393,6 +432,111 @@ class OrderRelateService extends BaseService
         $result['data'] = $expressDetail['data'];
         $this->setMessage('获取成功!');
         return $result;
+    }
+    /**
+     * 后台获取所有商城订单列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getShopOrderList($request)
+    {
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
+        $keywords       = $request['keywords'] ?? null;
+        $status         = $request['status'] ?? null;
+        $order_no       = $request['order_no'] ?? null;
+        $express_number = $request['express_number'] ?? null;
+        $receive_method = $request['receive_method'] ?? null;
+        $express_company_id = $request['express_company_id'] ?? null;
+        $order          = 'id';
+        $desc_asc       = 'desc';
+        $where          = ['id' => ['<>',0]];
+        $column         = ['*'];
+        if (!is_null($status)){
+            $where['status']  = $status;
+        }
+        if (!is_null($order_no)){
+            $where['order_no']  = $order_no;
+        }
+        if (!is_null($express_number)){
+            $where['express_number']  = $express_number;
+        }
+        if (!is_null($receive_method)){
+            $where['receive_method']  = $receive_method;
+        }
+        if (!is_null($express_company_id)){
+            $where['express_company_id']  = $express_company_id;
+        }
+        if (!empty($keywords)){
+            $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $order_list = $this->removePagingField($order_list);
+        if (empty($order_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $order_list;
+        }
+        foreach ($order_list['data'] as &$value){
+            $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
+            $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
+        }
+        $this->setMessage('获取成功！');
+        return $order_list;
+    }
+
+    /**
+     * 发货
+     * @param $request
+     * @return bool
+     */
+    public function shipment($request)
+    {
+        if (!$express_company = CommonExpressRepository::getOne(['id' => $request['express_company_id']])){
+            $this->setError('快递公司不存在！');
+            return false;
+        }
+        $where = ['id' => $request['order_relate_id'],'deleted_at' => 0];
+        if (!$order_relate = ShopOrderRelateRepository::getOne($where)){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order_relate['status'] !== ShopOrderEnum::SHIP){
+            $this->setError('此订单' . ShopOrderEnum::getStatus($order_relate['status']) . '，不能发货！');
+            return false;
+        }
+        $upd_arr = [
+            'express_company_id'=> $request['express_company_id'],
+            'express_number'    => $request['express_number'],
+            'status'            => ShopOrderEnum::SHIPPED,
+            'shipment_at'       => time(),
+            'updated_at'        => time()
+        ];
+        if (!ShopOrderRelateRepository::getUpdId($where,$upd_arr)){
+            $this->setError('发货失败，请重试！');
+            return false;
+        }
+        #通知用户
+        if ($member = MemberRepository::getOne(['m_id' => $order_relate['member_id']])){
+            $member_name = $member['m_cname'];
+            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['m_sex']);
+            $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
+            #短信通知
+            if (!empty($member['m_phone'])){
+                $smsService = new SmsService();
+                $sms_template = '尊敬的'.$member_name.'您好！您的订单：'.$order_no .'已发货,快递公司：'.$express_company['company_name'] . '，快递单号：' . $request['express_number'] . '。';
+                $smsService->sendContent($member['m_phone'],$sms_template);
+            }
+        }
+        $this->setMessage('发货成功！');
+        return true;
     }
 }
             
