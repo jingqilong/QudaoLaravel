@@ -96,5 +96,16 @@ class AnnounceService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * 首页获取公告
+     * @return string
+     */
+    public static function getHomeAnnounce(){
+        if (!$announce = ShopAnnounceRepository::getOrderOne(['id' => ['<>',0]],'created_at')){
+            return '暂无公告！';
+        }
+        return $announce['content'];
+    }
 }
             

@@ -83,6 +83,15 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="labels",
+     *         in="query",
+     *         description="商品标签，使用逗号分隔， 【高端,美食】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="banner_ids",
      *         in="query",
      *         description="banner图ID串",
@@ -180,13 +189,14 @@ class OaGoodsController extends ApiController
         $rules = [
             'name'              => 'required',
             'category'          => 'required|integer',
-            'price'             => 'required|regex://',
-            'banner_ids'        => 'required|regex://',
-            'image_ids'         => 'required|regex://',
+            'price'             => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
+            'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
+            'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
+            'labels'            => 'regex:/^[\s-\S]+[,][\s-\S]$/',
             'stock'             => 'required|integer',
-            'express_price'     => 'regex://',
+            'express_price'     => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'score_deduction'   => 'integer',
-            'score_categories'  => 'regex://',
+            'score_categories'  => 'regex:/^(\d+[,])*\d+$/',
             'gift_score'        => 'integer',
             'is_recommend'      => 'in:1,2',
             'status'            => 'required|in:1,2',
@@ -400,6 +410,15 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="labels",
+     *         in="query",
+     *         description="商品标签，使用逗号分隔， 【高端,美食】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="banner_ids",
      *         in="query",
      *         description="banner图ID串",
@@ -498,13 +517,14 @@ class OaGoodsController extends ApiController
             'id'                => 'required|integer',
             'name'              => 'required',
             'category'          => 'required|integer',
-            'price'             => 'required|regex://',
-            'banner_ids'        => 'required|regex://',
-            'image_ids'         => 'required|regex://',
+            'price'             => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
+            'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
+            'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
+            'labels'            => 'regex:/^[\s-\S]+[,][\s-\S]$/',
             'stock'             => 'required|integer',
-            'express_price'     => 'regex://',
+            'express_price'     => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'score_deduction'   => 'integer',
-            'score_categories'  => 'regex://',
+            'score_categories'  => 'regex:/^(\d+[,])*\d+$/',
             'gift_score'        => 'integer',
             'is_recommend'      => 'in:1,2',
             'status'            => 'required|in:1,2',

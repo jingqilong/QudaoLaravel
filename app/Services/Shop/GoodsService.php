@@ -2,11 +2,13 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
+use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
@@ -48,22 +50,22 @@ class GoodsService extends BaseService
             'name'              => $request['name'],
             'category'          => $request['category'],
             'price'             => $request['price'] * 100,
+            'details'           => $request['details'] ?? '',
+            'labels'            => $request['labels'] ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
             'express_price'     => isset($request['stock']) ? $request['stock'] * 100 : 0,
             'score_deduction'   => $request['score_deduction'] ?? 0,
             'score_categories'  => $request['score_categories'] ?? '',
+            'gift_score'        => $request['gift_score'] ?? 0,
             'status'            => $request['status'],
         ];
-        if (isset($request['gift_score'])){
-            $add_arr['gift_score'] = $request['gift_score'];
-        }
         if (ShopGoodsRepository::exists($add_arr)){
             $this->setError('该商品已添加！');
             return false;
         }
-        $add_arr['keywords']        = $request['name'].$category['name'];
+        $add_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
         $add_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $add_arr['created_at']      = $add_arr['updated_at'] = time();
         DB::beginTransaction();
@@ -152,22 +154,22 @@ class GoodsService extends BaseService
             'name'              => $request['name'],
             'category'          => $request['category'],
             'price'             => $request['price'] * 100,
+            'details'           => $request['details'] ?? '',
+            'labels'            => $request['labels'] ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
             'express_price'     => isset($request['stock']) ? $request['stock'] * 100 : 0,
             'score_deduction'   => $request['score_deduction'] ?? 0,
             'score_categories'  => $request['score_categories'] ?? '',
+            'gift_score'        => $request['gift_score'] ?? 0,
             'status'            => $request['status'],
         ];
-        if (isset($request['gift_score'])){
-            $upd_arr['gift_score'] = $request['gift_score'];
-        }
         if (ShopGoodsRepository::exists($upd_arr)){
             $this->setError('该商品已添加！');
             return false;
         }
-        $upd_arr['keywords']        = $request['name'].$category['name'];
+        $upd_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
         $upd_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $upd_arr['updated_at']      = time();
         DB::beginTransaction();
@@ -254,6 +256,7 @@ class GoodsService extends BaseService
             return false;
         }
         $category = ShopGoodsCategoryRepository::getOne(['id' => $goods['category']]);
+        $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',trim($goods['labels'],','));
         $goods['category_title']    = $category['name'] ?? '';
         $goods['category_icon']     = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
         $goods['price']             = empty($value['price']) ? 0 : round($value['price'] / 100,2);
@@ -265,6 +268,30 @@ class GoodsService extends BaseService
         unset($goods['deleted_at']);
         $this->setMessage('获取成功！');
         return $goods;
+    }
+
+    /**
+     * 获取商城首页
+     * @return mixed
+     */
+    public function getHome()
+    {
+        $column = ['id','name','price','banner_ids','labels'];
+        if (!$goods_list = ShopGoodsRepository::getList(['is_recommend' => ['<>',0]],$column,'is_recommend','desc',1,16)){
+            $this->setError('获取失败！');
+        }
+        if (!empty($goods_list['data'])){
+            $goods_list['data'] = ImagesService::getListImages($goods_list['data'],['banner_ids' => 'single']);
+            foreach ($goods_list['data'] as &$value){
+                $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+                $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+            }
+        }
+        $result['banners']          = HomeBannersService::getHomeBanners(CommonHomeEnum::SHOPHOME);
+        $result['announce']         = AnnounceService::getHomeAnnounce();
+        $result['recommend_goods']  = $goods_list['data'];
+        $this->setMessage('获取成功！');
+        return $result;
     }
 }
             

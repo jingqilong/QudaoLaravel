@@ -14,20 +14,25 @@ class HomeBannersService extends BaseService
 
     /**
      * 获取首页banner
-     * @param int $module   banner模块
+     * @param int $module banner模块
+     * @param int $count    数量
      * @return array|null
      */
-    public static function getHomeBanners($module = CommonHomeEnum::MAINHOME){
+    public static function getHomeBanners($module = CommonHomeEnum::MAINHOME,$count = 4){
         $column = ['id','type','related_id','image_id','url'];
-        $where = ['module' => $module,'show_time' => strtotime("today")];
-        if (CommonHomeBannersRepository::exists($where)){
-            $banners = CommonHomeBannersRepository::getList($where,$column);
-        }else{
-            if (!$recently_banner = CommonHomeBannersRepository::getOrderOne(['show_time' => ['<',strtotime("today")],'module' => $module],'show_time','desc')){
-                return [];
-            }
-            $banners = CommonHomeBannersRepository::getList(['show_time' => $recently_banner['show_time'],'module' => $module],$column);
+        $where = ['module' => $module];
+        if (!$banners = CommonHomeBannersRepository::getList($where,$column,'updated_at','desc',1,$count)){
+            return [];
         }
+        $banners = $banners['data'];
+//        if (CommonHomeBannersRepository::exists($where)){
+//            $banners = CommonHomeBannersRepository::getList($where,$column);
+//        }else{
+//            if (!$recently_banner = CommonHomeBannersRepository::getOrderOne(['show_time' => ['<',strtotime("today")],'module' => $module],'show_time','desc')){
+//                return [];
+//            }
+//            $banners = CommonHomeBannersRepository::getList(['show_time' => $recently_banner['show_time'],'module' => $module],$column);
+//        }dd($banners);
         foreach ($banners as &$banner){
             $banner['image'] = CommonImagesRepository::getField(['id' => $banner['image_id']],'img_url');
             $banner['type_name'] = CommonHomeEnum::getBannerType($banner['type']);
