@@ -490,6 +490,8 @@ $api->version('v1',function ($api){
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
 
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');
+                $api->get('get_goods_list','GoodsController@getGoodsList')->name('获取商品列表');
+                $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');
             });
         });
 

@@ -293,5 +293,43 @@ class GoodsService extends BaseService
         $this->setMessage('获取成功！');
         return $result;
     }
+
+    /**
+     * 前端获取商品列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function goodsList($request){
+        $page = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $keywords = $request['keywords'] ?? null;
+        $order      = 'id';
+        $asc_desc   = 'desc';
+        $where = ['deleted_at' => 0,'status' => ShopGoodsEnum::PUTAWAY];
+        $column = ['id','name','price','banner_ids','labels'];
+        if (!empty($keywords)){
+            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data']   = ImagesService::getListImages($list['data'],['banner_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
 }
             

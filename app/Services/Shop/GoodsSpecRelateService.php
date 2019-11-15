@@ -8,6 +8,7 @@ use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\DB;
 
 class GoodsSpecRelateService extends BaseService
 {
@@ -22,7 +23,7 @@ class GoodsSpecRelateService extends BaseService
      */
     protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids']){
         foreach ($goods_spec_arr as $value){
-            if (!isset($value['goods_id']) || !isset($value['number'])){
+            if (!isset($value['goods_id']) || !isset($value['number']) || !isset($value['spec_relate_id'])){
                 $this->setError('商品ID和数量不能为空！');
                 return false;
             }
@@ -66,6 +67,76 @@ class GoodsSpecRelateService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $result;
+    }
+
+    /**
+     * 检查库存
+     * @param $goods_spec_arr
+     * @return bool
+     */
+    public function checkStock($goods_spec_arr){
+        foreach ($goods_spec_arr as $value){
+            if (!isset($value['goods_id']) || !isset($value['number'])){
+                $this->setError('商品ID和数量不能为空！');
+                return false;
+            }
+        }
+        $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
+        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $goods_ids          = array_column($goods_spec_arr,'goods_id');
+        $goods_list         = ShopGoodsRepository::getAssignList($goods_ids);
+        foreach ($goods_spec_arr as $key => $value){
+            $goods = $this->searchArray($goods_list,'id',$value['goods_id']);
+            if (!isset($value['spec_relate_id'])){
+                if ($value['number'] > reset($goods)['stock']){
+                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+                    return false;
+                }
+                break;
+            }
+            if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
+                if ($value['number'] > reset($spec_relate)['stock']){
+                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+                    return false;
+                }
+            }
+        }
+        $this->setMessage('库存充盈！');
+        return true;
+    }
+
+    /**
+     * 变更库存
+     * @param $goods_spec_arr
+     * @param string $option    + or -
+     * @return bool
+     */
+    public function updStock($goods_spec_arr,$option = '-'){
+        foreach ($goods_spec_arr as $value){
+            if (!isset($value['goods_id']) || !isset($value['number'])){
+                $this->setError('商品ID和数量不能为空！');
+                return false;
+            }
+        }
+        DB::beginTransaction();
+        foreach ($goods_spec_arr as $key => $value){
+            if (!isset($value['spec_relate_id'])){
+                if (!ShopGoodsRepository::decrement(['id' => $value['goods_id']],'stock',$option.$value['number'])){
+                    $this->setError('扣除库存失败！');
+                    DB::rollBack();
+                    return false;
+                }
+                break;
+            }
+            if (!ShopGoodsSpecRelateRepository::decrement(['id' => $value['spec_relate_id']],'stock',$option.$value['number'])){
+                $this->setError('扣除库存失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
+        $this->setMessage('扣除成功！');
+        DB::commit();
+        return true;
     }
 }
             

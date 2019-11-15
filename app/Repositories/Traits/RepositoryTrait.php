@@ -321,4 +321,27 @@ trait RepositoryTrait
         $list = $this->getList(['id' => ['in',$all_ids]],$column);
         return $list;
     }
+
+    /**
+     * 给指定列减去一点数量，指定列必须为数字
+     * @param $where
+     * @param string $column    指定列
+     * @param int $number       减量
+     * @return int
+     */
+    protected function decrement($where, $column, $number = -1){
+        $model = self::addWhere($this->model,$where);
+        return $model->increment($column,$number);
+    }
+    /**
+     * 给指定列增加一定数量，指定列必须为数字
+     * @param $where
+     * @param string $column    指定列
+     * @param int $number       增量
+     * @return int
+     */
+    protected function increment($where,$column,$number = 1){
+        $model = self::addWhere($this->model,$where);
+        return $model->increment($column,$number);
+    }
 }
