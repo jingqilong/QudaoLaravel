@@ -251,7 +251,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="商品活动类型，1积分兑换",
+     *         description="商品活动类型，1积分兑换 2好物推荐（首页）",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -284,7 +284,7 @@ class ActivityController extends ApiController
      */
     public function getActivityGoodsList(){
         $rules = [
-            'type'          => 'in:1',
+            'type'          => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];

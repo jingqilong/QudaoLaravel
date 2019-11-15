@@ -15,11 +15,11 @@ class LoanEnum extends BaseEnum
         'NOPASS'              => '审核驳回',
         'ONESELF'             => '本人预约',
         'OTHERS'              => '推荐他人预约',
-        'MILLION'             => '一百万',
-        'TWOMILLION'          => '二百万',
-        'THREEMILLION'        => '三百万',
-        'FOURMILLION'         => '四百万',
-        'FIVEMILLION'         => '五百万',
+        'MILLION'             => '100万 - 200万',
+        'TWOMILLION'          => '200万 - 300万',
+        'THREEMILLION'        => '300万 - 500万',
+        'FOURMILLION'         => '500万 - 1000万',
+        'FIVEMILLION'         => '1000万以上',
     ];
 
     public static $status = [
@@ -29,11 +29,11 @@ class LoanEnum extends BaseEnum
     ];
 
     public static $price = [
-        1 => 'MILLION',         //一百万
-        2 => 'TWOMILLION',      //二百万
-        3 => 'THREEMILLION',    //三百万
-        4 => 'FOURMILLION',     //四百万
-        5 => 'FIVEMILLION',     //五百万
+        1 => 'MILLION',         //100万 - 200万
+        2 => 'TWOMILLION',      //200万 - 300万
+        3 => 'THREEMILLION',    //300万 - 500万
+        4 => 'FOURMILLION',     //500万 - 1000万
+        5 => 'FIVEMILLION',     //1000万以上
     ];
 
     public static $type = [
@@ -55,15 +55,15 @@ class LoanEnum extends BaseEnum
     const OTHERS            = 2;    //推荐他人预约
 
     //贷款 审核状态
-    const MILLION           = 1;    //一百万
+    const MILLION           = 1;    //100万 - 200万
 
-    const TWOMILLION        = 2;    //二百万
+    const TWOMILLION        = 2;    //200万 - 300万
 
-    const THREEMILLION      = 3;    //三百万
+    const THREEMILLION      = 3;    //300万 - 500万
 
-    const FOURMILLION       = 4;    //四百万
+    const FOURMILLION       = 4;    //500万 - 1000万
 
-    const FIVEMILLION       = 5;    //五百万
+    const FIVEMILLION       = 5;    //1000万以上
 
 
     /**

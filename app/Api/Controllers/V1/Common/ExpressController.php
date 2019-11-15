@@ -57,7 +57,7 @@ class ExpressController extends ApiController
      *         description="快递单号",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Response(
@@ -68,22 +68,22 @@ class ExpressController extends ApiController
      *
      */
     public function getExpressDetails(){
-        /*$rules = [
+        $rules = [
             'code'      => 'required|string',
-            'number'    => 'required|integer',
+            'number'    => 'required|string',
         ];
         $messages = [
             'code.required'     => '请输入快递公司编码',
             'code.string'       => '快递公司格式错误',
             'number.required'   => '请输入快递单号',
-            'number.integer'    => '快递单号不是整数',
+            'number.string'     => '快递单号格式不正确',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
-        }*/
-        $res = $this->ExpressService->getExpressDetails();
+        }
+        $res = $this->ExpressService->getExpressDetails($this->request['code'],$this->request['number']);
         if ($res['code'] == 0){
             return ['code' => 100, 'message' => $res['message']];
         }

@@ -6,6 +6,9 @@ use App\Enums\MemberEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
+use App\Services\BaseService;
+use App\Services\Common\ExpressService;
+use App\Services\Member\AddressService;
 use App\Repositories\{CommonExpressRepository,
     MemberAddressRepository,
     MemberOrdersRepository,
@@ -15,14 +18,11 @@ use App\Repositories\{CommonExpressRepository,
     ShopOrderGoodsRepository,
     ShopOrderRelateRepository,
     ShopOrderRelateViewRepository};
-use App\Services\BaseService;
 use App\Services\Common\SmsService;
-use App\Services\Member\AddressService;
 use App\Services\Member\TradesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Ixudra\Curl\Facades\Curl;
 use Tolawho\Loggy\Facades\Loggy;
 
 class OrderRelateService extends BaseService
@@ -416,6 +416,30 @@ class OrderRelateService extends BaseService
     }
 
     /**
+     * 用户根据订单号获取物流状态
+     * @param $code
+     * @param $number
+     * @return bool
+     */
+    public function getOrderExpressDetails($code, $number)
+    {
+        if (!$expressInfo = CommonExpressRepository::getOne(['code' => $code,'status' => 1])){
+            $this->setError('快递公司不存在!');
+            return false;
+        }
+        $expressDetail = ExpressService::getExpressDetails($code, $number);
+        if ($expressDetail['status'] != 200){
+            $this->setError($expressDetail['message']);
+            return false;
+        }
+        $result['express_name'] = $expressInfo['company_name'];
+        $result['express_number'] = $expressDetail['nu'];
+        $result['ischeck'] = $expressDetail['ischeck'] == 0 ? '未签收' : '已签收';
+        $result['data'] = $expressDetail['data'];
+        $this->setMessage('获取成功!');
+        return $result;
+    }
+    /**
      * 后台获取所有商城订单列表
      * @param $request
      * @return bool|mixed|null
@@ -519,6 +543,31 @@ class OrderRelateService extends BaseService
         }
         $this->setMessage('发货成功！');
         return true;
+    }
+
+    /**
+     * Oa根据订单号获取物流状态
+     * @param $code
+     * @param $number
+     * @return bool
+     */
+    public function getOaOrderExpressDetails($code, $number)
+    {
+        if (!$expressInfo = CommonExpressRepository::getOne(['code' => $code,'status' => 1])){
+            $this->setError('快递公司不存在!');
+            return false;
+        }
+        $expressDetail = ExpressService::getExpressDetails($code, $number);
+        if ($expressDetail['status'] != 200){
+            $this->setError($expressDetail['message']);
+            return false;
+        }
+        $result['express_name'] = $expressInfo['company_name'];
+        $result['express_number'] = $expressDetail['nu'];
+        $result['ischeck'] = $expressDetail['ischeck'] == 0 ? '未签收' : '已签收';
+        $result['data'] = $expressDetail['data'];
+        $this->setMessage('获取成功!');
+        return $result;
     }
 }
             

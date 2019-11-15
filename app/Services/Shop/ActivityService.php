@@ -116,7 +116,7 @@ class ActivityService extends BaseService
         if (!empty($type)){
             $where['type'] = $type;
         }
-        $column = ['id','name','price','show_image','stop_time','status','created_at','updated_at'];
+        $column = ['id','name','price','type','show_image','stop_time','status','created_at','updated_at'];
         if (!empty($keywords)){
             if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
@@ -136,10 +136,9 @@ class ActivityService extends BaseService
         }
         $list['data'] = ImagesService::getListImages($list['data'],['show_image' => 'single']);
         foreach ($list['data'] as &$value){
-            $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']):0;
-            $value['status']      = date('Y-m-d H:m:i',$value['created_at']);
-            $value['created_at']      = date('Y-m-d H:m:i',$value['created_at']);
-            $value['updated_at']      = date('Y-m-d H:m:i',$value['updated_at']);
+            $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']) : 0;
+            $value['status_name']     = $value['status'] == 1 ? '禁用' : '展示';
+            $value['type_name']       = $value['type'] == 1 ? '积分兑换' : '好物推荐';
         }
         $this->setMessage('获取成功！');
         return $list;
