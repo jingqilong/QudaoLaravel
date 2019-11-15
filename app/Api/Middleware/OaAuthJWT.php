@@ -30,6 +30,10 @@ class OaAuthJWT extends BaseMiddleware
             }
             $auth = $auth->setToken($token);
             $user = $auth->user();
+            if (! $user) {
+                return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
+//            return ['code' => 401, 'message' => '登录失效，请重新登录'];
+            }
             if ($user->status == 1){
                 return new Response(json_encode(['code' => 100, 'message' => '您的账户已被管理员禁用！']));
             }
@@ -40,11 +44,6 @@ class OaAuthJWT extends BaseMiddleware
             return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
 //            return ['code' => 401, 'message' => '登录失效，请重新登录'];
         } catch (JWTException $e) {
-            return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
-//            return ['code' => 401, 'message' => '登录失效，请重新登录'];
-        }
-
-        if (! $user) {
             return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
 //            return ['code' => 401, 'message' => '登录失效，请重新登录'];
         }

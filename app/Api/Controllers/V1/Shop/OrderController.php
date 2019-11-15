@@ -6,6 +6,7 @@ namespace App\Api\Controllers\V1\Shop;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Shop\OrderRelateService;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends ApiController
 {
@@ -324,6 +325,7 @@ class OrderController extends ApiController
      *     path="/api/v1/shop/get_my_order_list",
      *     tags={"商城"},
      *     summary="获取我的订单列表",
+     *     description="sang" ,
      *     operationId="get_my_order_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -397,7 +399,7 @@ class OrderController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/shop/order_detail",
      *     tags={"商城"},
      *     summary="获取订单详情",
@@ -449,7 +451,8 @@ class OrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->orderDetail($this->request['order_relate_id']);
+        $member = Auth::guard('member_api')->user();
+        $res = $this->orderRelateService->orderDetail($this->request['order_relate_id'],$member->m_id);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }

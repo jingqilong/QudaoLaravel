@@ -32,7 +32,7 @@ class ShopOrderRelateViewModel extends Model
         'order_id',
         'member_id',
         'status',
-        'express_company',
+        'express_company_id',
         'express_price',
         'express_number',
         'address_id',

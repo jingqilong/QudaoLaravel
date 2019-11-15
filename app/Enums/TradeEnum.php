@@ -32,11 +32,17 @@ class TradeEnum extends BaseEnum
 
     // constants
 
-    const STATUSTRADING        = 0;    //交易状态-正在交易
+    const STATUSTRADING         = 0;    //交易状态-正在交易
 
-    const STATUSSUCCESS        = 1;    //交易状态-交易成功
+    const STATUSSUCCESS         = 1;    //交易状态-交易成功
 
-    const STATUSFAIL           = 2;    //交易状态-交易失败
+    const STATUSFAIL            = 2;    //交易状态-交易失败
+
+    const WECHANT               = 1;    //交易方式-微信支付
+
+    const SCORE                 = 2;    //交易方式-积分支付
+
+    const UNION                 = 3;    //交易方式-银联支付
 
 
     /**
