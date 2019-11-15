@@ -134,14 +134,6 @@ class PersonalService extends BaseService
         if (!LoanEnum::isset($data['type'])){
               $this->setError('该推荐类型不存在');
         }
-        if (!LoanEnum::isset($data['price'])){
-            $this->setError('没有此价格的贷款!');
-            return false;
-        }
-        if (!LoanEnum::isset($data['type'])){
-            $this->setError('没有此价格的贷款!');
-            return false;
-        }
         $add_arr  = [
             'user_id'         =>  $memberInfo->m_id,
             'name'            =>  $data['name'],
@@ -155,7 +147,7 @@ class PersonalService extends BaseService
             'status'          =>  LoanEnum::SUBMIT,
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
-        if (!LoanPersonalRepository::exists($add_arr)){
+        if (LoanPersonalRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
