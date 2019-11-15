@@ -116,7 +116,7 @@ class ActivityService extends BaseService
         if (!empty($type)){
             $where['type'] = $type;
         }
-        $column = ['id','name','price','show_image','stop_time','status','created_at','updated_at'];
+        $column = ['id','name','price','type','show_image','stop_time','status','created_at','updated_at'];
         if (!empty($keywords)){
             if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');

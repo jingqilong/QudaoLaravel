@@ -311,7 +311,7 @@ class OaOrderController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="会员token",
+     *         description="OA token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",

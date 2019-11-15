@@ -478,7 +478,7 @@ class OrderController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="会员token",
+     *         description="成员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
