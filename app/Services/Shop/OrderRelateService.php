@@ -6,7 +6,8 @@ use App\Enums\MemberEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
-use App\Repositories\{MemberAddressRepository,
+use App\Repositories\{CommonExpressRepository,
+    MemberAddressRepository,
     MemberOrdersRepository,
     MemberRepository,
     MemberTradesRepository,
@@ -21,6 +22,7 @@ use App\Services\Member\TradesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Ixudra\Curl\Facades\Curl;
 use Tolawho\Loggy\Facades\Loggy;
 
 class OrderRelateService extends BaseService
@@ -401,14 +403,14 @@ class OrderRelateService extends BaseService
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
             }
         }
-        $order['express_company'] = '';
+        $order['express_company_code'] = '';
         if (!empty($order['express_company_id'])){
-//            $order['express_company'] = CommonExpressRepository::getField(['id' => $order['express_company_id']],'company_name');
+            $order['express_company_code'] = CommonExpressRepository::getField(['id' => $order['express_company_id']],'code');
         }
         list($order['receive_area_address'])  = $this->makeAddress($order['receive_area_code'],$order['receive_address']);
         $order_goods_list       = ShopOrderGoodsRepository::getList(['order_relate_id' => $order['id']]);
         $order['goods_list']    = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
-        unset($order['receive_area_code'],$order['receive_address']);
+        unset($order['receive_area_code'],$order['receive_address'],$order['express_company_id']);
         $this->setMessage('获取成功！');
         return $order;
     }
@@ -494,7 +496,8 @@ class OrderRelateService extends BaseService
         }
         $upd_arr = [
             'express_company_id'=> $request['express_company_id'],
-            'order_no'          => $request['express_company_id'],
+            'express_number'    => $request['express_number'],
+            'status'            => ShopOrderEnum::SHIPPED,
             'shipment_at'       => time(),
             'updated_at'        => time()
         ];
@@ -502,15 +505,15 @@ class OrderRelateService extends BaseService
             $this->setError('发货失败，请重试！');
             return false;
         }
-        //TODO 此处发送发货通知
         #通知用户
         if ($member = MemberRepository::getOne(['m_id' => $order_relate['member_id']])){
             $member_name = $member['m_cname'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['m_sex']);
+            $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
             #短信通知
-            if (!empty($order_relate['mobile'])){
+            if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = '尊敬的'.$member_name.'您好！您的订单：'.$order_relate['order_no'] .'已发货！';
+                $sms_template = '尊敬的'.$member_name.'您好！您的订单：'.$order_no .'已发货,快递公司：'.$express_company['company_name'] . '，快递单号：' . $request['express_number'] . '。';
                 $smsService->sendContent($member['m_phone'],$sms_template);
             }
         }

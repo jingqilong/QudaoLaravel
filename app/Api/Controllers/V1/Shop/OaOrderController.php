@@ -253,9 +253,9 @@ class OaOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="order_no",
+     *         name="express_number",
      *         in="query",
-     *         description="订单号",
+     *         description="快递单号",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -272,14 +272,14 @@ class OaOrderController extends ApiController
         $rules = [
             'order_relate_id'       => 'required|integer',
             'express_company_id'    => 'required|integer',
-            'order_no'              => 'required',
+            'express_number'        => 'required',
         ];
         $messages = [
             'order_relate_id.required'      => '订单关联ID不能为空',
             'order_relate_id.integer'       => '订单关联ID必须为整数',
             'express_company_id.required'   => '快递公司ID不能为空',
             'express_company_id.integer'    => '快递公司ID必须为整数',
-            'order_no.required'             => '订单号不能为空',
+            'express_number.required'       => '快递单号不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
