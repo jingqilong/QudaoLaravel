@@ -153,7 +153,7 @@ class OrderService extends BaseService
             'reservation_at'    => strtotime($data['reservation_at']),
         ];
 
-        if (!EnterpriseOrderRepository::exists($add_arr)){
+        if (EnterpriseOrderRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
