@@ -138,6 +138,7 @@ class ActivityService extends BaseService
         foreach ($list['data'] as &$value){
             $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']) : 0;
             $value['status_name']     = $value['status'] == 1 ? '禁用' : '展示';
+            $value['type_name']       = $value['type'] == 1 ? '积分兑换' : '好物推荐';
         }
         $this->setMessage('获取成功！');
         return $list;
