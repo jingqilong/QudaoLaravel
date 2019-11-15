@@ -124,6 +124,13 @@ class OrderRelateService extends BaseService
             $this->setError('收货地址不存在！');
             return false;
         }
+        $goods_json = json_decode($request['goods_json'],true);
+        #检查库存
+        $goodsSpecRelateService = new GoodsSpecRelateService();
+        if (!$goodsSpecRelateService->checkStock($goods_json)){
+            $this->setError($goodsSpecRelateService->error);
+            return false;
+        }
         $submit_order_info  = $this->getPlaceOrderDetail($request);
         $express_price      = $submit_order_info['express_price'];
         $score_deduction    = $request['score_deduction'] ?? 0;
@@ -232,6 +239,12 @@ class OrderRelateService extends BaseService
             DB::rollBack();
             return false;
         }
+        #扣除库存
+        if (!$goodsSpecRelateService->updStock($goods_json)){
+            $this->setError($goodsSpecRelateService->error);
+            DB::rollBack();
+            return false;
+        }
         DB::commit();
         $this->setMessage('下单成功！');
         return [
@@ -310,19 +323,28 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新订单总表信息
-        if (MemberOrdersRepository::getUpdId(['id' => $order_relate['order_id']],['status' => OrderEnum::STATUSCLOSE,'updated_at' => time()])){
+        if (!MemberOrdersRepository::getUpdId(['id' => $order_relate['order_id']],['status' => OrderEnum::STATUSCLOSE,'updated_at' => time()])){
             $this->setError('取消订单失败！');
             DB::rollBack();
             return false;
         }
         #更新交易表信息
-        if (MemberTradesRepository::getUpdId(['id' => $order_relate['trade_id']],['status' => TradeEnum::STATUSFAIL])){
+        if (!MemberTradesRepository::getUpdId(['id' => $order_relate['trade_id']],['status' => TradeEnum::STATUSFAIL])){
             $this->setError('取消订单失败！');
+            DB::rollBack();
+            return false;
+        }
+        #归还库存
+        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate_id]);
+        $goodsSpecRelateService = new GoodsSpecRelateService();
+        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
+            $this->setError($goodsSpecRelateService->error);
             DB::rollBack();
             return false;
         }
         //TODO 此处退还积分
         $this->setMessage('取消订单成功！');
+        DB::commit();
         return true;
     }
 

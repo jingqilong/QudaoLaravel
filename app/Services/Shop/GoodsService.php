@@ -298,37 +298,77 @@ class GoodsService extends BaseService
     }
 
     /**
+<<<<<<< HEAD
      * 获取商品详情
      * @param $request
      * @return bool|null
      */
     public function getGoodsDetailsById($request)
     {
-        $column = ['id','name','price','banner_ids','labels',
-                    'stock','express_price','image_ids',
-                    'gift_score','score_deduction',
-                ];
-        if(!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'],'deleted_at' => 0],$column)){
+        $column = ['id', 'name', 'price', 'banner_ids', 'labels',
+            'stock', 'express_price', 'image_ids',
+            'gift_score', 'score_deduction',
+        ];
+        if (!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'], 'deleted_at' => 0], $column)) {
             $this->setError('商品不存在!');
             return false;
         }
-        $comments_where = ['related_id' => $goods_detail['id'],'status' => CommentsEnum::ACTIVITE,'type' => CommentsEnum::SHOP,'deleted_at' => 0];
-        $comments = CommonCommentsRepository::getOrderOne($comments_where,'created_at','desc');
-        $stock = ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_detail['id']],'stock');
-        $banner_ids = explode(',',$goods_detail['banner_ids']);
-        $image_ids  = explode(',',$goods_detail['image_ids']);
-        $goods_detail['banner_img']     = array_column(CommonImagesRepository::getList(['id' => ['in',$banner_ids]],['img_url']),'img_url');
-        $goods_detail['detail_img']     = array_column(CommonImagesRepository::getList(['id' => ['in',$image_ids]],['img_url']),'img_url');
-        $goods_detail['labels']         = explode(',',trim($goods_detail['labels'],','));
-        $goods_detail['price']          = $goods_detail['price'] = sprintf('%.2f',round($goods_detail['price'] / 100, 2));
-        $goods_detail['express_price']  = $goods_detail['express_price'] = sprintf('%.2f',round($goods_detail['express_price'] / 100, 2));
-        $goods_detail['stock']          = $stock == false ? $goods_detail['stock'] : $stock;
-        $goods_detail['comment']        = empty($comments) ? [] : $comments;
-        unset($goods_detail['banner_ids'],$goods_detail['image_ids'],
-              $goods_detail['score_categories']
-            );
+        $comments_where = ['related_id' => $goods_detail['id'], 'status' => CommentsEnum::ACTIVITE, 'type' => CommentsEnum::SHOP, 'deleted_at' => 0];
+        $comments = CommonCommentsRepository::getOrderOne($comments_where, 'created_at', 'desc');
+        $stock = ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_detail['id']], 'stock');
+        $banner_ids = explode(',', $goods_detail['banner_ids']);
+        $image_ids = explode(',', $goods_detail['image_ids']);
+        $goods_detail['banner_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $banner_ids]], ['img_url']), 'img_url');
+        $goods_detail['detail_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $image_ids]], ['img_url']), 'img_url');
+        $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
+        $goods_detail['price'] = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
+        $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['stock'] = $stock == false ? $goods_detail['stock'] : $stock;
+        $goods_detail['comment'] = empty($comments) ? [] : $comments;
+        unset($goods_detail['banner_ids'], $goods_detail['image_ids'],
+            $goods_detail['score_categories']
+        );
         $this->setMessage('获取成功!');
         return $goods_detail;
+    }
+
+
+     /*
+     * 前端获取商品列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function goodsList($request){
+        $page = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $keywords = $request['keywords'] ?? null;
+        $order      = 'id';
+        $asc_desc   = 'desc';
+        $where = ['deleted_at' => 0,'status' => ShopGoodsEnum::PUTAWAY];
+        $column = ['id','name','price','banner_ids','labels'];
+        if (!empty($keywords)){
+            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data']   = ImagesService::getListImages($list['data'],['banner_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

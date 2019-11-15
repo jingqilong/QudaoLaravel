@@ -123,5 +123,24 @@ class GoodsCategoryService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * H5首页获取分类列表
+     * @return array|null
+     */
+    public function getHomeCategoryList(){
+        $where = ['deleted_at' => 0];
+        $column = ['id','name','icon_id'];
+        if (!$list = ShopGoodsCategoryRepository::getList($where,$column)){
+            $this->setMessage('暂无数据！');
+            return [];
+        }
+        $list = ImagesService::getListImages($list,['icon_id' => 'single']);
+        foreach ($list as &$value){
+            unset($value['icon_id']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
 }
             
