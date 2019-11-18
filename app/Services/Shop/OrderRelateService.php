@@ -601,5 +601,19 @@ class OrderRelateService extends BaseService
         $this->setMessage('获取成功!');
         return $result;
     }
+
+    /**
+     * OA获取快递列表
+     * @return bool|null
+     */
+    public function getExpressList()
+    {
+        if (!$list = CommonExpressRepository::getList(['id' => ['>',1],'status' => 1],['*'],'id','asc')){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $this->setMessage('获取成功!');
+        return $list;
+    }
 }
             
