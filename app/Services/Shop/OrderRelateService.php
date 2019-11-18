@@ -520,8 +520,10 @@ class OrderRelateService extends BaseService
             $value['express_price'] = sprintf('%.2f',round($value['express_price'] / 100,2));
             $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
             $value['express_company']   = '-';
+            $value['express_company_code']   = '';
             if ($express_company = $this->searchArray($express_company_list,'id',$value['express_company_id'])){
                 $value['express_company'] = reset($express_company)['company_name'];
+                $value['express_company_code'] = reset($express_company)['code'];
             }
             $value['receive_method']    = ShopOrderEnum::getReceiveMethod($value['receive_method']);
             $value['express_number']    = $value['express_number'] ?? '-';
