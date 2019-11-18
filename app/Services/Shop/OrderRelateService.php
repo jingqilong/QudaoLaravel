@@ -20,6 +20,7 @@ use App\Repositories\{CommonExpressRepository,
     ShopOrderRelateViewRepository};
 use App\Services\Common\SmsService;
 use App\Services\Member\TradesService;
+use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,7 @@ class OrderRelateService extends BaseService
      */
     public function getPlaceOrderDetail($request)
     {
+        $member = Auth::guard('member_api')->user();
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_id           = array_column($goods_param,'goods_id');
         $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_id]]);
@@ -47,19 +49,8 @@ class OrderRelateService extends BaseService
         $score_deduction    = [];
         $express_price      = 0;
         $total_price        = 0;
-        //TODO 此处对接积分
-        $member_score       = [
-            [
-                'score'             => 2000,
-                'scorer_type'       => 1,
-                'score_title'       => '通用积分'
-            ],
-            [
-                'score'             => 100,
-                'scorer_type'       => 2,
-                'score_title'       => '通用积分'
-            ]
-        ];
+        $scoreService = new RecordService();
+        $member_score       = $scoreService->getMemberScore($member->m_id);
         foreach ($goods_param as $value){
             if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $buy_score          += reset($goods)['gift_score'];
@@ -71,7 +62,7 @@ class OrderRelateService extends BaseService
             }
             $score_categories = explode(',',trim(reset($goods)['score_categories'],','));
             foreach ($score_categories as $score_category){
-                $usable_member_score    = $this->searchArray($member_score,'scorer_type',$score_category);
+                $usable_member_score    = $this->searchArray($member_score,'score_type',$score_category);
                 if (empty($usable_member_score)){
                     break;
                 }
@@ -136,6 +127,7 @@ class OrderRelateService extends BaseService
         $score_deduction    = $request['score_deduction'] ?? 0;
         $score_type         = $request['score_type'] ?? 0;
         $total_price        = $submit_order_info['total_price'];
+        $scoreService       = new RecordService();
         $is_score           = false;#表示是否使用积分，默认不使用
         #如果选择付费邮寄，金额 = 总金额 + 邮费
         if ($request['express_type'] == ShopOrderEnum::BY_MAIL){
@@ -163,7 +155,12 @@ class OrderRelateService extends BaseService
             #如果有积分抵扣，实际支付金额 = 总金额 - 抵扣积分
             $payment_price = $total_price - $score_deduction;
             $trade_score   = $score_deduction;
-            //TODO  此处扣除积分
+            //扣除积分
+            if (!$scoreService->expenseScore($score_type,$score_deduction,$member->m_id,'商品抵扣')){
+                $this->setError('积分抵扣失败！');
+                DB::rollBack();
+                return false;
+            }
         }
         #将总金额、实际支付金额单位分换算为元
         $total_price    = $total_price * 100;   #总金额
@@ -245,6 +242,7 @@ class OrderRelateService extends BaseService
             DB::rollBack();
             return false;
         }
+        //TODO 赠送积分
         DB::commit();
         $this->setMessage('下单成功！');
         return [
@@ -342,7 +340,15 @@ class OrderRelateService extends BaseService
             DB::rollBack();
             return false;
         }
-        //TODO 此处退还积分
+        //退还积分
+        if (!empty($order_relate['score_type'])){
+            $scoreService = new RecordService();
+            if (!$scoreService->increaseScore($order_relate['score_type'],$order_relate['score_deduction'],$member->m_id,'商品抵扣积分退还','取消订单退还')){
+                $this->setError('积分退还失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
         $this->setMessage('取消订单成功！');
         DB::commit();
         return true;
