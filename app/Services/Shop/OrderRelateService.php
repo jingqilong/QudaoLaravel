@@ -479,7 +479,7 @@ class OrderRelateService extends BaseService
         $order          = 'id';
         $desc_asc       = 'desc';
         $where          = ['id' => ['<>',0]];
-        $column         = ['*'];
+        $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at'];
         if (!is_null($status)){
             $where['status']  = $status;
         }
@@ -512,9 +512,19 @@ class OrderRelateService extends BaseService
             $this->setMessage('暂无数据！');
             return $order_list;
         }
+        $express_company_ids  = array_column($order_list['data'],'express_company_id');
+        $express_company_list = CommonExpressRepository::getAssignList($express_company_ids);
         foreach ($order_list['data'] as &$value){
+            $value['amount'] = sprintf('%.2f',round($value['amount'] / 100,2));
             $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
+            $value['express_price'] = sprintf('%.2f',round($value['express_price'] / 100,2));
             $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
+            $value['express_company']   = '-';
+            if ($express_company = $this->searchArray($express_company_list,'id',$value['express_company_id'])){
+                $value['express_company'] = reset($express_company)['company_name'];
+            }
+            $value['receive_method']    = ShopOrderEnum::getReceiveMethod($value['receive_method']);
+            $value['express_number']    = $value['express_number'] ?? '-';
         }
         $this->setMessage('获取成功！');
         return $order_list;
