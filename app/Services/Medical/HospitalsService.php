@@ -80,10 +80,6 @@ class HospitalsService extends BaseService
             'recommend'     => $request['recommend'] == 1 ? time() : 0,
             'updated_at'    => time(),
         ];
-        if (MediclaHospitalsRepository::getOne(['name' => $request['name']])){
-            $this->setError('医院已存在！');
-            return false;
-        }
         if (MediclaHospitalsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setMessage('修改成功！');
             return true;
