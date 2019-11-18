@@ -262,12 +262,13 @@ class GoodsService extends BaseService
         $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',trim($goods['labels'],','));
         $goods['category_title']    = $category['name'] ?? '';
         $goods['category_icon']     = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
-        $goods['price']             = empty($value['price']) ? 0 : round($value['price'] / 100,2);
+        $goods['price']             = empty($value['price']) ? 0.00 : round($value['price'] / 100,2);
         $goods['banner_list']       = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
         $goods['image_list']        = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
         $goods['express_price']     = empty($value['express_price']) ? 0 : round($value['express_price'] / 100,2);
         $goods['is_recommend']      = $goods['is_recommend'] == 0 ? 2 : 1;
         $goods['status_title']      = ShopGoodsEnum::getStatus($goods['status']);
+        $goods['spec_json']         = GoodsSpecRelateService::getGoodsSpecJson($id);
         unset($goods['deleted_at']);
         $this->setMessage('获取成功！');
         return $goods;
@@ -279,22 +280,47 @@ class GoodsService extends BaseService
      */
     public function getHome()
     {
-        $column = ['id','name','price','banner_ids','labels'];
-        if (!$goods_list = ShopGoodsRepository::getList(['is_recommend' => ['<>',0]],$column,'is_recommend','desc',1,16)){
-            $this->setError('获取失败！');
-        }
-        if (!empty($goods_list['data'])){
-            $goods_list['data'] = ImagesService::getListImages($goods_list['data'],['banner_ids' => 'single']);
-            foreach ($goods_list['data'] as &$value){
-                $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
-                $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
-            }
-        }
         $result['banners']          = HomeBannersService::getHomeBanners(CommonHomeEnum::SHOPHOME);
         $result['announce']         = AnnounceService::getHomeAnnounce();
-        $result['recommend_goods']  = $goods_list['data'];
+        $result['recommend_goods']  = $this->getRecommendGoodsList(null,16);
         $this->setMessage('获取成功！');
         return $result;
+    }
+
+    /**
+     * H5获取推荐商品列表
+     * @param array $where
+     * @param int|null $count
+     * @return array
+     */
+    public function getRecommendGoodsList($where = null,$count = null){
+        if (is_null($where)){
+            $where = ['is_recommend' => ['<>',0]];
+        }
+        $column = ['id','name','price','banner_ids','labels'];
+        if (is_null($count)){
+            if (!$list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc')){
+                $this->setMessage('暂无数据！');
+                return [];
+            }
+        }else{
+            if (!$goods_list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc',1,16)){
+                $this->setError('获取失败！');
+                return [];
+            }
+            if (empty($goods_list['data'])){
+                $this->setMessage('暂无数据！');
+                return [];
+            }
+            $list = $goods_list['data'];
+        }
+        $list = ImagesService::getListImages($list,['banner_ids' => 'single']);
+        foreach ($list as &$value){
+            $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 
     /**

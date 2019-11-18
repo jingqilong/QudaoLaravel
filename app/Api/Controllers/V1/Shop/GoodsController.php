@@ -7,22 +7,28 @@ namespace App\Api\Controllers\V1\Shop;
 use App\Api\Controllers\ApiController;
 use App\Services\Shop\GoodsCategoryService;
 use App\Services\Shop\GoodsService;
+use App\Services\Shop\GoodsSpecRelateService;
 
 class GoodsController extends ApiController
 {
     public $goodsService;
     public $categoryService;
+    public $goodsSpecRelateService;
 
     /**
      * GoodsController constructor.
      * @param GoodsService $goodsService
      * @param GoodsCategoryService $goodsCategoryService
+     * @param GoodsSpecRelateService $goodsSpecRelateService
      */
-    public function __construct(GoodsService $goodsService,GoodsCategoryService $goodsCategoryService)
+    public function __construct(GoodsService $goodsService,
+                                GoodsCategoryService $goodsCategoryService,
+                                GoodsSpecRelateService $goodsSpecRelateService)
     {
         parent::__construct();
-        $this->goodsService     = $goodsService;
-        $this->categoryService = $goodsCategoryService;
+        $this->goodsService             = $goodsService;
+        $this->categoryService          = $goodsCategoryService;
+        $this->goodsSpecRelateService   = $goodsSpecRelateService;
     }
 
     /**
@@ -191,7 +197,7 @@ class GoodsController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/shop/get_goods_details",
      *     tags={"商城"},
      *     summary="用户获取商品详情",
@@ -249,5 +255,65 @@ class GoodsController extends ApiController
             return ['code' => 100, 'message' => $this->goodsService->error];
         }
         return ['code' => 200, 'message' => $this->goodsService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_goods_spec",
+     *     tags={"商城"},
+     *     summary="获取商品规格",
+     *     description="sang" ,
+     *     operationId="get_goods_spec",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="商品id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGoodsSpec(){
+        $rules = [
+            'id'        => 'required|integer',
+        ];
+        $messages = [
+            'id.required'     => '请输入商品id',
+            'id.integer'      => '商品id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->goodsSpecRelateService->getGoodsSpec($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->goodsSpecRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->goodsSpecRelateService->message,'data' => $res];
     }
 }
