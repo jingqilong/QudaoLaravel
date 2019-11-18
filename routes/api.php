@@ -471,7 +471,7 @@ $api->version('v1',function ($api){
                 $api->get('get_shop_order_list','OaOrderController@getShopOrderList')->name('获取商城订单列表');
                 $api->get('get_order_detail','OaOrderController@getOrderDetail')->name('获取订单详情');
                 $api->post('shipment','OaOrderController@shipment')->name('发货');
-                $api->post('get_oa_order_express_details','OaOrderController@getOaOrderExpressDetails')->name('Oa根据订单号获取物流状态');
+                $api->get('get_oa_order_express_details','OaOrderController@getOaOrderExpressDetails')->name('Oa根据订单号获取物流状态');
                 $api->get('get_express_list','OaOrderController@getExpressList')->name('OA获取快递列表');
 
             });

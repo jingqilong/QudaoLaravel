@@ -293,7 +293,7 @@ class OaOrderController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/shop/get_oa_order_express_details",
      *     tags={"商城后台"},
      *     summary="OA根据订单号获取物流状态",
