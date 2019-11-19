@@ -27,7 +27,7 @@ class ScoreRecordViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','score_type','remnant_score','before_action_score','action','action_score','explain','created_at'];
+    protected $fillable = ['id','member_id','score_type','score_name','expense_rate','cashing_rate','is_cashing','status','remnant_score','before_action_score','action','action_score','explain','created_at'];
 
     /**
      * The attributes that should be cast to native types.

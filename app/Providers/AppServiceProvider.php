@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,5 +26,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191); //add fixed sql
+        //检查浮点数
+        Validator::extend('float', function($attribute,$value, $parameters,$validator) {
+            if (!is_numeric($value)){
+                return false;
+            }
+            return is_float($value);
+        });
     }
 }

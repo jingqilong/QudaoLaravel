@@ -504,6 +504,10 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('give_score','OaScoreController@giveScore')->name('赠送积分');
                 $api->get('get_score_record_list','OaScoreController@getScoreRecordList')->name('获取积分记录列表');
+
+                $api->get('get_score_category_list','OaScoreController@getScoreCategoryList')->name('获取积分分类列表');
+                $api->post('add_score_category','OaScoreController@addScoreCategory')->name('添加积分分类');
+                $api->post('open_or_close','OaScoreController@openOrClose')->name('开启或关闭积分分类');
             });
         });
         //七牛云
