@@ -13,9 +13,10 @@ class PrimeTypeEnum extends BaseEnum
         'DINING'    => '餐饮',
         'HOTEL'     => '宾馆',
         //预约状态
-        'RESERVATION'   => '正在预约',
-        'RESERVATIONOK' => '预约成功',
-        'RESERVATIONNO' => '预约失败',
+        'RESERVATION'       => '正在预约',
+        'RESERVATIONOK'     => '预约成功',
+        'RESERVATIONNO'     => '预约失败',
+        'RESERVATIONCANCEL' => '预约取消',
     ];
 
     public static $type = [
@@ -28,6 +29,7 @@ class PrimeTypeEnum extends BaseEnum
         1 => 'RESERVATION',
         2 => 'RESERVATIONOK',
         3 => 'RESERVATIONNO',
+        4 => 'RESERVATIONCANCEL',
     ];
 
     // constants
@@ -38,9 +40,10 @@ class PrimeTypeEnum extends BaseEnum
 
     const HOTEL         = 3;
     // 预约状态
-    const RESERVATION   = 1;    //预约中
-    const RESERVATIONOK = 2;    //预约成功
-    const RESERVATIONNO = 3;    //预约失败
+    const RESERVATION       = 1;    //预约中
+    const RESERVATIONOK     = 2;    //预约成功
+    const RESERVATIONNO     = 3;    //预约失败
+    const RESERVATIONCANCEL = 4;    //预约取消
 
     /**
      * @param int $value        值

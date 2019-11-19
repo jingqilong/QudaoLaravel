@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ScoreRecordViewModel extends Model
+class PrimeReservationViewModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ScoreRecordViewModel extends Model
      *
      * @var string
      */
-    protected $table = 'score_record_view';
+    protected $table = 'prime_reservation_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class ScoreRecordViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','score_type','score_name','expense_rate','cashing_rate','is_cashing','status','remnant_score','before_action_score','action','action_score','explain','created_at'];
+    protected $fillable = ['id','merchant_id','order_no','name','mobile','time','memo','member_id','number','order_image_ids','state','created_at','updated_at'];
 
     /**
      * The attributes that should be cast to native types.
@@ -35,7 +35,8 @@ class ScoreRecordViewModel extends Model
      * @var array
      */
     protected $casts = [
-        'created_at' => 'datetime'
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
 }

@@ -14,6 +14,7 @@ use App\Repositories\{CommonExpressRepository,
     MemberOrdersRepository,
     MemberRepository,
     MemberTradesRepository,
+    ScoreCategoryRepository,
     ShopGoodsRepository,
     ShopOrderGoodsRepository,
     ShopOrderRelateRepository,
@@ -43,46 +44,25 @@ class OrderRelateService extends BaseService
     {
         $member = Auth::guard('member_api')->user();
         $goods_param        = json_decode($request['goods_json'],true);
-        $goods_id           = array_column($goods_param,'goods_id');
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_id]]);
+        $goods_ids          = array_column($goods_param,'goods_id');
+        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        #购买所得积分
         $buy_score          = 0;
-        $score_deduction    = [];
+        #邮费
         $express_price      = 0;
+        #订单总金额
         $total_price        = 0;
         $scoreService = new RecordService();
-        $member_score       = $scoreService->getMemberScore($member->m_id);
         foreach ($goods_param as $value){
             if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $buy_score          += reset($goods)['gift_score'];
                 $express_price      += reset($goods)['express_price'];
                 $total_price        += reset($goods)['price'];
             }
-            if (empty(reset($goods)['score_categories'])){
-                break;
-            }
-            $score_categories = explode(',',trim(reset($goods)['score_categories'],','));
-            foreach ($score_categories as $score_category){
-                $usable_member_score    = $this->searchArray($member_score,'score_type',$score_category);
-                if (empty($usable_member_score)){
-                    break;
-                }
-                $usable_score           = reset($usable_member_score)['score'];
-                #当前商品的总抵扣积分
-                $goods_total_score  = reset($goods)['score_deduction'] * $value['number'];
-                if (!isset($score_deduction[$score_category])){
-                    #当前积分类别可抵扣积分总和
-                    $score_deduction[$score_category]['total_score'] = $goods_total_score;
-                    #当前用户可抵扣当前积分类别最大积分
-                    $score_deduction[$score_category]['usable_score'] = $usable_score > $score_deduction[$score_category]['total_score'] ? $score_deduction[$score_category]['total_score'] : $usable_score;
-                    $score_deduction[$score_category]['score_type'] = $score_category;
-                }else{
-                    #当前积分类别可抵扣积分总和
-                    $score_deduction[$score_category]['total_score'] = $goods_total_score + $score_deduction[$score_category]['total_score'];
-                    #当前用户可抵扣当前积分类别最大积分
-                    $score_deduction[$score_category]['usable_score'] = $usable_score > $score_deduction[$score_category]['total_score'] ? $score_deduction[$score_category]['total_score'] : $usable_score;
-                }
-            }
         }
+        $total_price            = sprintf('%.2f',round($total_price / 100,2));
+        #可抵扣积分
+        $score_deduction        = $scoreService->getUsableScore($member->m_id,$goods_param,$goods_list,$total_price);
         $express_title          = empty($express_price) ? '包邮' : '江浙沪地区包邮，其它地区总邮费：' . sprintf('%.2f',round($express_price / 100,2)).'元';
         $member                 = Auth::guard('member_api')->user();
         #收货地址
@@ -98,7 +78,7 @@ class OrderRelateService extends BaseService
         #可抵扣积分
         $res['score_deduction'] = $score_deduction;
         #订单总金额
-        $res['total_price']     = sprintf('%.2f',round($total_price / 100,2));
+        $res['total_price']     = $total_price;
         $this->setMessage('获取成功！');
         return $res;
     }
@@ -146,14 +126,15 @@ class OrderRelateService extends BaseService
                 DB::rollBack();
                 return false;
             }
-            if ($score_deduction > reset($score)['usable_score']){
+            $score = reset($score);
+            if ($score_deduction > $score['usable_score']){
                 $this->setError('抵扣积分超出抵扣积分最大额！');
                 DB::rollBack();
                 return false;
             }
             $is_score   = true;
-            #如果有积分抵扣，实际支付金额 = 总金额 - 抵扣积分
-            $payment_price = $total_price - $score_deduction;
+            #如果有积分抵扣，实际支付金额 = 总金额 - (抵扣积分 * 抵扣率)
+            $payment_price = $total_price - ($score_deduction * $score['expense_rate']);
             $trade_score   = $score_deduction;
             //扣除积分
             if (!$scoreService->expenseScore($score_type,$score_deduction,$member->m_id,'商品抵扣')){
@@ -162,7 +143,7 @@ class OrderRelateService extends BaseService
                 return false;
             }
         }
-        #将总金额、实际支付金额单位分换算为元
+        #将总金额、实际支付金额单位元换算为分
         $total_price    = $total_price * 100;   #总金额
         $payment_price  = $payment_price * 100; #实际支付金额
         #创建订单

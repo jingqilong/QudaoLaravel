@@ -27,10 +27,18 @@ class ScoreCategoryModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','type','name','expense_rate','cashing_rate','status'];
+    protected $fillable = ['id','name','expense_rate','cashing_rate','status','created_at','updated_at'];
 
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }
 
  

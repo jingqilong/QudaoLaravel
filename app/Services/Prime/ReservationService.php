@@ -8,12 +8,15 @@ use App\Enums\PrimeTypeEnum;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\PrimeMerchantRepository;
+use App\Repositories\PrimeMerchantViewRepository;
 use App\Repositories\PrimeReservationRepository;
+use App\Repositories\PrimeReservationViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService as CommonImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Member\OrdersService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Tolawho\Loggy\Facades\Loggy;
 
@@ -240,6 +243,123 @@ class ReservationService extends BaseService
         }
         DB::commit();
         $this->setMessage('结算成功！');
+        return true;
+    }
+
+    /**
+     * 我的预约列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function myReservationList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $type       = $request['type'] ?? null;
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['id' => ['>',0]];
+        $column     = ['id','time','number','state','merchant_name','banner_ids','star','address'];
+        if (!is_null($type)){
+            $where['type'] = $type;
+        }
+        if (!$list = PrimeReservationViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data'] = CommonImagesService::getListImagesConcise($list['data'], ['banner_ids'=>'single']);
+        foreach ($list['data'] as &$value){
+            $value['time']              = date('Y.m.d / H:i',$value['time']);
+            $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
+            unset($value['banner_ids']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 获取我的预约详情
+     * @param $id
+     * @return mixed
+     */
+    public function myReservationDetail($id)
+    {
+        $column = ['id','merchant_id','time','number','state','merchant_name','banner_ids','star','address','name','mobile','memo'];
+        if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        $reservation        = CommonImagesService::getOneImagesConcise($reservation, ['banner_ids'=>'single']);
+        $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
+        $reservation['state_title']       = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $this->setMessage('获取成功！');
+        return $reservation;
+    }
+
+    /**
+     * 修改我的预约
+     * @param $request
+     * @return bool
+     */
+    public function editMyReservation($request)
+    {
+        if (!$reservation = PrimeReservationRepository::getOne(['id' => $request['id']])){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        if ($reservation['state'] !== PrimeTypeEnum::RESERVATION){
+            $this->setError('您的已预约已受理，不能再修改了！');
+            return false;
+        }
+        $upd_arr = [
+            'name'          => $request['name'],
+            'mobile'        => $request['mobile'],
+            'time'          => strtotime($request['time']),
+            'memo'          => $request['memo'] ?? '',
+            'number'        => $request['number'],
+            'updated_at'    => time(),
+        ];
+        if (!PrimeReservationRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
+        return true;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function cancelMyReservation($id)
+    {
+        $member = Auth::guard('member_api')->user();
+        if (!$reservation = PrimeReservationRepository::getOne(['id' => $id,'member_id' => $member->m_id])){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        if ($reservation['state'] == PrimeTypeEnum::RESERVATIONCANCEL){
+            $this->setError('您的已预约已取消！');
+            return false;
+        }
+        if ($reservation['state'] !== PrimeTypeEnum::RESERVATION){
+            $this->setError('您的已预约已受理，无法取消！');
+            return false;
+        }
+        $upd_arr = [
+            'state'         => PrimeTypeEnum::RESERVATIONCANCEL,
+            'updated_at'    => time(),
+        ];
+        if (!PrimeReservationRepository::getUpdId(['id' => $id],$upd_arr)){
+            $this->setError('取消失败！');
+            return false;
+        }
+        $this->setMessage('取消成功！');
         return true;
     }
 }

@@ -164,6 +164,11 @@ $api->version('v1',function ($api){
             #精选生活
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('reservation','ReservationController@reservation')->name('预约');
+                $api->get('my_reservation_list','ReservationController@myReservationList')->name('获取我的预约列表');
+                $api->get('my_reservation_detail','ReservationController@myReservationDetail')->name('获取我的预约详情');
+                $api->post('edit_my_reservation','ReservationController@editMyReservation')->name('修改我的预约');
+                $api->post('cancel_my_reservation','ReservationController@cancelMyReservation')->name('取消我的预约');
+
                 $api->get('get_home_list','PrimeController@getHomeList')->name('获取首页列表');
                 $api->get('get_merchant_detail','PrimeController@getMerchantDetail')->name('获取商户详情');
             });
@@ -504,6 +509,10 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
                 $api->post('give_score','OaScoreController@giveScore')->name('赠送积分');
                 $api->get('get_score_record_list','OaScoreController@getScoreRecordList')->name('获取积分记录列表');
+
+                $api->get('get_score_category_list','OaScoreController@getScoreCategoryList')->name('获取积分分类列表');
+                $api->post('add_score_category','OaScoreController@addScoreCategory')->name('添加积分分类');
+                $api->post('open_or_close','OaScoreController@openOrClose')->name('开启或关闭积分分类');
             });
         });
         //七牛云

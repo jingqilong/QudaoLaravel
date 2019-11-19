@@ -122,8 +122,8 @@ class ReservationController extends ApiController
             'number'            => 'required|integer'
         ];
         $messages = [
-            'merchant_id.required'  => '房产ID不能为空',
-            'merchant_id.integer'   => '房产ID必须为整数',
+            'merchant_id.required'  => '商户ID不能为空',
+            'merchant_id.integer'   => '商户ID必须为整数',
             'name.required'         => '预约人姓名不能为空',
             'mobile.required'       => '预约人手机号不能为空',
             'mobile.regex'          => '预约人手机号格式有误',
@@ -183,7 +183,7 @@ class ReservationController extends ApiController
      *     @OA\Parameter(
      *         name="状态",
      *         in="query",
-     *         description="状态，默认1正在预约，2预约成功，3预约失败",
+     *         description="状态，默认1正在预约，2预约成功，3预约失败，预约取消",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -217,7 +217,7 @@ class ReservationController extends ApiController
     protected function getReservationList(){
         $rules = [
             'keywords'      => 'string',
-            'state'         => 'in:1,2,3',
+            'state'         => 'in:1,2,3,4',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -278,7 +278,7 @@ class ReservationController extends ApiController
      *     @OA\Parameter(
      *         name="state",
      *         in="query",
-     *         description="状态，默认1正在预约，2预约成功，3预约失败",
+     *         description="状态，默认1正在预约，2预约成功，3预约失败，4预约取消",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -312,7 +312,7 @@ class ReservationController extends ApiController
     protected function reservationList(){
         $rules = [
             'keywords'      => 'string',
-            'state'         => 'in:1,2,3',
+            'state'         => 'in:1,2,3,4',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -576,5 +576,333 @@ class ReservationController extends ApiController
             return ['code' => 100, 'message' => $this->reservationService->error];
         }
         return ['code' => 200, 'message' => $this->reservationService->message];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/my_reservation_list",
+     *     tags={"精选生活"},
+     *     summary="获取我的预约列表",
+     *     description="sang" ,
+     *     operationId="my_reservation_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="商户类别",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function myReservationList(){
+        $rules = [
+            'type'          => 'integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'type.integer'              => '商户类别必须为整数',
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->myReservationList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/my_reservation_detail",
+     *     tags={"精选生活"},
+     *     summary="获取我的预约详情",
+     *     description="sang" ,
+     *     operationId="my_reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function myReservationDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->myReservationDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/prime/edit_my_reservation",
+     *     tags={"精选生活"},
+     *     summary="修改我的预约",
+     *     description="sang" ,
+     *     operationId="edit_my_reservation",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="预约人姓名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="预约人手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="number",
+     *         in="query",
+     *         description="预约人数",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="time",
+     *         in="query",
+     *         description="预约时间 （例如：2019-10-01 08:30）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="memo",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     *     ),
+     * )
+     *
+     */
+    public function editMyReservation()
+    {
+        $rules = [
+            'id'                => 'required|integer',
+            'name'              => 'required',
+            'mobile'            => 'required|regex:/^1[35678][0-9]{9}$/',
+            'time'              => [
+                'required',
+                'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
+            ],
+            'number'            => 'required|integer'
+        ];
+        $messages = [
+            'id.required'           => '预约ID不能为空',
+            'id.integer'            => '预约ID必须为整数',
+            'name.required'         => '预约人姓名不能为空',
+            'mobile.required'       => '预约人手机号不能为空',
+            'mobile.regex'          => '预约人手机号格式有误',
+            'time.required'         => '预约时间不能为空',
+            'time.regex'            => '预约时间格式有误',
+            'number.required'       => '预约人数不能为空',
+            'number.integer'        => '预约人数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->editMyReservation($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->reservationService->message];
+        }
+        return ['code' => 100, 'message' => $this->reservationService->error];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/prime/cancel_my_reservation",
+     *     tags={"精选生活"},
+     *     summary="取消我的预约",
+     *     description="sang" ,
+     *     operationId="cancel_my_reservation",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="取消失败",
+     *     ),
+     *     ),
+     * )
+     *
+     */
+    public function cancelMyReservation()
+    {
+        $rules = [
+            'id'                => 'required|integer',
+        ];
+        $messages = [
+            'id.required'  => '预约ID不能为空',
+            'id.integer'   => '预约ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->cancelMyReservation($this->request['id']);
+        if ($res){
+            return ['code' => 200, 'message' => $this->reservationService->message];
+        }
+        return ['code' => 100, 'message' => $this->reservationService->error];
     }
 }
