@@ -13,16 +13,16 @@ class CommentsEnum extends BaseEnum
         'SUBMIT'              => '待审核',
         'PASS'                => '审核通过',
         'NOPASS'              => '审核驳回',
-        'SHOP'                => '看病',
-        'ACTIVITY'            => '手术',
+        'SHOP'                => '商城',
+        'ACTIVITY'            => '活动',
         'ACTIVITE'            => '显示',
         'HIDDEN'              => '隐藏',
     ];
 
     public static $status = [
-        0 => 'SUBMIT',      //待审核
-        1 => 'PASS',        //审核通过
-        2 => 'NOPASS',      //审核失败
+        1 => 'SUBMIT',      //待审核
+        2 => 'PASS',        //审核通过
+        3 => 'NOPASS',      //审核失败
     ];
 
 
@@ -38,11 +38,11 @@ class CommentsEnum extends BaseEnum
 
     //审核状态
 
-    const PASS              = 1;    //审核通过
+    const PASS              = 2;    //审核通过
 
-    const NOPASS            = 2;    //审核失败
+    const NOPASS            = 3;    //审核失败
 
-    const SUBMIT            = 0;    //待审核
+    const SUBMIT            = 1;    //待审核
 
     //type  类型
     const SHOP              = 1;    //商城

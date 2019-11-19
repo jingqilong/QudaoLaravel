@@ -19,5 +19,20 @@ class ShopGoodsSpecRelateRepository extends ApiRepository
     {
         $this->model = $model;
     }
+
+    /**
+     * 获取商品 库存
+     * @param $goods_id
+     * @return int|null
+     */
+    protected function getStock($goods_id)
+    {
+        if ($this->exists(['goods_id' => $goods_id])){
+            $stock = empty($this->getOne(['goods_id' => $goods_id],['stock'])) ? 0 : $this->getOne(['goods_id' => $goods_id],['stock']);
+        }else{
+            $stock = empty(ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_id], 'stock')) ? 0 : ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_id], 'stock');
+        }
+        return $stock;
+    }
 }
             

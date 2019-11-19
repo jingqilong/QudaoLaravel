@@ -30,7 +30,15 @@ class CommonCommentsModel extends Model
     protected $fillable = ['id','content','comment_name','comment_avatar','type','related_id','image_ids','member_id','status','hidden','created_at','deleted_at'];
 
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
 
  

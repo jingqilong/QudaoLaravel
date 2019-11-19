@@ -10,6 +10,7 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
+use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
@@ -324,7 +325,6 @@ class GoodsService extends BaseService
     }
 
     /**
-<<<<<<< HEAD
      * 获取商品详情
      * @param $request
      * @return bool|null
@@ -339,18 +339,16 @@ class GoodsService extends BaseService
             $this->setError('商品不存在!');
             return false;
         }
-        $comments_where = ['related_id' => $goods_detail['id'], 'status' => CommentsEnum::ACTIVITE, 'type' => CommentsEnum::SHOP, 'deleted_at' => 0];
-        $comments = CommonCommentsRepository::getOrderOne($comments_where, 'created_at', 'desc');
-        $stock = ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_detail['id']], 'stock');
+        $comments = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $banner_ids = explode(',', $goods_detail['banner_ids']);
-        $image_ids = explode(',', $goods_detail['image_ids']);
+        $image_ids  = explode(',', $goods_detail['image_ids']);
         $goods_detail['banner_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $banner_ids]], ['img_url']), 'img_url');
         $goods_detail['detail_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $image_ids]], ['img_url']), 'img_url');
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price'] = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
-        $goods_detail['stock'] = $stock == false ? $goods_detail['stock'] : $stock;
-        $goods_detail['comment'] = empty($comments) ? [] : $comments;
+        $goods_detail['stock'] = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
+        $goods_detail['comment'] = $comments;
         unset($goods_detail['banner_ids'], $goods_detail['image_ids'],
             $goods_detail['score_categories']
         );
