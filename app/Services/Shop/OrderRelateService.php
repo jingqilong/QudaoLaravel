@@ -242,7 +242,6 @@ class OrderRelateService extends BaseService
             DB::rollBack();
             return false;
         }
-        //TODO 赠送积分
         DB::commit();
         $this->setMessage('下单成功！');
         return [
