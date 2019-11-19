@@ -253,10 +253,14 @@ class ReservationService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
+        $type       = $request['type'] ?? null;
         $order      = 'id';
         $desc_asc   = 'desc';
         $where      = ['id' => ['>',0]];
         $column     = ['id','merchant_id','time','number','state'];
+        if (!is_null($type)){
+            $where['type'] = $type;
+        }
         if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -267,7 +271,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $merchant_ids = array_column($list['data'],'merchant_id');
-        $merchant_list= PrimeMerchantViewRepository::getList(['id' => ['in',$merchant_ids]],['id','name','banner_ids','star','address','type']);
+        $merchant_list= PrimeMerchantViewRepository::getList(['id' => ['in',$merchant_ids]],['id','name','banner_ids','star','address']);
         $merchant_list = CommonImagesService::getListImagesConcise($merchant_list, ['banner_ids'=>'single']);
         foreach ($list['data'] as &$value){
             $value['merchant_name'] = '';
@@ -276,7 +280,6 @@ class ReservationService extends BaseService
                 $value['banner_url']    = reset($merchant)['banner_url'];
                 $value['star']          = reset($merchant)['star'];
                 $value['address']       = reset($merchant)['address'];
-                $value['type']          = reset($merchant)['type'];
             }
             $value['time']              = date('Y.m.d / H:i',$value['time']);
             $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);

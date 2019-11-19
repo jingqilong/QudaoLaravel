@@ -604,6 +604,15 @@ class ReservationController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="商户类别",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -630,10 +639,12 @@ class ReservationController extends ApiController
      */
     protected function myReservationList(){
         $rules = [
+            'type'          => 'integer',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'type.integer'              => '商户类别必须为整数',
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
         ];
