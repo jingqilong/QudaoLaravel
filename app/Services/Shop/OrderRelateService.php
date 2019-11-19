@@ -596,8 +596,8 @@ class OrderRelateService extends BaseService
             $this->setError('快递公司不存在!');
             return false;
         }
-        if (!MemberOrdersRepository::getOne(['order_no' => $number])){
-            $this->setError('订单不存在!');
+        if (!ShopOrderRelateRepository::exists(['express_number' => $number])){
+            $this->setError('快递单号不存在!');
             return false;
         }
         $expressDetail = ExpressService::getExpressDetails($code, $number);
