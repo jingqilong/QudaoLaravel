@@ -166,6 +166,8 @@ $api->version('v1',function ($api){
                 $api->post('reservation','ReservationController@reservation')->name('预约');
                 $api->get('my_reservation_list','ReservationController@myReservationList')->name('获取我的预约列表');
                 $api->get('my_reservation_detail','ReservationController@myReservationDetail')->name('获取我的预约详情');
+                $api->post('edit_my_reservation','ReservationController@editMyReservation')->name('修改我的预约');
+                $api->post('cancel_my_reservation','ReservationController@cancelMyReservation')->name('取消我的预约');
 
                 $api->get('get_home_list','PrimeController@getHomeList')->name('获取首页列表');
                 $api->get('get_merchant_detail','PrimeController@getMerchantDetail')->name('获取商户详情');
