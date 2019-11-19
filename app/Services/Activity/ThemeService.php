@@ -74,7 +74,7 @@ class ThemeService extends BaseService
             $this->setError('主题不存在！');
             return false;
         }
-        if (ActivityThemeRepository::exists(['name' => $request['name']])){
+        if (ActivityThemeRepository::exists(['name' => $request['name'],'id' => ['<>',$request['id']]])){
             $this->setError('主题名称已被使用！');
             return false;
         }

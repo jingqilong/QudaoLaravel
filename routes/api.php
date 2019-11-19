@@ -498,6 +498,14 @@ $api->version('v1',function ($api){
             });
         });
 
+        //积分
+        $api->group(['prefix' => 'score', 'namespace' => 'Score'], function ($api){
+            #OA 积分后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('give_score','OaScoreController@giveScore')->name('赠送积分');
+                $api->get('get_score_record_list','OaScoreController@getScoreRecordList')->name('获取积分记录列表');
+            });
+        });
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
             //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');

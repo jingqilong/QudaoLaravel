@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\ScoreModel;
+use App\Models\ScoreRecordModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ScoreRepository extends ApiRepository
+class ScoreRecordRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class ScoreRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(ScoreModel $model)
+    public function __construct(ScoreRecordModel $model)
     {
         $this->model = $model;
     }
