@@ -151,5 +151,47 @@ class ImagesService extends BaseService
         $this->setMessage('查询成功！');
         return $list;
     }
+
+
+    /**
+     * 查询数据列表是，帮助获取数据列表中的图片数据
+     * @param array $info       一条数据
+     * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @return array
+     */
+    protected function getOneImagesConcise(array $info, array $column){
+        $all_str = '';
+        foreach ($column as $key=>$v){
+            $image_str = $info[$key];
+            $all_str .= trim($image_str,',') . ',';
+        }
+        $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
+        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url']);
+        foreach ($column as $k=>$v){
+            if (array_key_exists($k, $info)){
+                if ($v == 'single'){
+                    $ids = explode(',',$info[$k]);
+                    $image_column = rtrim(rtrim($k,'_id'),'_ids').'_url';
+                    $info[$image_column] = '';
+                    if ($image = self::searchArray($all_image_list,'id',reset($ids))){
+                        $info[$image_column] = reset($image)['img_url'];
+                    }
+                }
+                if ($v == 'several'){
+                    $ids = explode(',',$info[$k]);
+                    $images_column = rtrim(rtrim($k,'_id'),'_ids').'_urls';
+                    $urls = [];
+                    foreach ($ids as $id){
+                        if ($image = self::searchArray($all_image_list,'id',$id)){
+                            $urls[] = reset($image)['img_url'];
+                        }
+                    }
+                    $info[$images_column] = $urls;
+                }
+            }
+        }
+        $this->setMessage('查询成功！');
+        return $info;
+    }
 }
             

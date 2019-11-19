@@ -280,5 +280,24 @@ class ReservationService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * 获取我的预约详情
+     * @param $id
+     * @return mixed
+     */
+    public function myReservationDetail($id)
+    {
+        $column = ['id','merchant_id','time','number','state','merchant_name','banner_ids','star','address','name','mobile','memo'];
+        if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        $reservation        = CommonImagesService::getOneImagesConcise($reservation, ['banner_ids'=>'single']);
+        $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
+        $reservation['state_title']       = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $this->setMessage('获取成功！');
+        return $reservation;
+    }
 }
             

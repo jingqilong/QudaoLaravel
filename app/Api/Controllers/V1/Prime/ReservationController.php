@@ -659,4 +659,68 @@ class ReservationController extends ApiController
         }
         return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/my_reservation_detail",
+     *     tags={"精选生活"},
+     *     summary="获取我的预约详情",
+     *     description="sang" ,
+     *     operationId="my_reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function myReservationDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+            'page.integer'              => '页码不是整数',
+            'page_num.integer'          => '每页显示条数不是整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->myReservationDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
 }
