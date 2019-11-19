@@ -591,13 +591,17 @@ class OrderRelateService extends BaseService
             $this->setError('快递公司不存在!');
             return false;
         }
+        if (!MemberOrdersRepository::getOne(['order_no' => $number])){
+            $this->setError('订单不存在!');
+            return false;
+        }
         $expressDetail = ExpressService::getExpressDetails($code, $number);
         if ($expressDetail['status'] != 200){
             $this->setError($expressDetail['message']);
             return false;
         }
         $result['express_name'] = $expressInfo['company_name'];
-        $result['express_number'] = $expressDetail['nu'];
+        $result['express_number'] = empty($expressDetail['nu']) ? '' : $expressDetail['nu'];
         $result['ischeck'] = $expressDetail['ischeck'] == 0 ? '未签收' : '已签收';
         $result['data'] = $expressDetail['data'];
         $this->setMessage('获取成功!');
