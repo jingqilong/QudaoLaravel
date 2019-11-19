@@ -164,6 +164,8 @@ $api->version('v1',function ($api){
             #精选生活
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('reservation','ReservationController@reservation')->name('预约');
+                $api->get('my_reservation_list','ReservationController@myReservationList')->name('获取我的预约列表');
+
                 $api->get('get_home_list','PrimeController@getHomeList')->name('获取首页列表');
                 $api->get('get_merchant_detail','PrimeController@getMerchantDetail')->name('获取商户详情');
             });

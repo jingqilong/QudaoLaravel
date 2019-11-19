@@ -8,6 +8,7 @@ use App\Enums\PrimeTypeEnum;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\PrimeMerchantRepository;
+use App\Repositories\PrimeMerchantViewRepository;
 use App\Repositories\PrimeReservationRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService as CommonImagesService;
@@ -241,6 +242,47 @@ class ReservationService extends BaseService
         DB::commit();
         $this->setMessage('结算成功！');
         return true;
+    }
+
+    /**
+     * 我的预约列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function myReservationList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['id' => ['>',0]];
+        $column     = ['id','merchant_id','time','number','state'];
+        if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $merchant_ids = array_column($list['data'],'merchant_id');
+        $merchant_list= PrimeMerchantViewRepository::getList(['id' => ['in',$merchant_ids]],['id','name','banner_ids','star','address']);
+        $merchant_list = CommonImagesService::getListImagesConcise($merchant_list, ['banner_ids'=>'single']);
+        foreach ($list['data'] as &$value){
+            $value['merchant_name'] = '';
+            if ($merchant = $this->searchArray($merchant_list,'id',$value['merchant_id'])){
+                $value['merchant_name'] = reset($merchant)['name'];
+                $value['banner_url']    = reset($merchant)['banner_url'];
+                $value['star']          = reset($merchant)['star'];
+                $value['address']       = reset($merchant)['address'];
+            }
+            $value['time']              = date('Y.m.d / H:i',$value['time']);
+            $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
+            unset($value['merchant_id']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             
