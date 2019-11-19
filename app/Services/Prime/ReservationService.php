@@ -267,7 +267,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $merchant_ids = array_column($list['data'],'merchant_id');
-        $merchant_list= PrimeMerchantViewRepository::getList(['id' => ['in',$merchant_ids]],['id','name','banner_ids','star','address']);
+        $merchant_list= PrimeMerchantViewRepository::getList(['id' => ['in',$merchant_ids]],['id','name','banner_ids','star','address','type']);
         $merchant_list = CommonImagesService::getListImagesConcise($merchant_list, ['banner_ids'=>'single']);
         foreach ($list['data'] as &$value){
             $value['merchant_name'] = '';
@@ -276,6 +276,7 @@ class ReservationService extends BaseService
                 $value['banner_url']    = reset($merchant)['banner_url'];
                 $value['star']          = reset($merchant)['star'];
                 $value['address']       = reset($merchant)['address'];
+                $value['type']          = reset($merchant)['type'];
             }
             $value['time']              = date('Y.m.d / H:i',$value['time']);
             $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
