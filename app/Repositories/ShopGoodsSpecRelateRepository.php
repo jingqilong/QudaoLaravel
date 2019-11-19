@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\ShopGoodsSpecRelateModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Services\Common\ImagesService;
 
 class ShopGoodsSpecRelateRepository extends ApiRepository
 {

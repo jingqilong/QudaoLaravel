@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Enums\CommentsEnum;
 use App\Models\CommonCommentsModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Services\Common\ImagesService;
 
 class CommonCommentsRepository extends ApiRepository
 {
@@ -30,7 +31,10 @@ class CommonCommentsRepository extends ApiRepository
             'hidden'        => CommentsEnum::ACTIVITE,
             'deleted_at'    => 0
         ];
-        $comment = $this->getOrderOne($where,'created_at','desc');
+        $check = ['id','content','comment_name','comment_avatar','image_ids','member_id','created_at'];
+        $comment = $this->getOrderOne($where,'created_at','desc',$check);
+        $comment = ImagesService::getOneImagesConcise($comment,['image_ids' => 'several']);
+        unset($comment['image_ids']);s
         return $comment;
     }
 }

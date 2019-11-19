@@ -340,10 +340,7 @@ class GoodsService extends BaseService
             return false;
         }
         $comments = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $banner_ids = explode(',', $goods_detail['banner_ids']);
-        $image_ids  = explode(',', $goods_detail['image_ids']);
-        $goods_detail['banner_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $banner_ids]], ['img_url']), 'img_url');
-        $goods_detail['detail_img'] = array_column(CommonImagesRepository::getList(['id' => ['in', $image_ids]], ['img_url']), 'img_url');
+        $goods_detail = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several']);
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price'] = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
