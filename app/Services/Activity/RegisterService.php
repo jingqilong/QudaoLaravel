@@ -4,6 +4,7 @@ namespace App\Services\Activity;
 
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\MemberGradeRepository;
@@ -11,6 +12,7 @@ use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -76,14 +78,16 @@ class RegisterService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (ActivityRegisterRepository::getAddId($add_arr)){
-            //TODO 此处可以添加报名后发通知的事务
+        if ($register_id = ActivityRegisterRepository::getAddId($add_arr)){
+            $title   = '活动报名成功';
+            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
             #发送短信
             if (!empty($member->m_phone)){
                 $sms = new SmsService();
-                $content = '您好！欢迎参加活动《'.$activity['name'].'》,我们将在24小时内受理您的报名申请，如有疑问请联系客服：000-00000！';
                 $sms->sendContent($member->m_phone,$content);
             }
+            #发送站内信
+            SendService::sendMessage($member->m_id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
             $this->setMessage('报名成功！');
             return true;
         }

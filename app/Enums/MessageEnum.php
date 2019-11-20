@@ -22,7 +22,11 @@ class MessageEnum extends BaseEnum
         'PROJECTBOOKING'=> '项目对接预约通知',
         'PRIMEBOOKING'  => '精选生活预约通知',
         'SHOPOORDER'    => '商城订单通知',
-        'SCOREBOOKING'  => '积分通知'
+        'SCOREBOOKING'  => '积分通知',
+        //用户类型
+        'MEMBER'        => '会员',
+        'MERCHANT'      => '商户',
+        'OAEMPLOYEES'   => 'OA员工'
 
     ];
 
@@ -39,10 +43,16 @@ class MessageEnum extends BaseEnum
         5   => 'HOUSEBOOKING'  ,
         6   => 'MEDICALBOOKING',
         7   => 'LOANBOOKING'   ,
-        8   => 'OBJECTBOOKING' ,
+        8   => 'PROJECTBOOKING' ,
         9   => 'PRIMEBOOKING'  ,
         10  => 'SHOPOORDER'   ,
         11  => 'SCOREBOOKING'   ,
+    ];
+
+    public static $user_type = [
+        1   => 'MEMBER',
+        2   => 'MERCHANT',
+        3   => 'OAEMPLOYEES',
     ];
 
     public static $template = [
@@ -106,10 +116,14 @@ class MessageEnum extends BaseEnum
     const HOUSEBOOKING      = 5;
     const MEDICALBOOKING    = 6;
     const LOANBOOKING       = 7;
-    const OBJECTBOOKING     = 8;
+    const PROJECTBOOKING    = 8;
     const PRIMEBOOKING      = 9;
     const SHOPOORDER        = 10;
     const SCOREBOOKING      = 11;
+    //用户类型
+    const MEMBER            = 1;
+    const MERCHANT          = 2;
+    const OAEMPLOYEES       = 3;
 
     /**
      * @param int $value        值

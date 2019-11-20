@@ -139,7 +139,7 @@ class MerchantService extends BaseService
             'shorttitle'        => $request['shorttitle'],
             'describe'          => $request['describe'],
             'star'              => $request['star'] ?? 0,
-            'expect_spend'      => $request['expect_spend'] ?? '',
+            'expect_spend'      => $request['expect_spend'] ?? 0,
             'discount'          => $request['discount'] ?? '',
         ];
         if (PrimeMerchantRepository::exists($merchant_add_arr)){
