@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\OaMessageSendModel;
+use App\Models\MessageSendModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class OaMessageSendRepository extends ApiRepository
+class MessageSendRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class OaMessageSendRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(OaMessageSendModel $model)
+    public function __construct(MessageSendModel $model)
     {
         $this->model = $model;
     }

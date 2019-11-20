@@ -241,6 +241,24 @@ $api->version('v1',function ($api){
             });
         });
 
+        $api->group(['prefix' => 'message','namespace' => 'Message'],function ($api){
+            //消息会员
+            $api->group(['middleware' => 'member.jwt.auth'],function($api){
+                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('成员活动抽奖');
+            });
+            //消息后台
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+                $api->post('add_category','MessageCategoryController@addCategory')->name('添加消息分类');
+                $api->post('disable_category','MessageCategoryController@disableCategory')->name('禁用或开启消息分类');
+                $api->post('edit_category','MessageCategoryController@editCategory')->name('编辑消息分类');
+                $api->get('get_category_list','MessageCategoryController@getCategoryList')->name('获取消息分类列表');
+            });
+            //消息商户
+            $api->group(['middleware' => 'prime.jwt.auth'],function($api){
+                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('成员活动抽奖');
+            });
+        });
+
         //成员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){

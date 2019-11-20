@@ -285,8 +285,8 @@ class DetailService extends BaseService
             $value['area_address']  = $area_address;
             $value['is_recommend']  = $value['is_recommend'] != 0 ? 1 : 0;
             $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
-            $value['start_time']    = date('Y-m-d H:m:i',$value['start_time']);
-            $value['end_time']      = date('Y-m-d H:m:i',$value['end_time']);
+            $value['start_time']    = date('Y-m-d H:m',$value['start_time']);
+            $value['end_time']      = date('Y-m-d H:m',$value['end_time']);
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
             $value['deleted_at']    = $value['deleted_at'] != 0 ? date('Y-m-d H:m:i',$value['deleted_at']) : '0';

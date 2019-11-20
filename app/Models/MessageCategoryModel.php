@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class OaMessageSendModel extends Model
+class MessageCategoryModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class OaMessageSendModel extends Model
      *
      * @var string
      */
-    protected $table = 'oa_message_send';
+    protected $table = 'message_category';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class OaMessageSendModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','user_id','message_id','created_at','deleted_at'];
+    protected $fillable = ['id','title','explain','status','created_at','updated_at'];
 
 
 

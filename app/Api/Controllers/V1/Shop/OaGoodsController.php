@@ -192,7 +192,7 @@ class OaGoodsController extends ApiController
             'price'             => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
             'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
-            'labels'            => 'regex:/^[\s-\S]+[,][\s-\S]+$/',
+            'labels'            => 'regex:/^[\s-\S]+$/',
             'stock'             => 'required|integer',
             'express_price'     => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'score_deduction'   => 'integer',
