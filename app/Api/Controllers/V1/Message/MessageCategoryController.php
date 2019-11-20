@@ -318,10 +318,10 @@ class MessageCategoryController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
 
-        $res = $this->categoryService->addCategory($this->request);
+        $res = $this->categoryService->getCategoryList($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->categoryService->error];
         }
-        return ['code' => 200, 'message' => $this->categoryService->message];
+        return ['code' => 200, 'message' => $this->categoryService->message,'data' => $res];
     }
 }

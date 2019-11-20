@@ -3,6 +3,7 @@ namespace App\Services\Message;
 
 
 use App\Enums\MessageEnum;
+use App\Enums\MessageTemplateEnum;
 use App\Repositories\MessageCategoryRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;

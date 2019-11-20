@@ -27,7 +27,7 @@ class MessageDefModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','category','title','content','image_ids','created_at','updated_at'];
+    protected $fillable = ['id','category','title','content','relate_id','image_ids','url','created_at','updated_at'];
 
 
 
