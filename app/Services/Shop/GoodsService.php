@@ -55,7 +55,7 @@ class GoodsService extends BaseService
             'category'          => $request['category'],
             'price'             => $request['price'] * 100,
             'details'           => $request['details'] ?? '',
-            'labels'            => $request['labels'] ? ','.$request['labels'].',' : '',
+            'labels'            => isset($request['labels']) ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -159,7 +159,7 @@ class GoodsService extends BaseService
             'category'          => $request['category'],
             'price'             => $request['price'] * 100,
             'details'           => $request['details'] ?? '',
-            'labels'            => $request['labels'] ? ','.$request['labels'].',' : '',
+            'labels'            => isset($request['labels']) ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -241,7 +241,7 @@ class GoodsService extends BaseService
             if ($categories = $this->searchArray($category_list,'id',$v['category'])){
                 $v['category_title'] = reset($categories)['name'];
             }
-            $v['price']         = empty($value['price']) ? 0 : round($value['price'] / 100,2);
+            $v['price']         = empty($v['price']) ? 0 : round($v['price'] / 100,2);
             $v['is_recommend']  = $v['is_recommend'] !== 0 ? 1 : 0;
             $v['status_title']        = ShopGoodsEnum::getStatus($v['status']);
         }
