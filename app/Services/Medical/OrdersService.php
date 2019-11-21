@@ -62,7 +62,7 @@ class OrdersService extends BaseService
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
         $check_where    = ['member_id' =>  $memberInfo->m_id,'doctor_id' => $request['doctor_id'],'status' => DoctorEnum::SUBMIT];
-        if (!MedicalOrdersRepository::exists($check_where)){
+        if (MedicalOrdersRepository::exists($check_where)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
