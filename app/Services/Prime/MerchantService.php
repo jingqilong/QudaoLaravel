@@ -131,7 +131,7 @@ class MerchantService extends BaseService
         $info_add_arr = [
             'type'              => $request['type'],
             'license'           => $request['license'] ?? '',
-            'license_img_id'    => $request['license_img_id'] ?? '',
+            'license_img_id'    => $request['license_img_id'] ?? 0,
             'area_code'         => $request['area_code'] ?? '',
             'address'           => $request['address'] ?? '',
             'banner_ids'        => $request['banner_ids'],
@@ -139,7 +139,7 @@ class MerchantService extends BaseService
             'shorttitle'        => $request['shorttitle'],
             'describe'          => $request['describe'],
             'star'              => $request['star'] ?? 0,
-            'expect_spend'      => $request['expect_spend'] ?? '',
+            'expect_spend'      => $request['expect_spend'] ?? 0,
             'discount'          => $request['discount'] ?? '',
         ];
         if (PrimeMerchantRepository::exists($merchant_add_arr)){
@@ -201,7 +201,7 @@ class MerchantService extends BaseService
      */
     public function editMerchant($request)
     {
-        if (PrimeMerchantRepository::exists(['id' => $request['id']])){
+        if (!PrimeMerchantRepository::exists(['id' => $request['id']])){
             $this->setError('该商户不存在');
             return false;
         }
@@ -231,7 +231,7 @@ class MerchantService extends BaseService
         $info_upd_arr = [
             'type'              => $request['type'],
             'license'           => $request['license'] ?? '',
-            'license_img_id'    => $request['license_img_id'] ?? '',
+            'license_img_id'    => $request['license_img_id'] ?? 0,
             'area_code'         => $request['area_code'] ?? '',
             'address'           => $request['address'] ?? '',
             'banner_ids'        => $request['banner_ids'],
@@ -239,7 +239,7 @@ class MerchantService extends BaseService
             'shorttitle'        => $request['shorttitle'],
             'describe'          => $request['describe'],
             'star'              => $request['star'] ?? 0,
-            'expect_spend'      => $request['expect_spend'] ?? '',
+            'expect_spend'      => $request['expect_spend'] ?? 0,
             'discount'          => $request['discount'] ?? '',
         ];
         if (PrimeMerchantRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){

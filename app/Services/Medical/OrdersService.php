@@ -4,6 +4,7 @@ namespace App\Services\Medical;
 
 use App\Enums\DoctorEnum;
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
@@ -14,6 +15,7 @@ use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -178,15 +180,28 @@ class OrdersService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                DoctorEnum::PASS   =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::MEDICALBOOKING,
+                        'auditPass',
+                        ['member_name' => $member_name,'doctor_name' => $doctor['name']]
+                    ),
+                DoctorEnum::NOPASS =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::MEDICALBOOKING,
+                        'auditNoPass',
+                        ['member_name' => $member_name,'doctor_name' => $doctor['name']]
+                    ),
+            ];
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    DoctorEnum::PASS   => '尊敬的'.$member_name.'您好！您预约的《'.$doctor['name'].'》医生专诊,已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
-                    DoctorEnum::NOPASS => '尊敬的'.$member_name.'您好！您预约的《'.$doctor['name'].'》医生专诊,未通过审核,请您联系客服0000-00000再次预约，谢谢！',
-                ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title = '医疗预约通知';
+            #发送站内信
+            SendService::sendMessage($orderInfo['member_id'],MessageEnum::MEDICALBOOKING,$title,$sms_template[$status],$request['id']);
         }
         $this->setMessage('审核成功！');
         return true;

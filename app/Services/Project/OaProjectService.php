@@ -2,10 +2,15 @@
 namespace App\Services\Project;
 
 
+use App\Enums\HouseEnum;
+use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Enums\ProjectEnum;
+use App\Repositories\MemberRepository;
 use App\Repositories\OaProjectOrderRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -107,7 +112,7 @@ class OaProjectService extends BaseService
     public function setProjectOrderStatusById(array $data)
     {
         $id = $data['id'];
-        if (!OaProjectOrderRepository::exists(['id' => $id])){
+        if (!$order_info = OaProjectOrderRepository::getOne(['id' => $id])){
             $this->setError('无此订单!');
             return false;
         }
@@ -116,23 +121,40 @@ class OaProjectService extends BaseService
             'updated_at'  => time(),
         ];
 
-        if ($updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$upd_arr)){
-            if ($data['status'] == ProjectEnum::PASS){
-                //TODO 此处可以添加报名后发通知的事务
-                #发送短信
-                if (!empty($orderInfo)){
-                    $sms = new SmsService();
-                    $content = '您好！您预约的《'.$orderInfo['project_name'].'》项目,已通过审核,我们将在24小时内负责人联系您，请保持消息畅通，谢谢！';
-                    $sms->sendContent($orderInfo['mobile'],$content);
-                }
-                $this->setMessage('审核通过,消息已发送给联系人！');
-                return $updOrder;
-            }
-            $this->setMessage('审核成功！');
-            return $updOrder;
+        if (!$updOrder = OaProjectOrderRepository::getUpdId(['id' => $id],$upd_arr)){
+            $this->setError('审核失败，请重试!');
+            return false;
         }
-        $this->setError('审核失败，请重试!');
-        return false;
+        $status = $upd_arr['status'];
+        #通知用户
+        if ($member = MemberRepository::getOne(['m_id' => $order_info['user_id']])){
+            $member_name = $order_info['name'];
+            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                ProjectEnum::PASS         =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::PROJECTBOOKING,
+                        'auditPass',
+                        ['member_name' => $member_name,'project_name' => $order_info['project_name']]
+                    ),
+                ProjectEnum::NOPASS       =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::PROJECTBOOKING,
+                        'auditNoPass',
+                        ['member_name' => $member_name,'project_name' => $order_info['project_name']]
+                    ),
+            ];
+            #短信通知
+            if (!empty($member['m_phone'])){
+                $smsService = new SmsService();
+                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+            }
+            $title = '项目对接预约通知';
+            #发送站内信
+            SendService::sendMessage($order_info['user_id'],MessageEnum::PROJECTBOOKING,$title,$sms_template[$status],$id);
+        }
+        $this->setMessage('审核成功！');
+        return $updOrder;
     }
 }
             

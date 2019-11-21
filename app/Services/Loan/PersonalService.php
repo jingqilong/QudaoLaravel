@@ -4,10 +4,12 @@ namespace App\Services\Loan;
 
 use App\Enums\LoanEnum;
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\LoanPersonalRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -269,15 +271,18 @@ class PersonalService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $comment['user_id']])){
             $member_name = $comment['name'];
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                LoanEnum::PASS   => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditPass', ['member_name' => $member_name]),
+                LoanEnum::NOPASS => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditNoPass', ['member_name' => $member_name]),
+            ];
             #短信通知
             if (!empty($comment['mobile'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    LoanEnum::PASS   => '尊敬的'.$member_name.'您好！您的贷款预约已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
-                    LoanEnum::NOPASS => '尊敬的'.$member_name.'您好！您的贷款预约未通过审核,请您联系客服0000-00000再次预约，谢谢！',
-                ];
                 $smsService->sendContent($comment['mobile'],$sms_template[$status]);
             }
+            $title = '贷款预约通知';
+            #发送站内信
+            SendService::sendMessage($comment['user_id'],MessageEnum::LOANBOOKING,$title,$sms_template[$status],$id);
         }
         $this->setMessage('审核成功！');
         return true;

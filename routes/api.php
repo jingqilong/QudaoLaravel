@@ -244,7 +244,8 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'message','namespace' => 'Message'],function ($api){
             //消息会员
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
-                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('成员活动抽奖');
+                $api->get('member_message_list','MessageController@memberMessageList')->name('会员消息列表');
+                $api->get('member_message_details','MessageController@memberMessageDetails')->name('会员消息详情');
             });
             //消息后台
             $api->group(['middleware' => 'oa.jwt.auth'],function($api){
@@ -252,10 +253,18 @@ $api->version('v1',function ($api){
                 $api->post('disable_category','MessageCategoryController@disableCategory')->name('禁用或开启消息分类');
                 $api->post('edit_category','MessageCategoryController@editCategory')->name('编辑消息分类');
                 $api->get('get_category_list','MessageCategoryController@getCategoryList')->name('获取消息分类列表');
+
+                $api->get('get_all_message_list','OaMessageController@getAllMessageList')->name('获取所有消息列表');
+                $api->post('send_system_notice','OaMessageController@sendSystemNotice')->name('发送系统通知');
+                $api->post('send_announce','OaMessageController@sendAnnounce')->name('发送公告');
+
+                $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
+                $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
-                $api->post('activity_raffle','UserActivityController@activityRaffle')->name('成员活动抽奖');
+                $api->get('merchant_message_list','MessageController@merchantMessageList')->name('商户消息列表');
+                $api->get('merchant_message_details','MessageController@merchantMessageDetails')->name('商户消息详情');
             });
         });
 
