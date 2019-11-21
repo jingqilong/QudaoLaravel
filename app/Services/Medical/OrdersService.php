@@ -219,27 +219,36 @@ class OrdersService extends BaseService
         $hospitals_ids   = array_column($list,'hospital_id');
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
         $doctor_ids      = array_column($list,'doctor_id');
-        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','title','department_ids']);
+        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','department_ids','img_id']);
+        $doctors_img     = ImagesService::getListImagesConcise($doctors_list,['img_id' => 'single']);
+        $doctor_id       = array_column($list,'doctor_id');
+        $doctors_name    = MedicalDoctorsRepository::getAssignList($doctor_id,['id','title']);
         $department_ids      = array_column($doctors_list,'department_ids');
         $department_list    = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
-        //dd($department_list);
         foreach ($list as &$value){
             $value['hospitals_name'] = '';
-            $value['department_name'] = [];
-            $value['doctors'] = [];
+            $value['department_name'] = '';
+            $value['doctors_name'] = '';
+            $value['doctors_title'] = '';
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospitals_name'] = reset($hospitals)['name'];
             }
             if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
-                $value['doctors'] = reset($doctors);
+                $value['doctors_name'] = reset($doctors)['name'];
+            }
+            if ($doctors_title= $this->searchArray($doctors_name,'id',$value['id'])){
+                $value['doctors_title'] = reset($doctors_title)['title'];
             }
             if ($department = $this->searchArray($department_list,'id',$value['id'])){
                 $value['department_name'] = reset($department)['name'];
             }
+            if ($doctors_image = $this->searchArray($doctors_img,'id',$value['id'])){
+                $value['img_url'] = reset($doctors_image)['img_url'];
+            }
             $value['status_name']    = DoctorEnum::getStatus($value['status']);
             $value['type']           = DoctorEnum::getType($value['type']);
             unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['type'],$value['department_ids'],$value['doctors']['department_ids'],$value['doctors']['id'],
+                  $value['type'],$value['department_ids'],
                   $value['created_at'],$value['updated_at'],$value['deleted_at']
             );
         }
