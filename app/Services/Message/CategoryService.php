@@ -71,7 +71,7 @@ class CategoryService extends BaseService
      */
     public function editCategory($request)
     {
-        if (MessageCategoryRepository::exists(['id' => $request['id']])){
+        if (!MessageCategoryRepository::exists(['id' => $request['id']])){
             $this->setError('消息类别不存在！');
             return false;
         }
