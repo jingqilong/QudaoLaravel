@@ -313,7 +313,8 @@ class OrdersService extends BaseService
         $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
         $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
         $doctor                       = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']]);
-        $orderInfo['image_name']      = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
+        $doctor                       = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
+        $orderInfo['image_url']       = $doctor['img_url'];
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
