@@ -2,9 +2,12 @@
 
 namespace App\Api\Middleware;
 
+use App\Repositories\OaAdminMenuRepository;
 use App\Repositories\OaAdminOperationLogRepository;
 use App\Repositories\OaAdminPermissionsRepository;
+use App\Repositories\OaAdminRoleMenuRepository;
 use App\Repositories\OaAdminRolePermissionsRepository;
+use App\Traits\HelpTrait;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +16,7 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class OaPermission extends BaseMiddleware
 {
+    use HelpTrait;
     /**
      * Handle an incoming request.
      *
@@ -35,7 +39,6 @@ class OaPermission extends BaseMiddleware
         }else{
             if (empty($user->role_id)){
                 return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
-//                return ['code' => 405, 'message' => '无权访问！'];
             }
             $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id']);
             $permissions_ids = array_column($roles_info,'permission_id');
@@ -54,8 +57,16 @@ class OaPermission extends BaseMiddleware
                 }
             }
         }
+        if (!empty($user->role_id)){
+            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id])){
+                $menu_ids  = array_column($menu_role,'menu_id');
+                if (OaAdminMenuRepository::exists(['id' => ['in',$menu_ids],'path' => '/'.$raw_path,'method' => $method])){
+                    $this->recordLog($request,$user->id);
+                    return $next($request);
+                }
+            }
+        }
         return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
-//        return ['code' => 405, 'message' => '无权访问！'];
     }
 
     /**
@@ -75,5 +86,9 @@ class OaPermission extends BaseMiddleware
             'created_at'=> date('Y-m-d H:m:s',time())
         ];
         OaAdminOperationLogRepository::getAddId($add_log);
+    }
+
+    public function getRolePermission($role_id){
+
     }
 }
