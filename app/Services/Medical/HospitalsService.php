@@ -148,16 +148,25 @@ class HospitalsService extends BaseService
         return $list;
     }
 
+    /**
+     * 获取医院详情
+     * @param $request
+     * @return array|bool|null
+     */
     public function getHospitalDetail($request)
     {
         if(!$hospital = MediclaHospitalsRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
             $this->setError('医院不存在!');
             return false;
         }
-        $hospital = ImagesService::getListImagesConcise($hospital,['img_ids' => 'several']);dd($hospital);
-        $hospital['department_ids'] = MediclaHospitalsRepository::getListDepartment($hospital['department_ids']);
+        $hospital = ImagesService::getOneImagesConcise($hospital,['img_ids' => 'several']);
+        $department = explode(',',$hospital['department_ids']);
+        $hospital['recommend']  = $hospital['recommend'] == 0 ? 0 : 1;
+        $hospital['department_name'] = MedicalDepartmentsRepository::getList(['id' => ['in',$department]],['id','name']);
+        unset($hospital['created_at'],$hospital['updated_at'],$hospital['deleted_at'],$hospital['department_ids']);
+        $this->setMessage('获取成功!');
+        return $hospital;
 
-        dd($hospital);
     }
 }
             
