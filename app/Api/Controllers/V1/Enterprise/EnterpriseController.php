@@ -48,7 +48,7 @@ class EnterpriseController extends ApiController
      */
     public function getEnterpriseList()
     {
-        $list = $this->enterpriseService->getEnterpriseList($this->request);
+        $list = $this->enterpriseService->getEnterpriseList();
 
         return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $list];
     }
@@ -446,6 +446,130 @@ class EnterpriseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->enterpriseService->updOrderEnterprise($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->enterpriseService->error];
+        }
+        return ['code' => 200, 'message' => $this->enterpriseService->message];
+    }
+
+ /**
+     * @OA\Post(
+     *     path="/api/v1/enterprise/edit_enterprise",
+     *     tags={"企业咨询(前端页面)"},
+     *     summary="修改企业咨询订单信息",
+     *     operationId="edit_enterprise",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="订单ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="姓名",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="mobile",
+     *          in="query",
+     *          description="手机号",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="enterprise_name",
+     *          in="query",
+     *          description="企业咨询名称",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="service_type",
+     *          in="query",
+     *          description="服务类型 1企业咨询 2餐饮咨询 3公司咨询 4商业咨询",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="reservation_at",
+     *          in="query",
+     *          description="预约时间",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="remark",
+     *          in="query",
+     *          description="备注",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="修改企业咨询订单失败",),
+     * )
+     *
+     */
+    public function editEnterprise()
+    {
+        $rules = [
+            'id'                => 'required',
+            'name'              => 'required',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
+            'enterprise_name'   => 'required',
+            'service_type'      => 'required',
+            'reservation_at'    => 'required|date',
+        ];
+        $messages = [
+            'id.required'               => '无法获取到订单id',
+            'name.required'             => '请输入预约姓名',
+            'mobile.required'           => '请填写预约手机号',
+            'mobile.regex'              => '请正确填写手机号',
+            'enterprise_name.required'  => '请输入企业咨询名称',
+            'service_type.required'     => '请输入企业咨询服务类型',
+            'reservation_at.required'   => '请输入预约时间',
+            'reservation_at.date'       => '请输入正确预约时间',
+        ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->enterpriseService->editEnterprise($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->enterpriseService->error];
         }

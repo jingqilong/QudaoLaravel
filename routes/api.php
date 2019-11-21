@@ -432,7 +432,7 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'enterprise', 'namespace' => 'Enterprise'], function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_enterprise', 'EnterpriseController@addEnterprise')->name('根据ID添加企业咨询订单');
-                $api->post('upd_enterprise', 'EnterpriseController@updEnterprise')->name('根据ID修改企业咨询订单');
+                $api->post('edit_enterprise', 'EnterpriseController@editEnterprise')->name('根据ID修改企业咨询订单');
                 $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取本人企业咨询订单列表');
                 $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
             });
