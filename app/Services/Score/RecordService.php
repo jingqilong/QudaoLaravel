@@ -280,10 +280,13 @@ class RecordService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
+        DB::beginTransaction();
         if (ScoreCategoryRepository::getAddId($add_arr)){
+            DB::rollBack();
             $this->setMessage('添加成功！');
             return true;
         }
+        DB::rollBack();
         $this->setError('添加失败！');
         return false;
     }

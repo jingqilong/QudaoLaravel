@@ -252,6 +252,9 @@ $api->version('v1',function ($api){
                 $api->post('disable_category','MessageCategoryController@disableCategory')->name('禁用或开启消息分类');
                 $api->post('edit_category','MessageCategoryController@editCategory')->name('编辑消息分类');
                 $api->get('get_category_list','MessageCategoryController@getCategoryList')->name('获取消息分类列表');
+
+                $api->get('get_all_message_list','OaMessageController@getAllMessageList')->name('获取所有消息列表');
+                $api->post('send_system_notice','OaMessageController@sendSystemNotice')->name('发送系统通知');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
