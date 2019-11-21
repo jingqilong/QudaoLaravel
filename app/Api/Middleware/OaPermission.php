@@ -40,14 +40,6 @@ class OaPermission extends BaseMiddleware
             if (empty($user->role_id)){
                 return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
             }
-            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id])){
-                $menu_ids  = array_column($menu_role,'menu_id');
-                if (!OaAdminMenuRepository::exists(['id' => ['in',$menu_ids],'path' => '/'.$raw_path,'method' => $method])){
-                    return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
-                }
-                $this->recordLog($request,$user->id);
-                return $next($request);
-            }
             $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id']);
             $permissions_ids = array_column($roles_info,'permission_id');
         }
@@ -60,6 +52,15 @@ class OaPermission extends BaseMiddleware
                 $http_method = explode(',',$value['http_method']);
                 $http_path   = explode(',',$value['http_path']);
                 if (in_array($method, $http_method) && in_array($path, $http_path)){
+                    $this->recordLog($request,$user->id);
+                    return $next($request);
+                }
+            }
+        }
+        if (!empty($user->role_id)){
+            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id])){
+                $menu_ids  = array_column($menu_role,'menu_id');
+                if (OaAdminMenuRepository::exists(['id' => ['in',$menu_ids],'path' => '/'.$raw_path,'method' => $method])){
                     $this->recordLog($request,$user->id);
                     return $next($request);
                 }
