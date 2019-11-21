@@ -56,6 +56,45 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="img_ids",
+     *         in="query",
+     *         description="照片ids  1,2,3,",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="domain",
+     *         in="query",
+     *         description="擅长领域",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *
+     *     ),
+     *     @OA\Parameter(
+     *         name="department_ids",
+     *         in="query",
+     *         description="科室 1,2,3,",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="awards",
+     *         in="query",
+     *         description="获奖情况",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *
+     *     @OA\Parameter(
      *         name="introduction",
      *         in="query",
      *         description="简介",
@@ -82,13 +121,23 @@ class HospitalsController extends ApiController
      */
     public function addHospitals(){
         $rules = [
-            'name'         => 'required',
-            'recommend'    => 'required|integer',
+            'name'              => 'required',
+            'img_ids'           => 'required',
+            'domain'            => 'required',
+            'department_ids'    => 'required',
+            'awards'            => 'required',
+            'introduction'      => 'required',
+            'recommend'         => 'required|in:1,2',
         ];
         $messages = [
-            'name.required'        => '医疗医院标题不能为空',
-            'recommend.required'   => '医疗医院推荐不能为空',
-            'recommend.integer'    => '医疗医院推荐码不正确',
+            'name.required'             => '医疗医院标题不能为空',
+            'img_ids.required'          => '医疗医院照片不能为空',
+            'domain.required'           => '医疗医院擅长领域不能为空',
+            'department_ids.required'   => '医疗医院科室不能为空',
+            'awards.required'           => '医疗医院获奖情况不能为空',
+            'introduction.required'     => '医疗医院标题不能为空',
+            'recommend.required'        => '医疗医院简介不能为空',
+            'recommend.in'              => '医疗医院推荐不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -387,6 +436,66 @@ class HospitalsController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->HospitalsServices->getHospitalList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->HospitalsServices->error];
+        }
+        return ['code' => 200, 'message' => $this->HospitalsServices->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/hospital_detail",
+     *     tags={"医疗医院前端"},
+     *     summary="用户获取医疗医院详情",
+     *     description="jing" ,
+     *     operationId="hospital_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="医院ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function hospitalDetail(){
+        $rules = [
+            'id'          => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '医院ID不能为空',
+            'id.integer'    => '医院ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->HospitalsServices->getHospitalDetail($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->HospitalsServices->error];
         }

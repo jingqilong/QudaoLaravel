@@ -28,10 +28,14 @@ class HospitalsService extends BaseService
             $this->setError('医院名称已被使用！');
             return false;
         }
-        $add_arr['introduction']   =$request['introduction'];
-        $add_arr['recommend']   = $request['recommend'] == 1 ? time() : 0;
-        $add_arr['created_at'] = time();
-        $add_arr['updated_at'] = time();
+        $add_arr['domain']           = $request['domain'];
+        $add_arr['img_ids']          = $request['img_ids'];
+        $add_arr['department_ids']   = $request['department_ids'];
+        $add_arr['awards']           = $request['awards'];
+        $add_arr['introduction']     = $request['introduction'];
+        $add_arr['recommend']        = $request['recommend'] == 1 ? time() : 0;
+        $add_arr['created_at']       = time();
+        $add_arr['updated_at']       = time();
         if (MediclaHospitalsRepository::getAddId($add_arr)){
             $this->setMessage('添加成功！');
             return true;
@@ -106,7 +110,7 @@ class HospitalsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data']    = ImagesService::getListImages($list['data'],['img_ids' => 'single']);
+        $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         foreach ($list['data'] as &$value){
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
@@ -135,13 +139,25 @@ class HospitalsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data']    = ImagesService::getListImages($list['data'],['img_ids' => 'single']);
+        $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         foreach ($list['data'] as &$value){
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             unset($value['img_ids']);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    public function getHospitalDetail($request)
+    {
+        if(!$hospital = MediclaHospitalsRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('医院不存在!');
+            return false;
+        }
+        $hospital = ImagesService::getListImagesConcise($hospital,['img_ids' => 'several']);dd($hospital);
+        $hospital['department_ids'] = MediclaHospitalsRepository::getListDepartment($hospital['department_ids']);
+
+        dd($hospital);
     }
 }
             

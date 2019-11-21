@@ -5,10 +5,8 @@ namespace App\Services\Medical;
 use App\Enums\DoctorEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
-use App\Repositories\MedicalHospitalRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
@@ -241,7 +239,7 @@ class OrdersService extends BaseService
             $value['type']      = DoctorEnum::getType($value['type']);
             unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
                   $value['status'],$value['type'],$value['department_ids'],
-                  $value['created_at'],$value['updated_at'],$value['deleted_at'],
+                  $value['created_at'],$value['updated_at'],$value['deleted_at']
             );
         }
 
