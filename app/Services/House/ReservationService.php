@@ -4,11 +4,13 @@ namespace App\Services\House;
 
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 
 class ReservationService extends BaseService
@@ -137,15 +139,28 @@ class ReservationService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
             $member_name = $reservation['name'];
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                HouseEnum::PASS         =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::HOUSEBOOKING,
+                        'auditPass',
+                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['start_time'])]
+                    ),
+                HouseEnum::NOPASS       =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::HOUSEBOOKING,
+                        'auditNoPass',
+                        ['member_name' => $member_name]
+                    ),
+            ];
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    HouseEnum::PASS         => '尊敬的'.$member_name.'您好！您的看房预约已经通过审核，看房时间：'.date('Y-m-d H:i',$reservation['time']).'，我们的负责人稍后会跟您联系，请耐心等待！',
-                    HouseEnum::NOPASS       => '尊敬的'.$member_name.'您的看房预约未通过审核，再看看其他房源吧！',
-                ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title = '房产预约通知';
+            #发送站内信
+            SendService::sendMessage($reservation['member_id'],MessageEnum::HOUSEBOOKING,$title,$sms_template[$status],$id);
         }
         $this->setMessage('审核成功！');
         return true;

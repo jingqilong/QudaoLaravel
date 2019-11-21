@@ -3,6 +3,7 @@ namespace App\Services\Shop;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
@@ -21,6 +22,7 @@ use App\Repositories\{CommonExpressRepository,
     ShopOrderRelateViewRepository};
 use App\Services\Common\SmsService;
 use App\Services\Member\TradesService;
+use App\Services\Message\SendService;
 use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -554,12 +556,20 @@ class OrderRelateService extends BaseService
             $member_name = $member['m_cname'];
             $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['m_sex']);
             $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
+            $sms_template =
+                MessageEnum::getTemplate(
+                    MessageEnum::SHOPOORDER,
+                    'shipment',
+                    ['member_name' => $member_name,'order_no' => $order_no,'express_company_name' => $express_company['company_name'],'express_number' => $request['express_number']]
+                );
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = '尊敬的'.$member_name.'您好！您的订单：'.$order_no .'已发货,快递公司：'.$express_company['company_name'] . '，快递单号：' . $request['express_number'] . '。';
                 $smsService->sendContent($member['m_phone'],$sms_template);
             }
+            $title = '商城订单通知';
+            #发送站内信
+            SendService::sendMessage($order_relate['member_id'],MessageEnum::SHOPOORDER,$title,$sms_template,$request['order_relate_id']);
         }
         $this->setMessage('发货成功！');
         return true;

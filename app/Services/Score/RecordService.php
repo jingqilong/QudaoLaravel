@@ -3,6 +3,7 @@ namespace App\Services\Score;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Enums\ScoreEnum;
 use App\Repositories\MemberRepository;
 use App\Repositories\ScoreCategoryRepository;
@@ -10,18 +11,21 @@ use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ScoreRecordViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
 
 class RecordService extends BaseService
 {
     use HelpTrait;
+
     /**
      * 增加积分
      * @param $score_type
      * @param $score
      * @param $member_id
      * @param $remark
+     * @param string $explain
      * @return bool
      */
     public function increaseScore($score_type, $score, $member_id, $remark,$explain = '获得'){
@@ -42,7 +46,7 @@ class RecordService extends BaseService
             'created_at'            => time()
         ];
         DB::beginTransaction();
-        if (!ScoreRecordRepository::getAddId($add_arr)){
+        if (!$score_id = ScoreRecordRepository::getAddId($add_arr)){
             $this->setError('操作失败！');
             DB::rollBack();
             return false;
@@ -58,12 +62,20 @@ class RecordService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $score_record['member_id']])){
             $member_name = mb_substr($score_record['member_name'],0,1);
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template =
+                MessageEnum::getTemplate(
+                    MessageEnum::SCOREBOOKING,
+                    'increaseScore',
+                    ['member_name' => $member_name,'time' => date('Y年m月d日',time()),'explain' => $explain,'score_name' => $score_record['score_name'],'remnant_score' => $add_arr['remnant_score'],'score' => $score]
+                );
             #短信通知
             if (!empty($score_record['member_mobile'])){
                 $smsService = new SmsService();
-                $sms_template = '尊敬的'.$member_name.',您于'.date('Y年m月d日',time()).'在渠道PLUS资源共享平台'.$explain.$score_record['score_name'].$score.'分，当前可用'.$add_arr['remnant_score'].'分。';
                 $smsService->sendContent($score_record['member_mobile'],$sms_template);
             }
+            $title = '积分赠送通知';
+            #发送站内信
+            SendService::sendMessage($score_record['member_id'],MessageEnum::SCOREBOOKING,$title,$sms_template,$score_id);
         }
         $this->setMessage('操作成功！');
         DB::commit();
@@ -103,7 +115,7 @@ class RecordService extends BaseService
             'created_at'            => time()
         ];
         DB::beginTransaction();
-        if (!ScoreRecordRepository::getAddId($add_arr)){
+        if (!$score_id = ScoreRecordRepository::getAddId($add_arr)){
             $this->setError('操作失败！');
             DB::rollBack();
             return false;
@@ -117,12 +129,20 @@ class RecordService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $score_record['member_id']])){
             $member_name = mb_substr($score_record['member_name'],0,1);
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template =
+                MessageEnum::getTemplate(
+                    MessageEnum::SCOREBOOKING,
+                    'expenseScore',
+                    ['member_name' => $member_name,'time' => date('Y年m月d日',time()),'score_name' => $score_record['score_name'],'remnant_score' => $add_arr['remnant_score'],'score' => $score]
+                );
             #短信通知
             if (!empty($score_record['member_mobile'])){
                 $smsService = new SmsService();
-                $sms_template = '尊敬的'.$member_name.',您于'.date('Y年m月d日',time()).'在渠道PLUS资源共享平台消费'.$score_record['score_name'].$score.'分，当前可用'.$add_arr['remnant_score'].'分。';
                 $smsService->sendContent($score_record['member_mobile'],$sms_template);
             }
+            $title = '积分赠送通知';
+            #发送站内信
+            SendService::sendMessage($score_record['member_id'],MessageEnum::SCOREBOOKING,$title,$sms_template,$score_id);
         }
         $this->setMessage('操作成功！');
         DB::commit();

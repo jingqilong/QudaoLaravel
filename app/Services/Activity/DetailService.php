@@ -312,8 +312,8 @@ class DetailService extends BaseService
         $activity['area_address']  = $area_address;
         $activity['theme']         = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
         $activity['price']         = empty($activity['price']) ? '0' : round($activity['price'] / 100,2);
-        $activity['start_time']    = date('Y-m-d H:m:i',$activity['start_time']);
-        $activity['end_time']      = date('Y-m-d H:m:i',$activity['end_time']);
+        $activity['start_time']    = date('Y-m-d H:m',$activity['start_time']);
+        $activity['end_time']      = date('Y-m-d H:m',$activity['end_time']);
         $activity['images']        = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);

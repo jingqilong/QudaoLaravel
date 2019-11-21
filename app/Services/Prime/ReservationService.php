@@ -3,6 +3,7 @@ namespace App\Services\Prime;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\PrimeTypeEnum;
 use App\Repositories\MemberOrdersRepository;
@@ -15,6 +16,7 @@ use App\Services\BaseService;
 use App\Services\Common\ImagesService as CommonImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Member\OrdersService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -174,15 +176,28 @@ class ReservationService extends BaseService
         if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
             $member_name = $reservation['name'];
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                PrimeTypeEnum::RESERVATIONOK =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::PRIMEBOOKING,
+                        'auditPass',
+                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                    ),
+                PrimeTypeEnum::RESERVATIONNO =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::PRIMEBOOKING,
+                        'auditPass',
+                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                    ),
+            ];
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    PrimeTypeEnum::RESERVATIONOK => '尊敬的'.$member_name.'您好！您的精选生活预约已经通过审核，预约时间：'.date('Y年m月d日 H点i分',$reservation['time']).'！',
-                    PrimeTypeEnum::RESERVATIONNO => '尊敬的'.$member_name.'您的精选生活预约未通过审核，再看看其他服务吧！',
-                ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title = '房产预约通知';
+            #发送站内信
+            SendService::sendMessage($reservation['member_id'],MessageEnum::PRIMEBOOKING,$title,$sms_template[$status],$id);
         }
         $this->setMessage('审核成功！');
         return true;

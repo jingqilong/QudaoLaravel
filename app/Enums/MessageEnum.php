@@ -59,8 +59,8 @@ class MessageEnum extends BaseEnum
         3 =>
             [
                 'register'          => '您好！欢迎参加活动《activity_name》,我们将在24小时内受理您的报名申请，如有疑问请联系客服：021-53067999！',
-                'auditPassSubmit'=> '尊敬的member_name您好！您报名的《activity_name》活动已经通过审核，活动开始时间：time,支付后即可参加活动！',
-                'auditPassEvaluation'   => '尊敬的member_name您好！您报名的《activity_name》活动已经通过审核，活动开始时间：time，记得提前到场哦！',
+                'auditPassSubmit'   => '尊敬的member_name您好！您报名的《activity_name》活动已经通过审核，活动开始时间：time,支付后即可参加活动！',
+                'auditPassEvaluation'=> '尊敬的member_name您好！您报名的《activity_name》活动已经通过审核，活动开始时间：time，记得提前到场哦！',
                 'auditNoPass'       => '尊敬的member_name您好！您报名的《activity_name》活动审核未通过，请不要灰心，您还可以参加我们后续的活动哦！',
             ],
         4 =>
@@ -84,8 +84,8 @@ class MessageEnum extends BaseEnum
             ],
         8 =>
             [
-                'auditPass'         => '您好！您预约的《project_name》项目,已通过审核,我们将在24小时内负责人联系您，请保持消息畅通，谢谢！',
-                'auditNoPass'       => '您好！您预约的《project_name》项目,未通过审核,请您联系客服021-53067999再次预约，谢谢！',
+                'auditPass'         => '尊敬的member_name您好！您预约的《project_name》项目,已通过审核,我们将在24小时内负责人联系您，请保持消息畅通，谢谢！',
+                'auditNoPass'       => '尊敬的member_name您好！您预约的《project_name》项目,未通过审核,请您联系客服021-53067999再次预约，谢谢！',
             ],
         9 =>
             [
