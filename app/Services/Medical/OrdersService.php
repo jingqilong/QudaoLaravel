@@ -219,10 +219,13 @@ class OrdersService extends BaseService
         $hospitals_ids   = array_column($list,'hospital_id');
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
         $doctor_ids      = array_column($list,'doctor_id');
-        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','title']);
-
+        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','title','department_ids']);
+        $department_ids      = array_column($doctors_list,'department_ids');
+        $department_list    = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        //dd($department_list);
         foreach ($list as &$value){
             $value['hospitals_name'] = '';
+            $value['department_name'] = [];
             $value['doctors'] = [];
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospitals_name'] = reset($hospitals)['name'];
@@ -230,10 +233,13 @@ class OrdersService extends BaseService
             if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
                 $value['doctors'] = reset($doctors);
             }
+            if ($department = $this->searchArray($department_list,'id',$value['id'])){
+                $value['department_name'] = reset($department)['name'];
+            }
             $value['status_name']    = DoctorEnum::getStatus($value['status']);
             $value['type']           = DoctorEnum::getType($value['type']);
             unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['type'],$value['department_ids'],
+                  $value['type'],$value['department_ids'],$value['doctors']['department_ids'],$value['doctors']['id'],
                   $value['created_at'],$value['updated_at'],$value['deleted_at']
             );
         }
