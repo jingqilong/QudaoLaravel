@@ -312,11 +312,12 @@ class OrdersService extends BaseService
         }
         $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
         $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
+        $doctor                       = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']]);
+        $orderInfo['image_name']      = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        unset($orderInfo['member_id'],$orderInfo['doctor_id'],
-              $orderInfo['sex'],      $orderInfo['hospital_id'],
+        unset($orderInfo['member_id'],$orderInfo['sex'],$orderInfo['hospital_id'],
               $orderInfo['status'],   $orderInfo['type']);
         $this->setMessage('查找成功!');
         return $orderInfo;
