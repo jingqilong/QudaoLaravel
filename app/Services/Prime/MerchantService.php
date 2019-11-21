@@ -201,7 +201,7 @@ class MerchantService extends BaseService
      */
     public function editMerchant($request)
     {
-        if (PrimeMerchantRepository::exists(['id' => $request['id']])){
+        if (!PrimeMerchantRepository::exists(['id' => $request['id']])){
             $this->setError('该商户不存在');
             return false;
         }

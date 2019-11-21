@@ -4,6 +4,7 @@ namespace App\Services\Activity;
 
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
+use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
@@ -219,17 +220,35 @@ class RegisterService extends BaseService
         //通知用户
         if ($member = MemberRepository::getOne(['m_id' => $register['member_id']])){
             $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
-            $member_name = $member_name.$member['m_sex'];
+            $member_name = $member_name.MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                ActivityRegisterEnum::SUBMIT        =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditPassSubmit',
+                        ['member_name' => $member_name,'activity_name' => $activity['name'],'time' => date('Y-m-d H:i',$activity['start_time'])]
+                    ),
+                ActivityRegisterEnum::EVALUATION    =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditPassEvaluation',
+                        ['member_name' => $member_name,'activity_name' => $activity['name'],'time' => date('Y-m-d H:i',$activity['start_time'])]
+                    ),
+                ActivityRegisterEnum::NOPASS        =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditNoPass',
+                        ['member_name' => $member_name,'activity_name' => $activity['name']]
+                    ),
+            ];
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    ActivityRegisterEnum::SUBMIT        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).',支付后即可参加活动！',
-                    ActivityRegisterEnum::EVALUATION    => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).'，记得提前到场哦！',
-                    ActivityRegisterEnum::NOPASS        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动审核未通过，请不要灰心，您还可以参加我们后续的活动哦！',
-                ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title   = '活动报名通知';
+            #发送站内信
+            SendService::sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$sms_template[$status],$register_id);
         }
         $this->setMessage('审核成功！');
         DB::commit();
