@@ -57,12 +57,10 @@ class OrdersService extends BaseService
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'],
             'type'               =>  $request['type'],
-            'created_at'         =>  time(),
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
-        $check_where    = ['member_id' =>  $memberInfo->m_id,'doctor_id' => $request['doctor_id'],'status' => DoctorEnum::SUBMIT];
-        if (MedicalOrdersRepository::exists($check_where)){
+        if (MedicalOrdersRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
@@ -74,10 +72,7 @@ class OrdersService extends BaseService
             $this->setError('截止时间必须大于预约时间!');
             return false;
         }
-        if (MedicalOrdersRepository::exists($add_arr)){
-            $this->setError('预约已提交!');
-            return false;
-        }
+        $add_arr['created_at'] = time();
         if (!MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
