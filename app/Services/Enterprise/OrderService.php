@@ -29,25 +29,23 @@ class OrderService extends BaseService
 
     /**
      * 获取项目对接订单列表  （前端使用）
-     * @param array $data
      * @return mixed
      */
-    public function getEnterpriseList(array $data)
+    public function getEnterpriseList()
     {
         $memberInfo = $this->auth->user();
-
         $where  = ['deleted_at' => 0,'user_id' => $memberInfo['m_id']];
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
         if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc')){
             $this->setMessage('没有数据！');
             return [];
         }
-        if (empty($list['data'])){
+        if (empty($list)){
             $this->setMessage('没有数据！');
             return $list;
         }
         $list = $this->removePagingField($list);
-        foreach ($list['data'] as &$value)
+        foreach ($list as &$value)
         {
             $value['type_name']         =   EnterEnum::getType($value['service_type']);
             $value['status_name']       =   EnterEnum::getStatus($value['status']);
@@ -259,6 +257,39 @@ class OrderService extends BaseService
         }
         $this->setMessage('审核成功！');
         return true;
+    }
+
+    /**
+     * 根据ID修改企业咨询订单
+     * @param $request
+     * @return bool
+     */
+    public function editEnterprise($request)
+    {
+        $id = $request['id'];
+
+        if (!EnterpriseOrderRepository::getOne(['id' => $id,'deleted_at' => 0])){
+            $this->setError('没有找到该订单！');
+            return false;
+        }
+        $status                 =  EnterEnum::SUBMIT;
+        $upd_arr = [
+            'name'              => $request['name'],
+            'mobile'            => $request['mobile'],
+            'enterprise_name'   => $request['enterprise_name'],
+            'service_type'      => $request['service_type'],
+            'remark'            => $request['remark'],
+            'status'            => $status,
+            'reservation_at'    => strtotime($request['reservation_at']),
+        ];
+        $upd_arr['updated_at']  = time();
+        if (!EnterpriseOrderRepository::getUpdId(['id' => $id],$upd_arr)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('恭喜你，修改成功');
+        return true;
+
     }
 }
             
