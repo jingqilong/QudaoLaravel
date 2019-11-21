@@ -233,7 +233,7 @@ class DoctorsService extends BaseService
               $doctorInfo['img_id'],    $doctorInfo['sex'],
               $doctorInfo['member_id'], $doctorInfo['recommend'],
               $doctorInfo['label_ids'], $doctorInfo['department_ids'],
-              $doctorInfo['deleted_at'],$doctorInfo['hospitals_id']);
+              $doctorInfo['deleted_at']);
 
         $this->setMessage('获取成功!');
         return $doctorInfo;

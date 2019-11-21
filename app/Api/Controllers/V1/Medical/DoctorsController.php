@@ -520,7 +520,7 @@ class DoctorsController extends ApiController
      * @OA\Get(
      *     path="/api/v1/medical/get_doctor",
      *     tags={"医疗医院前端"},
-     *     summary="获取医生列表(oa)",
+     *     summary="获取医生列表",
      *     description="jing" ,
      *     operationId="get_doctor",
      *     @OA\Parameter(
