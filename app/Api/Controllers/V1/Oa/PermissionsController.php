@@ -777,7 +777,7 @@ class PermissionsController extends ApiController
      */
     public function menuList(){
         $res = $this->menuService->getMenuList();
-        if (!$res){
+        if ($res === false){
             return ['code' => 100, 'message' => $this->menuService->error];
         }
         return ['code' => 200, 'message' => $this->menuService->message, 'data' => $res];

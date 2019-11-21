@@ -45,7 +45,7 @@ class CategoryService extends BaseService
     public function disableCategory($id)
     {
         $where = ['id' => $id];
-        if (!$category = MessageCategoryRepository::exists($where)){
+        if (!$category = MessageCategoryRepository::getOne($where)){
             $this->setError('消息类别不存在！');
             return false;
         }

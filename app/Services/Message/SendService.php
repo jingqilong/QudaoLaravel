@@ -349,10 +349,11 @@ class SendService extends BaseService
      * @param $user_id
      * @param $user_type
      * @param $send_id
-     * @return bool|null
+     * @return mixed
      */
     public function getMessageDetail($user_id, $user_type, $send_id){
-        if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type])){
+        $column = ['id','message_category','user_id','category_id','title','content','relate_id','image_ids','url','created_at'];
+        if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type],$column)){
             $this->setError('消息不存在！');
             return false;
         }
@@ -360,6 +361,8 @@ class SendService extends BaseService
             $this->setError('消息不存在！');
             return false;
         }
+        $send = ImagesService::getOneImagesConcise($send,['image_ids' => 'several']);
+        unset($send['user_id'],$send['image_ids']);
         #写入已读表
         if (!MessageReadRepository::firstOrCreate(['send_id' => $send_id,'user_id' => $user_id,'user_type' => $user_type],
             ['send_id' => $send_id,'user_id' => $user_id,'user_type' => $user_type,'read_at' => date('Y-m-d H:i:s')])){

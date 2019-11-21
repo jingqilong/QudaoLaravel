@@ -27,7 +27,7 @@ class OaPermission extends BaseMiddleware
         $path       = substr($raw_path,strripos($raw_path,"oa") + 2);
         $auth       = Auth::guard('oa_api');
         $user       = $auth->user();
-        if (in_array($path,['/login','/logout','/refresh','/get_user_info'])){
+        if (in_array($path,['/login','/logout','/refresh','/get_user_info','/menu_list'])){
             return $next($request);
         }
         if (!empty($user->permissions)){

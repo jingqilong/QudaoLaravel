@@ -142,11 +142,11 @@ class AdminMenuService extends BaseService
             $ids_str = trim($permission_ids,',');
             $permissions = explode(',',$ids_str);
             if (!$permissions_all = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions]])){
-                $this->error = '无效的权限信息';
+                $this->setError('无效的权限信息');
                 return false;
             }
             if (count($permissions_all) != count($permissions)){
-                $this->error = '存在无效的权限信息';
+                $this->setError('存在无效的权限信息');
                 return false;
             }
             $permission_arr = $permissions;
@@ -216,6 +216,7 @@ class AdminMenuService extends BaseService
             $this->setMessage('暂无列表！');
             return [];//没有可以展示的列表
         }
+        #检验是否有超级权限
         if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id'])){
             $perm_ids  = array_column($role_perm,'permission_id');
             $perm_infos= OaAdminPermissionsRepository::getList(['id' => ['in', $perm_ids],'slug' => '*']);
