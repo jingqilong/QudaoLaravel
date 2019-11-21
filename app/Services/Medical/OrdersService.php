@@ -218,22 +218,22 @@ class OrdersService extends BaseService
         }
         $hospitals_ids   = array_column($list,'hospital_id');
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $doctor_ids   = array_column($list,'doctor_id');
-        $doctors_list  = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
+        $doctor_ids      = array_column($list,'doctor_id');
+        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','title']);
 
         foreach ($list as &$value){
             $value['hospitals_name'] = '';
-            $value['doctors_name'] = '';
+            $value['doctors'] = [];
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospitals_name'] = reset($hospitals)['name'];
             }
             if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
-                $value['doctors_name'] = reset($doctors)['name'];
+                $value['doctors'] = reset($doctors);
             }
-            $value['status']    = DoctorEnum::getStatus($value['status']);
-            $value['type']      = DoctorEnum::getType($value['type']);
+            $value['status_name']    = DoctorEnum::getStatus($value['status']);
+            $value['type']           = DoctorEnum::getType($value['type']);
             unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['status'],$value['type'],$value['department_ids'],
+                  $value['type'],$value['department_ids'],
                   $value['created_at'],$value['updated_at'],$value['deleted_at']
             );
         }
@@ -307,6 +307,7 @@ class OrdersService extends BaseService
         }
         $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
         $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
+        $orderInfo['doctor_title']    = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'title');
         $doctor                       = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']]);
         $doctor                       = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
         $orderInfo['image_url']       = $doctor['img_url'];
@@ -316,7 +317,7 @@ class OrdersService extends BaseService
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
         unset($orderInfo['member_id'],$orderInfo['sex'],$orderInfo['hospital_id'],
-              $orderInfo['status'],   $orderInfo['type']);
+              $orderInfo['type']);
         $this->setMessage('查找成功!');
         return $orderInfo;
     }

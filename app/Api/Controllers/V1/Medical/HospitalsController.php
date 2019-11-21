@@ -93,7 +93,6 @@ class HospitalsController extends ApiController
      *             type="string"
      *         )
      *     ),
-     *
      *     @OA\Parameter(
      *         name="introduction",
      *         in="query",
@@ -101,6 +100,24 @@ class HospitalsController extends ApiController
      *         required=false,
      *         @OA\Schema(
      *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="area_code",
+     *         in="query",
+     *         description="地址地区代码，例如：【310000,310100,310106,310106013】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address",
+     *         in="query",
+     *         description="详细地址，例如：延安西路300号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -128,6 +145,8 @@ class HospitalsController extends ApiController
             'awards'            => 'required',
             'introduction'      => 'required',
             'recommend'         => 'required|in:1,2',
+            'area_code'         => 'required|regex:/^(\d+[,])*\d+$/',
+            'address'           => 'required',
         ];
         $messages = [
             'name.required'             => '医疗医院标题不能为空',
@@ -138,6 +157,9 @@ class HospitalsController extends ApiController
             'introduction.required'     => '医疗医院标题不能为空',
             'recommend.required'        => '医疗医院简介不能为空',
             'recommend.in'              => '医疗医院推荐不正确',
+            'area_code.required'        => '地区编码不能为空',
+            'area_code.regex'           => '地区编码格式有误',
+            'address.required'          => '详细地址不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -264,6 +286,24 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="area_code",
+     *         in="query",
+     *         description="地址地区代码，例如：【310000,310100,310106,310106013】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address",
+     *         in="query",
+     *         description="详细地址，例如：延安西路300号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="recommend",
      *         in="query",
      *         description="推荐[0 不推荐 1 推荐 ]",
@@ -284,6 +324,8 @@ class HospitalsController extends ApiController
             'id'            => 'required|integer',
             'name'          => 'required',
             'recommend'     => 'required|in:0,1',
+            'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
+            'address'       => 'required',
         ];
         $messages = [
             'id.required'           => '医疗医院ID不能为空',
@@ -291,6 +333,9 @@ class HospitalsController extends ApiController
             'name.required'         => '医疗医院标题不能为空',
             'recommend.required'    => '医疗医院推荐不能为空',
             'recommend.in'          => '医疗医院推荐类型不存在',
+            'area_code.required'    => '地区编码不能为空',
+            'area_code.regex'       => '地区编码格式有误',
+            'address.required'      => '详细地址不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
