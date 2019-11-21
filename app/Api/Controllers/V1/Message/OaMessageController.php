@@ -202,7 +202,7 @@ class OaMessageController extends ApiController
         ];
         $messages = [
             'user_id.required'          => '用户ID不能为空',
-            'user_id.in'                => '用户ID必须为整数',
+            'user_id.integer'           => '用户ID必须为整数',
             'user_type.required'        => '用户类别不能为空',
             'user_type.in'              => '用户类别不存在',
             'title.required'            => '消息标题不能为空',
@@ -216,6 +216,107 @@ class OaMessageController extends ApiController
         }
 
         $res = $this->messageService->sendSystem($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->messageService->error];
+        }
+        return ['code' => 200, 'message' => $this->messageService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/message/send_announce",
+     *     tags={"消息后台"},
+     *     summary="发送公告",
+     *     operationId="send_announce",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="user_type",
+     *         in="query",
+     *         description="用户类别，默认1会员、2商户、3OA员工",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="消息标题",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="content",
+     *         in="query",
+     *         description="消息内容",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_ids",
+     *         in="query",
+     *         description="消息相关图片ID串",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="url",
+     *         in="query",
+     *         description="相关链接",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="发送失败",),
+     * )
+     *
+     */
+    public function sendAnnounce(){
+        $rules = [
+            'user_type'         => 'required|in:1,2,3',
+            'title'             => 'required',
+            'content'           => 'required',
+            'image_ids'         => 'regex:/^(\d+[,])*\d+$/',
+            'url'               => 'url',
+        ];
+        $messages = [
+            'user_type.required'        => '用户类别不能为空',
+            'user_type.in'              => '用户类别不存在',
+            'title.required'            => '消息标题不能为空',
+            'content.required'          => '消息内容不能为空',
+            'image_ids.regex'           => '消息相关图片格式有误',
+            'url.url'                   => '相关链接必须是一个链接',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+
+        $res = $this->messageService->sendAnnounceNotice($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->messageService->error];
         }

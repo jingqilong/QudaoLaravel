@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
             if (!is_numeric($value)){
                 return false;
             }
+            $value = (float)$value;
             return is_float($value);
         });
     }

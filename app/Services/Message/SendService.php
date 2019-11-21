@@ -4,6 +4,8 @@ namespace App\Services\Message;
 
 use App\Enums\MessageEnum;
 use App\Repositories\MemberRepository;
+use App\Repositories\MessageDefRepository;
+use App\Repositories\MessageReadRepository;
 use App\Repositories\MessageSendRepository;
 use App\Repositories\MessageSendViewRepository;
 use App\Repositories\OaEmployeeRepository;
@@ -11,6 +13,7 @@ use App\Repositories\PrimeMerchantRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SendService extends BaseService
@@ -52,11 +55,13 @@ class SendService extends BaseService
      * @param $user_type
      * @param $title
      * @param $content
+     * @param null $image_ids
+     * @param null $url
      * @return bool
      */
-    public static function sendAnnounce($user_type, $title, $content){
+    public static function sendAnnounce($user_type, $title, $content,$image_ids = null, $url = null){
         DB::beginTransaction();
-        if (!$message_id = DefService::addMessage(MessageEnum::ANNOUNCE,$title,$content)){
+        if (!$message_id = DefService::addMessage(MessageEnum::ANNOUNCE,$title,$content, null, $image_ids, $url)){
             DB::rollBack();
             return false;
         }
@@ -223,5 +228,146 @@ class SendService extends BaseService
         return true;
     }
 
+    /**
+     * 发送公告
+     * @param $request
+     * @return bool
+     */
+    public function sendAnnounceNotice($request)
+    {
+        if (!self::sendAnnounce($request['user_type'],$request['title'],$request['content'],$request['image_ids'] ?? null,$request['url'] ?? null)){
+            $this->setError('发送失败！');
+            return false;
+        }
+        $this->setMessage('发送成功！');
+        return true;
+    }
+
+    /**
+     * 获取会员消息列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function memberMessageList($request)
+    {
+        $member             = Auth::guard('member_api')->user();
+        $member_id          = $member->m_id;
+        $page               = $request['page'] ?? 1;
+        $page_num           = $request['page_num'] ?? 20;
+        $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];
+        $column             = ['id','message_id','message_category','title','content'];
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $send_ids = array_column($list['data'],'id');
+        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $member_id,'user_type' => MessageEnum::MEMBER]);
+        foreach ($list['data'] as &$value){
+            $value['is_read'] = 0;
+            if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
+                $value['is_read'] = 1;
+            }
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 获取商户消息列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function merchantMessageList($request)
+    {
+        $prime             = Auth::guard('prime_api')->user();
+        $page               = $request['page'] ?? 1;
+        $page_num           = $request['page_num'] ?? 20;
+        $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
+        $column             = ['id','message_id','message_category','title','content'];
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $send_ids = array_column($list['data'],'id');
+        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $prime->id,'user_type' => MessageEnum::MERCHANT]);
+        foreach ($list['data'] as &$value){
+            $value['is_read'] = 0;
+            if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
+                $value['is_read'] = 1;
+            }
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * 获取OA员工消息列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function oaMessageList($request)
+    {
+        $oa                 = Auth::guard('oa_api')->user();
+        $page               = $request['page'] ?? 1;
+        $page_num           = $request['page_num'] ?? 20;
+        $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
+        $column             = ['id','message_id','message_category','title','content'];
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $send_ids = array_column($list['data'],'id');
+        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $oa->id,'user_type' => MessageEnum::OAEMPLOYEES]);
+        foreach ($list['data'] as &$value){
+            $value['is_read'] = 0;
+            if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
+                $value['is_read'] = 1;
+            }
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+
+    /**
+     * 获取消息详情
+     * @param $user_id
+     * @param $user_type
+     * @param $send_id
+     * @return bool|null
+     */
+    public function getMessageDetail($user_id, $user_type, $send_id){
+        if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type])){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        if ($send['user_id'] !== 0 && $send['user_id'] !== $user_id){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        #写入已读表
+        if (!MessageReadRepository::firstOrCreate(['send_id' => $send_id,'user_id' => $user_id,'user_type' => $user_type],
+            ['send_id' => $send_id,'user_id' => $user_id,'user_type' => $user_type,'read_at' => date('Y-m-d H:i:s')])){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $this->setMessage('获取成功！');
+        return $send;
+    }
 }
             
