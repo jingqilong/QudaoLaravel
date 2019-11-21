@@ -43,13 +43,20 @@ class EmployeeService extends BaseService
         }
 
         if (!OaEmployeeRepository::exists([$account_type => $account])){
-            return '用户不存在！';
+            $this->setError('用户不存在！');
+            return false;
         }
         $token = OaEmployeeRepository::login([$account_type => $account, 'password' => $password]);
         if (is_array($token)){
-            return $token['message'];
+            $this->setError($token['message']);
+            return false;
         }
         $user = $this->auth->user();
+        if ($user->status == 1){
+            $this->setError('您的账户已被管理员禁用！');
+            return false;
+        }
+        $this->setMessage('登录成功！');
         return ['user' => $user, 'token' => $token];
     }
 
