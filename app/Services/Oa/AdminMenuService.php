@@ -58,7 +58,8 @@ class AdminMenuService extends BaseService
             return false;
         }
         DB::beginTransaction();
-        if (!OaAdminPermissionsRepository::createPermission(['name' => $request['title'],'slug' => $request['permission']])){
+        $permission = ['name' => $request['title'],'slug' => $request['permission'],'http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? ''];
+        if (!OaAdminPermissionsRepository::createPermission($permission)){
             $this->setError('权限创建失败！');
             DB::rollBack();
             return false;
@@ -293,7 +294,7 @@ class AdminMenuService extends BaseService
      */
     public function editMenu($request)
     {
-        if (!OaAdminMenuRepository::exists(['id' => $request['id']])){
+        if (!$menu = OaAdminMenuRepository::getOne(['id' => $request['id']])){
             $this->setError('菜单不存在！');
             return false;
         }
@@ -309,6 +310,12 @@ class AdminMenuService extends BaseService
         }
         if (OaAdminMenuRepository::exists(['primary_key' => $request['primary_key'],'id' => ['<>',$request['id']]])){
             $this->setError('菜单主键已被使用！');
+            return false;
+        }
+        $permission = ['http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? '','updated_at' => date('Y-m-d H:i:s')];
+        if (!OaAdminPermissionsRepository::getUpdId(['slug' => $menu['permission']],$permission)){
+            $this->setError('权限创建失败！');
+            DB::rollBack();
             return false;
         }
         if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id,'id' => ['<>',$request['id']]])){
