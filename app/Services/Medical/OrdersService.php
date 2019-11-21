@@ -55,7 +55,7 @@ class OrdersService extends BaseService
             'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
-            'description'        =>  $request['description'],
+            'description'        =>  $request['description'] ?? '',
             'type'               =>  $request['type'],
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
@@ -73,12 +73,12 @@ class OrdersService extends BaseService
             return false;
         }
         $add_arr['created_at'] = time();
-        if (!MedicalOrdersRepository::getAddId($add_arr)){
+        if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
         }
         $this->setMessage('预约成功');
-        return true;
+        return $orderId;
     }
 
     /**

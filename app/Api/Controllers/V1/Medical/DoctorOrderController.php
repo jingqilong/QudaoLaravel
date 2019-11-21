@@ -183,7 +183,7 @@ class DoctorOrderController extends ApiController
         }
         $res = $this->OrdersService->addDoctorOrders($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->OrdersService->message];
+            return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->OrdersService->error];
     }
