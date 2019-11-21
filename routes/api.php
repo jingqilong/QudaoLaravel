@@ -147,7 +147,7 @@ $api->version('v1',function ($api){
                 $api->post('bill_settlement','ReservationController@billSettlement')->name('账单结算');
             });
             #精选生活OA后台
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 $api->post('add_merchant','OaPrimeController@addMerchant')->name('添加商户');
                 $api->post('disabled_merchant','OaPrimeController@disabledMerchant')->name('禁用或启用商户');
                 $api->post('edit_merchant','OaPrimeController@editMerchant')->name('修改商户');
@@ -177,7 +177,7 @@ $api->version('v1',function ($api){
 
         //精选活动模块（后台）
         $api->group(['prefix' => 'activity','namespace' => 'Activity'],function ($api){
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 $api->post('add_activity','ActivityController@addActivity')->name('添加活动');
                 $api->delete('delete_activity','ActivityController@deleteActivity')->name('软删除活动');
                 $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
@@ -248,7 +248,7 @@ $api->version('v1',function ($api){
                 $api->get('member_message_details','MessageController@memberMessageDetails')->name('会员消息详情');
             });
             //消息后台
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 $api->post('add_category','MessageCategoryController@addCategory')->name('添加消息分类');
                 $api->post('disable_category','MessageCategoryController@disableCategory')->name('禁用或开启消息分类');
                 $api->post('edit_category','MessageCategoryController@editCategory')->name('编辑消息分类');
@@ -290,7 +290,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
             });
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api){
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
@@ -335,33 +335,33 @@ $api->version('v1',function ($api){
                 $api->get('hospital_list', 'HospitalsController@hospitalList')->name('获取医疗医院列表');
             });
             #获取医疗订单列表
-            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->get('doctor_order_list', 'DoctorOrderController@doctorOrderList')->name('获取医疗预约列表');
                 $api->post('set_doctor_order', 'DoctorOrderController@setDoctorOrder')->name('审核预约列表状态');
             });
             #添加医院
-            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->post('add_hospitals', 'HospitalsController@addHospitals')->name('添加医疗医院');
                 $api->delete('delete_hospitals', 'HospitalsController@deleteHospitals')->name('删除医疗医院');
                 $api->post('edit_hospitals', 'HospitalsController@editHospitals')->name('修改医疗医院');
                 $api->get('hospitals_list', 'HospitalsController@hospitalsList')->name('获取医疗医院列表');
             });
             #添加医生
-            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->post('add_doctors', 'DoctorsController@addDoctors')->name('添加医生');
                 $api->delete('delete_doctors', 'DoctorsController@deleteDoctors')->name('删除医生');
                 $api->post('edit_doctors', 'DoctorsController@editDoctors')->name('修改医生信息');
                 $api->get('doctors_list_page', 'DoctorsController@doctorsListPage')->name('获取医生列表');
             });
             #添加科室
-            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->post('add_departments', 'DepartmentsController@addDepartments')->name('添加医疗科室');
                 $api->delete('delete_departments', 'DepartmentsController@deleteDepartments')->name('删除医疗科室');
                 $api->post('edit_departments', 'DepartmentsController@editDepartments')->name('修改医疗科室');
                 $api->get('departments_list', 'DepartmentsController@departmentsList')->name('获取医疗科室列表');
             });
             #添加医生标签
-            $api->group(['middleware' => 'oa.jwt.auth'], function ($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->post('add_doctorLabels', 'DoctorLabelsController@addDoctorLabels')->name('添加医生标签');
                 $api->delete('delete_doctorLabels', 'DoctorLabelsController@deleteDoctorLabels')->name('删除医生标签');
                 $api->post('edit_doctorLabels', 'DoctorLabelsController@editDoctorLabels')->name('修改医生标签');
@@ -384,7 +384,7 @@ $api->version('v1',function ($api){
                 $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
             });
             #房产租赁后台
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 #房产详情
                 $api->post('add_house', 'OaHouseController@addHouse')->name('添加房源');
                 $api->delete('delete_house', 'OaHouseController@deleteHouse')->name('删除房源');
@@ -422,7 +422,7 @@ $api->version('v1',function ($api){
 
         //贷款模块
         $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->get('get_loan_order_info', 'LoanController@getLoanOrderInfo')->name('根据ID查找贷款订单信息');
                 $api->post('upd_loan', 'LoanController@updLoan')->name('修改贷款订单');
                 $api->post('audit_loan', 'LoanController@auditLoan')->name('审核贷款订单');
@@ -445,7 +445,7 @@ $api->version('v1',function ($api){
                 $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取本人企业咨询订单列表');
                 $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
             });
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('根据ID删除企业咨询订单');
                 $api->get('get_order_enterprise_list', 'EnterpriseController@getOrderEnterpriseList')->name('获取企业咨询订单列表');
                 $api->post('set_enterprise_order', 'EnterpriseController@setEnterpriseOrder')->name('设置企业咨询订单状态');
@@ -465,7 +465,7 @@ $api->version('v1',function ($api){
             });
 
             #OA 员工使用项目对接路由
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->get('get_project_order_list','OaProjectController@getProjectOrderList')->name('获取项目对接订单列表');
                 $api->get('get_project_order_info','OaProjectController@getProjectOrderInfo')->name('获取项目对接订单信息');
                 $api->post('set_project_order_status','OaProjectController@setProjectOrderStatus')->name('设置项目对接订单状态');
@@ -477,7 +477,7 @@ $api->version('v1',function ($api){
         //商城模块
         $api->group(['prefix' => 'shop', 'namespace' => 'Shop'], function ($api){
             #OA 商城后台
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('add_activity_goods','ActivityController@addActivityGoods')->name('添加活动商品');
                 $api->post('edit_activity_goods','ActivityController@editActivityGoods')->name('修改活动商品');
                 $api->get('get_activity_goods_list','ActivityController@getActivityGoodsList')->name('获取活动商品列表');
@@ -533,7 +533,7 @@ $api->version('v1',function ($api){
         //积分
         $api->group(['prefix' => 'score', 'namespace' => 'Score'], function ($api){
             #OA 积分后台
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('give_score','OaScoreController@giveScore')->name('赠送积分');
                 $api->get('get_score_record_list','OaScoreController@getScoreRecordList')->name('获取积分记录列表');
 
@@ -555,7 +555,7 @@ $api->version('v1',function ($api){
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
             $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');
             $api->get('home', 'CommonController@home')->name('获取首页');
-            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
                 $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
