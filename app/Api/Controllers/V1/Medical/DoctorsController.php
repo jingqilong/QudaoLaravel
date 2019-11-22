@@ -663,65 +663,87 @@ class DoctorsController extends ApiController
     }
 
  /**
-     * @OA\Get(
-     *     path="/api/v1/medical/get_departments_doctor",
-     *     tags={"医疗医院前端"},
-     *     summary="用户根据科室获取医生列表",
-     *     description="jing" ,
-     *     operationId="get_departments_doctor",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="用户 token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *      ),
-     *     @OA\Parameter(
-     *         name="hospital_id",
-     *         in="query",
-     *         description="医院ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="departments_id",
-     *         in="query",
-     *         description="科室ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=100,
-     *         description="获取失败",
-     *     ),
-     * )
-     *
-     */
+         * @OA\Get(
+         *     path="/api/v1/medical/get_departments_doctor",
+         *     tags={"医疗医院前端"},
+         *     summary="用户根据科室获取医生列表",
+         *     description="jing" ,
+         *     operationId="get_departments_doctor",
+         *     @OA\Parameter(
+         *         name="sign",
+         *         in="query",
+         *         description="签名",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="token",
+         *         in="query",
+         *         description="用户 token",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *      ),
+         *     @OA\Parameter(
+         *         name="hospital_id",
+         *         in="query",
+         *         description="医院ID",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="integer",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="departments_id",
+         *         in="query",
+         *         description="科室ID",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="integer",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="page",
+         *         in="query",
+         *         description="页码",
+         *         required=false,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="page_num",
+         *         in="query",
+         *         description="每页显示条数",
+         *         required=false,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *     ),
+         *     @OA\Response(
+         *         response=100,
+         *         description="获取失败",
+         *     ),
+         * )
+         *
+         */
     public function getDepartmentsDoctor(){
         $rules = [
-            'departments_id'       => 'required|integer',
-            'hospital_id'            => 'required|integer',
+            'departments_id'        => 'required|integer',
+            'hospital_id'           => 'required|integer',
+            'page'                  => 'integer',
+            'page_num'              => 'integer',
         ];
         $messages = [
             'departments_id.integer'     => '科室id必须为整数',
             'departments_id.required'    => '科室id不能为空',
-            'hospital_id.integer'        => '医生id必须为整数',
-            'hospital_id.required'       => '医生id不能为空',
+            'hospital_id.integer'        => '医院id必须为整数',
+            'hospital_id.required'       => '医院id不能为空',
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

@@ -270,6 +270,8 @@ class DoctorsService extends BaseService
      */
     public function getDepartmentsDoctor($request)
     {
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
         if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在!');
             return false;
@@ -278,44 +280,30 @@ class DoctorsService extends BaseService
             $this->setError('医院不存在!');
             return false;
         }
-        if (!$list = MedicalDoctorsRepository::getList(['id' => $request['doctor_id'],'deleted_at' => 0,'department_ids' => ['like','%,' . $request['departments_id'] . ',%']])){
+        $column = ['id','name','title','good_at','label_ids','department_ids','img_id'];
+        $check_where = ['hospitals_id' => $request['hospital_id'],'deleted_at' => 0,'department_ids' => ['like','%,' . $request['departments_id'] . ',%']];
+        if (!$list = MedicalDoctorsRepository::getList($check_where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }
         $list = $this->removePagingField($list);
-        if (empty($list)){
+        if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
 
-        $list    = ImagesService::getListImages($list,['img_id' => 'single']);
-        $department_ids  = array_column($list,'department_ids');
-        $hospitals_ids   = array_column($list,'hospitals_id');
-        $labels_ids      = array_column($list,'label_ids');
+        $list['data']    = ImagesService::getListImages($list['data'],['img_id' => 'single']);
+        $department_ids  = array_column($list['data'],'department_ids');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
-        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $labels_list     = MedicalDoctorLabelsRepository::getAssignList($labels_ids,['id','name']);
-
-        foreach ($list as &$value){
+        foreach ($list['data'] as &$value){
             $value['departments']    = [];
-            $value['hospitals_name'] = '';
-            $value['labels']         = [];
             $department_arr = explode(',',$value['department_ids']);
             foreach ($department_arr as $item){
                 if ($department = $this->searchArray($department_list,'id',$item)){
                     $value['departments'][] = reset($department);
                 }
             }
-            $labels_arr = explode(',',$value['label_ids']);
-            foreach ($labels_arr as $item){
-                if ($label = $this->searchArray($labels_list,'id',$item)){
-                    $value['labels'][] = reset($label);
-                }
-            }
-            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospitals_id'])){
-                $value['hospitals_name'] = reset($hospitals)['name'];
-            }
-            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+            unset($value['img_id'],$value['department_ids']);
         }
 
         $this->setMessage('获取成功!');
