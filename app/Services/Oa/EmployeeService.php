@@ -388,6 +388,8 @@ class EmployeeService extends BaseService
         $department = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
         $user['department'] = $department ? $department : '';
         $user['birth_date'] = $user['birth_date'] ? date('Y-m-d',$user['birth_date']) : '';
+        $user['role_ids']   = trim($user['role_ids'],',');
+        $user['permission_ids']   = trim($user['permission_ids'],',');
         $user['roles'] = [];
         if (!empty($user['role_ids'])){
             $role_ids = explode(',',trim($user['role_ids'],','));
