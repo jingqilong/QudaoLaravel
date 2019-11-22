@@ -111,7 +111,7 @@ class AdminMenuService extends BaseService
             return [];//没有可以展示的列表
         }
         #检验是否有超级权限
-        if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_ids],['permission_id'])){
+        if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => explode(',',trim($user->role_ids,','))],['permission_id'])){
             $perm_ids  = array_column($role_perm,'permission_id');
             $perm_infos= OaAdminPermissionsRepository::getList(['id' => ['in', $perm_ids],'slug' => '*']);
             if (!empty($perm_infos)){
@@ -121,7 +121,7 @@ class AdminMenuService extends BaseService
             }
         }
 
-        $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_ids],['menu_id']);
+        $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => explode(',',trim($user->role_ids,','))],['menu_id']);
         $menu_ids = array_column($menu_info,'menu_id');
         $menu_list  += OaAdminMenuRepository::getMenuList(['id' => ['in' , $menu_ids]]);
         if (empty($menu_list)){
