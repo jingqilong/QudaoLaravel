@@ -5,10 +5,8 @@ namespace App\Services\Medical;
 use App\Enums\DoctorEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
-use App\Repositories\MedicalHospitalRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
@@ -57,14 +55,12 @@ class OrdersService extends BaseService
             'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
-            'description'        =>  $request['description'],
+            'description'        =>  $request['description'] ?? '',
             'type'               =>  $request['type'],
-            'created_at'         =>  time(),
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
-        $check_where    = ['member_id' =>  $memberInfo->m_id,'doctor_id' => $request['doctor_id'],'status' => DoctorEnum::SUBMIT];
-        if (!MedicalOrdersRepository::exists($check_where)){
+        if (MedicalOrdersRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
@@ -76,16 +72,13 @@ class OrdersService extends BaseService
             $this->setError('截止时间必须大于预约时间!');
             return false;
         }
-        if (MedicalOrdersRepository::exists($add_arr)){
-            $this->setError('预约已提交!');
-            return false;
-        }
-        if (!MedicalOrdersRepository::getAddId($add_arr)){
+        $add_arr['created_at'] = time();
+        if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
             return false;
         }
         $this->setMessage('预约成功');
-        return true;
+        return $orderId;
     }
 
     /**
@@ -225,23 +218,38 @@ class OrdersService extends BaseService
         }
         $hospitals_ids   = array_column($list,'hospital_id');
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $doctor_ids   = array_column($list,'doctor_id');
-        $doctors_list  = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
-
+        $doctor_ids      = array_column($list,'doctor_id');
+        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','department_ids','img_id']);
+        $doctors_img     = ImagesService::getListImagesConcise($doctors_list,['img_id' => 'single']);
+        $doctor_id       = array_column($list,'doctor_id');
+        $doctors_name    = MedicalDoctorsRepository::getAssignList($doctor_id,['id','title']);
+        $department_ids      = array_column($doctors_list,'department_ids');
+        $department_list    = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
         foreach ($list as &$value){
             $value['hospitals_name'] = '';
+            $value['department_name'] = '';
             $value['doctors_name'] = '';
+            $value['doctors_title'] = '';
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospitals_name'] = reset($hospitals)['name'];
             }
             if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
                 $value['doctors_name'] = reset($doctors)['name'];
             }
-            $value['status']    = DoctorEnum::getStatus($value['status']);
-            $value['type']      = DoctorEnum::getType($value['type']);
+            if ($doctors_title= $this->searchArray($doctors_name,'id',$value['id'])){
+                $value['doctors_title'] = reset($doctors_title)['title'];
+            }
+            if ($department = $this->searchArray($department_list,'id',$value['id'])){
+                $value['department_name'] = reset($department)['name'];
+            }
+            if ($doctors_image = $this->searchArray($doctors_img,'id',$value['id'])){
+                $value['img_url'] = reset($doctors_image)['img_url'];
+            }
+            $value['status_name']    = DoctorEnum::getStatus($value['status']);
+            $value['type']           = DoctorEnum::getType($value['type']);
             unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['status'],$value['type'],$value['department_ids'],
-                  $value['created_at'],$value['updated_at'],$value['deleted_at'],
+                  $value['type'],$value['department_ids'],
+                  $value['created_at'],$value['updated_at'],$value['deleted_at']
             );
         }
 
@@ -314,12 +322,17 @@ class OrdersService extends BaseService
         }
         $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
         $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
+        $orderInfo['doctor_title']    = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'title');
+        $doctor                       = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']]);
+        $doctor                       = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
+        $orderInfo['image_url']       = $doctor['img_url'];
+        $department_ids               = explode(',',$doctor['department_ids']);
+        $orderInfo['department_name'] = MedicalDepartmentsRepository::getList(['id' => ['in',$department_ids]],['id','name']);
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        unset($orderInfo['member_id'],$orderInfo['doctor_id'],
-              $orderInfo['sex'],      $orderInfo['hospital_id'],
-              $orderInfo['status'],   $orderInfo['type']);
+        unset($orderInfo['member_id'],$orderInfo['sex'],$orderInfo['hospital_id'],
+              $orderInfo['type']);
         $this->setMessage('查找成功!');
         return $orderInfo;
     }

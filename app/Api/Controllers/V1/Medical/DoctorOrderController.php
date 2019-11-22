@@ -13,12 +13,12 @@ class DoctorOrderController extends ApiController
 
     /**
      * DoctorsController constructor.
-     * @param $OrdersService
+     * @param OrdersService $ordersService
      */
-    public function __construct(OrdersService $OrdersService)
+    public function __construct(OrdersService $ordersService)
     {
         parent::__construct();
-        $this->OrdersService = $OrdersService;
+        $this->OrdersService = $ordersService;
     }
 
     /**
@@ -183,7 +183,7 @@ class DoctorOrderController extends ApiController
         }
         $res = $this->OrdersService->addDoctorOrders($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->OrdersService->message];
+            return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->OrdersService->error];
     }
@@ -376,7 +376,7 @@ class DoctorOrderController extends ApiController
      *     path="/api/v1/medical/doctors_order_list",
      *     tags={"医疗医院前端"},
      *     summary="获取成员自己预约列表状态",
-     *     description="jing" ,
+     *     description="jing",
      *     operationId="doctors_order_list",
      *     @OA\Parameter(
      *         name="sign",

@@ -333,6 +333,7 @@ $api->version('v1',function ($api){
                 $api->get('doctors_list', 'DoctorOrderController@doctorsList')->name('获取医生列表');
                 $api->get('get_doctor', 'DoctorsController@getDoctor')->name('获取医生详情');
                 $api->get('hospital_list', 'HospitalsController@hospitalList')->name('获取医疗医院列表');
+                $api->get('hospital_detail', 'HospitalsController@hospitalDetail')->name('获取医疗医院详情');
             });
             #获取医疗订单列表
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
