@@ -64,9 +64,27 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="department_id",
+     *         in="query",
+     *         description="部门ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="gender",
+     *         in="query",
+     *         description="性别，1男，2女",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="email",
      *         in="query",
-     *         description="名称",
+     *         description="邮箱",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
@@ -82,12 +100,30 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="head_portrait",
+     *         name="work_title",
      *         in="query",
-     *         description="头像【URL】",
+     *         description="职务",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="birth_date",
+     *         in="query",
+     *         description="生日",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="avatar_id",
+     *         in="query",
+     *         description="头像ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -106,6 +142,15 @@ class EmployeeController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态,默认开启  1:禁用",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -138,26 +183,41 @@ class EmployeeController extends ApiController
         $rules = [
             'username'          => 'required',
             'real_name'         => 'required',
-            'email'             => 'required',
-            'mobile'            => 'required',
-            'head_portrait'     => 'required',
+            'department_id'     => 'required|integer',
+            'gender'            => 'required|in:1,2',
+            'email'             => 'required|email',
+            'mobile'            => 'required|mobile',
+            'work_title'        => 'required',
+            'birth_date'        => 'date_format:Y-m-d',
+            'avatar_id'         => 'required|integer',
             'password'          => 'required|min:6|max:20',
             'confirm_password'  => 'required|min:6|max:20',
+            'status'            => 'in:1',
             'role_ids'          => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
             'username.required'         => '请填写用户名',
-            'real_name.required'        => '请填写用户名称',
-            'email.required'            => '请填写用户邮箱',
-            'mobile.required'           => '请填写用户手机号',
-            'head_portrait.required'    => '请上传用户头像',
+            'real_name.required'        => '请填写员工名称',
+            'department_id.required'    => '请选择员工部门',
+            'department_id.integer'     => '部门ID必须为整数',
+            'gender.required'           => '请选择员工性别',
+            'gender.in'                 => '性别取值有误',
+            'email.required'            => '请填写员工邮箱',
+            'email.email'               => '邮箱格式有误',
+            'mobile.required'           => '请填写员工手机号',
+            'mobile.mobile'             => '手机号格式有误',
+            'work_title.required'       => '员工职务不能为空',
+            'birth_date.date_format'    => '员工生日格式有误',
+            'avatar_id.required'        => '请上传员工头像',
+            'avatar_id.integer'         => '员工头像ID必须为整数',
             'password.required'         => '请填写密码',
             'password.min'              => '密码长度不能低于6位',
             'password.max'              => '密码长度不能超过20位',
             'confirm_password.required' => '请填写确认密码',
             'confirm_password.min'      => '确认密码长度不能低于6位',
             'confirm_password.max'      => '确认密码长度不能超过20位',
+            'status.in'                 => '状态取值有误',
             'role_ids.regex'            => '角色ID格式有误',
             'permission_ids.regex'      => '权限ID格式有误',
         ];
@@ -481,9 +541,27 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="department_id",
+     *         in="query",
+     *         description="部门ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="gender",
+     *         in="query",
+     *         description="性别，1男，2女",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="email",
      *         in="query",
-     *         description="名称",
+     *         description="邮箱",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
@@ -499,10 +577,55 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="head_portrait",
+     *         name="work_title",
      *         in="query",
-     *         description="头像【URL】",
+     *         description="职务",
      *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="birth_date",
+     *         in="query",
+     *         description="生日",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="avatar_id",
+     *         in="query",
+     *         description="头像ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态,默认开启  1:禁用",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="role_ids",
+     *         in="query",
+     *         description="角色ID，【EG：1,2,13,】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="permission_ids",
+     *         in="query",
+     *         description="权限ID，【EG：1,2,13,】",
+     *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -534,24 +657,6 @@ class EmployeeController extends ApiController
      *             type="string"
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="role_ids",
-     *         in="query",
-     *         description="角色ID，【EG：1,2,13,】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="permission_ids",
-     *         in="query",
-     *         description="权限ID，【EG：1,2,13,】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -565,11 +670,16 @@ class EmployeeController extends ApiController
             'id'                    => 'required|integer',
             'username'              => 'required',
             'real_name'             => 'required',
-            'email'                 => 'required',
-            'mobile'                => 'required',
-            'head_portrait'         => 'required',
+            'department_id'         => 'required|integer',
+            'gender'                => 'required|in:1,2',
+            'email'                 => 'required|email',
+            'mobile'                => 'required|mobile',
+            'work_title'            => 'required',
+            'birth_date'            => 'date_format:Y-m-d',
+            'avatar_id'             => 'required|integer',
             'new_password'          => 'min:6|max:20',
             'confirm_new_password'  => 'min:6|max:20',
+            'status'                => 'in:1',
             'role_ids'              => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'        => 'regex:/^(\d+[,])*\d+$/',
         ];
@@ -577,12 +687,22 @@ class EmployeeController extends ApiController
             'id.required'                   => '用户ID不能为空',
             'id.integer'                    => '用户ID必须为整数',
             'username.required'             => '请填写用户名',
-            'real_name.required'            => '请填写用户名称',
-            'email.required'                => '请填写用户邮箱',
-            'mobile.required'               => '请填写用户手机号',
-            'head_portrait.required'        => '请上传用户头像',
+            'real_name.required'            => '请填写员工名称',
+            'department_id.required'        => '请选择员工部门',
+            'department_id.integer'         => '部门ID必须为整数',
+            'gender.required'               => '请选择员工性别',
+            'gender.in'                     => '性别取值有误',
+            'email.required'                => '请填写员工邮箱',
+            'email.email'                   => '邮箱格式有误',
+            'mobile.required'               => '请填写员工手机号',
+            'mobile.mobile'                 => '手机号格式有误',
+            'work_title.required'           => '员工职务不能为空',
+            'birth_date.date_format'        => '员工生日格式有误',
+            'avatar_id.required'            => '请上传员工头像',
+            'avatar_id.integer'             => '员工头像ID必须为整数',
             'new_password.min'              => '新密码长度不能低于6位',
             'new_password.max'              => '新密码长度不能超过20位',
+            'status.in'                     => '状态取值有误',
             'role_ids.regex'                => '角色ID格式有误',
             'permission_ids.regex'          => '权限ID格式有误',
         ];
