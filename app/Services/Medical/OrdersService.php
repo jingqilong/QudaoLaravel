@@ -357,14 +357,6 @@ class OrdersService extends BaseService
             $this->setError('没有此订单!');
             return false;
         }
-        $orderInfo['hospital_name']   = MediclaHospitalsRepository::getField(['id' => $orderInfo['hospital_id']],'name');
-        $orderInfo['doctor_name']     = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'name');
-        $orderInfo['doctor_title']    = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'title');
-        $doctor                       = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']]);
-        $doctor                       = ImagesService::getOneImagesConcise($doctor,['img_id' => 'single']);
-        $orderInfo['image_url']       = $doctor['img_url'];
-        $department_ids               = explode(',',$doctor['department_ids']);
-        $orderInfo['department_name'] = MedicalDepartmentsRepository::getList(['id' => ['in',$department_ids]],['id','name']);
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
