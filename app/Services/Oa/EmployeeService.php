@@ -58,8 +58,8 @@ class EmployeeService extends BaseService
             return false;
         }
         $user = $user->toArray();
-        if (empty($user['head_portrait'])){
-            $user['head_portrait'] = url('images/default_avatar.jpg');
+        if (empty($user['avatar_id'])){
+            $user['avatar_url'] = url('images/default_avatar.jpg');
         }
         $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
         $user['roles'] = [];
