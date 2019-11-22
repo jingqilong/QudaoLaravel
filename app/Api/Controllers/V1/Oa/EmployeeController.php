@@ -109,7 +109,7 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="roles",
+     *         name="role_ids",
      *         in="query",
      *         description="角色ID，【EG：1,2,13,】",
      *         required=false,
@@ -143,7 +143,7 @@ class EmployeeController extends ApiController
             'head_portrait'     => 'required',
             'password'          => 'required|min:6|max:20',
             'confirm_password'  => 'required|min:6|max:20',
-            'roles'             => 'regex:/^(\d+[,])*\d+$/',
+            'role_ids'          => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
@@ -158,7 +158,7 @@ class EmployeeController extends ApiController
             'confirm_password.required' => '请填写确认密码',
             'confirm_password.min'      => '确认密码长度不能低于6位',
             'confirm_password.max'      => '确认密码长度不能超过20位',
-            'roles.regex'               => '角色ID格式有误',
+            'role_ids.regex'            => '角色ID格式有误',
             'permission_ids.regex'      => '权限ID格式有误',
         ];
 
@@ -535,7 +535,7 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="roles",
+     *         name="role_ids",
      *         in="query",
      *         description="角色ID，【EG：1,2,13,】",
      *         required=false,
@@ -570,7 +570,7 @@ class EmployeeController extends ApiController
             'head_portrait'         => 'required',
             'new_password'          => 'min:6|max:20',
             'confirm_new_password'  => 'min:6|max:20',
-            'roles'                 => 'regex:/^(\d+[,])*\d+$/',
+            'role_ids'              => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'        => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
@@ -583,7 +583,7 @@ class EmployeeController extends ApiController
             'head_portrait.required'        => '请上传用户头像',
             'new_password.min'              => '新密码长度不能低于6位',
             'new_password.max'              => '新密码长度不能超过20位',
-            'roles.regex'                   => '角色ID格式有误',
+            'role_ids.regex'                => '角色ID格式有误',
             'permission_ids.regex'          => '权限ID格式有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
