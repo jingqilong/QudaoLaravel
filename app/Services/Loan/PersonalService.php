@@ -71,9 +71,13 @@ class PersonalService extends BaseService
         $keywords       = $data['keywords'] ?? null;
         $column         = ['*'];
         $type           = $data['type'] ?? null;
+        $status         = $data['status'] ?? null;
         $where          = ['id' => ['<>',0]];
         if ($type !== null){
             $where['type']  = $type;
+        }
+        if ($status !== null){
+            $where['status'] = $status;
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','mobile']];
