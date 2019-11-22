@@ -270,11 +270,15 @@ class DoctorsService extends BaseService
      */
     public function getDepartmentsDoctor($request)
     {
-        if (!MedicalDepartmentsRepository::exists(['id' => $request['id']])){
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在!');
             return false;
         }
-        if (!$list = MedicalDoctorsRepository::getList(['department_ids' => ['like','%,' . $request['id'] . ',%']])){
+        if (!MediclaHospitalsRepository::exists(['id' => $request['doctor_id'],'deleted_at' => 0])){
+            $this->setError('医院不存在!');
+            return false;
+        }
+        if (!$list = MedicalDoctorsRepository::getList(['id' => $request['doctor_id'],'department_ids' => ['like','%,' . $request['departments_id'] . ',%']])){
             $this->setError('获取失败!');
             return false;
         }

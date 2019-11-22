@@ -688,7 +688,16 @@ class DoctorsController extends ApiController
      *         )
      *      ),
      *     @OA\Parameter(
-     *         name="id",
+     *         name="doctor_id",
+     *         in="query",
+     *         description="医院ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="departments_id",
      *         in="query",
      *         description="科室ID",
      *         required=true,
@@ -705,11 +714,14 @@ class DoctorsController extends ApiController
      */
     public function getDepartmentsDoctor(){
         $rules = [
-            'id'            => 'required|integer',
+            'departments_id'       => 'required|integer',
+            'doctor_id'            => 'required|integer',
         ];
         $messages = [
-            'id.integer'        => '医生id必须为整数',
-            'id.required'       => '医生id不能为空',
+            'departments_id.integer'   => '科室id必须为整数',
+            'departments_id.required'  => '科室id不能为空',
+            'doctor_id.integer'        => '医生id必须为整数',
+            'doctor_id.required'       => '医生id不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
