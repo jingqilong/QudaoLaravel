@@ -268,6 +268,15 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="img_ids",
+     *         in="query",
+     *         description="医疗医院图片IDS [ 1,2,3,]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="name",
      *         in="query",
      *         description="医院名称",
