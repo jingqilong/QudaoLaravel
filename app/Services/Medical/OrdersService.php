@@ -360,8 +360,8 @@ class OrdersService extends BaseService
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        $orderInfo['appointment_at']  =  date('Y年m月d日 H时m分',strtotime($orderInfo['appointment_at']));
-        $orderInfo['end_time']        =  date('Y年m月d日 H时m分',strtotime($orderInfo['end_time']));
+        $orderInfo['appointment_at']  =  date('Y-m-d H:m',strtotime($orderInfo['appointment_at']));
+        $orderInfo['end_time']        =  date('Y-m-d H:m',strtotime($orderInfo['end_time']));
         unset($orderInfo['member_id'],$orderInfo['hospital_id'],$orderInfo['created_at'],$orderInfo['updated_at'],$orderInfo['deleted_at']);
         $this->setMessage('查找成功!');
         return $orderInfo;
