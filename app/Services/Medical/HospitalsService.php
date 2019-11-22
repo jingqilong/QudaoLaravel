@@ -40,7 +40,6 @@ class HospitalsService extends BaseService
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
             'address'          => $request['address'],
-            'describe'         => $request['describe'] ?? '',
             'recommend'        => $request['recommend'] == 1 ? time() : 0,
             'created_at'       => time(),
             'updated_at'       => time()
