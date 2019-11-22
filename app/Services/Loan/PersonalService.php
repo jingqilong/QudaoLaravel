@@ -85,10 +85,11 @@ class PersonalService extends BaseService
                 $this->setError('获取失败！');
                 return false;
             }
-        }
-        if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        }else{
+            if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
