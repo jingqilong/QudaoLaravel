@@ -19,8 +19,6 @@ class AdminMenuService extends BaseService
     #错误信息
     public $error;
 
-    #http访问方法
-    protected $http_methods = ['POST', 'GET', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'];
 
     protected $auth;
 
@@ -92,111 +90,6 @@ class AdminMenuService extends BaseService
         return true;
     }
 
-    /**
-     * 添加权限
-     * @param $request
-     * @return bool
-     */
-    public function addPermission($request)
-    {
-        if (OaAdminPermissionsRepository::exists(['slug' => $request['slug']])){
-            $this->setError('标识符已被占用');
-            return false;
-        }
-        $http_method = $request['http_method'] ?? '';
-        if (!empty($http_method)){
-            $methods = explode(',',$http_method);
-            foreach ($methods as $method){
-                if (!in_array($method,$this->http_methods)){
-                    $this->setError('暂不支持'.$method.' HTTP方法');
-                    return false;
-                }
-            }
-        }
-        $add_data = [
-            'name'          => $request['name'],
-            'slug'          => $request['slug'],
-            'http_method'   => $http_method,
-            'http_path'     => $request['http_path'] ?? '',
-        ];
-        if (!$roles_id = OaAdminPermissionsRepository::createPermission($add_data)){
-            $this->setError('权限添加失败！');
-            return false;
-        }
-        $this->setMessage('添加成功！');
-        return true;
-    }
-
-    /**
-     * @param $request
-     * @return bool
-     */
-    public function addRoles($request)
-    {
-        if (OaAdminRolesRepository::exists(['slug' => $request['slug']])){
-            $this->error = '标识符已被占用';
-            return false;
-        }
-        $permission_ids = $request['permission_ids'] ?? '';
-        $permission_arr = [];
-        if (!empty($permission_ids)){
-            $ids_str = trim($permission_ids,',');
-            $permissions = explode(',',$ids_str);
-            if (!$permissions_all = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions]])){
-                $this->setError('无效的权限信息');
-                return false;
-            }
-            if (count($permissions_all) != count($permissions)){
-                $this->setError('存在无效的权限信息');
-                return false;
-            }
-            $permission_arr = $permissions;
-        }
-        $menu_ids = $request['menu_ids'] ?? '';
-        $menu_ids      = explode(',',$menu_ids);
-        if (!empty($menu_ids)){
-            foreach ($menu_ids as $id){
-                if (!OaAdminMenuRepository::exists(['id' => $id])){
-                    $this->setError('菜单'.$id.'不存在！');
-                    return false;
-                }
-            }
-        }
-        $add_roles = [
-            'name'          => $request['name'],
-            'slug'          => $request['slug'],
-        ];
-        DB::beginTransaction();
-        if (!$roles_id = OaAdminRolesRepository::createRoles($add_roles)){
-            DB::rollBack();
-            $this->error = '角色添加失败！';
-            return false;
-        }
-        if (!empty($permission_arr)){
-            if (!OaAdminRolePermissionsRepository::createRelate(['role_id' => $roles_id, 'permission_ids' => $permission_arr])){
-                DB::rollBack();
-                $this->error = '角色权限添加失败！';
-                return false;
-            }
-        }
-
-        if (!empty($menu_ids)){
-            $role_menu = [];
-            foreach ($menu_ids as $id){
-                $role_menu[$id]['menu_id'] = $id;
-                $role_menu[$id]['role_id'] = $roles_id;
-                $role_menu[$id]['created_at'] = date('Y-m-d H:m:s');
-                $role_menu[$id]['updated_at'] = date('Y-m-d H:m:s');
-            }
-            if (!OaAdminRoleMenuRepository::create($role_menu)){
-                DB::rollBack();
-                $this->setError('菜单添加失败！');
-                return false;
-            }
-        }
-        DB::commit();
-        return true;
-    }
 
     /**
      * 获取菜单列表
