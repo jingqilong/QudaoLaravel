@@ -95,7 +95,6 @@ class HospitalsService extends BaseService
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
             'address'          => $request['address'],
-            'describe'         => $request['describe'] ?? '',
             'recommend'        => $request['recommend'] == 1 ? time() : 0,
         ];
         if (MediclaHospitalsRepository::getOne(['id' => ['<>',$request['id'],'deleted_at' => 0]])){
