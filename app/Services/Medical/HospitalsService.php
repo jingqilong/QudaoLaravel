@@ -171,7 +171,7 @@ class HospitalsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $column     = ['id','name','recommend','introduction','img_ids'];
+        $column     = ['id','name','recommend','domain','introduction','area_code','address','img_ids'];
         if (!$list = MediclaHospitalsRepository::getList(['deleted_at' =>0],$column,'recommend','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -184,6 +184,12 @@ class HospitalsService extends BaseService
         $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+            #处理地址
+            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
+            $value['area_address']  = $area_address;
+            $value['area_code']     = rtrim($value['area_code'],',');
+            $value['lng']           = $lng;
+            $value['lat']           = $lat;
             unset($value['img_ids']);
         }
         unset($list['introduction']);

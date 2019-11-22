@@ -253,6 +253,101 @@ class DoctorsController extends ApiController
         }
         return ['code' => 100, 'message' => $this->doctorsService->error];
     }
+
+    /**
+     * @OA\get(
+     *     path="/api/v1/medical/search_doctors_hospitals",
+     *     tags={"医疗医院前台"},
+     *     summary="删除医生信息",
+     *     description="jing" ,
+     *     operationId="search_doctors_hospitals",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="搜索类型 【1医院 2医生】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索条件 【医院名字  医生姓名】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序方式【1 时间正序 2 时间倒叙 默认为正序 】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    public function searchDoctorsHospitals(){
+        $rules = [
+            'type'          => 'in:1,2',
+        ];
+        $messages = [
+            'id.in'         => '搜索类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->doctorsService->searchDoctorsHospitals($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->doctorsService->message];
+        }
+        return ['code' => 100, 'message' => $this->doctorsService->error];
+    }
     /**
      * @OA\Post(
      *     path="/api/v1/medical/edit_doctors",
