@@ -82,6 +82,58 @@ class OrdersService extends BaseService
     }
 
     /**
+     * 修改预约订单
+     * @param $request
+     * @return array|bool
+     */
+    public function editDoctorOrders($request)
+    {
+        if (!MedicalOrdersRepository::exists(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id'],'deleted_at' => 0])){
+            $this->setError('医院不存在！');
+            return false;
+        }
+        if (!MedicalDoctorsRepository::getOne(['id' => $request['doctor_id'],'deleted_at' => 0])){
+            $this->setError('医生不存在！');
+            return false;
+        }
+        $add_arr = [
+            'name'               =>  $request['name'],
+            'mobile'             =>  $request['mobile'],
+            'sex'                =>  $request['sex'],
+            'age'                =>  $request['age'],
+            'hospital_id'        =>  $request['hospital_id'],
+            'doctor_id'          =>  $request['doctor_id'],
+            'description'        =>  $request['description'] ?? '',
+            'type'               =>  $request['type'],
+            'appointment_at'     =>  strtotime($request['appointment_at']),
+            'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
+        ];
+        if (MedicalOrdersRepository::getOne(['id' => ['<>',$request['id']]],$add_arr)){
+            $this->setError('您已预约，请勿重复预约!');
+            return false;
+        }
+        if ($add_arr['appointment_at'] < time()){
+            $this->setError('不能预约已经逝去的日子!');
+            return false;
+        }
+        if (!empty($add_arr['end_time']) && ($add_arr['end_time'] < $add_arr['appointment_at'])){
+            $this->setError('截止时间必须大于预约时间!');
+            return false;
+        }
+        $add_arr['created_at'] = time();
+        if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
+            $this->setError('预约失败!');
+            return false;
+        }
+        $this->setMessage('预约成功');
+        return $orderId;
+    }
+
+    /**
      * 获取预约列表(oa)
      * @param $data
      * @return bool|mixed|null
@@ -335,6 +387,25 @@ class OrdersService extends BaseService
               $orderInfo['type']);
         $this->setMessage('查找成功!');
         return $orderInfo;
+    }
+
+    /**
+     * 取消预约订单
+     * @param $request
+     * @return bool
+     */
+    public function delDoctorOrder($request)
+    {
+        if (!MedicalOrdersRepository::getOne(['id' => $request['id']])){
+            $this->setError('订单不存在!');
+            return false;
+        }
+        if (!MedicalOrdersRepository::getUpdId(['id' => $request['id']],['deleted_at' => time()])){
+            $this->setError('删除失败!');
+            return false;
+        }
+        $this->setMessage('删除成功');
+        return true;
     }
 
 }

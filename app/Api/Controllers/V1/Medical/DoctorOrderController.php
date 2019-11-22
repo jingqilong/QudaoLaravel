@@ -188,6 +188,185 @@ class DoctorOrderController extends ApiController
         return ['code' => 100, 'message' => $this->OrdersService->error];
     }
 
+/**
+     * @OA\Post(
+     *     path="/api/v1/medical/edit_doctor_order",
+     *     tags={"医疗医院前端"},
+     *     summary="修改预约订单",
+     *     description="jing" ,
+     *     operationId="edit_doctor_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="预约人姓名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="预约人手机",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sex",
+     *         in="query",
+     *         description="性别[1 男 2女]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="age",
+     *         in="query",
+     *         description="年龄",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="hospital_id",
+     *         in="query",
+     *         description="预约医院id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="doctor_id",
+     *         in="query",
+     *         description="预约医生id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="服务类型 1看病 2手术 3住院",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="appointment_at",
+     *         in="query",
+     *         description="预约时间",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="end_time",
+     *         in="query",
+     *         description="预约截止时间[可以不填写]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *  ),
+     *     @OA\Parameter(
+     *         name="description",
+     *         in="query",
+     *         description="病史描述",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败",
+     *     ),
+     * )
+     *
+     */
+    public function editDoctorOrder(){
+        $rules = [
+            'id'                => 'required|integer',
+            'name'              => 'required|string',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
+            'sex'               => 'required|integer',
+            'age'               => 'required|integer',
+            'doctor_id'         => 'required|integer',
+            'type'              => 'required|in:1,2,3',
+            'description'       => 'string',
+            'appointment_at'    => 'required|date',
+            'end_time'          => 'date',
+            'hospital_id'       => 'required|integer',
+            'department_ids'    => 'string',
+        ];
+        $messages = [
+            'id.required'               => '预约订单ID不能为空',
+            'id.integer'                => '预约订单ID不是整数',
+            'name.required'             => '预约人姓名不能为空',
+            'name.string'               => '预约人姓名必须为字符串',
+            'mobile.required'           => '预约手机不能为空',
+            'mobile.regex'              => '预约手机格式不正确',
+            'sex.required'              => '预约人性别不能为空',
+            'sex.integer'               => '预约人姓名不是整数',
+            'age.required'              => '预约人年龄不能为空',
+            'age.integer'               => '年龄格式错误',
+            'description.string'        => '病情描述详情必须为字符串',
+            'hospital_id.integer'       => '医院ID不是整数',
+            'hospital_id.required'      => '医院ID不能为空',
+            'type.in'                   => '服务类型存在',
+            'type.required'             => '服务类型不能为空',
+            'doctor_id.integer'         => '医生ID不是整数',
+            'doctor_id.required'        => '医生ID不能为空',
+            'appointment_at.date'       => '预约时间格式不正确',
+            'appointment_at.required'   => '预约时间不能为空',
+            'end_time.date'             => '截止时间格式不正确',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OrdersService->editDoctorOrders($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->OrdersService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->OrdersService->error];
+    }
+
 
 
     /**
@@ -370,6 +549,66 @@ class DoctorOrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->OrdersService->message];
     }
+
+    /**
+         * @OA\Delete(
+         *     path="/api/v1/medical/del_doctor_order",
+         *     tags={"医疗医院前台"},
+         *     summary="取消预约订单",
+         *     description="jing" ,
+         *     operationId="del_doctor_order",
+         *     @OA\Parameter(
+         *         name="sign",
+         *         in="query",
+         *         description="签名",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="token",
+         *         in="query",
+         *         description="用户 token",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="string",
+         *         )
+         *     ),
+         *     @OA\Parameter(
+         *         name="id",
+         *         in="query",
+         *         description="预约订单id",
+         *         required=true,
+         *         @OA\Schema(
+         *             type="integer",
+         *         )
+         *     ),
+         *     @OA\Response(
+         *         response=100,
+         *         description="删除失败",
+         *     ),
+         * )
+         *
+         */
+        public function delDoctorOrder(){
+            $rules = [
+                'id'            => 'required|integer',
+            ];
+            $messages = [
+                'id.required'               => '预约id不能为空',
+                'id.integer'                => '预约id不是整数',
+            ];
+            $Validate = $this->ApiValidate($rules, $messages);
+            if ($Validate->fails()){
+                return ['code' => 100, 'message' => $this->error];
+            }
+            $res = $this->OrdersService->delDoctorOrder($this->request);
+            if ($res === false){
+                return ['code' => 100, 'message' => $this->OrdersService->error];
+            }
+            return ['code' => 200, 'message' => $this->OrdersService->message];
+        }
 
     /**
      * @OA\Get(
