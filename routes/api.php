@@ -342,6 +342,8 @@ $api->version('v1',function ($api){
                 $api->get('doctors_order_list', 'DoctorOrderController@doctorsOrderList')->name('获取成员自己预约列表');
                 $api->get('doctors_order', 'DoctorOrderController@doctorsOrder')->name('根据id获取成员自己预约详情');
                 $api->get('doctors_list', 'DoctorOrderController@doctorsList')->name('获取医生列表');
+                $api->delete('del_doctor_order', 'DoctorOrderController@delDoctorOrder')->name('取消预约订单');
+                $api->post('edit_doctor_order', 'DoctorOrderController@editDoctorOrder')->name('用户修改预约订单');
                 $api->get('get_doctor', 'DoctorsController@getDoctor')->name('获取医生详情');
                 $api->get('hospital_list', 'HospitalsController@hospitalList')->name('获取医疗医院列表');
                 $api->get('hospital_detail', 'HospitalsController@hospitalDetail')->name('获取医疗医院详情');

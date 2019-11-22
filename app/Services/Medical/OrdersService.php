@@ -8,6 +8,7 @@ use App\Enums\MessageEnum;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalOrdersRepository;
+use App\Repositories\MedicalOrdersViewRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
@@ -74,6 +75,62 @@ class OrdersService extends BaseService
         }
         $add_arr['created_at'] = time();
         if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
+            $this->setError('预约失败!');
+            return false;
+        }
+        $this->setMessage('预约成功');
+        return $orderId;
+    }
+
+    /**
+     * 修改预约订单
+     * @param $request
+     * @return array|bool
+     */
+    public function editDoctorOrders($request)
+    {
+        if (!$order = MedicalOrdersRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order['status'] != DoctorEnum::SUBMIT){
+            $this->setError('您的预约已审核,不能修改');
+            return false;
+        }
+        if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id'],'deleted_at' => 0])){
+            $this->setError('医院不存在！');
+            return false;
+        }
+        if (!MedicalDoctorsRepository::getOne(['id' => $request['doctor_id'],'deleted_at' => 0])){
+            $this->setError('医生不存在！');
+            return false;
+        }
+        $upd_arr = [
+            'name'               =>  $request['name'],
+            'mobile'             =>  $request['mobile'],
+            'sex'                =>  $request['sex'],
+            'age'                =>  $request['age'],
+            'hospital_id'        =>  $request['hospital_id'],
+            'doctor_id'          =>  $request['doctor_id'],
+            'description'        =>  $request['description'] ?? '',
+            'type'               =>  $request['type'],
+            'appointment_at'     =>  strtotime($request['appointment_at']),
+            'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
+        ];
+        if (MedicalOrdersRepository::exists(array_merge(['id' => ['<>',$request['id']]],$upd_arr))){
+            $this->setError('您已预约，请勿重复预约!');
+            return false;
+        }
+        if ($upd_arr['appointment_at'] < time()){
+            $this->setError('不能预约已经逝去的日子!');
+            return false;
+        }
+        if (!empty($upd_arr['end_time']) && ($upd_arr['end_time'] < $upd_arr['appointment_at'])){
+            $this->setError('截止时间必须大于预约时间!');
+            return false;
+        }
+        $add_arr['updated_at'] = time();
+        if (!$orderId = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setError('预约失败!');
             return false;
         }
@@ -208,51 +265,31 @@ class OrdersService extends BaseService
     public function doctorsOrderList()
     {
         $memberInfo = $this->auth->user();
-        if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id'],'deleted_at' => 0])){
+        if (!$list = MedicalOrdersViewRepository::getList(['member_id' => $memberInfo['m_id'], 'deleted_at' => 0])) {
             $this->setMessage('暂时没有预约订单');
             return [];
         }
-        if (empty($list)){
+        if (empty($list)) {
             $this->setError('暂时没有预约订单');
             return false;
         }
-        $hospitals_ids   = array_column($list,'hospital_id');
-        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $doctor_ids      = array_column($list,'doctor_id');
-        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','department_ids','img_id']);
-        $doctors_img     = ImagesService::getListImagesConcise($doctors_list,['img_id' => 'single']);
-        $doctor_id       = array_column($list,'doctor_id');
-        $doctors_name    = MedicalDoctorsRepository::getAssignList($doctor_id,['id','title']);
-        $department_ids      = array_column($doctors_list,'department_ids');
-        $department_list    = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
-        foreach ($list as &$value){
-            $value['hospitals_name'] = '';
+        $doctor_ids = array_column($list, 'doctor_id');
+        $doctors_list = MedicalDoctorsRepository::getAssignList($doctor_ids, ['id', 'department_ids']);
+        $department_ids = array_column($doctors_list, 'department_ids');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids, ['id', 'name']);
+        foreach ($list as &$value) {
             $value['department_name'] = '';
-            $value['doctors_name'] = '';
-            $value['doctors_title'] = '';
-            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
-                $value['hospitals_name'] = reset($hospitals)['name'];
-            }
-            if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
-                $value['doctors_name'] = reset($doctors)['name'];
-            }
-            if ($doctors_title= $this->searchArray($doctors_name,'id',$value['id'])){
-                $value['doctors_title'] = reset($doctors_title)['title'];
-            }
-            if ($department = $this->searchArray($department_list,'id',$value['id'])){
+            if ($department = $this->searchArray($department_list, 'id', $value['id'])) {
                 $value['department_name'] = reset($department)['name'];
             }
-            if ($doctors_image = $this->searchArray($doctors_img,'id',$value['id'])){
-                $value['img_url'] = reset($doctors_image)['img_url'];
-            }
-            $value['status_name']    = DoctorEnum::getStatus($value['status']);
-            $value['type']           = DoctorEnum::getType($value['type']);
-            unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['type'],$value['department_ids'],
-                  $value['created_at'],$value['updated_at'],$value['deleted_at']
+            $value['sex_name']    = DoctorEnum::getSex($value['sex']);
+            $value['status_name'] = DoctorEnum::getStatus($value['status']);
+            $value['type_name']   = DoctorEnum::getType($value['type']);
+            unset($value['hospital_id'], $value['img_id'], $value['doctor_id'], $value['member_id'],
+                $value['type'], $value['department_ids'], $value['member_name'],$value['sex'],
+                $value['created_at'], $value['updated_at'], $value['deleted_at']
             );
         }
-
         $this->setMessage('获取成功！');
         return $list;
     }
@@ -335,6 +372,25 @@ class OrdersService extends BaseService
               $orderInfo['type']);
         $this->setMessage('查找成功!');
         return $orderInfo;
+    }
+
+    /**
+     * 取消预约订单
+     * @param $request
+     * @return bool
+     */
+    public function delDoctorOrder($request)
+    {
+        if (!MedicalOrdersRepository::getOne(['id' => $request['id']])){
+            $this->setError('订单不存在!');
+            return false;
+        }
+        if (!MedicalOrdersRepository::getUpdId(['id' => $request['id']],['deleted_at' => time()])){
+            $this->setError('删除失败!');
+            return false;
+        }
+        $this->setMessage('删除成功');
+        return true;
     }
 
 }

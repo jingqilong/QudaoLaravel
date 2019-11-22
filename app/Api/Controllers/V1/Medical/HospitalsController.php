@@ -83,7 +83,6 @@ class HospitalsController extends ApiController
      *             type="string"
      *         )
      *     ),
-     *
      *     @OA\Parameter(
      *         name="awards",
      *         in="query",
@@ -270,13 +269,50 @@ class HospitalsController extends ApiController
      *     @OA\Parameter(
      *         name="name",
      *         in="query",
-     *         description="医院名称",
+     *         description="医疗医院名称",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
-     *    @OA\Parameter(
+     *     @OA\Parameter(
+     *         name="img_ids",
+     *         in="query",
+     *         description="照片ids  1,2,3,",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="domain",
+     *         in="query",
+     *         description="擅长领域",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *
+     *     ),
+     *     @OA\Parameter(
+     *         name="department_ids",
+     *         in="query",
+     *         description="科室 1,2,3,",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="awards",
+     *         in="query",
+     *         description="获奖情况",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="introduction",
      *         in="query",
      *         description="简介",
