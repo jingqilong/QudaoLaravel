@@ -109,7 +109,7 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="roles",
+     *         name="role_ids",
      *         in="query",
      *         description="角色ID，【EG：1,2,13,】",
      *         required=false,
@@ -143,7 +143,7 @@ class EmployeeController extends ApiController
             'head_portrait'     => 'required',
             'password'          => 'required|min:6|max:20',
             'confirm_password'  => 'required|min:6|max:20',
-            'roles'             => 'regex:/^(\d+[,])*\d+$/',
+            'role_ids'          => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
@@ -158,7 +158,7 @@ class EmployeeController extends ApiController
             'confirm_password.required' => '请填写确认密码',
             'confirm_password.min'      => '确认密码长度不能低于6位',
             'confirm_password.max'      => '确认密码长度不能超过20位',
-            'roles.regex'               => '角色ID格式有误',
+            'role_ids.regex'            => '角色ID格式有误',
             'permission_ids.regex'      => '权限ID格式有误',
         ];
 
@@ -242,6 +242,65 @@ class EmployeeController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->employeeService->getPermUserList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        if (!$res){
+            return ['code' => 100, 'message' => $this->employeeService->error];
+        }
+        return ['code' => 200, 'message' => $this->employeeService->message, 'data' => $res];
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_employee_details",
+     *     tags={"OA权限管理"},
+     *     summary="获取员工详情",
+     *     description="sang" ,
+     *     operationId="get_employee_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="employee_id",
+     *         in="query",
+     *         description="员工ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getEmployeeDetails(){
+        $rules = [
+            'employee_id'       => 'required|integer',
+        ];
+        $messages = [
+            'employee_id.required'      => '员工ID不能为空',
+            'employee_id.integer'       => '员工ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->employeeService->getEmployeeDetails($this->request['employee_id']);
         if (!$res){
             return ['code' => 100, 'message' => $this->employeeService->error];
         }
@@ -476,7 +535,7 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="roles",
+     *         name="role_ids",
      *         in="query",
      *         description="角色ID，【EG：1,2,13,】",
      *         required=false,
@@ -511,7 +570,7 @@ class EmployeeController extends ApiController
             'head_portrait'         => 'required',
             'new_password'          => 'min:6|max:20',
             'confirm_new_password'  => 'min:6|max:20',
-            'roles'                 => 'regex:/^(\d+[,])*\d+$/',
+            'role_ids'              => 'regex:/^(\d+[,])*\d+$/',
             'permission_ids'        => 'regex:/^(\d+[,])*\d+$/',
         ];
         $messages = [
@@ -524,7 +583,7 @@ class EmployeeController extends ApiController
             'head_portrait.required'        => '请上传用户头像',
             'new_password.min'              => '新密码长度不能低于6位',
             'new_password.max'              => '新密码长度不能超过20位',
-            'roles.regex'                   => '角色ID格式有误',
+            'role_ids.regex'                => '角色ID格式有误',
             'permission_ids.regex'          => '权限ID格式有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);

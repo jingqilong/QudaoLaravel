@@ -99,19 +99,19 @@ class AdminMenuService extends BaseService
     {
         $user = $this->auth->user();
         $menu_list = [];
-        if (!empty($user->permissions)){
-            $permissions_ids = explode(',', $user->permissions);
+        if (!empty($user->permission_ids)){
+            $permissions_ids = explode(',', $user->permission_ids);
             if (!empty($permissions = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]],['slug']))){
                 $permissions_slugs = array_column($permissions,'slug');
                 $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs]]);
             }
         }
-        if (empty($user->permissions) && empty($user->role_id)){
+        if (empty($user->permission_ids) && empty($user->role_ids)){
             $this->setMessage('暂无列表！');
             return [];//没有可以展示的列表
         }
         #检验是否有超级权限
-        if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id'])){
+        if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_ids],['permission_id'])){
             $perm_ids  = array_column($role_perm,'permission_id');
             $perm_infos= OaAdminPermissionsRepository::getList(['id' => ['in', $perm_ids],'slug' => '*']);
             if (!empty($perm_infos)){
@@ -121,7 +121,7 @@ class AdminMenuService extends BaseService
             }
         }
 
-        $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id],['menu_id']);
+        $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_ids],['menu_id']);
         $menu_ids = array_column($menu_info,'menu_id');
         $menu_list  += OaAdminMenuRepository::getMenuList(['id' => ['in' , $menu_ids]]);
         if (empty($menu_list)){

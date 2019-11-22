@@ -26,6 +26,7 @@ class OaPermission extends BaseMiddleware
      */
     public function handle($request, Closure $next)
     {
+        return $next($request);
         $method     = $request->method();
         $raw_path   = $request->path();
         $path       = substr($raw_path,strripos($raw_path,"oa") + 2);

@@ -56,7 +56,30 @@ class EmployeeService extends BaseService
             $this->setError('您的账户已被管理员禁用！');
             return false;
         }
+        $user = $user->toArray();
+        if (empty($user['head_portrait'])){
+            $user['head_portrait'] = url('images/default_avatar.jpg');
+        }
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['roles'] = [];
+        if (!empty($user['role_ids'])){
+            $role_ids = explode(',',$user['role_ids']);
+            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['name'])){
+                $user['roles'] = array_column($roles,'name');
+            }
+        }
+        if (!empty($user['permission_ids'])){
+            $permission_ids = explode(',',$user['permission_ids']);
+            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['name'])){
+                $user['permissions'] = array_column($permission,'name');
+            }
+        }else{
+            $user['permissions'] = [];
+        }
+        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
+        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
         $this->setMessage('登录成功！');
+        unset($user['role_ids'],$user['status'],$user['note'],$user['department_ids']);
         return ['user' => $user, 'token' => $token];
     }
 
@@ -112,19 +135,25 @@ class EmployeeService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($user_list['first_page_url'], $user_list['from'],
-            $user_list['from'], $user_list['last_page_url'],
-            $user_list['next_page_url'], $user_list['path'],
-            $user_list['prev_page_url'], $user_list['to']);
+        $user_list = $this->removePagingField($user_list);
         if (empty($user_list['data'])){
             $this->setMessage('暂无数据!');
             return $user_list;
         }
+        $role_ids = array_column($user_list['data'],'role_ids');
+        $str_role_ids = '';
+        foreach ($role_ids as $v){
+            if (!empty($v)){
+                $str_role_ids .= trim($v,',').',';
+            }
+        }
+        $role_ids  = explode(',',trim($str_role_ids,','));
+        $role_list = OaAdminRolesRepository::getAssignList($role_ids);
         foreach ($user_list['data'] as &$value){
-            $role_info = OaAdminRolesRepository::getOne(['id' => $value['role_id'] ?? 0]);
+            $role_info = OaAdminRolesRepository::getOne(['id' => $value['role_ids'] ?? 0]);
             $value['role_name'] = $role_info['name'] ?? '-';
             $value['role_slug'] = $role_info['slug'] ?? '-';
-            $permissions = $value['permissions'] ?? '';
+            $permissions = $value['permission_ids'] ?? '';
             $arr_perm = explode(',',$permissions);
             $value['perm_name'] = [];
             $value['perm_slug'] = [];
@@ -135,7 +164,7 @@ class EmployeeService extends BaseService
             }
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
-            unset($value['role_id'],$value['permissions']);
+            unset($value['role_id'],$value['permission_ids']);
         }
         $this->setMessage('获取成功！');
         return $user_list;
@@ -160,7 +189,7 @@ class EmployeeService extends BaseService
             $this->setError('手机已存在！');
             return false;
         }
-        if ($roles = $request['roles'] ?? ''){
+        if ($roles = $request['role_ids'] ?? ''){
             $arr_role = explode(',',$roles);
             if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
                 $this->setError('包含了不存在的角色！');
@@ -182,8 +211,8 @@ class EmployeeService extends BaseService
             'email'         => $request['email'],
             'head_portrait' => $request['head_portrait'],
             'status'        => 0,
-            'role_id'       => $roles,
-            'permissions'   => $permission_ids,
+            'role_ids'      => $roles,
+            'permission_ids'=> $permission_ids,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -286,7 +315,7 @@ class EmployeeService extends BaseService
             }
             $new_password = Hash::make($request['new_password']);
         }
-        if ($roles = $request['roles'] ?? ''){
+        if ($roles = $request['role_ids'] ?? ''){
             $arr_role = explode(',',$roles);
             if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
                 $this->setError('包含了不存在的角色！');
@@ -306,8 +335,8 @@ class EmployeeService extends BaseService
             'mobile'        => $request['mobile'],
             'email'         => $request['email'],
             'head_portrait' => $request['head_portrait'],
-            'role_id'       => $roles,
-            'permissions'   => $permission_ids,
+            'role_ids'      => $roles,
+            'permission_ids'=> $permission_ids,
             'updated_at'    => time(),
         ];
         if (!empty($new_password)){
@@ -319,6 +348,41 @@ class EmployeeService extends BaseService
         }
         $this->setMessage('修改成功！');
         return true;
+    }
+
+    /**
+     * 获取员工信息
+     * @param $employee_id
+     * @return mixed
+     */
+    public function getEmployeeDetails($employee_id){
+        $column = ['id','username','real_name','gender','note','work_title','birth_date','id_card','status','email','department_id','mobile','head_portrait','role_id','permissions','created_at','updated_at'];
+        if (!$user = OaEmployeeRepository::getOne(['id' => $employee_id],$column)){
+            $this->setError('员工信息不存在！');
+            return false;
+        }
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['role_ids'] = '';
+        if (!empty($user['role_id'])){
+            $role_ids = explode(',',$user['role_id']);
+            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['id','name'])){
+                $role_ids       = array_column($roles,'id');
+                $user['role_ids']  = implode($role_ids,',');
+            }
+        }
+        if (!empty($user['permissions'])){
+            $permission_ids = explode(',',$user['permissions']);
+            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['id','name'])){
+                $permission_ids         = array_column($permission,'id');
+                $user['permission_ids']    = implode($permission_ids,',');
+            }
+        }else{
+            $user['permission_ids'] = '';
+        }
+        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
+        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
+        $this->setMessage('获取成功！');
+        return $user;
     }
 }
             

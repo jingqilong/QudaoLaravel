@@ -33,7 +33,7 @@ class OaEmployeeModel extends Authenticatable implements JWTSubject
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','username','password','real_name','department_id','gender','mobile','email','note','work_title','head_portrait','birth_date','id_card','status','role_id','permissions','created_at','updated_at'];
+    protected $fillable = ['id','username','password','real_name','department_id','gender','mobile','email','note','work_title','head_portrait','birth_date','id_card','status','role_ids','permission_ids','created_at','updated_at'];
 
 
     /**

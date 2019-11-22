@@ -297,4 +297,31 @@ trait HelpTrait
         }
         return $sum;
     }
+
+    protected function getArrayIds(array $list,array $column){
+        if (empty($list) || empty($column)){
+            return [];
+        }
+        foreach ($list as &$value){
+            foreach ($column as $item){
+                if (!isset($value[$item])){
+                    return false;
+                }
+                $item_arr = array_column($list,$item);
+                foreach ($v_arr as $i){
+                    if (!empty($v)){
+                        $str_role_ids .= trim($i,',').',';
+                    }
+                }
+            }
+        }
+        foreach ($column as $v){
+            $v_arr = array_column($list,$v);
+            foreach ($v_arr as $i){
+                if (!empty($v)){
+                    $str_role_ids .= trim($i,',').',';
+                }
+            }
+        }
+    }
 }
