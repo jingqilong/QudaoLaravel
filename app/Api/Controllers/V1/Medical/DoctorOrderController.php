@@ -553,7 +553,7 @@ class DoctorOrderController extends ApiController
     /**
          * @OA\Delete(
          *     path="/api/v1/medical/del_doctor_order",
-         *     tags={"医疗医院前台"},
+         *     tags={"医疗医院前端"},
          *     summary="取消预约订单",
          *     description="jing" ,
          *     operationId="del_doctor_order",

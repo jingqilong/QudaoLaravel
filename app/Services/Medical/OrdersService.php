@@ -88,8 +88,12 @@ class OrdersService extends BaseService
      */
     public function editDoctorOrders($request)
     {
-        if (!MedicalOrdersRepository::exists(['id' => $request['id'],'deleted_at' => 0])){
+        if (!$order = MedicalOrdersRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
             $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order['status'] != DoctorEnum::SUBMIT){
+            $this->setError('您的预约已审核,不能修改');
             return false;
         }
         if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id'],'deleted_at' => 0])){
@@ -100,7 +104,7 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
-        $add_arr = [
+        $upd_arr = [
             'name'               =>  $request['name'],
             'mobile'             =>  $request['mobile'],
             'sex'                =>  $request['sex'],
@@ -112,20 +116,20 @@ class OrdersService extends BaseService
             'appointment_at'     =>  strtotime($request['appointment_at']),
             'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
         ];
-        if (MedicalOrdersRepository::getOne(['id' => ['<>',$request['id']]],$add_arr)){
+        if (MedicalOrdersRepository::exists(array_merge(['id' => ['<>',$request['id']]],$upd_arr))){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
-        if ($add_arr['appointment_at'] < time()){
+        if ($upd_arr['appointment_at'] < time()){
             $this->setError('不能预约已经逝去的日子!');
             return false;
         }
-        if (!empty($add_arr['end_time']) && ($add_arr['end_time'] < $add_arr['appointment_at'])){
+        if (!empty($upd_arr['end_time']) && ($upd_arr['end_time'] < $upd_arr['appointment_at'])){
             $this->setError('截止时间必须大于预约时间!');
             return false;
         }
-        $add_arr['created_at'] = time();
-        if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
+        $add_arr['updated_at'] = time();
+        if (!$orderId = MedicalOrdersRepository::getAddId($upd_arr)){
             $this->setError('预约失败!');
             return false;
         }
