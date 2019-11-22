@@ -368,8 +368,7 @@ class OrdersService extends BaseService
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        unset($orderInfo['member_id'],$orderInfo['sex'],$orderInfo['hospital_id'],
-              $orderInfo['type']);
+        unset($orderInfo['member_id'],$orderInfo['hospital_id']);
         $this->setMessage('查找成功!');
         return $orderInfo;
     }

@@ -479,6 +479,15 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索条件【医院名字 擅长 获奖情况 详细地址】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",

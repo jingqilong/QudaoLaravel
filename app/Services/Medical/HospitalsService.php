@@ -171,10 +171,20 @@ class HospitalsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $column     = ['id','name','recommend','domain','introduction','area_code','address','img_ids'];
-        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' =>0],$column,'recommend','desc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        $keywords   = $request['keywords'] ?? null;
+        $column     = ['id','name','recommend','domain','awards','introduction','department_ids','area_code','address','img_ids'];
+        $where      = ['deleted_at' =>0];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name','domain','address','awards']];
+            if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'recommend','desc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = MediclaHospitalsRepository::getList($where,$column,'recommend','desc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
@@ -182,7 +192,15 @@ class HospitalsService extends BaseService
             return $list;
         }
         $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'single']);
+        $department_ids  = array_column($list['data'],'department_ids');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
         foreach ($list['data'] as &$value){
+            $department_arr = explode(',',$value['department_ids']);
+            foreach ($department_arr as $item){
+                if ($department = $this->searchArray($department_list,'id',$item)){
+                    $value['departments'][] = reset($department);
+                }
+            }
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             #处理地址
             list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);

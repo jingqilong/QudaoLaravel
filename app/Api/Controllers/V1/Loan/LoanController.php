@@ -117,6 +117,15 @@ class LoanController extends ApiController
      *             type="integer",
      *         )
      *     ),
+     *      @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【0审核中:默认  1审核通过  2审核驳回 】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *    @OA\Parameter(
      *         name="type",
      *         in="query",
@@ -154,11 +163,13 @@ class LoanController extends ApiController
             'page'          => 'integer',
             'page_num'      => 'integer',
             'type'          => 'in:1,2',
+            'status'        => 'in:0,1,2',
         ];
         $messages = [
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
             'type.in'                   => '推荐类型不存在',
+            'status.in'                 => '状态值不存在',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);

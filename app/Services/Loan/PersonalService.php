@@ -71,9 +71,13 @@ class PersonalService extends BaseService
         $keywords       = $data['keywords'] ?? null;
         $column         = ['*'];
         $type           = $data['type'] ?? null;
+        $status         = $data['status'] ?? null;
         $where          = ['id' => ['<>',0]];
         if ($type !== null){
             $where['type']  = $type;
+        }
+        if ($status !== null){
+            $where['status'] = $status;
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','mobile']];
@@ -81,10 +85,11 @@ class PersonalService extends BaseService
                 $this->setError('获取失败！');
                 return false;
             }
-        }
-        if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        }else{
+            if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
