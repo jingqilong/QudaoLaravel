@@ -257,8 +257,8 @@ class DoctorsController extends ApiController
     /**
      * @OA\get(
      *     path="/api/v1/medical/search_doctors_hospitals",
-     *     tags={"医疗医院前台"},
-     *     summary="删除医生信息",
+     *     tags={"医疗医院前端"},
+     *     summary="获取医生或者医院列表",
      *     description="jing" ,
      *     operationId="search_doctors_hospitals",
      *     @OA\Parameter(
@@ -291,19 +291,10 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索条件 【医院名字  医生姓名】",
+     *         description="搜索条件 【医院:(医院名字 擅长 获奖情况 详细地址)  医生:(医生姓名，医生性别，医生科室)】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="asc",
-     *         in="query",
-     *         description="排序方式【1 时间正序 2 时间倒叙 默认为正序 】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -344,7 +335,7 @@ class DoctorsController extends ApiController
         }
         $res = $this->doctorsService->searchDoctorsHospitals($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->doctorsService->message];
+            return ['code' => 200, 'message' => $this->doctorsService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->doctorsService->error];
     }
