@@ -64,13 +64,13 @@ class EmployeeService extends BaseService
         $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
         $user['roles'] = [];
         if (!empty($user['role_ids'])){
-            $role_ids = explode(',',$user['role_ids']);
+            $role_ids = explode(',',trim($user['role_ids'],','));
             if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['name'])){
                 $user['roles'] = array_column($roles,'name');
             }
         }
         if (!empty($user['permission_ids'])){
-            $permission_ids = explode(',',$user['permission_ids']);
+            $permission_ids = explode(',',trim($user['permission_ids'],','));
             if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['name'])){
                 $user['permissions'] = array_column($permission,'name');
             }
@@ -220,8 +220,8 @@ class EmployeeService extends BaseService
             'birth_date'    => isset($request['birth_date']) ? strtotime($request['birth_date']) : null,
             'avatar_id'     => $request['avatar_id'],
             'status'        => $request['status'] ?? 0,
-            'role_ids'      => $roles,
-            'permission_ids'=> $permission_ids,
+            'role_ids'      => empty($roles) ? '' : ','.$roles.',',
+            'permission_ids'=> empty($permission_ids) ? '' : ','.$permission_ids.',',
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -352,8 +352,8 @@ class EmployeeService extends BaseService
             'work_title'    => $request['work_title'],
             'birth_date'    => isset($request['birth_date']) ? strtotime($request['birth_date']) : null,
             'avatar_id'     => $request['avatar_id'],
-            'role_ids'      => $roles,
-            'permission_ids'=> $permission_ids,
+            'role_ids'      => empty($roles) ? '' : ','.$roles.',',
+            'permission_ids'=> empty($permission_ids) ? '' : ','.$permission_ids.',',
             'updated_at'    => time(),
         ];
         if (isset($request['status'])){
@@ -390,14 +390,14 @@ class EmployeeService extends BaseService
         $user['birth_date'] = $user['birth_date'] ? date('Y-m-d',$user['birth_date']) : '';
         $user['roles'] = [];
         if (!empty($user['role_ids'])){
-            $role_ids = explode(',',$user['role_ids']);
+            $role_ids = explode(',',trim($user['role_ids'],','));
             if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['id','name'])){
                 $user['roles']  = $roles;
             }
         }
         $user['permissions'] = [];
         if (!empty($user['permission_ids'])){
-            $permission_ids = explode(',',$user['permission_ids']);
+            $permission_ids = explode(',',trim($user['permission_ids'],','));
             if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['id','name'])){
                 $user['permissions']    = $permission;
             }
