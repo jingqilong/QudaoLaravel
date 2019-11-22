@@ -56,7 +56,30 @@ class EmployeeService extends BaseService
             $this->setError('您的账户已被管理员禁用！');
             return false;
         }
+        $user = $user->toArray();
+        if (empty($user['head_portrait'])){
+            $user['head_portrait'] = url('images/default_avatar.jpg');
+        }
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['roles'] = [];
+        if (!empty($user['role_id'])){
+            $role_ids = explode(',',$user['role_id']);
+            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['name'])){
+                $user['roles'] = array_column($roles,'name');
+            }
+        }
+        if (!empty($user['permissions'])){
+            $permission_ids = explode(',',$user['permissions']);
+            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['name'])){
+                $user['permissions'] = array_column($permission,'name');
+            }
+        }else{
+            $user['permissions'] = [];
+        }
+        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
+        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
         $this->setMessage('登录成功！');
+        unset($user['role_id'],$user['status'],$user['note'],$user['department_id']);
         return ['user' => $user, 'token' => $token];
     }
 
@@ -112,10 +135,7 @@ class EmployeeService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($user_list['first_page_url'], $user_list['from'],
-            $user_list['from'], $user_list['last_page_url'],
-            $user_list['next_page_url'], $user_list['path'],
-            $user_list['prev_page_url'], $user_list['to']);
+        $user_list = $this->removePagingField($user_list);
         if (empty($user_list['data'])){
             $this->setMessage('暂无数据!');
             return $user_list;
@@ -319,6 +339,41 @@ class EmployeeService extends BaseService
         }
         $this->setMessage('修改成功！');
         return true;
+    }
+
+    /**
+     * 获取员工信息
+     * @param $employee_id
+     * @return mixed
+     */
+    public function getEmployeeDetails($employee_id){
+        $column = ['id','username','real_name','gender','note','work_title','birth_date','id_card','status','email','department_id','mobile','head_portrait','role_id','permissions','created_at','updated_at'];
+        if (!$user = OaEmployeeRepository::getOne(['id' => $employee_id],$column)){
+            $this->setError('员工信息不存在！');
+            return false;
+        }
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['role_ids'] = '';
+        if (!empty($user['role_id'])){
+            $role_ids = explode(',',$user['role_id']);
+            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['id','name'])){
+                $role_ids       = array_column($roles,'id');
+                $user['role_ids']  = implode($role_ids,',');
+            }
+        }
+        if (!empty($user['permissions'])){
+            $permission_ids = explode(',',$user['permissions']);
+            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['id','name'])){
+                $permission_ids         = array_column($permission,'id');
+                $user['permission_ids']    = implode($permission_ids,',');
+            }
+        }else{
+            $user['permission_ids'] = '';
+        }
+        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
+        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
+        $this->setMessage('获取成功！');
+        return $user;
     }
 }
             

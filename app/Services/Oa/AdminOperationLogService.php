@@ -5,9 +5,11 @@ namespace App\Services\Oa;
 use App\Repositories\OaAdminOperationLogRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 
 class AdminOperationLogService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * 获取操作日志
@@ -21,7 +23,7 @@ class AdminOperationLogService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($list['first_page_url'], $list['from'], $list['from'], $list['last_page_url'], $list['next_page_url'], $list['path'], $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据!');
             return $list;

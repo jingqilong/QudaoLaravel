@@ -247,6 +247,65 @@ class EmployeeController extends ApiController
         }
         return ['code' => 200, 'message' => $this->employeeService->message, 'data' => $res];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_employee_details",
+     *     tags={"OA权限管理"},
+     *     summary="获取员工详情",
+     *     description="sang" ,
+     *     operationId="get_employee_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="employee_id",
+     *         in="query",
+     *         description="员工ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getEmployeeDetails(){
+        $rules = [
+            'employee_id'       => 'required|integer',
+        ];
+        $messages = [
+            'employee_id.required'      => '员工ID不能为空',
+            'employee_id.integer'       => '员工ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->employeeService->getEmployeeDetails($this->request['employee_id']);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->employeeService->error];
+        }
+        return ['code' => 200, 'message' => $this->employeeService->message, 'data' => $res];
+    }
 
     /**
      * @OA\Post(

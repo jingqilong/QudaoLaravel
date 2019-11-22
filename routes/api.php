@@ -87,6 +87,7 @@ $api->version('v1',function ($api){
 
                 $api->post('add_user','EmployeeController@addUser')->name("添加员工");
                 $api->get('user_list','EmployeeController@userList')->name("获取员工列表");
+                $api->get('get_employee_details','EmployeeController@getEmployeeDetails')->name("获取员工详情");
                 $api->post('is_disabled','EmployeeController@isDisabled')->name("禁用或开启员工");
                 $api->delete('delete_user','EmployeeController@deleteUser')->name("删除员工");
                 $api->post('edit_user','EmployeeController@editUser')->name("修改员工");
