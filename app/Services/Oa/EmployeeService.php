@@ -162,14 +162,14 @@ class EmployeeService extends BaseService
         }
         if ($roles = $request['roles'] ?? ''){
             $arr_role = explode(',',$roles);
-            if (count($arr_role) != count(OaAdminRolesRepository::getList(['id' => $arr_role]))){
+            if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
                 $this->setError('包含了不存在的角色！');
                 return false;
             }
         }
         if ($permission_ids = $request['permission_ids'] ?? ''){
             $perm_ids = explode(',',$permission_ids);
-            if (count($perm_ids) != count(OaAdminPermissionsRepository::getList(['id' => $perm_ids]))){
+            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => $perm_ids])){
                 $this->setError('包含了不存在的权限！');
                 return false;
             }
@@ -180,9 +180,10 @@ class EmployeeService extends BaseService
             'real_name'     => $request['real_name'],
             'mobile'        => $request['mobile'],
             'email'         => $request['email'],
+            'head_portrait' => $request['head_portrait'],
             'status'        => 0,
-            'role_id'       => $request['roles'],
-            'permissions'   => $request['permission_ids'],
+            'role_id'       => $roles,
+            'permissions'   => $permission_ids,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -223,6 +224,101 @@ class EmployeeService extends BaseService
         }
         $this->setError('操作失败！');
         return false;
+    }
+
+    /**
+     * 删除成功！
+     * @param $employee_id
+     * @return bool
+     */
+    public function deleteUser($employee_id)
+    {
+        $current_employee = Auth::guard('oa_api')->user();
+        if ($current_employee->id == $employee_id){
+            $this->setError('不能操作您自己的账户！');
+            return false;
+        }
+        if (!OaEmployeeRepository::exists(['id' => $employee_id])){
+            $this->setError('员工信息不存在！');
+            return false;
+        }
+        if ($employee_id == 1){
+            $this->setError('此员工不能删除！');
+            return false;
+        }
+        if (OaEmployeeRepository::delete(['id' => $employee_id])){
+            $this->setMessage('删除成功！');
+            return true;
+        }
+        $this->setError('删除失败！');
+        return false;
+    }
+
+    /**
+     * 修改员工信息
+     * @param $request
+     * @return bool
+     */
+    public function editPermUser($request)
+    {
+        if (!$employee = OaEmployeeRepository::getModel()->where(['id' => $request['id']])->first()){
+            $this->setError('员工信息不存在！');
+            return false;
+        }
+        if (OaEmployeeRepository::exists(['id' => ['<>',$request['id']],'username' => $request['username']])){
+        $this->setError('用户名已存在！');
+        return false;
+    }
+        if (OaEmployeeRepository::exists(['id' => ['<>',$request['id']],'email' => $request['email']])){
+            $this->setError('邮箱已存在！');
+            return false;
+        }
+        if (OaEmployeeRepository::exists(['id' => ['<>',$request['id']],'mobile' => $request['mobile']])){
+            $this->setError('手机已存在！');
+            return false;
+        }
+        $employee = $employee->makeVisible('password')->toArray();
+        $new_password = '';
+        if (isset($request['old_password'])&&isset($request['new_password'])){
+            if (!Hash::check($request['old_password'],$employee['password'])){
+                $this->setError('旧密码错误！');
+                return false;
+            }
+            $new_password = Hash::make($request['new_password']);
+        }
+        if ($roles = $request['roles'] ?? ''){
+            $arr_role = explode(',',$roles);
+            if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
+                $this->setError('包含了不存在的角色！');
+                return false;
+            }
+        }
+        if ($permission_ids = $request['permission_ids'] ?? ''){
+            $perm_ids = explode(',',$permission_ids);
+            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => $perm_ids])){
+                $this->setError('包含了不存在的权限！');
+                return false;
+            }
+        }
+        $upd_arr = [
+            'username'      => $request['username'],
+            'real_name'     => $request['real_name'],
+            'mobile'        => $request['mobile'],
+            'email'         => $request['email'],
+            'head_portrait' => $request['head_portrait'],
+            'role_id'       => $roles,
+            'permissions'   => $permission_ids,
+            'updated_at'    => time(),
+        ];
+        if (!empty($new_password)){
+            $upd_arr['password'] = $new_password;
+        }
+        if (!OaEmployeeRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
+        return true;
     }
 }
             

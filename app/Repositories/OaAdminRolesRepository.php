@@ -35,5 +35,21 @@ class OaAdminRolesRepository extends ApiRepository
         ];
         return $this->getAddId($arr);
     }
+
+    /**
+     * 编辑角色
+     * @param $id
+     * @param array $add_roles
+     * @return integer|null
+     */
+    protected function updateRoles($id,array $add_roles)
+    {
+        $arr = [
+            'name' => $add_roles['name'],
+            'slug' => $add_roles['slug'],
+            'updated_at' => date('Y-m-d H:m:s')
+        ];
+        return $this->getUpdId(['id' => $id],$arr);
+    }
 }
             

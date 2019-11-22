@@ -66,19 +66,31 @@ $api->version('v1',function ($api){
                 $api->post('update_employee','EmployessController@updateEmployee')->name("更新OA员工信息");
                 $api->post('add_push_auth','MessageController@addPushAuth')->name("添加web推送授权信息");
                 #OA权限管理
-                $api->post('add_menu','PermissionsController@addMenu')->name("添加菜单");
-                $api->post('edit_menu','PermissionsController@editMenu')->name("修改菜单");
-                $api->get('menu_detail','PermissionsController@menuDetail')->name("菜单详情");
+                $api->post('add_menu','MenuController@addMenu')->name("添加菜单");
+                $api->post('edit_menu','MenuController@editMenu')->name("修改菜单");
+                $api->get('menu_detail','MenuController@menuDetail')->name("菜单详情");
+                $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
+                $api->get('menu_linkage_list','MenuController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+                $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
+
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");
-                $api->post('add_roles','PermissionsController@addRoles')->name("添加角色");
-                $api->post('add_user','PermissionsController@addUser')->name("添加用户");
-                $api->get('menu_list','PermissionsController@menuList')->name("获取菜单列表");
-                $api->get('user_list','PermissionsController@userList')->name("获取用户列表");
-                $api->post('is_disabled','PermissionsController@isDisabled')->name("禁用或开启员工");
+                $api->delete('delete_permission','PermissionsController@deletePermission')->name("删除权限");
+                $api->post('edit_permission','PermissionsController@editPermission')->name("修改权限");
                 $api->get('permission_list','PermissionsController@permissionList')->name("获取权限列表");
-                $api->get('role_list','PermissionsController@roleList')->name("获取角色列表");
                 $api->get('operation_log','PermissionsController@operationLog')->name("获取操作日志");
-                $api->get('menu_linkage_list','PermissionsController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
+
+                $api->post('add_roles','RolesController@addRoles')->name("添加角色");
+                $api->delete('delete_roles','RolesController@deleteRoles')->name("删除角色");
+                $api->post('edit_roles','RolesController@editRoles')->name("修改角色");
+                $api->get('role_list','RolesController@roleList')->name("获取角色列表");
+                $api->get('get_role_details','RolesController@getRoleDetails')->name("获取角色详情");
+
+                $api->post('add_user','EmployeeController@addUser')->name("添加员工");
+                $api->get('user_list','EmployeeController@userList')->name("获取员工列表");
+                $api->post('is_disabled','EmployeeController@isDisabled')->name("禁用或开启员工");
+                $api->delete('delete_user','EmployeeController@deleteUser')->name("删除员工");
+                $api->post('edit_user','EmployeeController@editUser')->name("修改员工");
+
 
                 #OA成员管理
                 $api->get('member_list','OaMemberController@memberList')->name('获取成员列表');
@@ -87,7 +99,6 @@ $api->version('v1',function ($api){
                 $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
-                $api->get('get_all_menu_list','PermissionsController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){

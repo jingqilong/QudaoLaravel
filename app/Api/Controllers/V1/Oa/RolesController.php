@@ -5,38 +5,28 @@ namespace App\Api\Controllers\V1\Oa;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Oa\AdminMenuService;
-use App\Services\Oa\AdminOperationLogService;
-use App\Services\Oa\AdminPermissionsService;
 use App\Services\Oa\AdminRolesService;
-use App\Services\Oa\EmployeeService;
 
-class PermissionsController extends ApiController
+class RolesController extends ApiController
 {
-    protected $adminPermissionService;
-    protected $adminOperationLogService;
+    protected $adminRolesService;
 
     /**
      * TestApiController constructor.
-     * @param AdminPermissionsService $adminPermissionService
-     * @param AdminOperationLogService $adminOperationLogService
+     * @param AdminRolesService $adminRolesService
      */
-    public function __construct(
-        AdminPermissionsService $adminPermissionService,
-        AdminOperationLogService $adminOperationLogService)
+    public function __construct(AdminRolesService $adminRolesService)
     {
         parent::__construct();
-        $this->adminPermissionService   = $adminPermissionService;
-        $this->adminOperationLogService = $adminOperationLogService;
+        $this->adminRolesService        = $adminRolesService;
     }
-
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/add_permission",
+     *     path="/api/v1/oa/add_roles",
      *     tags={"OA权限管理"},
-     *     summary="添加权限",
+     *     summary="添加角色",
      *     description="sang" ,
-     *     operationId="add_permission",
+     *     operationId="add_roles",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -67,25 +57,25 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="name",
      *         in="query",
-     *         description="权限名称",
+     *         description="角色名称",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="http_method",
+     *         name="permission_ids",
      *         in="query",
-     *         description="HTTP方法，可多个填写【EG：POST,GET,PUT,DELETE】【EG2:POST】",
+     *         description="权限ID，【EG：1,2,13】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="http_path",
+     *         name="menu_ids",
      *         in="query",
-     *         description="HTTP路径，多个路径使用逗号分隔【/menu_list,/add_roles】",
+     *         description="菜单ID，【EG：1,2,13】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -98,38 +88,39 @@ class PermissionsController extends ApiController
      * )
      *
      */
-    public function addPermission()
+    public function addRoles()
     {
         $rules = [
-            'slug'          => 'required',
-            'name'          => 'required',
-            'http_method'   => 'regex:/^([A-Z]+[,])*[A-Z]+$/',
-            'http_path'     => 'regex:/^([a-zA-Z0-9]+[\/])*[a-zA-Z0-9]+$/',
+            'slug'              => 'required',
+            'name'              => 'required',
+            'permission_ids'    => 'regex:/^([0-9]+[,])*[0-9]+$/',
+            'menu_ids'          => 'regex:/^([0-9]+[,])*[0-9]+$/',
         ];
         $messages = [
-            'slug.required'     => '请填写权限标识',
-            'name.required'     => '请填写权限名称',
-            'http_method.regex' => 'HTTP方法格式有误',
-            'http_path.regex'   => 'HTTP路径格式有误,示例：api/v1/ddddd',
+            'slug.required'         => '请填写权限标识',
+            'name.required'         => '请填写权限名称',
+            'permission_ids.regex'  => '权限ID格式有误',
+            'menu_ids.regex'        => '菜单ID格式有误',
         ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->addPermission($this->request);
+        $res = $this->adminRolesService->addRoles($this->request);
         if (!$res){
-            return ['code' => 100, 'message' => $this->adminPermissionService->error];
+            return ['code' => 100, 'message' => $this->adminRolesService->error];
         }
-        return ['code' => 200, 'message' => $this->adminPermissionService->message];
+        return ['code' => 200, 'message' => '添加成功！'];
     }
-
     /**
      * @OA\Delete(
-     *     path="/api/v1/oa/delete_permission",
+     *     path="/api/v1/oa/delete_roles",
      *     tags={"OA权限管理"},
-     *     summary="删除权限",
+     *     summary="删除角色",
      *     description="sang" ,
-     *     operationId="delete_permission",
+     *     operationId="delete_roles",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -142,19 +133,19 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户token",
+     *         description="OA token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="id",
+     *         name="role_id",
      *         in="query",
-     *         description="权限ID",
+     *         description="角色ID",
      *         required=true,
      *         @OA\Schema(
-     *             type="string"
+     *             type="integer"
      *         )
      *     ),
      *     @OA\Response(
@@ -164,34 +155,34 @@ class PermissionsController extends ApiController
      * )
      *
      */
-    public function deletePermission()
+    public function deleteRoles()
     {
         $rules = [
-            'id'            => 'required|integer'
+            'role_id'           => 'required|integer'
         ];
         $messages = [
-            'id.required'       => '权限ID不能为空',
-            'id.integer'        => '权限ID必须为整数'
+            'role_id.required'      => '角色ID不能为空',
+            'role_id.integer'       => '角色ID必须为整数'
         ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->deletePermission($this->request['id']);
+        $res = $this->adminRolesService->deleteRoles($this->request['role_id']);
         if (!$res){
-            return ['code' => 100, 'message' => $this->adminPermissionService->error];
+            return ['code' => 100, 'message' => $this->adminRolesService->error];
         }
-        return ['code' => 200, 'message' => $this->adminPermissionService->message];
+        return ['code' => 200, 'message' => $this->adminRolesService->message];
     }
-
-
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/edit_permission",
+     *     path="/api/v1/oa/edit_roles",
      *     tags={"OA权限管理"},
-     *     summary="修改权限",
+     *     summary="修改角色",
      *     description="sang" ,
-     *     operationId="edit_permission",
+     *     operationId="edit_roles",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -204,7 +195,7 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户token",
+     *         description="OA token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -213,34 +204,43 @@ class PermissionsController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="权限ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="name",
-     *         in="query",
-     *         description="权限名称",
+     *         description="角色ID",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="http_method",
+     *         name="slug",
      *         in="query",
-     *         description="HTTP方法，可多个填写【EG：POST,GET,PUT,DELETE】【EG2:POST】",
+     *         description="标识",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="角色名称",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="permission_ids",
+     *         in="query",
+     *         description="权限ID，【EG：1,2,13】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="http_path",
+     *         name="menu_ids",
      *         in="query",
-     *         description="HTTP路径，多个路径使用逗号分隔【/menu_list,/add_roles】",
+     *         description="菜单ID，【EG：1,2,13】",
      *         required=false,
      *         @OA\Schema(
      *             type="string"
@@ -248,44 +248,46 @@ class PermissionsController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="添加失败",
+     *         description="修改失败",
      *     ),
      * )
      *
      */
-    public function editPermission()
+    public function editRoles()
     {
         $rules = [
-            'id'            => 'required|integer',
-            'name'          => 'required',
-            'http_method'   => 'regex:/^([A-Z]+[,])*[A-Z]+$/',
-            'http_path'     => 'regex:/^([a-zA-Z0-9]+[\/])*[a-zA-Z0-9]+$/',
+            'id'                => 'required|integer',
+            'slug'              => 'required',
+            'name'              => 'required',
+            'permission_ids'    => 'regex:/^([0-9]+[,])*[0-9]+$/',
+            'menu_ids'          => 'regex:/^([0-9]+[,])*[0-9]+$/',
         ];
         $messages = [
-            'id.required'       => '权限ID不能为空',
-            'id.integer'        => '权限ID必须为整数',
-            'name.required'     => '请填写权限名称',
-            'http_method.regex' => 'HTTP方法格式有误',
-            'http_path.regex'   => 'HTTP路径格式有误,示例：api/v1/ddddd',
+            'id.required'           => '角色ID不能为空',
+            'id.integer'            => '角色ID必须为整数',
+            'slug.required'         => '请填写权限标识',
+            'name.required'         => '请填写权限名称',
+            'permission_ids.regex'  => '权限ID格式有误',
+            'menu_ids.regex'        => '菜单ID格式有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->editPermission($this->request);
+        $res = $this->adminRolesService->editRoles($this->request);
         if (!$res){
-            return ['code' => 100, 'message' => $this->adminPermissionService->error];
+            return ['code' => 100, 'message' => $this->adminRolesService->error];
         }
-        return ['code' => 200, 'message' => $this->adminPermissionService->message];
+        return ['code' => 200, 'message' => $this->adminRolesService->message];
     }
 
     /**
      * @OA\Get(
-     *     path="/api/v1/oa/permission_list",
+     *     path="/api/v1/oa/role_list",
      *     tags={"OA权限管理"},
-     *     summary="获取权限列表",
+     *     summary="获取角色列表",
      *     description="sang" ,
-     *     operationId="permission_list",
+     *     operationId="role_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -329,7 +331,7 @@ class PermissionsController extends ApiController
      * )
      *
      */
-    public function permissionList(){
+    public function roleList(){
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
@@ -342,21 +344,20 @@ class PermissionsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->getPermissionList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->adminRolesService->getRoleList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if (!$res){
-            return ['code' => 100, 'message' => $this->adminPermissionService->error];
+            return ['code' => 100, 'message' => $this->adminRolesService->error];
         }
-        return ['code' => 200, 'message' => $this->adminPermissionService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->adminRolesService->message, 'data' => $res];
     }
-
 
     /**
      * @OA\Get(
-     *     path="/api/v1/oa/operation_log",
+     *     path="/api/v1/oa/get_role_details",
      *     tags={"OA权限管理"},
-     *     summary="获取操作日志",
+         *     summary="获取角色详情",
      *     description="sang" ,
-     *     operationId="operation_log",
+     *     operationId="get_role_details",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -376,21 +377,12 @@ class PermissionsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="page",
+     *         name="id",
      *         in="query",
-     *         description="页码",
-     *         required=false,
+     *         description="角色ID",
+     *         required=true,
      *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page_num",
-     *         in="query",
-     *         description="每页显示条数",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -400,12 +392,22 @@ class PermissionsController extends ApiController
      * )
      *
      */
-    public function operationLog(){
-        $res = $this->adminOperationLogService->getOperationLog(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
-        if (!$res){
-            return ['code' => 100, 'message' => $this->adminOperationLogService->error];
+    public function getRoleDetails(){
+        $rules = [
+            'id'            => 'required|integer'
+        ];
+        $messages = [
+            'id.required'       => '角色ID不能为空',
+            'id.integer'        => '角色ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
         }
-        return ['code' => 200, 'message' => $this->adminOperationLogService->message, 'data' => $res];
+        $res = $this->adminRolesService->getRoleDetails($this->request['id']);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->adminRolesService->error];
+        }
+        return ['code' => 200, 'message' => $this->adminRolesService->message, 'data' => $res];
     }
-
 }

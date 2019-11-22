@@ -37,5 +37,20 @@ class OaAdminPermissionsRepository extends ApiRepository
         ];
         return $this->getAddId($arr);
     }
+    /**
+     * 修改权限
+     * @param $upd_data
+     * @return integer|null
+     */
+    protected function updatePermission($id,array $upd_data)
+    {
+        $arr = [
+            'name'          => $upd_data['name'],
+            'http_method'   => $upd_data['http_method'] ?? '',
+            'http_path'     => $upd_data['http_path'] ?? '',
+            'updated_at'    => date('Y-m-d H:m:s')
+        ];
+        return $this->getUpdId(['id' => $id],$arr);
+    }
 }
             
