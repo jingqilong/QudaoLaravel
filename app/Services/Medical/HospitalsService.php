@@ -97,7 +97,7 @@ class HospitalsService extends BaseService
             'address'          => $request['address'],
             'recommend'        => $request['recommend'] == 1 ? time() : 0,
         ];
-        if (MediclaHospitalsRepository::getOne(['id' => ['<>',$request['id'],'deleted_at' => 0]])){
+        if (MediclaHospitalsRepository::exists(array_merge(['id' => ['<>',$request['id'],'deleted_at' => 0]],$upd_arr))){
             $this->setError('医院已存在！');
             return false;
         }

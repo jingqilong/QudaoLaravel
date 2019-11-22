@@ -129,7 +129,7 @@ class OrdersService extends BaseService
             return false;
         }
         $add_arr['updated_at'] = time();
-        if (!$orderId = MedicalOrdersRepository::getAddId($upd_arr)){
+        if (!$orderId = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setError('预约失败!');
             return false;
         }
