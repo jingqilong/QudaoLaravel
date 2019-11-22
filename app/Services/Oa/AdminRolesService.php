@@ -116,7 +116,7 @@ class AdminRolesService extends BaseService
             $this->setError('角色不存在！');
             return false;
         }
-        if (OaEmployeeRepository::exists(['role_id' => $role_id])){
+        if (OaEmployeeRepository::exists(['role_ids' => ['like','%,'.$role_id.',%']])){
             $this->setError('当前角色已被使用，无法删除！');
             return false;
         }

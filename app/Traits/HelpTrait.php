@@ -298,7 +298,13 @@ trait HelpTrait
         return $sum;
     }
 
-    protected function getArrayIds(array $list,array $column){
+    /**
+     * 获取列表中id串等的数组
+     * @param array $list
+     * @param array $column
+     * @return array|bool
+     */
+    protected function getArrayIds(array $list, array $column){
         if (empty($list) || empty($column)){
             return [];
         }
@@ -307,21 +313,22 @@ trait HelpTrait
                 if (!isset($value[$item])){
                     return false;
                 }
-                $item_arr = array_column($list,$item);
-                foreach ($v_arr as $i){
-                    if (!empty($v)){
-                        $str_role_ids .= trim($i,',').',';
-                    }
-                }
             }
         }
-        foreach ($column as $v){
-            $v_arr = array_column($list,$v);
-            foreach ($v_arr as $i){
-                if (!empty($v)){
-                    $str_role_ids .= trim($i,',').',';
+        $res = [];
+        foreach ($column as $k => $v){
+            $res[$k] = [];
+            $item_arr = array_unique(array_column($list,$v));
+            $strs = '';
+            foreach ($item_arr as $i){
+                if (!empty($i)){
+                    $strs .= trim($i,',').',';
                 }
             }
+            if (!empty($strs)){
+                $res[$k] = explode(',',trim($strs,','));
+            }
         }
+        return $res;
     }
 }

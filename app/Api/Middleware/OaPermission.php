@@ -26,7 +26,6 @@ class OaPermission extends BaseMiddleware
      */
     public function handle($request, Closure $next)
     {
-        return $next($request);
         $method     = $request->method();
         $raw_path   = $request->path();
         $path       = substr($raw_path,strripos($raw_path,"oa") + 2);
@@ -35,13 +34,13 @@ class OaPermission extends BaseMiddleware
         if (in_array($path,['/login','/logout','/refresh','/get_user_info','/menu_list','/get_all_menu_list'])){
             return $next($request);
         }
-        if (!empty($user->permissions)){
-            $permissions_ids = explode(',', $user->permissions);
+        if (!empty($user->permission_ids)){
+            $permissions_ids = explode(',', trim($user->permission_ids,','));
         }else{
-            if (empty($user->role_id)){
+            if (empty($user->role_ids)){
                 return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
             }
-            $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id']);
+            $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => ['in',explode(',',trim($user->role_ids,','))]],['permission_id']);
             $permissions_ids = array_column($roles_info,'permission_id');
         }
         if ($permission_list = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]])){
@@ -58,14 +57,14 @@ class OaPermission extends BaseMiddleware
                 }
             }
         }
-        if (!empty($user->role_id)){
-            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => $user->role_id])){
+        if (!empty($user->role_ids)){
+            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => ['in',explode(',',trim($user->role_ids,','))]])){
                 $menu_ids  = array_column($menu_role,'menu_id');
                 if (OaAdminMenuRepository::exists(['id' => ['in',$menu_ids],'path' => '/'.$raw_path,'method' => $method])){
                     $this->recordLog($request,$user->id);
                     return $next($request);
                 }
-            }
+            }dd($user->role_ids);
         }
         return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
     }
