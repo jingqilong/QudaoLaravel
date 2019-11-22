@@ -8,6 +8,7 @@ use App\Enums\MessageEnum;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalOrdersRepository;
+use App\Repositories\MedicalOrdersViewRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
@@ -264,51 +265,31 @@ class OrdersService extends BaseService
     public function doctorsOrderList()
     {
         $memberInfo = $this->auth->user();
-        if (!$list = MedicalOrdersRepository::getList(['member_id' => $memberInfo['m_id'],'deleted_at' => 0])){
+        if (!$list = MedicalOrdersViewRepository::getList(['member_id' => $memberInfo['m_id'], 'deleted_at' => 0])) {
             $this->setMessage('暂时没有预约订单');
             return [];
         }
-        if (empty($list)){
+        if (empty($list)) {
             $this->setError('暂时没有预约订单');
             return false;
         }
-        $hospitals_ids   = array_column($list,'hospital_id');
-        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-        $doctor_ids      = array_column($list,'doctor_id');
-        $doctors_list    = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name','department_ids','img_id']);
-        $doctors_img     = ImagesService::getListImagesConcise($doctors_list,['img_id' => 'single']);
-        $doctor_id       = array_column($list,'doctor_id');
-        $doctors_name    = MedicalDoctorsRepository::getAssignList($doctor_id,['id','title']);
-        $department_ids      = array_column($doctors_list,'department_ids');
-        $department_list    = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
-        foreach ($list as &$value){
-            $value['hospitals_name'] = '';
+        $doctor_ids = array_column($list, 'doctor_id');
+        $doctors_list = MedicalDoctorsRepository::getAssignList($doctor_ids, ['id', 'department_ids']);
+        $department_ids = array_column($doctors_list, 'department_ids');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids, ['id', 'name']);
+        foreach ($list as &$value) {
             $value['department_name'] = '';
-            $value['doctors_name'] = '';
-            $value['doctors_title'] = '';
-            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
-                $value['hospitals_name'] = reset($hospitals)['name'];
-            }
-            if ($doctors = $this->searchArray($doctors_list,'id',$value['doctor_id'])){
-                $value['doctors_name'] = reset($doctors)['name'];
-            }
-            if ($doctors_title= $this->searchArray($doctors_name,'id',$value['id'])){
-                $value['doctors_title'] = reset($doctors_title)['title'];
-            }
-            if ($department = $this->searchArray($department_list,'id',$value['id'])){
+            if ($department = $this->searchArray($department_list, 'id', $value['id'])) {
                 $value['department_name'] = reset($department)['name'];
             }
-            if ($doctors_image = $this->searchArray($doctors_img,'id',$value['id'])){
-                $value['img_url'] = reset($doctors_image)['img_url'];
-            }
-            $value['status_name']    = DoctorEnum::getStatus($value['status']);
-            $value['type']           = DoctorEnum::getType($value['type']);
-            unset($value['hospital_id'],$value['img_id'],$value['doctor_id'],$value['member_id'],
-                  $value['type'],$value['department_ids'],
-                  $value['created_at'],$value['updated_at'],$value['deleted_at']
+            $value['sex_name']    = DoctorEnum::getSex($value['sex']);
+            $value['status_name'] = DoctorEnum::getStatus($value['status']);
+            $value['type_name']   = DoctorEnum::getType($value['type']);
+            unset($value['hospital_id'], $value['img_id'], $value['doctor_id'], $value['member_id'],
+                $value['type'], $value['department_ids'], $value['member_name'],$value['sex'],
+                $value['created_at'], $value['updated_at'], $value['deleted_at']
             );
         }
-
         $this->setMessage('获取成功！');
         return $list;
     }
