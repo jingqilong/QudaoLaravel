@@ -353,7 +353,7 @@ class OrdersService extends BaseService
      */
     public function doctorsOrder($request)
     {
-        if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+        if (!$orderInfo = MedicalOrdersViewRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
             $this->setError('没有此订单!');
             return false;
         }
@@ -368,7 +368,9 @@ class OrdersService extends BaseService
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        unset($orderInfo['member_id'],$orderInfo['hospital_id']);
+        $orderInfo['appointment_at']  =  date('Y年m月d日 H时m分',strtotime($orderInfo['appointment_at']));
+        $orderInfo['end_time']        =  date('Y年m月d日 H时m分',strtotime($orderInfo['end_time']));
+        unset($orderInfo['member_id'],$orderInfo['hospital_id'],$orderInfo['created_at'],$orderInfo['updated_at'],$orderInfo['deleted_at']);
         $this->setMessage('查找成功!');
         return $orderInfo;
     }
