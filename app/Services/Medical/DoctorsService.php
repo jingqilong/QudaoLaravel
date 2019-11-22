@@ -45,7 +45,7 @@ class DoctorsService extends BaseService
             'label_ids'         => isset($request['label_ids']) ? $request['label_ids'].',' : '',
             'hospitals_id'      => $request['hospitals_id'],
             'member_id'         => $request['member_id'] ?? 0,
-            'department_ids'    => isset($request['department_ids']) ? $request['department_ids'] . ',' : '',
+            'department_ids'    => isset($request['department_ids']) ? ',' . $request['department_ids'] . ',' : '',
         ];
         if (MedicalDoctorsRepository::exists($add_arr)){
             $this->setError('医生已存在！');
@@ -106,7 +106,7 @@ class DoctorsService extends BaseService
             'hospitals_id'      => $request['hospitals_id'],
             'recommend'         => $request['recommend'],
             'label_ids'         => isset($request['label_ids']) ? $request['label_ids'].',' : '',
-            'department_ids'    => isset($request['department_ids']) ? $request['department_ids'] . ',' : '',
+            'department_ids'    => isset($request['department_ids']) ? ',' . $request['department_ids'] . ',' : '',
         ];
         $upd_arr['updated_at']  = time();
         if (MedicalDoctorsRepository::exists($upd_arr)){
@@ -259,6 +259,61 @@ class DoctorsService extends BaseService
                 return false;
             }
         }
+        $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * 用户根据科室获取医生列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getDepartmentsDoctor($request)
+    {
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['id']])){
+            $this->setError('科室不存在!');
+            return false;
+        }
+        if (!$list = MedicalDoctorsRepository::getList(['department_ids' => ['like','%,' . $request['id'] . ',%']])){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list)){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+
+        $list    = ImagesService::getListImages($list,['img_id' => 'single']);
+        $department_ids  = array_column($list,'department_ids');
+        $hospitals_ids   = array_column($list,'hospitals_id');
+        $labels_ids      = array_column($list,'label_ids');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
+        $labels_list     = MedicalDoctorLabelsRepository::getAssignList($labels_ids,['id','name']);
+
+        foreach ($list as &$value){
+            $value['departments']    = [];
+            $value['hospitals_name'] = '';
+            $value['labels']         = [];
+            $department_arr = explode(',',$value['department_ids']);
+            foreach ($department_arr as $item){
+                if ($department = $this->searchArray($department_list,'id',$item)){
+                    $value['departments'][] = reset($department);
+                }
+            }
+            $labels_arr = explode(',',$value['label_ids']);
+            foreach ($labels_arr as $item){
+                if ($label = $this->searchArray($labels_list,'id',$item)){
+                    $value['labels'][] = reset($label);
+                }
+            }
+            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospitals_id'])){
+                $value['hospitals_name'] = reset($hospitals)['name'];
+            }
+            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+        }
+
         $this->setMessage('获取成功!');
         return $list;
     }
