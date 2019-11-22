@@ -238,5 +238,67 @@ class DoctorsService extends BaseService
         $this->setMessage('获取成功!');
         return $doctorInfo;
     }
+
+    public function searchDoctorsHospitals($request)
+    {
+        if (empty($request['asc'])){
+            $request['asc'] = 1;
+        }
+        $page           = $request['page'] ?? 1;
+        $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
+        $page_num       = $request['page_num'] ?? 20;
+        $keywords       = $request['keywords'] ?? null;
+        $where          = ['deleted_at' => 0];
+        if (!empty($keywords)){
+            $keyword        = [$keywords => ['name','sex','department_ids']];
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'created_at',$asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+
+        $list['data']    = ImagesService::getListImages($list['data'],['img_id' => 'single']);
+        $department_ids  = array_column($list['data'],'department_ids');
+        $hospitals_ids   = array_column($list['data'],'hospitals_id');
+        $labels_ids      = array_column($list['data'],'label_ids');
+        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
+        $labels_list     = MedicalDoctorLabelsRepository::getAssignList($labels_ids,['id','name']);
+
+        foreach ($list['data'] as &$value){
+            $value['departments']    = [];
+            $value['hospitals_name'] = '';
+            $value['labels']         = [];
+            $department_arr = explode(',',$value['department_ids']);
+            foreach ($department_arr as $item){
+                if ($department = $this->searchArray($department_list,'id',$item)){
+                    $value['departments'][] = reset($department);
+                }
+            }
+            $labels_arr = explode(',',$value['label_ids']);
+            foreach ($labels_arr as $item){
+                if ($label = $this->searchArray($labels_list,'id',$item)){
+                    $value['labels'][] = reset($label);
+                }
+            }
+            if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospitals_id'])){
+                $value['hospitals_name'] = reset($hospitals)['name'];
+            }
+            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+        }
+
+        $this->setMessage('获取成功!');
+        return $list;
+    }
 }
             
