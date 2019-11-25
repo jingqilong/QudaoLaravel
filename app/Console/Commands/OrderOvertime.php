@@ -53,8 +53,7 @@ class OrderOvertime extends Command
         foreach ($order_list as $item){
             $order_time = strtotime($item['created_at']);
             $star_time  = strtotime(date('Y-m-d H:i').":00") - 86400;
-            $end_time   = strtotime(date('Y-m-d H:i').":59") - 86400;
-            if ($order_time < $star_time || $order_time > $end_time){
+            if ($order_time < $star_time){
                 print '不符合条件订单  ';
                 continue;
             }
