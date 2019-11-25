@@ -307,7 +307,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="收藏列表类别，1活动，2商品，3房产，3精选生活..",
+     *         description="收藏列表类别，1活动，2商品，3房产，4精选生活..",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",

@@ -111,6 +111,11 @@ class CollectService extends BaseService
         return true;
     }
 
+    /**
+     * 收藏列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
     public function collectList($request)
     {
         if (empty($type = CollectTypeEnum::getType($request['type']))){
