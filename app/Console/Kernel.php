@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\Test::class,
+        \App\Console\Commands\ActivityRemind::class,
     ];
 
     /**
@@ -25,19 +25,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-        $schedule->command('test')//Test.php中的name
-        ->everyMinute()
-            ->before(function () {
-                Loggy::write('debug','测试自动任务即将开始：time：'.date('Y-m-d H:i:s'));
-                // 任务就要开始了…
-            })
-            ->after(function () {
-                Loggy::write('debug','测试自动任务结束：time：'.date('Y-m-d H:i:s'));
-                // 任务完成…
-            })->evenInMaintenanceMode()
-        ;//每五分钟执行一次
+        // 活动签到提醒
+        $schedule->command('activity:remind')
+        ->dailyAt('13:00');//每天13点运行
+        // 活动即将开始提醒
+        $schedule->command('activity:register')
+        ->everyMinute();//每分钟运行
     }
 
     /**

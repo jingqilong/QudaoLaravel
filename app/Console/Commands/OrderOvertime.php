@@ -2,24 +2,25 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ShopOrderEnum;
+use App\Repositories\ShopOrderRelateRepository;
 use Illuminate\Console\Command;
-use Tolawho\Loggy\Facades\Loggy;
 
-class test extends Command
+class OrderOvertime extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'test';
+    protected $signature = 'order:overtime';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '测试';
+    protected $description = '商城订单超时取消订单';
 
     /**
      * Create a new command instance.
@@ -38,6 +39,9 @@ class test extends Command
      */
     public function handle()
     {
-        Loggy::write('debug','测试自动任务正在进行：time：'.date('Y-m-d H:i:s'));
+        $where = ['status' => ShopOrderEnum::PAYMENT,'created_at' => ['<',(time() - 86400)]];
+        if ($order_list = ShopOrderRelateRepository::getList($where,['id','order_id','member_id'])){
+
+        }
     }
 }

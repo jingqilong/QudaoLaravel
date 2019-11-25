@@ -262,7 +262,7 @@ class RegisterService extends BaseService
      */
     public function sign($sign_in_code)
     {
-        if (!$register = ActivityRegisterRepository::getOne(['sign_in_code' => $sign_in_code,'status' => ['>',ActivityRegisterEnum::EVALUATION]])){
+        if (!$register = ActivityRegisterRepository::getOne(['sign_in_code' => $sign_in_code,'status' => ['>',ActivityRegisterEnum::SUBMIT]])){
             $this->setError('报名信息不存在！');
             return false;
         }
@@ -271,12 +271,12 @@ class RegisterService extends BaseService
             return false;
         }
         $time = time();
-        if ($activity['start_time'] > ($time + 3600)){
+        if ($activity['start_time'] > ($time + $activity['signin'] * 60)){
             $this->setError('活动还没开始，不能签到！');
             return false;
         }
         if (($activity['end_time'] + 3600) < $time){
-            $this->setError('活动还没开始，不能签到！');
+            $this->setError('活动已经结束，不能签到了！');
             return false;
         }
         if (!ActivityRegisterRepository::getUpdId(['sign_in_code' => $sign_in_code],['is_register' => $time,'updated_at' => $time])){

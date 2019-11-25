@@ -42,6 +42,7 @@ class DetailService extends BaseService
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
+            'signin'        => $request['signin'] ?? 0,
             'start_time'    => strtotime($request['start_time']),
             'end_time'      => strtotime($request['end_time']),
             'is_recommend'  => $is_recommend == 0 ? 0 : time(),
@@ -196,6 +197,7 @@ class DetailService extends BaseService
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
+            'signin'        => $request['signin'] ?? 0,
             'start_time'    => strtotime($request['start_time']),
             'end_time'      => strtotime($request['end_time']),
             'is_recommend'  => $is_recommend == 0 ? 0 : time(),
@@ -253,7 +255,7 @@ class DetailService extends BaseService
         if (!empty($is_member)){
             $where['is_member']  = $is_member;
         }
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','firm','is_member','created_at','updated_at','deleted_at'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','created_at','updated_at','deleted_at'];
         if (!empty($keywords)){
             if ($search_themes = ActivityThemeRepository::getList(['name' => $keywords],['id'])){
                 $theme_ids = array_column($search_themes,'id');
@@ -303,7 +305,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','area_code','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
+        $column = ['id','name','area_code','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;

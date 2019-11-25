@@ -27,6 +27,10 @@ class ActivityEnum extends BaseEnum
 
     const ALLOW         = 2;    //允许
 
+    //活动状态
+    const OPEN          = 1;    //开启
+    const CLOSE         = 2;    // 关闭
+
     /**
      * 获取状态label
      * @param int $value

@@ -7,7 +7,7 @@ use App\Library\YiKaYi\YiKaYiSms;
 use App\Repositories\CommonSmsRepository;
 use App\Repositories\OaMemberRepository;
 use App\Repositories\OaEmployeeRepository;
-use App\Repositories\PrimeShopsRepository;
+use App\Repositories\PrimeMerchantRepository;
 use App\Services\BaseService;
 use Tolawho\Loggy\Facades\Loggy;
 
@@ -77,7 +77,7 @@ class SmsService extends BaseService
                 $res = OaMemberRepository::exists(['m_phone' => $mobile]);
                 break;
             case 'prime':
-                $res = PrimeShopsRepository::exists(['phone' => $mobile]);
+                $res = PrimeMerchantRepository::exists(['mobile' => $mobile]);
                 break;
             case 'oa':
                 $res = OaEmployeeRepository::exists(['mobile' => $mobile]);
