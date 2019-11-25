@@ -6,6 +6,8 @@ namespace App\Repositories;
 
 use App\Models\PrimeMerchantModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Services\Common\ImagesService;
+use App\Services\Common\ImagesService as CommonImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -133,6 +135,30 @@ class PrimeMerchantRepository extends ApiRepository
             'token_type' => 'bearer',
             'expires_in' => $auth->factory()->getTTL() * 60
         ];
+    }
+
+
+    protected function getCollectList(array $collect_ids)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['id' => ['in',$collect_ids],'disabled' => 0];
+        $column     = ['id','name','banner_ids','address','star','expect_spend','discount'];
+        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            return [];
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return $list;
+        }
+        $list['data'] = ImagesService::getListImages($list['data'], ['image_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
+            unset($value['banner_ids'],$value['logo_id']);
+        }
+        return $list;
     }
 }
             

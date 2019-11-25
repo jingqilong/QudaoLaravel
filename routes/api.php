@@ -582,6 +582,7 @@ $api->version('v1',function ($api){
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
+                $api->get('collect_list', 'CommonController@collectList')->name('收藏类别列表');
                 $api->post('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
             });
         });

@@ -29,6 +29,15 @@ class MemberCollectModel extends Model
 
     protected $fillable = ['id','type','target_id','member_id','created_at','deleted_at'];
 
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
 
 }
