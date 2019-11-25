@@ -28,6 +28,7 @@ class LeaseController extends ApiController
      *     path="/api/v1/house/add_lease",
      *     tags={"房产租赁后台"},
      *     summary="添加房产租赁方式",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="add_lease",
      *     @OA\Parameter(
@@ -97,6 +98,7 @@ class LeaseController extends ApiController
      *     path="/api/v1/house/delete_lease",
      *     tags={"房产租赁后台"},
      *     summary="删除房产租赁方式",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="delete_lease",
      *     @OA\Parameter(
@@ -157,6 +159,7 @@ class LeaseController extends ApiController
      *     path="/api/v1/house/edit_lease",
      *     tags={"房产租赁后台"},
      *     summary="修改房产租赁方式",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="edit_lease",
      *     @OA\Parameter(
@@ -237,6 +240,7 @@ class LeaseController extends ApiController
      *     path="/api/v1/house/lease_list",
      *     tags={"房产租赁后台"},
      *     summary="获取房产租赁方式列表",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="lease_list",
      *     @OA\Parameter(

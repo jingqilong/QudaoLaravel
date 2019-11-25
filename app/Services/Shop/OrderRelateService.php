@@ -295,9 +295,18 @@ class OrderRelateService extends BaseService
             $this->setError('您的订单已完成，无法取消！');
             return false;
         }
+        return $this->offOrder($order_relate);
+    }
+
+    /**
+     * 取消订单主方法
+     * @param $order_relate
+     * @return bool
+     */
+    public function offOrder($order_relate){
         DB::beginTransaction();
         #更新订单关联表信息
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::CANCELED,'updated_at' => time()])){
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate['id']],['status' => ShopOrderEnum::CANCELED,'updated_at' => time()])){
             $this->setError('取消订单失败！');
             DB::rollBack();
             return false;
@@ -309,13 +318,14 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新交易表信息
+        if (!empty($order_relate['trade_id']))
         if (!MemberTradesRepository::getUpdId(['id' => $order_relate['trade_id']],['status' => TradeEnum::STATUSFAIL])){
             $this->setError('取消订单失败！');
             DB::rollBack();
             return false;
         }
         #归还库存
-        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate_id]);
+        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
         $goodsSpecRelateService = new GoodsSpecRelateService();
         if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
             $this->setError($goodsSpecRelateService->error);
@@ -325,7 +335,7 @@ class OrderRelateService extends BaseService
         //退还积分
         if (!empty($order_relate['score_type'])){
             $scoreService = new RecordService();
-            if (!$scoreService->increaseScore($order_relate['score_type'],$order_relate['score_deduction'],$member->m_id,'商品抵扣积分退还','取消订单退还')){
+            if (!$scoreService->increaseScore($order_relate['score_type'],$order_relate['score_deduction'],$order_relate['member_id'],'商品抵扣积分退还','取消订单退还')){
                 $this->setError('积分退还失败！');
                 DB::rollBack();
                 return false;

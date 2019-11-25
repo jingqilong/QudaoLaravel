@@ -28,6 +28,7 @@ class UnitController extends ApiController
      *     path="/api/v1/house/add_unit",
      *     tags={"房产租赁后台"},
      *     summary="添加房产户型",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="add_unit",
      *     @OA\Parameter(
@@ -97,6 +98,7 @@ class UnitController extends ApiController
      *     path="/api/v1/house/delete_unit",
      *     tags={"房产租赁后台"},
      *     summary="删除房产户型",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="delete_unit",
      *     @OA\Parameter(
@@ -157,6 +159,7 @@ class UnitController extends ApiController
      *     path="/api/v1/house/edit_unit",
      *     tags={"房产租赁后台"},
      *     summary="修改房产户型",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="edit_unit",
      *     @OA\Parameter(
@@ -237,6 +240,7 @@ class UnitController extends ApiController
      *     path="/api/v1/house/unit_list",
      *     tags={"房产租赁后台"},
      *     summary="获取房产户型列表",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="unit_list",
      *     @OA\Parameter(

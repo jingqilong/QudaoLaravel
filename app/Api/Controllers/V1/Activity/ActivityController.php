@@ -100,6 +100,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="signin",
+     *         in="query",
+     *         description="活动提前签到时间，默认提前0小时可签到",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="start_time",
      *         in="query",
      *         description="活动开始时间（例如：2019-10-01 08:30）",
@@ -212,6 +221,7 @@ class ActivityController extends ApiController
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
+            'signin'        => 'integer',
             'start_time'    => [
                 'required',
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
@@ -235,6 +245,7 @@ class ActivityController extends ApiController
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
             'theme_id.integer'      => '活动主题必须为整数',
+            'signin.integer'        => '活动提前签到时间必须为整数',
             'start_time.required'   => '活动开始时间不能为空',
             'start_time.regex'      => '活动开始时间格式有误，例如：2019-10-10 12:30',
             'end_time.required'     => '活动结束时间不能为空',
@@ -405,6 +416,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="signin",
+     *         in="query",
+     *         description="活动提前签到时间，默认提前0小时可签到",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="start_time",
      *         in="query",
      *         description="活动开始时间（例如：2019-10-01 08:30）",
@@ -518,6 +538,7 @@ class ActivityController extends ApiController
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
+            'signin'        => 'integer',
             'start_time'    => [
                 'required',
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
@@ -543,6 +564,7 @@ class ActivityController extends ApiController
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
             'theme_id.integer'      => '活动主题必须为整数',
+            'signin.integer'        => '活动提前签到时间必须为整数',
             'start_time.required'   => '活动开始时间不能为空',
             'start_time.regex'      => '活动开始时间格式有误，例如：2019-10-10 12:30',
             'end_time.required'     => '活动结束时间不能为空',

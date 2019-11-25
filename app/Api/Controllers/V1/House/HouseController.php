@@ -104,12 +104,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="leasing_id",
+     *         name="leasing",
      *         in="query",
-     *         description="租赁方式ID",
+     *         description="租赁方式，例如：付一押一",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -158,12 +158,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="unit_id",
+     *         name="unit",
      *         in="query",
-     *         description="户型ID",
+     *         description="户型，例如：三室一厅一卫",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -176,12 +176,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="toward_id",
+     *         name="toward",
      *         in="query",
-     *         description="朝向ID",
+     *         description="朝向，例如：朝南",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -216,7 +216,7 @@ class HouseController extends ApiController
             'address'           => 'required',
             'rent'              => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'tenancy'           => 'required|in:1,2,3,4,5',
-            'leasing_id'        => 'required|integer',
+            'leasing'           => 'required',
             'decoration'        => 'required|in:1,2,3',
             'height'            => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'area'              => 'required|integer',
@@ -224,8 +224,8 @@ class HouseController extends ApiController
             'storey'            => [
                 'required',
                 'regex:/^[\S]+[\/]+[\d+]*$/'],
-            'unit_id'           => 'required|integer',
-            'toward_id'         => 'required|integer',
+            'unit'              => 'required',
+            'toward'            => 'required',
             'category'          => 'required|in:1,2,3,4',
             'facilities_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
@@ -238,8 +238,7 @@ class HouseController extends ApiController
             'rent.regex'            => '租金格式有误',
             'tenancy.required'      => '租期不能为空',
             'tenancy.in'            => '租期不存在',
-            'leasing_id.required'   => '租赁方式不能为空',
-            'leasing_id.integer'    => '租赁方式ID必须为整数',
+            'leasing.required'      => '租赁方式不能为空',
             'decoration.required'   => '装修类型不能为空',
             'decoration.in'         => '装修类型不存在',
             'height.required'       => '楼层高度不能为空',
@@ -250,10 +249,8 @@ class HouseController extends ApiController
             'image_ids.regex'       => '房产详情图格式有误',
             'storey.required'       => '楼层不能为空',
             'storey.regex'          => '楼层格式有误，示例【B1|20】',
-            'unit_id.required'      => '户型不能为空',
-            'unit_id.integer'       => '户型ID必须为整数',
-            'toward_id.required'    => '朝向不能为空',
-            'toward_id.integer'     => '朝向ID必须为整数',
+            'unit.required'         => '户型不能为空',
+            'toward.required'       => '朝向不能为空',
             'category.required'     => '房产类别不能为空',
             'category.in'           => '房产类别不存在',
             'facilities_ids.regex'  => '房屋设施格式有误',
@@ -481,12 +478,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="leasing_id",
+     *         name="leasing",
      *         in="query",
-     *         description="租赁方式ID",
+     *         description="租赁方式，例如：付一押一",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -535,12 +532,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="unit_id",
+     *         name="unit",
      *         in="query",
-     *         description="户型ID",
+     *         description="户型，例如：三室一厅一卫",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -553,12 +550,12 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="toward_id",
+     *         name="toward",
      *         in="query",
-     *         description="朝向ID",
+     *         description="朝向，例如：朝南",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
@@ -594,7 +591,7 @@ class HouseController extends ApiController
             'address'           => 'required',
             'rent'              => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'tenancy'           => 'required|in:1,2,3,4,5',
-            'leasing_id'        => 'required|integer',
+            'leasing'           => 'required',
             'decoration'        => 'required|in:1,2,3',
             'height'            => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'area'              => 'required|integer',
@@ -602,8 +599,8 @@ class HouseController extends ApiController
             'storey'            => [
                 'required',
                 'regex:/^[\S]+[\/]+[\d+]*$/'],
-            'unit_id'           => 'required|integer',
-            'toward_id'         => 'required|integer',
+            'unit'              => 'required',
+            'toward'            => 'required',
             'category'          => 'required|in:1,2,3,4',
             'facilities_ids'    => 'regex:/^(\d+[,])*\d+$/',
         ];
@@ -618,8 +615,7 @@ class HouseController extends ApiController
             'rent.regex'            => '租金格式有误',
             'tenancy.required'      => '租期不能为空',
             'tenancy.in'            => '租期不存在',
-            'leasing_id.required'   => '租赁方式不能为空',
-            'leasing_id.integer'    => '租赁方式ID必须为整数',
+            'leasing.required'      => '租赁方式不能为空',
             'decoration.required'   => '装修类型不能为空',
             'decoration.in'         => '装修类型不存在',
             'height.required'       => '楼层高度不能为空',
@@ -630,10 +626,8 @@ class HouseController extends ApiController
             'image_ids.regex'       => '房产详情图格式有误',
             'storey.required'       => '楼层不能为空',
             'storey.regex'          => '楼层格式有误，示例【B1|20】',
-            'unit_id.required'      => '户型不能为空',
-            'unit_id.integer'       => '户型ID必须为整数',
-            'toward_id.required'    => '朝向不能为空',
-            'toward_id.integer'     => '朝向ID必须为整数',
+            'unit.required'         => '户型不能为空',
+            'toward.required'       => '朝向不能为空',
             'category.required'     => '房产类别不能为空',
             'category.in'           => '房产类别不存在',
             'facilities_ids.regex'  => '房屋设施格式有误',
@@ -693,9 +687,9 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="unit_id",
+     *         name="category",
      *         in="query",
-     *         description="户型ID",
+     *         description="类别，1住宅，2商铺，3写字楼，4厂房/仓库",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -747,7 +741,7 @@ class HouseController extends ApiController
     public function getHomeList(){
         $rules = [
             'area_code'     => 'integer',
-            'unit_id'       => 'integer',
+            'category'      => 'integer',
             'rent_range'    => 'regex:/^\d+[-][\d]*$/',
             'rent_order'    => 'in:1,2',
             'page'          => 'integer',
@@ -755,7 +749,7 @@ class HouseController extends ApiController
         ];
         $messages = [
             'area_code.integer'         => '地区代码必须为整数',
-            'unit_id.integer'           => '户型ID必须为整数',
+            'category.integer'          => '类别必须为整数',
             'rent_range.regex'          => '租金范围格式有误',
             'rent_order.in'             => '租金排序取值不在范围内',
             'page.integer'              => '页码必须为整数',

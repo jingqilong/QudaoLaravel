@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Tolawho\Loggy\Facades\Loggy;
 
 class Kernel extends ConsoleKernel
 {
@@ -13,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\ActivityRemind::class,
     ];
 
     /**
@@ -24,8 +25,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        // 活动签到提醒
+        $schedule->command('activity:remind')
+        ->dailyAt('13:00');//每天13点运行
+
+        // 活动即将开始提醒
+        $schedule->command('activity:register')
+        ->everyMinute();//每分钟运行
+
+        // 订单超时关闭提醒
+        $schedule->command('order:overtime')
+        ->everyMinute();//每分钟运行
     }
 
     /**

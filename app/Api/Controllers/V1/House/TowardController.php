@@ -28,6 +28,7 @@ class TowardController extends ApiController
      *     path="/api/v1/house/add_toward",
      *     tags={"房产租赁后台"},
      *     summary="添加房产朝向",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="add_toward",
      *     @OA\Parameter(
@@ -97,6 +98,7 @@ class TowardController extends ApiController
      *     path="/api/v1/house/delete_toward",
      *     tags={"房产租赁后台"},
      *     summary="删除房产朝向",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="delete_toward",
      *     @OA\Parameter(
@@ -157,6 +159,7 @@ class TowardController extends ApiController
      *     path="/api/v1/house/edit_toward",
      *     tags={"房产租赁后台"},
      *     summary="修改房产朝向",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="edit_toward",
      *     @OA\Parameter(
@@ -237,6 +240,7 @@ class TowardController extends ApiController
      *     path="/api/v1/house/toward_list",
      *     tags={"房产租赁后台"},
      *     summary="获取房产朝向列表",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="toward_list",
      *     @OA\Parameter(

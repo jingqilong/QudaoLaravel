@@ -79,8 +79,8 @@ class MessageEnum extends BaseEnum
             ],
         7 =>
             [
-                'auditPass'         => '尊敬的member_name您好！您的贷款预约已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
-                'auditNoPass'       => '尊敬的member_name您好！您的贷款预约未通过审核,请您联系客服021-53067999再次预约，谢谢！',
+                'auditPass'         => '尊敬的member_name您好！您的预约已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
+                'auditNoPass'       => '尊敬的member_name您好！您的预约未通过审核,请您联系客服021-53067999再次预约，谢谢！',
             ],
         8 =>
             [
