@@ -325,4 +325,43 @@ class FacilityController extends ApiController
         }
         return ['code' => 200, 'message' => $this->facilityService->message,'data' => $res];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/house/all_facility_list",
+     *     tags={"房产租赁"},
+     *     summary="获取所有房产设施列表",
+     *     description="sang" ,
+     *     operationId="all_facility_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function allFacilityList(){
+        $res = $this->facilityService->allFacilityList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->facilityService->error];
+        }
+        return ['code' => 200, 'message' => $this->facilityService->message,'data' => $res];
+    }
 }

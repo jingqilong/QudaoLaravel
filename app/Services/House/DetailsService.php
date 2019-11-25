@@ -7,11 +7,7 @@ use App\Enums\MemberEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
-use App\Repositories\HouseDetailsViewRepository;
 use App\Repositories\HouseFacilitiesRepository;
-use App\Repositories\HouseLeasingRepository;
-use App\Repositories\HouseTowardRepository;
-use App\Repositories\HouseUnitRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
@@ -36,18 +32,6 @@ class DetailsService extends BaseService
             $this->setError('无效的地区代码！');
             return false;
         }
-        if (!HouseLeasingRepository::exists(['id' => $request['leasing_id']])){
-            $this->setError('租赁方式不存在！');
-            return false;
-        }
-        if (!HouseUnitRepository::exists(['id' => $request['unit_id']])){
-            $this->setError('户型不存在！');
-            return false;
-        }
-        if (!HouseTowardRepository::exists(['id' => $request['toward_id']])){
-            $this->setError('朝向不存在！');
-            return false;
-        }
         if (isset($request['facilities_ids']) && !empty($request['facilities_ids'])){
             $facilities_ids = explode(',',$request['facilities_ids']);
             if (count($facilities_ids) != HouseFacilitiesRepository::count(['id' => ['in',$facilities_ids]])){
@@ -62,15 +46,15 @@ class DetailsService extends BaseService
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
             'tenancy'       => $request['tenancy'],
-            'leasing_id'    => $request['leasing_id'],
+            'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
             'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
-            'unit_id'       => $request['unit_id'],
+            'unit'          => $request['unit'],
             'condo_name'    => $request['condo_name'] ?? '',
-            'toward_id'     => $request['toward_id'],
+            'toward'        => $request['toward'],
             'category'      => $request['category'],
             'publisher'     => $publisher,
             'publisher_id'  => $publisher_id,
@@ -102,9 +86,9 @@ class DetailsService extends BaseService
             $this->setError('房产信息不存在！');
             return false;
         }
-        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing_title','decoration','height','area'
-            ,'image_ids','storey','unit_title','condo_name','toward_title','category','publisher','facilities_ids'];
-        if (!$house = HouseDetailsViewRepository::getOne(['id' => $id],$column)){
+        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','height','area'
+            ,'image_ids','storey','unit','condo_name','toward','category','publisher','facilities_ids'];
+        if (!$house = HouseDetailsRepository::getOne(['id' => $id],$column)){
             $this->setError('获取失败！');
             return false;
         }
@@ -118,7 +102,7 @@ class DetailsService extends BaseService
 
         $house['decoration'] = HouseEnum::getDecoration($house['decoration']);
         $house['height']        = $house['height'] .'m';
-        $house['area']          = $house['area'] .'㎡';
+        $house['area']          = $house['area'] .'㎡'   ;
         $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]]);
         $house['images']        = array_column($image_list,'img_url');
         $house['storey']        = $house['storey'] .'层';
@@ -185,18 +169,6 @@ class DetailsService extends BaseService
             $this->setError('无效的地区代码！');
             return false;
         }
-        if (!HouseLeasingRepository::exists(['id' => $request['leasing_id']])){
-            $this->setError('租赁方式不存在！');
-            return false;
-        }
-        if (!HouseUnitRepository::exists(['id' => $request['unit_id']])){
-            $this->setError('户型不存在！');
-            return false;
-        }
-        if (!HouseTowardRepository::exists(['id' => $request['toward_id']])){
-            $this->setError('朝向不存在！');
-            return false;
-        }
         if (isset($request['facilities_ids']) && !empty($request['facilities_ids'])){
             $facilities_ids = explode(',',$request['facilities_ids']);
             if (count($facilities_ids) != HouseFacilitiesRepository::count(['id' => ['in',$facilities_ids]])){
@@ -211,15 +183,15 @@ class DetailsService extends BaseService
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
             'tenancy'       => $request['tenancy'],
-            'leasing_id'    => $request['leasing_id'],
+            'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
             'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
-            'unit_id'       => $request['unit_id'],
+            'unit'          => $request['unit'],
             'condo_name'    => $request['condo_name'] ?? '',
-            'toward_id'     => $request['toward_id'],
+            'toward'        => $request['toward'],
             'category'      => $request['category'],
             'publisher'     => $publisher,
             'publisher_id'  => $publisher_id,
@@ -264,13 +236,13 @@ class DetailsService extends BaseService
         }
         $column = ['*'];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['title', 'address', 'tenancy', 'leasing_title', 'unit_title', 'toward_title', 'tenancy']];
-            if (!$list = HouseDetailsViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            $keyword = [$keywords => ['title', 'address', 'tenancy', 'leasing', 'unit', 'toward', 'tenancy']];
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -306,11 +278,16 @@ class DetailsService extends BaseService
         return $list;
     }
 
+    /**
+     * 获取首页列表
+     * @param $request
+     * @return bool|mixed|null
+     */
     public function getHomeList($request)
     {
         $keywords   = $request['keywords'] ?? '';
         $area_code  = $request['area_code'] ?? '';
-        $unit_id    = $request['unit_id'] ?? '';
+        $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
         $rent_order = $request['rent_order'] ?? '';
         $page       = $request['page'] ?? 1;
@@ -321,8 +298,8 @@ class DetailsService extends BaseService
         if (!empty($area_code)){
             $where['area_code'] = ['like','%'.$area_code.',%'];
         }
-        if (!empty($unit_id)){
-            $where['unit_id'] = $unit_id;
+        if (!empty($category)){
+            $where['category'] = $category;
         }
         if (!empty($rent_range)){
             $range = explode('-',$rent_range);
@@ -332,15 +309,15 @@ class DetailsService extends BaseService
             $order      = 'rent';
             $desc_asc   = $rent_order == 1 ? 'asc' : 'desc';
         }
-        $column = ['id','title','area_code','describe','rent','tenancy','leasing_title','decoration','image_ids','storey','unit_title','condo_name','toward_title','category'];
+        $column = ['id','title','area_code','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['title','leasing_title', 'unit_title', 'toward_title']];
-            if (!$list = HouseDetailsViewRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
+            $keyword = [$keywords => ['title','leasing', 'unit', 'toward']];
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -375,7 +352,7 @@ class DetailsService extends BaseService
      */
     public function auditHouse($id, $audit)
     {
-        if (!$house = HouseDetailsViewRepository::getOne(['id' => $id])){
+        if (!$house = HouseDetailsRepository::getOne(['id' => $id])){
             $this->setError('房源不存在！');
             return false;
         }
@@ -384,7 +361,7 @@ class DetailsService extends BaseService
             return false;
         }
         $status = ($audit == 1) ? HouseEnum::PASS : HouseEnum::NOPASS;
-        if (!HouseDetailsViewRepository::getUpdId(['id' => $id],['status' => $status])){
+        if (!HouseDetailsRepository::getUpdId(['id' => $id],['status' => $status])){
             $this->setError('审核失败！');
             return false;
         }
