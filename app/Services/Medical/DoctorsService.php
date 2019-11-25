@@ -181,7 +181,9 @@ class DoctorsService extends BaseService
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospitals_id'])){
                 $value['hospitals_name'] = reset($hospitals)['name'];
             }
-            $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
+            $value['recommend']         = $value['recommend'] == 0 ? 0 : 1;
+            $value['department_ids']    = trim($value['department_ids'],',');
+            $value['label_ids']         = trim($value['label_ids'],',');
         }
 
         $this->setMessage('获取成功!');
