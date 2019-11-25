@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
             ->after(function () {
                 Loggy::write('debug','测试自动任务结束：time：'.date('Y-m-d H:i:s'));
                 // 任务完成…
-            })
+            })->evenInMaintenanceMode()
         ;//每五分钟执行一次
     }
 
