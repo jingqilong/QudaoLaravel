@@ -28,8 +28,13 @@ class Kernel extends ConsoleKernel
         // 活动签到提醒
         $schedule->command('activity:remind')
         ->dailyAt('13:00');//每天13点运行
+
         // 活动即将开始提醒
         $schedule->command('activity:register')
+        ->everyMinute();//每分钟运行
+
+        // 订单超时关闭提醒
+        $schedule->command('order:overtime')
         ->everyMinute();//每分钟运行
     }
 

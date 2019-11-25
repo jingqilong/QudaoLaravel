@@ -55,10 +55,7 @@ class ActivityRegister extends Command
         $MessageService = new SendService();
         foreach ($activity_list as $activity){
             if (($activity['signin'] * 60 + $activity['start_time']) !== strtotime(date('Y-m-d H:i').":00")){
-                break;
-            }
-            if ($activity['id'] == 9){
-                print 3;
+                continue;
             }
             //获取已经参加活动的用户
             $activity_where = ['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]];
