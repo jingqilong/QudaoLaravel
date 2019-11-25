@@ -51,9 +51,10 @@ class OrderOvertime extends Command
         $SmsService     = new SmsService();
         $MessageService = new SendService();
         foreach ($order_list as $item){
-            if ((strtotime($item['created_at'])) > (strtotime(date('Y-m-d H:i').":00") - 86400) &&
-                (strtotime($item['created_at'])) < (strtotime(date('Y-m-d H:i').":59") - 86400)
-            ){
+            $order_time = strtotime($item['created_at']);
+            $star_time  = strtotime(date('Y-m-d H:i').":00") - 86400;
+            $end_time   = strtotime(date('Y-m-d H:i').":59") - 86400;
+            if ($order_time < $star_time || $order_time > $end_time){
                 print '不符合条件订单  ';
                 continue;
             }
