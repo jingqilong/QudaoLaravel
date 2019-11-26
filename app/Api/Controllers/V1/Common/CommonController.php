@@ -421,7 +421,7 @@ class CommonController extends ApiController
      * )
      *
      */
-    public function collectList(){
+    /*public function collectList(){
         $rules = [
             'type'          => 'required|in:1,2,3,4',
             'page'          => 'integer',
@@ -442,5 +442,5 @@ class CommonController extends ApiController
             return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
-    }
+    }*/
 }

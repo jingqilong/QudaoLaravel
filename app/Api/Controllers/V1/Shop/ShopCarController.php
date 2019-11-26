@@ -10,20 +10,20 @@ namespace App\Api\Controllers\V1\Shop;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Shop\cartService;
+use App\Services\Shop\CartService;
 
 class ShopCarController extends ApiController
 {
-    public $cartService;
+    public $CartService;
 
     /**
      * ShopCarController constructor.
-     * @param $cartService
+     * @param $CartService
      */
-    public function __construct(CartService $cartService)
+    public function __construct(CartService $CartService)
     {
         parent::__construct();
-        $this->cartService = $cartService;
+        $this->CartService = $CartService;
     }
 
     /**
@@ -104,11 +104,11 @@ class ShopCarController extends ApiController
         if ($Validate->fails()) {
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->cartService->addShopCar($this->request);
+        $res = $this->CartService->addShopCar($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message];
+            return ['code' => 200, 'message' => $this->CartService->message];
         }
-        return ['code' => 100, 'message' => $this->cartService->error];
+        return ['code' => 100, 'message' => $this->CartService->error];
     }
 
 
@@ -166,11 +166,11 @@ class ShopCarController extends ApiController
         if ($Validate->fails()) {
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->cartService->delShopCar($this->request);
+        $res = $this->CartService->delShopCar($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message];
+            return ['code' => 200, 'message' => $this->CartService->message];
         }
-        return ['code' => 100, 'message' => $this->cartService->error];
+        return ['code' => 100, 'message' => $this->CartService->error];
     }
 
     /**
@@ -251,11 +251,11 @@ class ShopCarController extends ApiController
         if ($Validate->fails()) {
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->cartService->changeCarNum($this->request);
+        $res = $this->CartService->changeCarNum($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message,'data' => $res];
+            return ['code' => 200, 'message' => $this->CartService->message,'data' => $res];
         }
-        return ['code' => 100, 'message' => $this->cartService->error];
+        return ['code' => 100, 'message' => $this->CartService->error];
     }
 
     /**
@@ -322,11 +322,11 @@ class ShopCarController extends ApiController
         if ($Validate->fails()) {
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->cartService->shopCarList($this->request);
+        $res = $this->CartService->shopCarList($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message,'data' => $res];
+            return ['code' => 200, 'message' => $this->CartService->message,'data' => $res];
         }
-        return ['code' => 100, 'message' => $this->cartService->error];
+        return ['code' => 100, 'message' => $this->CartService->error];
     }
 
     /**
@@ -402,11 +402,11 @@ class ShopCarController extends ApiController
         if ($Validate->fails()) {
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->cartService->listShopCar($this->request);
+        $res = $this->CartService->listShopCar($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->cartService->message,'data' => $res];
+            return ['code' => 200, 'message' => $this->CartService->message,'data' => $res];
         }
-        return ['code' => 100, 'message' => $this->cartService->error];
+        return ['code' => 100, 'message' => $this->CartService->error];
     }
 
 }
