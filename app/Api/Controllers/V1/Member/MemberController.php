@@ -1087,6 +1087,6 @@ class MemberController extends ApiController
         if (!$member){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $this->memberService->message,'data' => $member];
+        return ['code' => 200, $member[0]['name'] => $member[0]['value'], 'message' => $this->memberService->message,'data' => $member];
     }
 }
