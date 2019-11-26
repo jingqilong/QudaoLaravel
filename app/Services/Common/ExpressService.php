@@ -4,6 +4,7 @@ namespace App\Services\Common;
 
 use App\Repositories\CommonExpressRepository;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\Cache;
 use Ixudra\Curl\Facades\Curl;
 
 class ExpressService extends BaseService
@@ -18,6 +19,10 @@ class ExpressService extends BaseService
      */
     protected function getExpressDetails($code, $number)
     {
+        $cache_key = md5($code . $number);
+        if (Cache::has($cache_key)){
+            return Cache::get($cache_key);
+        }
         $key = env('EXPRESS_KEY');				//客户授权key
         $customer = env('EXPRESS_CUSTOMER');	//查询公司编号
         $param = array (
@@ -38,6 +43,8 @@ class ExpressService extends BaseService
         }
         $post_data = substr($params, 0, -1);
         $result = Curl::to($url)->withData($post_data)->asJsonResponse(true)->post();
+
+        Cache::add($cache_key,$result,7200);
         return $result;
     }
 }
