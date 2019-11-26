@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
@@ -821,26 +822,28 @@ class MemberService extends BaseService
      */
     public function getUserCount()
     {
-        if (!$data['ALL_member'] = MemberRepository::count(['m_id' => ['>',0],'deleted_at' => 0])){
-            $this->setError('获取失败!');
-            return false;
-        }
-        $where = [
-            'ALL_member'    => ['deleted_at' => 0],
-            'TEST'          => ['m_groupname' => MemberEnum::TEST       ,  'deleted_at' => 0 ],
-            'ALSOENJOY'     => ['m_groupname' => MemberEnum::ALSOENJOY  ,  'deleted_at' => 0 ],
-            'TOENJOY'       => ['m_groupname' => MemberEnum::TOENJOY    ,  'deleted_at' => 0 ],
-            'YUEENJOY'      => ['m_groupname' => MemberEnum::YUEENJOY   ,  'deleted_at' => 0 ],
-            'REALLYENJO'    => ['m_groupname' => MemberEnum::REALLYENJOY,  'deleted_at' => 0 ],
-            'YOUENJOY'      => ['m_groupname' => MemberEnum::YOUENJOY   ,  'deleted_at' => 0 ],
-            'HONOURENJO'    => ['m_groupname' => MemberEnum::HONOURENJOY,  'deleted_at' => 0 ],
-            'ZHIRENJOY'     => ['m_groupname' => MemberEnum::ZHIRENJOY  ,  'deleted_at' => 0 ],
-            'ADVISER'       => ['m_groupname' => MemberEnum::ADVISER    ,  'deleted_at' => 0 ],
-            'TEMPORARY'     => ['m_groupname' => MemberEnum::TEMPORARY  ,  'deleted_at' => 0 ],
-        ];
         $res = [];
+        $res[] = [
+            'value' => MemberGradeRepository::count(['status' => 1]),
+            'name'  => '全部会员'
+        ];
+        $where = [
+            MemberEnum::TEST          => ['grade' => MemberEnum::TEST       ,  'status' => 1 ],
+            MemberEnum::ALSOENJOY     => ['grade' => MemberEnum::ALSOENJOY  ,  'status' => 1 ],
+            MemberEnum::TOENJOY       => ['grade' => MemberEnum::TOENJOY    ,  'status' => 1 ],
+            MemberEnum::YUEENJOY      => ['grade' => MemberEnum::YUEENJOY   ,  'status' => 1 ],
+            MemberEnum::REALLYENJOY   => ['grade' => MemberEnum::REALLYENJOY,  'status' => 1 ],
+            MemberEnum::YOUENJOY      => ['grade' => MemberEnum::YOUENJOY   ,  'status' => 1 ],
+            MemberEnum::HONOURENJOY   => ['grade' => MemberEnum::HONOURENJOY,  'status' => 1 ],
+            MemberEnum::ZHIRENJOY     => ['grade' => MemberEnum::ZHIRENJOY  ,  'status' => 1 ],
+            MemberEnum::ADVISER       => ['grade' => MemberEnum::ADVISER    ,  'status' => 1 ],
+            MemberEnum::TEMPORARY     => ['grade' => MemberEnum::TEMPORARY  ,  'status' => 1 ],
+        ];
         foreach ($where as $key => $value){
-            $res[$key] = MemberRepository::count($value);
+            $res[] = [
+                'value' => MemberGradeRepository::count($value),
+                'name'  => MemberEnum::getGrade($key),
+            ];
         }
         $this->setMessage('获取成功!');
         return $res;
