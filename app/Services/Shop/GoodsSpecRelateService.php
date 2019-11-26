@@ -20,7 +20,7 @@ class GoodsSpecRelateService extends BaseService
      * @param array $goods_column
      * @return array|bool
      */
-    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids']){
+    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction']){
         foreach ($goods_spec_arr as $value){
             if (!isset($value['goods_id']) || !isset($value['number'])){
                 $this->setError('商品ID和数量不能为空！');
@@ -39,9 +39,9 @@ class GoodsSpecRelateService extends BaseService
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $price  =  reset($goods)['price'];
                 $result[$key] = [
-                    'goods_name'  => reset($goods)['name'],
-                    'goods_price' => sprintf('%.2f',round($price / 100,2)),
-                    'main_img_url' => reset($goods)['banner_url'],
+                    'goods_name'      => reset($goods)['name'],
+                    'goods_price'     => sprintf('%.2f',round($price / 100,2)),
+                    'main_img_url'    => reset($goods)['banner_url'],
                 ];
             }
             $spec_str       = '件';
@@ -56,17 +56,20 @@ class GoodsSpecRelateService extends BaseService
                     }
                 }
             }
-
+            foreach ($goods_list as $k => $v){
+                $score_deduction = $v['score_deduction'];
+            }
             if (isset($value['order_relate_id'])){
                 $result[$key]['order_relate_id']       = $value['order_relate_id'];
             }
             if (isset($value['cart_id'])){
                 $result[$key]['cart_id']       = $value['cart_id'];
             }
-            $result[$key]['goods_id']       = $value['goods_id'];
-            $result[$key]['spec_relate_id'] = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
-            $result[$key]['spec']           = $spec_str;
-            $result[$key]['number']         = $value['number'];
+            $result[$key]['goods_id']           = $value['goods_id'];
+            $result[$key]['spec_relate_id']     = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
+            $result[$key]['spec']               = $spec_str;
+            $result[$key]['number']             = $value['number'];
+            $result[$key]['score_deduction']    = $score_deduction;
         }
         $this->setMessage('获取成功!');
         return $result;

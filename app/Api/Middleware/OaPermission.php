@@ -64,7 +64,7 @@ class OaPermission extends BaseMiddleware
                     $this->recordLog($request,$user->id);
                     return $next($request);
                 }
-            }dd($user->role_ids);
+            }
         }
         return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
     }

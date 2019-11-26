@@ -9,7 +9,6 @@ use Tolawho\Loggy\Facades\Loggy;
 class TestController extends Controller
 {
     public function index(){
-        dd(111);
         Loggy::write('event','This is a test log.');
         return ['code' => 200];
     }

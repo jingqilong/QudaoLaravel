@@ -43,7 +43,7 @@ class HouseDetailsRepository extends ApiRepository
         $list = $this->removePagingField($list);
         if (empty($list)){
             return $list;
-        }dd($list);
+        }
         $list = ImagesService::getListImages($list['data'], ['image_ids' => 'single']);
         foreach ($list as &$value){
             #处理地址

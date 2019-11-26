@@ -41,7 +41,6 @@ class GoodsService extends BaseService
                 ]
             ],
         ];
-//                dd(json_encode($spec));
         if (!$category = ShopGoodsCategoryRepository::getOne(['id' => $request['category']])){
             $this->setError('商品分类不存在！');
             return false;
