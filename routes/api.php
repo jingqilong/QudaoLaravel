@@ -304,6 +304,7 @@ $api->version('v1',function ($api){
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
+                $api->get('get_user_count','MemberController@getUserCount')->name('获取成员人数');
                 $api->post('add_service','ServiceController@addService')->name('添加服务');
                 $api->get('service_detail','ServiceController@serviceDetail')->name('获取服务详情');
                 $api->post('edit_service','ServiceController@editService')->name('修改服务');

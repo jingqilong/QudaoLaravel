@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
@@ -813,5 +814,38 @@ class MemberService extends BaseService
         $this->setMessage('修改成功!');
         return true;
 
+    }
+
+    /**
+     * 获取成员人数
+     * @return array|bool
+     */
+    public function getUserCount()
+    {
+        $res = [];
+        $res[] = [
+            'value' => MemberGradeRepository::count(['status' => 1]),
+            'name'  => '全部会员'
+        ];
+        $where = [
+            MemberEnum::TEST          => ['grade' => MemberEnum::TEST       ,  'status' => 1 ],
+            MemberEnum::ALSOENJOY     => ['grade' => MemberEnum::ALSOENJOY  ,  'status' => 1 ],
+            MemberEnum::TOENJOY       => ['grade' => MemberEnum::TOENJOY    ,  'status' => 1 ],
+            MemberEnum::YUEENJOY      => ['grade' => MemberEnum::YUEENJOY   ,  'status' => 1 ],
+            MemberEnum::REALLYENJOY   => ['grade' => MemberEnum::REALLYENJOY,  'status' => 1 ],
+            MemberEnum::YOUENJOY      => ['grade' => MemberEnum::YOUENJOY   ,  'status' => 1 ],
+            MemberEnum::HONOURENJOY   => ['grade' => MemberEnum::HONOURENJOY,  'status' => 1 ],
+            MemberEnum::ZHIRENJOY     => ['grade' => MemberEnum::ZHIRENJOY  ,  'status' => 1 ],
+            MemberEnum::ADVISER       => ['grade' => MemberEnum::ADVISER    ,  'status' => 1 ],
+            MemberEnum::TEMPORARY     => ['grade' => MemberEnum::TEMPORARY  ,  'status' => 1 ],
+        ];
+        foreach ($where as $key => $value){
+            $res[] = [
+                'value' => MemberGradeRepository::count($value),
+                'name'  => MemberEnum::getGrade($key),
+            ];
+        }
+        $this->setMessage('获取成功!');
+        return $res;
     }
 }
