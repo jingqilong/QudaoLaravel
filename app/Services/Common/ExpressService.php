@@ -44,7 +44,7 @@ class ExpressService extends BaseService
         $post_data = substr($params, 0, -1);
         $result = Curl::to($url)->withData($post_data)->asJsonResponse(true)->post();
 
-        Cache::add($cache_key,$result,7200);
+        Cache::add($cache_key,$result,60);
         return $result;
     }
 }
