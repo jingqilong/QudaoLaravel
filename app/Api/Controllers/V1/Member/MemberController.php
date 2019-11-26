@@ -1049,4 +1049,44 @@ class MemberController extends ApiController
         }
         return ['code' => 200, 'message' => $this->memberService->message];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_user_count",
+     *     tags={"会员"},
+     *     summary="获取成员人数",
+     *     operationId="get_user_count",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getUserCount()
+    {
+        $member = $this->memberService->getUserCount();
+        if (!$member){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $member];
+    }
 }

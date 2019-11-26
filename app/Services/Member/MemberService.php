@@ -814,4 +814,35 @@ class MemberService extends BaseService
         return true;
 
     }
+
+    /**
+     * 获取成员人数
+     * @return array|bool
+     */
+    public function getUserCount()
+    {
+        if (!$data['ALL_member'] = MemberRepository::count(['m_id' => ['>',0],'deleted_at' => 0])){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $where = [
+            'ALL_member'    => ['deleted_at' => 0],
+            'TEST'          => ['m_groupname' => MemberEnum::TEST       ,  'deleted_at' => 0 ],
+            'ALSOENJOY'     => ['m_groupname' => MemberEnum::ALSOENJOY  ,  'deleted_at' => 0 ],
+            'TOENJOY'       => ['m_groupname' => MemberEnum::TOENJOY    ,  'deleted_at' => 0 ],
+            'YUEENJOY'      => ['m_groupname' => MemberEnum::YUEENJOY   ,  'deleted_at' => 0 ],
+            'REALLYENJO'    => ['m_groupname' => MemberEnum::REALLYENJOY,  'deleted_at' => 0 ],
+            'YOUENJOY'      => ['m_groupname' => MemberEnum::YOUENJOY   ,  'deleted_at' => 0 ],
+            'HONOURENJO'    => ['m_groupname' => MemberEnum::HONOURENJOY,  'deleted_at' => 0 ],
+            'ZHIRENJOY'     => ['m_groupname' => MemberEnum::ZHIRENJOY  ,  'deleted_at' => 0 ],
+            'ADVISER'       => ['m_groupname' => MemberEnum::ADVISER    ,  'deleted_at' => 0 ],
+            'TEMPORARY'     => ['m_groupname' => MemberEnum::TEMPORARY  ,  'deleted_at' => 0 ],
+        ];
+        $res = [];
+        foreach ($where as $key => $value){
+            $res[$key] = MemberRepository::count($value);
+        }
+        $this->setMessage('获取成功!');
+        return $res;
+    }
 }
