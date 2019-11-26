@@ -1084,9 +1084,11 @@ class MemberController extends ApiController
     public function getUserCount()
     {
         $member = $this->memberService->getUserCount();
+        $all_member = $member[0]['value'];
+        unset($member[0]);
         if (!$member){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'all_member' => $member[0]['value'], 'message' => $this->memberService->message,'data' => $member];
+        return ['code' => 200, 'all_member' => $all_member, 'message' => $this->memberService->message,'data' => $member];
     }
 }
