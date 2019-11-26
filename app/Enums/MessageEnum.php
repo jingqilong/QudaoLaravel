@@ -23,6 +23,7 @@ class MessageEnum extends BaseEnum
         'PRIMEBOOKING'  => '精选生活预约通知',
         'SHOPOORDER'    => '商城订单通知',
         'SCOREBOOKING'  => '积分通知',
+        'CONSULTRESERVE'=> '企业咨询预约通知',
         //用户类型
         'MEMBER'        => '会员',
         'MERCHANT'      => '商户',
@@ -47,6 +48,7 @@ class MessageEnum extends BaseEnum
         9   => 'PRIMEBOOKING'  ,
         10  => 'SHOPOORDER'   ,
         11  => 'SCOREBOOKING'   ,
+        12  => 'CONSULTRESERVE'   ,
     ];
 
     public static $user_type = [
@@ -101,6 +103,11 @@ class MessageEnum extends BaseEnum
                 'increaseScore' => '尊敬的member_name,您于time在渠道PLUS资源共享平台explain score_name score分，当前可用remnant_score分。',
                 'expenseScore'  => '尊敬的member_name,您于time在渠道PLUS资源共享平台消费score_name score分，当前可用remnant_score分。',
             ],
+        12 =>
+            [
+                'auditPass'         => '尊敬的member_name您好！您的《enterprise_name》已经通过审核，我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
+                'auditNoPass'       => '尊敬的member_name您好！您的《enterprise_name》未通过审核，,请您联系客服021-53067999再次预约，谢谢！',
+            ],
     ];
 
     // constants
@@ -120,6 +127,7 @@ class MessageEnum extends BaseEnum
     const PRIMEBOOKING      = 9;
     const SHOPOORDER        = 10;
     const SCOREBOOKING      = 11;
+    const CONSULTRESERVE    = 12;
     //用户类型
     const MEMBER            = 1;
     const MERCHANT          = 2;

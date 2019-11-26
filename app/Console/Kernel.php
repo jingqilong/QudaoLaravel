@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Tolawho\Loggy\Facades\Loggy;
 
 class Kernel extends ConsoleKernel
 {
@@ -36,6 +35,26 @@ class Kernel extends ConsoleKernel
         // 订单超时关闭提醒
         $schedule->command('order:overtime')
         ->everyMinute();//每分钟运行
+
+        //企业咨询预约即将到时提醒
+        $schedule->command('reserve:consult')
+            ->dailyAt('20:00');//每天20点运行
+
+        //看房预约即将到时提醒
+        $schedule->command('reserve:house')
+            ->dailyAt('20:00');//每天20点运行
+
+        //贷款预约即将到时提醒
+        $schedule->command('reserve:loan')
+            ->dailyAt('20:00');//每天20点运行
+
+        //精选生活预约即将到时提醒
+        $schedule->command('reserve:prime')
+            ->dailyAt('20:00');//每天20点运行
+
+        //项目对接预约即将到时提醒
+        $schedule->command('reserve:project')
+            ->dailyAt('20:00');//每天20点运行
     }
 
     /**

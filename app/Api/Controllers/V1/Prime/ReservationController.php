@@ -410,7 +410,7 @@ class ReservationController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/prime/admin/audit",
+     *     path="/api/v1/prime/audit",
      *     tags={"精选生活OA后台"},
      *     summary="审核预约",
      *     description="sang" ,

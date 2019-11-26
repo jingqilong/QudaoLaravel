@@ -5,10 +5,12 @@ namespace App\Services\Enterprise;
 
 use App\Enums\EnterEnum;
 use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\EnterpriseOrderRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -240,20 +242,33 @@ class OrderService extends BaseService
             $this->setError('审核失败，请重试!');
             return false;
         }
-        $status = $upd_arr['status'];
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['user_id']])){
+        $status = $upd_arr['status'];
+        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
             $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $sms_template = [
+                EnterEnum::PASS   =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::CONSULTRESERVE,
+                        'auditPass',
+                        ['member_name' => $member_name,'enterprise_name' => $orderInfo['enterprise_name']]
+                    ),
+                EnterEnum::NOPASS =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::CONSULTRESERVE,
+                        'auditNoPass',
+                        ['member_name' => $member_name,'enterprise_name' => $orderInfo['enterprise_name']]
+                    ),
+            ];
             #短信通知
-            if (!empty($comment['mobile'])){
+            if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    EnterEnum::PASS   => '尊敬的'.$member_name.'您好！您的《'.$orderInfo['enterprise_name'].'》已通过审核,我们将在24小时内负责人联系您,请保持消息畅通，谢谢！',
-                    EnterEnum::NOPASS => '尊敬的'.$member_name.'您好！您的《'.$orderInfo['enterprise_name'].'》未通过审核,请您联系客服0000-00000再次预约，谢谢！',
-                ];
-                $smsService->sendContent($orderInfo['mobile'],$sms_template[$status]);
+                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title = '企业咨询预约通知';
+            #发送站内信
+            SendService::sendMessage($orderInfo['member_id'],MessageEnum::CONSULTRESERVE,$title,$sms_template[$status],$request['id']);
         }
         $this->setMessage('审核成功！');
         return true;
