@@ -364,11 +364,11 @@ class CommonController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/common/commonts_list",
+     *     path="/api/v1/common/common_list",
      *     tags={"公共"},
-     *     summary="收藏类别列表",
+     *     summary="获取评论列表",
      *     description="jing" ,
-     *     operationId="commonts_list",
+     *     operationId="common_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -390,7 +390,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="收藏列表类别，1活动，2商品，3房产，4精选生活..",
+     *         description="评论列表类别，1商城 （目前只有商城）..",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -421,15 +421,15 @@ class CommonController extends ApiController
      * )
      *
      */
-    /*public function collectList(){
+    public function commonList(){
         $rules = [
-            'type'          => 'required|in:1,2,3,4',
+            'type'          => 'required|in:1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'type.required'         => '收藏类别不能为空',
-            'type.in'               => '收藏类别不存在',
+            'type.required'         => '评论类别不能为空',
+            'type.in'               => '评论类别不存在',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '页码数量必须为整数',
         ];
@@ -437,10 +437,10 @@ class CommonController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->collectService->collectList($this->request);
+        $res = $this->collectService->commonList($this->request);
         if ($res){
             return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
-    }*/
+    }
 }

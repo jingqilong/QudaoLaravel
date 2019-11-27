@@ -314,7 +314,7 @@ class AddressController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/Shop/address_list",
+     *     path="/api/v1/member/address_list",
      *     tags={"用户地址管理"},
      *     summary="获取用户地址",
      *     description="jing" ,

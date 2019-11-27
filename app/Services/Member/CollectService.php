@@ -2,15 +2,15 @@
 namespace App\Services\Member;
 
 
+use App\Enums\CommentsEnum;
+use App\Repositories\CommonCommentsRepository;
 use App\Repositories\PrimeMerchantRepository;
-use App\Repositories\ShopCartRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
 use App\Enums\CollectTypeEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\MemberCollectRepository;
-use App\Services\Shop\CartService;
 use App\Services\Shop\GoodsSpecRelateService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -118,7 +118,7 @@ class CollectService extends BaseService
      */
     public function collectList($request)
     {
-        if (empty($type = CollectTypeEnum::getType($request['type']))){
+        if (empty(CollectTypeEnum::getType($request['type']))){
             $this->setError('暂无此收藏类别');
             return false;
         }
@@ -154,5 +154,50 @@ class CollectService extends BaseService
         $this->setMessage('获取成功!');
         return $collect_list['data'];
     }
+
+    /**
+     * 获取评论列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function commonList($request)
+    {
+        if (empty(CommentsEnum::getType($request['type']))){
+            $this->setError('暂无此收藏类别');
+            return false;
+        }
+        $member     = $this->auth->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['type' => $request['type'],'member_id' => $member->id,'hidden' => 0,'deleted_at' => 0];
+        $column     = ['id','related_id','content','comment_name','comment_name','image_ids','created_at'];
+        if (!$common_list = CommonCommentsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $common_ids    = array_column($common_list['data'],'related_id');
+        $goods_where   = ['id' => ['in',$common_ids],'deleted_at' => 0];
+        $goods_column  = ['id','name'];
+        if (!$goods_list = ShopGoodsRepository::getList($goods_where,$goods_column,null,null,$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $goods_list = $this->removePagingField($goods_list);
+        foreach ($goods_list['data'] as $key => &$value){
+            $value['goods_id'] = $value['id'];
+            $value['number']   = 1;
+        }
+        $GoodsSpecRelateService = new GoodsSpecRelateService();
+        switch ($request['type']){
+            case CommentsEnum::SHOP:
+                $common_list['data'] = $GoodsSpecRelateService->getListCommonInfo($goods_list['data']);
+                break;
+            default:
+                $this->setError('暂无此收藏类别！');
+                return false;
+                break;
+        }
+        $this->setMessage('获取成功!');
+        return $common_list['data'];
 }
-            
+}

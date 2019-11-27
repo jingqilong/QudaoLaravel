@@ -21,6 +21,7 @@ class ActivityDetailRepository extends ApiRepository
         $this->model = $model;
     }
 
+
     /**
      * 前端获取活动列表数据格式
      * @param $where
@@ -162,5 +163,18 @@ class ActivityDetailRepository extends ApiRepository
         }
         return $list;
     }
+
+
+    /*protected function getCommonList($activity_ids)
+    {
+        $column = ['id','name','address','price','start_time','end_time','cover_id','theme_id','status'];
+        if (!$list = $this->getList(['id' => ['in',$activity_ids],'deleted_at' => 0],$column,'id','desc','1','999')){
+            return [];
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return $list;
+        }
+    }*/
 }
             

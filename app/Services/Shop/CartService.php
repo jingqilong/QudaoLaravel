@@ -106,7 +106,7 @@ class CartService extends BaseService
             return false;
         }
         if (!$goods_num = ShopCartRepository::getOne(['id' => $upd_id],['number'])){
-            $this->setError('网络正在小差');
+            $this->setError('网络正在开小差');
             return false;
         }
         $this->setMessage('修改成功!');
