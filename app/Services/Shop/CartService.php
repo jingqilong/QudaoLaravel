@@ -91,11 +91,6 @@ class CartService extends BaseService
             $this->setError('购物车无此记录!');
             return false;
         }
-        $spec_relate_id = $request['spec_relate_id'] ?? null;
-        if (!empty($spec_relate_id) && !ShopGoodsSpecRelateRepository::exists(['id' => $spec_relate_id])){
-            $this->setError('无效的商品规格!');
-            return false;
-        }
         if ($request['change'] == '-' && $car_goods['number'] == 1){
             $this->setError('该商品不能再少了哦!');
             return false;
@@ -105,9 +100,6 @@ class CartService extends BaseService
 
         }else{
             $upd_arr = ['updated_at' => time(), 'number' => --$car_goods['number']];
-        }
-        if (!empty($spec_relate_id)){
-            $upd_arr['spec_relate_id'] = $spec_relate_id;
         }
         if (!$upd_id = ShopCartRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setError('修改失败了诶!');
@@ -134,7 +126,7 @@ class CartService extends BaseService
         $page_num     = $request['page_num'] ?? 20;
         $where        = ['member_id' => $member_id];
         $column       = ['id','goods_id','spec_relate_id','number'];
-        if (!$list = ShopCartRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = ShopCartRepository::getList($where,$column,null,null,$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }
