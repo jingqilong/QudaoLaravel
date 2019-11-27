@@ -58,7 +58,7 @@ class Kernel extends ConsoleKernel
 
         //生日祝福
         $schedule->command('blessing:birthday')
-            ->dailyAt('10:00')
+            ->dailyAt('14:50')
             ->weekdays();//工作日10点
         //生日祝福
         $schedule->command('blessing:birthday')

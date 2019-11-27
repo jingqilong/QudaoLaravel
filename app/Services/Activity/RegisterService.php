@@ -219,8 +219,8 @@ class RegisterService extends BaseService
         }
         //通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
-            $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
-            $member_name = $member_name.MemberEnum::getSex($member['m_sex']);
+            $member_name = !empty($member['ch_name']) ? $member['ch_name'] : (!empty($member['en_name']) ? $member['en_name'] : (substr($member['mobile'],-4)));
+            $member_name = $member_name.MemberEnum::getSex($member['sex']);
             $sms_template = [
                 ActivityRegisterEnum::SUBMIT        =>
                     MessageEnum::getTemplate(
