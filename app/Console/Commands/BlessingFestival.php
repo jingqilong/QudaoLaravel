@@ -10,21 +10,21 @@ use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use Illuminate\Console\Command;
 
-class BlessingBirthday extends Command
+class BlessingFestival extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'blessing:birthday';
+    protected $signature = 'blessing:festival';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '会员生日祝福';
+    protected $description = '会员节日祝福';
 
     /**
      * Create a new command instance.
@@ -43,14 +43,34 @@ class BlessingBirthday extends Command
      */
     public function handle()
     {
-        $lunar_time = date('m-d',app(Lunar::class)->S2L(date('Y-m-d'))).' 00:00:00';
-        $where = ['birthday' => ['like','%'.$lunar_time]];
-        $where = ['id' => 314];
-        if (!$member_list = MemberViewRepository::getList($where)){
-            print '没有符合条件会员  ';
+        $time = strtotime('2020-01-24');
+        $lunar_time = app(Lunar::class)->festival($time);
+        if (empty($lunar_time)){
             return true;
         }
-        print '有符合条件会员  ';
+        $where = [
+            'deleted_at' => 0,
+            'status' => 0,
+            'grade' => [
+                'in',
+                [
+                    MemberEnum::ALSOENJOY,
+                    MemberEnum::TOENJOY,
+                    MemberEnum::YUEENJOY,
+                    MemberEnum::REALLYENJOY,
+                    MemberEnum::YOUENJOY,
+                    MemberEnum::HONOURENJOY,
+                    MemberEnum::ZHIRENJOY,
+                    MemberEnum::ADVISER
+                ]
+            ]
+        ];
+        $where = ['id' => 314];
+        if (!$member_list = MemberViewRepository::getList($where)){
+            print '没有符合条件预约  ';
+            return true;
+        }
+        print '有符合条件预约  ';
         $SmsService     = new SmsService();
         $MessageService = new SendService();
         foreach ($member_list as $value){
