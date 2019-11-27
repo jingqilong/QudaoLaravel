@@ -262,5 +262,42 @@ class Lunar
         //$Sdate = $Syear."-".$Smonth."-".$Sday;
         //return $Sdate;
     }
+
+    public function festival($time){
+        $lunar_datetime = date('m-d',$this->S2L(date('Y-m-d',$time)));
+        $solar_datetime = date('m-d',$time);
+        $res = array();
+        $arr_lunar = array(
+            '01-01'=>'春节',
+            '01-15'=>'元宵节',
+            '02-02'=>'二月二',
+            '05-05'=>'端午节',
+            '07-07'=>'七夕节',
+            '08-15'=>'中秋节',
+            '09-09'=>'重阳节',
+            '12-08'=>'腊八节',
+            '12-23'=>'小年',
+            '12-30'=>'除夕'
+        );
+        $arr_solar = array(
+            '01-01'=>'元旦',
+            '02-14'=>'情人节',
+            '03-12'=>'植树节',
+            '04-01'=>'愚人节',
+            '05-01'=>'劳动节',
+            '06-01'=>'儿童节',
+            '10-01'=>'国庆节',
+            '10-31'=>'万圣节',
+            '12-24'=>'平安夜',
+            '12-25'=>'圣诞节'
+        );
+        if (isset($arr_lunar[$lunar_datetime])){
+            $res[$lunar_datetime] = $arr_lunar[$lunar_datetime];
+        }
+        if (isset($arr_solar[$solar_datetime])){
+            $res[$solar_datetime] = $arr_solar[$solar_datetime];
+        }
+        return $res;
+    }
 }
 ?>

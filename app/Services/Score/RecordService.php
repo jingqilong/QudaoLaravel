@@ -222,7 +222,8 @@ class RecordService extends BaseService
     public function getMemberScore($member_id)
     {
         $column = ['score_type','score_name','remnant_score','expense_rate','cashing_rate'];
-        if (!$list = ScoreRecordViewRepository::getList(['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'status' => ScoreEnum::OPEN],$column)){
+        $where  = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'status' => ScoreEnum::OPEN];
+        if (!$list = ScoreRecordViewRepository::getList($where,$column)){
             $this->setMessage('暂无积分可使用！');
             return [];
         }
@@ -358,6 +359,7 @@ class RecordService extends BaseService
             if (isset($goods_scores[$score['score_type']])){
                 $goods_score = $goods_scores[$score['score_type']];
                 $result[$key]['score_type']     = $score['score_type'];
+                $result[$key]['score_title']    = $score['score_title'];
                 $result[$key]['expense_rate']   = $score['expense_rate'];
                 if ($score['score'] > $goods_score['total_score']){
                     $result[$key]['usable_score'] = $goods_score['total_score'];

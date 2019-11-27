@@ -45,6 +45,7 @@ class GoodsSpecRelateService extends BaseService
                     'goods_name'      => $goods['name'],
                     'goods_price'     => sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
+                    'number'          => $value['number'],
                     'deduction_price' =>
                         $this->maximumCreditDeductionAmount(
                             $goods['score_categories'],
