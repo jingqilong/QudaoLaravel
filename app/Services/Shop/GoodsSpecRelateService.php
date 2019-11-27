@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Repositories\ShopCartRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
@@ -31,6 +32,7 @@ class GoodsSpecRelateService extends BaseService
         $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0]);
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
+        $goods_number       = ShopCartRepository::getList(['id' => ['in',$goods_ids]],['number'],'id','desc');
         $goods_list         = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);
         $spec_ids           = implode(',',array_column($spec_relate_list,'spec_ids'));
         $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
@@ -57,10 +59,13 @@ class GoodsSpecRelateService extends BaseService
                 }
             }
             foreach ($goods_list as $k => $v){
-                $score_deduction = $v['score_deduction'];
+                $result[$k]['score_deduction']  = $v['score_deduction'];
+            }
+            foreach ($goods_number as $k => $v){
+                $result[$k]['number'] = $v['number'];
             }
             if (isset($value['order_relate_id'])){
-                $result[$key]['order_relate_id']       = $value['order_relate_id'];
+                $result[$key]['order_relate_id'] = $value['order_relate_id'];
             }
             if (isset($value['cart_id'])){
                 $result[$key]['cart_id']       = $value['cart_id'];
@@ -68,8 +73,6 @@ class GoodsSpecRelateService extends BaseService
             $result[$key]['goods_id']           = $value['goods_id'];
             $result[$key]['spec_relate_id']     = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
             $result[$key]['spec']               = $spec_str;
-            $result[$key]['number']             = $value['number'];
-            $result[$key]['score_deduction']    = $score_deduction;
         }
         $this->setMessage('获取成功!');
         return $result;
