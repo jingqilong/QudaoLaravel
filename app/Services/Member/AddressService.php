@@ -33,7 +33,7 @@ class AddressService extends BaseService
     public function addAddress($request)
     {
         $memberInfo = $this->auth->user();
-        $member_id  = $memberInfo->m_id;
+        $member_id  = $memberInfo->id;
         $default    = $request['default'] ?? 0;
         $add_arr = [
             'member_id'      => $member_id,
@@ -96,7 +96,7 @@ class AddressService extends BaseService
     public function editAddress($request)
     {
         $memberInfo = $this->auth->user();
-        $member_id  = $memberInfo->m_id;
+        $member_id  = $memberInfo->id;
         $default    = $request['default'] ?? 0;
         $upd_arr = [
             'member_id'      => $member_id,
@@ -142,7 +142,7 @@ class AddressService extends BaseService
         $page         = $request['page'] ?? 1;
         $page_num     = $request['page_num'] ?? 20;
         $column       = ['name','mobile','area_code','address','default'];
-        $where        = ['deleted_at' => 0,'member_id' => $memberInfo->m_id];
+        $where        = ['deleted_at' => 0,'member_id' => $memberInfo->id];
         if (!$list = MemberAddressRepository::getList($where,$column,null,null,$page,$page_num)){
             $this->setError('获取失败!');
             return false;
