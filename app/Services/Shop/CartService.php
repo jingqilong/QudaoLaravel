@@ -109,16 +109,16 @@ class CartService extends BaseService
         if (!empty($spec_relate_id)){
             $upd_arr['spec_relate_id'] = $spec_relate_id;
         }
-        if (!ShopCartRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+        if (!$upd_id = ShopCartRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setError('修改失败了诶!');
             return false;
         }
-        if (!$res = ShopCartRepository::getOne(['id' => $request['id']],['number'])){
+        if (!$goods_num = ShopCartRepository::getOne(['id' => $upd_id],['number'])){
             $this->setError('网络正在小差');
             return false;
         }
         $this->setMessage('修改成功!');
-        return $res;
+        return $goods_num;
     }
 
     /**
