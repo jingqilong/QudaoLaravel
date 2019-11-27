@@ -66,7 +66,7 @@ class CartService extends BaseService
     public function delShopCar($request)
     {
         $memberInfo = $this->auth->user();
-        $member_id  = $memberInfo->m_id;
+        $member_id  = $memberInfo->id;
         $goods_id   = explode(',',$request['id']);
         if (!ShopCartRepository::exists(['id' => ['in',$goods_id],'member_id' => $member_id])){
             $this->setError('商品不存在!');
