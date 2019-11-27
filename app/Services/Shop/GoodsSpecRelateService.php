@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Repositories\ScoreCategoryRepository;
 use App\Repositories\ShopCartRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
@@ -21,7 +22,7 @@ class GoodsSpecRelateService extends BaseService
      * @param array $goods_column
      * @return array|bool
      */
-    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction']){
+    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction','score_categories']){
         foreach ($goods_spec_arr as $value){
             if (!isset($value['goods_id']) || !isset($value['number'])){
                 $this->setError('商品ID和数量不能为空！');
@@ -32,18 +33,25 @@ class GoodsSpecRelateService extends BaseService
         $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0]);
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
-        $goods_number       = ShopCartRepository::getList(['id' => ['in',$goods_ids]],['number'],'id','desc');
         $goods_list         = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);
         $spec_ids           = implode(',',array_column($spec_relate_list,'spec_ids'));
         $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
         $result             = [];
         foreach ($goods_spec_arr as $key => $value){
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
-                $price  =  reset($goods)['price'];
+                $goods  =  reset($goods);
+                $price  =  $goods['price'];
                 $result[$key] = [
-                    'goods_name'      => reset($goods)['name'],
+                    'goods_name'      => $goods['name'],
                     'goods_price'     => sprintf('%.2f',round($price / 100,2)),
-                    'main_img_url'    => reset($goods)['banner_url'],
+                    'main_img_url'    => $goods['banner_url'],
+                    'deduction_price' =>
+                        $this->maximumCreditDeductionAmount(
+                            $goods['score_categories'],
+                            $goods['score_deduction'],
+                            $value['number'],
+                            $price
+                        )
                 ];
             }
             $spec_str       = '件';
@@ -57,12 +65,6 @@ class GoodsSpecRelateService extends BaseService
                         }
                     }
                 }
-            }
-            foreach ($goods_list as $k => $v){
-                $result[$k]['score_deduction']  = $v['score_deduction'];
-            }
-            foreach ($goods_number as $k => $v){
-                $result[$k]['number'] = $v['number'];
             }
             if (isset($value['order_relate_id'])){
                 $result[$key]['order_relate_id'] = $value['order_relate_id'];
@@ -231,6 +233,46 @@ class GoodsSpecRelateService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $res;
+    }
+
+
+    /**
+     * 计算最大积分抵扣金额
+     * @param $str_type
+     * @param $score
+     * @param int $number
+     * @param null $goods_price
+     * @return float|int
+     */
+    public function maximumCreditDeductionAmount($str_type, $score, $number = 1,$goods_price = null)
+    {
+        if (empty($str_type) || empty($score)){
+            return 0;
+        }
+        if (!$type_list = ScoreCategoryRepository::getAll()){
+            return 0;
+        }
+        $types = explode(',',$str_type);
+        $max_price = 0;
+        foreach ($types as $type){
+            if ($search_type = $this->searchArray($type_list,'id',$type)){
+                $expense_rate = reset($search_type)['expense_rate'];
+                $price        = $number * $expense_rate * $score;
+                if ($price > $max_price){
+                    $max_price = $price;
+                }
+                if (is_null($goods_price)){
+                    continue;
+                }
+                $total_price = ($goods_price / 100) * $number;
+                if ($total_price < $max_price){
+                    $max_price = $total_price;
+                    break;
+                }
+            }
+        }
+
+        return $max_price;
     }
 }
             

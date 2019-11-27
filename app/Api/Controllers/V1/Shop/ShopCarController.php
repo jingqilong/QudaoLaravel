@@ -140,10 +140,10 @@ class ShopCarController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="购物车 商品id",
+     *         description="购物车 商品id【 1,2,3】",
      *         required=false,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Response(
@@ -156,11 +156,11 @@ class ShopCarController extends ApiController
     public function delShopCar()
     {
         $rules = [
-            'id'            => 'required|integer',
+            'id'            => 'required|string',
         ];
         $messages = [
             'id.required'             => '商品id不能为空',
-            'id.integer'              => '商品id不是整数',
+            'id.string'               => '商品id不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()) {
@@ -201,7 +201,7 @@ class ShopCarController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="购物车 商品id",
+     *         description="购物车 id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -216,15 +216,6 @@ class ShopCarController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="spec_relate_id",
-     *         in="query",
-     *         description="商品规格关联ID",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="删除失败",
@@ -237,15 +228,12 @@ class ShopCarController extends ApiController
         $rules = [
             'id'                        => 'required|integer',
             'change'                    => 'required|in:+,-',
-            'spec_relate_id'            => 'integer',
         ];
         $messages = [
-            'id.required'               => '商品id不能为空',
-            'id.integer'                => '商品id不是整数',
+            'id.required'               => '购物车id不能为空',
+            'id.integer'                => '购物车id不是整数',
             'change.required'           => '变量不能为空',
             'change.integer'            => '变量取值不存在',
-            'spec_relate_id.required'   => '商品规格关联ID不能为空',
-            'spec_relate_id.integer'    => '商品规格关联ID不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()) {
