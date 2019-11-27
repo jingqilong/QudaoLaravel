@@ -8,7 +8,7 @@ use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -186,7 +186,7 @@ class PrizeService extends BaseService
             $this->setError('该活动没有抽奖活动！');
             return false;
         }
-        if (ActivityWinningRepository::exists(['member_id' => $member->m_id,'activity_id' => $activity_id])){
+        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
             $this->setError('您已经抽过奖了！');
             return false;
         }
@@ -215,7 +215,7 @@ class PrizeService extends BaseService
         $rid = $this->get_rand($arr);
         $winning = $prize_all[$rid - 1];
         $add_winning = [
-            'member_id'     => $member->m_id,
+            'member_id'     => $member->id,
             'activity_id'   => $activity_id,
             'prize_id'      => $winning['id'],
             'created_at'    => time()
@@ -266,7 +266,7 @@ class PrizeService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $members = MemberRepository::getList(['m_id' => ['in',$member_ids]],['m_id','m_cname']);
+        $members = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
         $activity_ids = array_column($list['data'],'activity_id');
         $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
         $prize_ids = array_column($list['data'],'prize_id');
@@ -275,8 +275,8 @@ class PrizeService extends BaseService
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';
 
-            $member = $this->searchArray($members,'m_id',$value['member_id']);
-            $value['member_name'] = $member ? reset($member)['m_cname'] : '未知';
+            $member = $this->searchArray($members,'id',$value['member_id']);
+            $value['member_name'] = $member ? reset($member)['ch_name'] : '未知';
 
             $prize = $this->searchArray($prizes,'id',$value['prize_id']);
             $value['prize_name'] = $prize ? reset($prize)['name'] : '未知';

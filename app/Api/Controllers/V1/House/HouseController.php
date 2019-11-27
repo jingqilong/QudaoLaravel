@@ -260,7 +260,7 @@ class HouseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->detailService->publishHouse($this->request,HouseEnum::PERSON,$member->m_id);
+        $res = $this->detailService->publishHouse($this->request,HouseEnum::PERSON,$member->id);
         if ($res){
             return ['code' => 200, 'message' => $this->detailService->message];
         }
@@ -381,7 +381,7 @@ class HouseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->detailService->deleteHouse($this->request['id'],HouseEnum::PERSON,$member->m_id);
+        $res = $this->detailService->deleteHouse($this->request['id'],HouseEnum::PERSON,$member->id);
         if ($res){
             return ['code' => 200, 'message' => $this->detailService->message];
         }
@@ -637,7 +637,7 @@ class HouseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->detailService->editHouse($this->request,HouseEnum::PERSON,$member->m_id);
+        $res = $this->detailService->editHouse($this->request,HouseEnum::PERSON,$member->id);
         if ($res){
             return ['code' => 200, 'message' => $this->detailService->message];
         }

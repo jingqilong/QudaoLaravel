@@ -4,12 +4,14 @@ namespace App\Services\Member;
 
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
@@ -17,7 +19,6 @@ use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use EasyWeChat\Kernel\Exceptions\RuntimeException;
 use EasyWeChatComposer\Exceptions\DecryptException;
-use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -48,21 +49,26 @@ class MemberService extends BaseService
         //兼容用户名登录、手机号登录、邮箱登录
         $mobile_regex = '/^(1(([35789][0-9])|(47)))\d{8}$/';
         $email_regex  = '/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/';
-        $account_type = 'm_num';
+        $account_type = 'card_no';
         if (preg_match($mobile_regex, $account)) {
-            $account_type = 'm_phone';
+            $account_type = 'mobile';
         }
         if (preg_match($email_regex, $account)) {
-            $account_type = 'm_email';
+            $account_type = 'email';
         }
-        if (!MemberRepository::exists([$account_type => $account])){
+        if (!MemberBaseRepository::exists([$account_type => $account])){
             return '用户不存在！';
         }
-        $token = MemberRepository::login([$account_type => $account, 'password' => $password]);
+        $token = MemberBaseRepository::login([$account_type => $account, 'password' => $password]);
         if (is_array($token)){
             return $token['message'];
         }
         $user = $this->auth->user();
+        $user = $user->toArray();
+        $user['m_id']   = $user['id'];
+        $user['sex'] = MemberEnum::getSex($user['sex']);
+        $user   = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         return ['user' => $user, 'token' => $token];
     }
 
@@ -74,14 +80,14 @@ class MemberService extends BaseService
      */
     public function register($data)
     {
-        if (MemberRepository::exists(['m_phone' => $data['mobile']])){
+        if (MemberBaseRepository::exists(['mobile' => $data['mobile']])){
             $this->setError('该手机号码已注册过!');
             return false;
         }
         $referral_code = $data['referral_code'] ?? '';
         //添加用户
         DB::beginTransaction();
-        if (!$user_id = MemberRepository::addUser($data['mobile'])) {
+        if (!$user_id = MemberBaseRepository::addUser($data['mobile'])) {
             DB::rollBack();
             $this->setError('注册失败!');
             Loggy::write('error', '手机号注册创建用户失败，手机号：' . $data['mobile'] . '  推荐人推荐码：' . $referral_code);
@@ -95,16 +101,16 @@ class MemberService extends BaseService
             $relation_data['path'] = '0,' . $user_id . ',';
             $relation_data['level'] = 1;
         } else {
-            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])) {
+            if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])) {
                 DB::rollBack();
                 $this->setError('无效的推荐码!');
                 return false;
             }
-            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])) {
+            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['id']])) {
                 $relation_user = [
-                    'member_id'     => $referral_user['m_id'],
+                    'member_id'     => $referral_user['id'],
                     'parent_id'     => 0,
-                    'path'          => '0,' . $referral_user['m_id'] . ',',
+                    'path'          => '0,' . $referral_user['id'] . ',',
                     'level'         => 1,
                     'created_at'    => time(),
                     'updated_at'    => time(),
@@ -112,26 +118,30 @@ class MemberService extends BaseService
                 if (!MemberRelationRepository::getAddId($relation_user)){
                     DB::rollBack();
                     $this->setError('注册失败!');
-                    Loggy::write('error', '手机号注册创建推荐关系失败，推荐人id：' . $referral_user['m_id'] . '  推荐人推荐码：' . $referral_code);
+                    Loggy::write('error', '手机号注册创建推荐关系失败，推荐人id：' . $referral_user['id'] . '  推荐人推荐码：' . $referral_code);
                     return false;
                 }
             }
-            $relation_data['parent_id'] = $referral_user['m_id'];
-            $relation_data['path'] = $relation_user['path'] . $user_id . ',';
-            $relation_data['level'] = $relation_user['level'] + 1;
+            $relation_data['parent_id'] = $referral_user['id'];
+            $relation_data['path']      = $relation_user['path'] . $user_id . ',';
+            $relation_data['level']     = $relation_user['level'] + 1;
         }
         if (!MemberRelationRepository::getAddId($relation_data)) {
             DB::rollBack();
-            Loggy::write('error', '推荐关系建立失败，用户id：' . $relation_data['m_id'] . '  推荐人id：' . $relation_data['parent_id']);
+            Loggy::write('error', '推荐关系建立失败，用户id：' . $user_id . '  推荐人id：' . $relation_data['parent_id']);
             $this->setError('注册失败!');
             return false;
         }
-        $token = MemberRepository::getToken($user_id);
-        $user_info = MemberRepository::getUser();
+        $token = MemberBaseRepository::getToken($user_id);
+        $user_info      = MemberBaseRepository::getUser();
+        $user           = $user_info->toArray();
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         DB::commit();
 
         $this->setMessage('注册成功');
-        return ['user' => $user_info->toArray(),'token' => $token];
+        return ['user' => $user,'token' => $token];
     }
 
 

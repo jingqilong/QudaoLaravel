@@ -10,7 +10,7 @@ use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -63,14 +63,14 @@ class RegisterService extends BaseService
         }
         if (ActivityRegisterRepository::exists([
             'activity_id' => $request['activity_id'],
-            'member_id' => $member->m_id,
+            'member_id' => $member->id,
             'status' => ['<',5]])){
             $this->setError('您已经报过名了，请勿重复报名！');
             return false;
         }
         $add_arr = [
             'activity_id'   => $request['activity_id'],
-            'member_id'     => $member->m_id,
+            'member_id'     => $member->id,
             'name'          => $request['name'],
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
@@ -88,7 +88,7 @@ class RegisterService extends BaseService
                 $sms->sendContent($member->m_phone,$content);
             }
             #发送站内信
-            SendService::sendMessage($member->m_id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
             $this->setMessage('报名成功！');
             return true;
         }
@@ -145,12 +145,12 @@ class RegisterService extends BaseService
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
         $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
-        $members    = MemberRepository::getList(['m_id' => ['in',$member_ids]],['m_id','m_cname']);
+        $members    = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
-            $member   = $this->searchArray($members,'m_id',$value['member_id']);
+            $member   = $this->searchArray($members,'id',$value['member_id']);
             $value['theme_name']    = reset($activity)['name'];
-            $value['member_name']   = reset($member)['m_cname'];
+            $value['member_name']   = reset($member)['ch_name'];
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterEnum::getStatus($value['status']);
@@ -218,7 +218,7 @@ class RegisterService extends BaseService
             }
         }
         //通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $register['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
             $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
             $member_name = $member_name.MemberEnum::getSex($member['m_sex']);
             $sms_template = [
@@ -310,11 +310,11 @@ class RegisterService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $member_list = MemberRepository::getList(['m_id' => $member_ids],['m_id','m_cname']);
+        $member_list = MemberBaseRepository::getList(['id' => $member_ids],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $value['member_name'] = '';
-            if ($member = $this->searchArray($member_list,'m_id',$value['member_id'])){
-                $value['activity_name'] = reset($member)['m_cname'];
+            if ($member = $this->searchArray($member_list,'id',$value['member_id'])){
+                $value['activity_name'] = reset($member)['ch_name'];
             }
             $value['sign_time'] = date('Y-m-d H:i',$value['is_register']);
             unset($value['is_register']);

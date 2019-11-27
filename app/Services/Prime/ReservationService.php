@@ -7,9 +7,8 @@ use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\PrimeTypeEnum;
 use App\Repositories\MemberOrdersRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\PrimeMerchantRepository;
-use App\Repositories\PrimeMerchantViewRepository;
 use App\Repositories\PrimeReservationRepository;
 use App\Repositories\PrimeReservationViewRepository;
 use App\Services\BaseService;
@@ -173,9 +172,9 @@ class ReservationService extends BaseService
         }
         DB::commit();
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $reservation['member_id']])){
             $member_name = $reservation['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 PrimeTypeEnum::RESERVATIONOK =>
                     MessageEnum::getTemplate(
@@ -191,9 +190,9 @@ class ReservationService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
             $title = '房产预约通知';
             #发送站内信
@@ -354,7 +353,7 @@ class ReservationService extends BaseService
     public function cancelMyReservation($id)
     {
         $member = Auth::guard('member_api')->user();
-        if (!$reservation = PrimeReservationRepository::getOne(['id' => $id,'member_id' => $member->m_id])){
+        if (!$reservation = PrimeReservationRepository::getOne(['id' => $id,'member_id' => $member->id])){
             $this->setError('预约信息不存在！');
             return false;
         }

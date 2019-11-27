@@ -41,7 +41,7 @@ class WeChatPayService
     public function placeOrder($request)
     {
         $user = $this->auth->user();
-        if (!$open_id = MemberBindRepository::getField(['user_id' => $user->m_id],'identifier')){
+        if (!$open_id = MemberBindRepository::getField(['user_id' => $user->id],'identifier')){
             return ['code' => 0, 'message' => '请登录小程序后操作！'];
         }
         if (!$order = MemberOrdersRepository::getOne(['order_no' => $request['order_no']])){
@@ -59,7 +59,7 @@ class WeChatPayService
         if ($order['trade_id'] == 0){#生成交易信息
             $trade_add = [
                 'order_id'      => $order['id'],
-                'pay_user_id'   => $user->m_id,
+                'pay_user_id'   => $user->id,
                 'payee_user_id' => 0,
                 'amount'        => $order['payment_amount'],
                 'pay_method'    => PayMethodEnum::WECHATPAY

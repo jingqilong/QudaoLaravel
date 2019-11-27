@@ -30,7 +30,7 @@ class CartService extends BaseService
     public function addShopCar($request)
     {
         $memberInfo     = $this->auth->user();
-        $member_id      = $memberInfo->m_id;
+        $member_id      = $memberInfo->id;
         if (!ShopGoodsRepository::exists(['id' => $request['goods_id'],'deleted_at' => 0])){
             $this->setError('无效的商品!');
             return false;
@@ -126,7 +126,7 @@ class CartService extends BaseService
     public function shopCarList($request)
     {
         $memberInfo = $this->auth->user();
-        $member_id  = $memberInfo->m_id;
+        $member_id  = $memberInfo->id;
         $page         = $request['page'] ?? 1;
         $page_num     = $request['page_num'] ?? 20;
         $where        = ['member_id' => $member_id];

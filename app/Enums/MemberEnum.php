@@ -31,6 +31,7 @@ class MemberEnum extends BaseEnum
         'ACTIVITEOFFICER'     => '官员激活中',
         'DISABLEOFFICER'      => '官员禁用中',
         //成员性别
+        'NOSET'               => '未设置',
         'MAN'                 => '先生',
         'WOMAN'               => '女士',
         //成员身份
@@ -75,6 +76,7 @@ class MemberEnum extends BaseEnum
     //成员性别
     public static $sex = [
 
+        0 => 'NOSET',
         1 => 'MAN',
         2 => 'WOMAN',
     ];
@@ -129,6 +131,8 @@ class MemberEnum extends BaseEnum
 
 
     //成员性别
+    const NOSET             = 0;    //未设置
+
     const MAN               = 1;    //先生
 
     const WOMAN             = 2;    //女士

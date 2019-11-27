@@ -8,7 +8,7 @@ use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseFacilitiesRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
@@ -367,17 +367,17 @@ class DetailsService extends BaseService
         }
         #通知用户
         if ($house['publisher'] == HouseEnum::PERSON)
-        if ($member = MemberRepository::getOne(['m_id' => $house['publisher_id']])){
-            $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+        if ($member = MemberBaseRepository::getOne(['id' => $house['publisher_id']])){
+            $member_name = !empty($member['ch_name']) ? $member['ch_name'] : (!empty($member['en_name']) ? $member['en_name'] : (substr($member['mobile'],-4)));
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
                 $sms_template = [
                     HouseEnum::PASS         => '尊敬的'.$member_name.'您好！您发布的房源已经通过审核，现已上架，感谢您的使用！',
                     HouseEnum::NOPASS       => '尊敬的'.$member_name.'您好！您发布的房源由于信息不完善未通过审核，完善信息后可再次发起审核！',
                 ];
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
         }
         $this->setMessage('审核成功！');
@@ -393,7 +393,7 @@ class DetailsService extends BaseService
     public function getPublisherName($publisher, $publisher_id){
         $name = '';
         if ($publisher == HouseEnum::PERSON){
-            $name = MemberRepository::getField(['m_id' => $publisher_id],'m_phone');
+            $name = MemberBaseRepository::getField(['id' => $publisher_id],'mobile');
         }
         if ($publisher == HouseEnum::PLATFORM){
             $name = OaEmployeeRepository::getField(['id' => $publisher_id],'mobile');

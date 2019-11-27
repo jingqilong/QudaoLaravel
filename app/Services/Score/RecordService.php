@@ -5,7 +5,7 @@ namespace App\Services\Score;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ScoreEnum;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\ScoreCategoryRepository;
 use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ScoreRecordViewRepository;
@@ -59,9 +59,9 @@ class RecordService extends BaseService
             }
         }
         //通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $score_record['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $score_record['member_id']])){
             $member_name = mb_substr($score_record['member_name'],0,1);
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template =
                 MessageEnum::getTemplate(
                     MessageEnum::SCOREBOOKING,
@@ -126,9 +126,9 @@ class RecordService extends BaseService
             return false;
         }
         //通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $score_record['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $score_record['member_id']])){
             $member_name = mb_substr($score_record['member_name'],0,1);
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template =
                 MessageEnum::getTemplate(
                     MessageEnum::SCOREBOOKING,
@@ -203,7 +203,7 @@ class RecordService extends BaseService
             $this->setMessage('积分类别不存在！');
             return false;
         }
-        if (!MemberRepository::exists(['m_id' => $request['member_id']])){
+        if (!MemberBaseRepository::exists(['id' => $request['member_id']])){
             $this->setMessage('会员不存在！');
             return false;
         }

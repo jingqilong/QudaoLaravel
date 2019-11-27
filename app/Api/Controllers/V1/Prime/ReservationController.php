@@ -137,7 +137,7 @@ class ReservationController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->reservationService->reservation($this->request,$member->m_id);
+        $res = $this->reservationService->reservation($this->request,$member->id);
         if ($res){
             return ['code' => 200, 'message' => $this->reservationService->message];
         }
