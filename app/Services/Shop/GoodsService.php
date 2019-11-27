@@ -323,10 +323,11 @@ class GoodsService extends BaseService
         return $list;
     }
 
+
     /**
      * 获取商品详情
      * @param $request
-     * @return bool|null
+     * @return array|bool|null
      */
     public function getGoodsDetailsById($request)
     {

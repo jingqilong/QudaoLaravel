@@ -140,10 +140,10 @@ class ShopCarController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="购物车 商品id",
+     *         description="购物车 商品id【 1,2,3】",
      *         required=false,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Response(
@@ -156,11 +156,11 @@ class ShopCarController extends ApiController
     public function delShopCar()
     {
         $rules = [
-            'id'            => 'required|integer',
+            'id'            => 'required|string',
         ];
         $messages = [
             'id.required'             => '商品id不能为空',
-            'id.integer'              => '商品id不是整数',
+            'id.string'               => '商品id不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()) {

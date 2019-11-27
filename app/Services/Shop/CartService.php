@@ -65,11 +65,14 @@ class CartService extends BaseService
      */
     public function delShopCar($request)
     {
-        if (!ShopCartRepository::getOne(['id' => $request['id']])){
+        $memberInfo = $this->auth->user();
+        $member_id  = $memberInfo->m_id;
+        $goods_id   = explode(',',$request['id']);
+        if (!ShopCartRepository::exists(['id' => ['in',$goods_id],'member_id' => $member_id])){
             $this->setError('商品不存在!');
             return false;
         }
-        if (!ShopCartRepository::deleted(['id' => $request['id']])){
+        if (!ShopCartRepository::delete(['id' => ['in',$goods_id],'member_id' => $member_id])){
             $this->setError('删除失败!');
             return false;
         }
@@ -130,7 +133,8 @@ class CartService extends BaseService
         $page         = $request['page'] ?? 1;
         $page_num     = $request['page_num'] ?? 20;
         $where        = ['member_id' => $member_id];
-        if (!$list = ShopCartRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+        $column       = ['id','goods_id','spec_relate_id','number'];
+        if (!$list = ShopCartRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }
@@ -144,8 +148,15 @@ class CartService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
+        foreach ($list['data'] as $key => &$value){
+            if ($cart_goods = $this->searchArray($spec_relate_list,'goods_id',$value['goods_id'])){
+                if ($goods  = $this->searchArray($cart_goods,'spec_relate_id',$value['spec_relate_id'])){
+                    $value['goods'] = reset($goods);
+                }
+            }
+        }
         $this->setMessage('获取成功!');
-        return $spec_relate_list;
+        return $list;
     }
 
     /**
