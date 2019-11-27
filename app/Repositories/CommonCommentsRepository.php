@@ -32,7 +32,9 @@ class CommonCommentsRepository extends ApiRepository
             'deleted_at'    => 0
         ];
         $check = ['id','content','comment_name','comment_avatar','image_ids','member_id','created_at'];
-        $comment = $this->getOrderOne($where,'created_at','desc',$check);
+        if (!$comment = $this->getOrderOne($where,'created_at','desc',$check)){
+            return [];
+        }
         $comment = ImagesService::getOneImagesConcise($comment,['image_ids' => 'several']);
         unset($comment['image_ids']);
         return $comment;
