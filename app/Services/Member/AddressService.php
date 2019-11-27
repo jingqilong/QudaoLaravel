@@ -147,6 +147,7 @@ class AddressService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据!');
             return $list;
