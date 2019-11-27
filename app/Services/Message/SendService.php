@@ -3,8 +3,7 @@ namespace App\Services\Message;
 
 
 use App\Enums\MessageEnum;
-use App\Repositories\MemberRepository;
-use App\Repositories\MessageDefRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MessageReadRepository;
 use App\Repositories\MessageSendRepository;
 use App\Repositories\MessageSendViewRepository;
@@ -143,7 +142,7 @@ class SendService extends BaseService
         $member_list = [];
         if ($member_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::MEMBER)){
             $member_ids = array_column($member_message_list,'user_id');
-            $member_list = MemberRepository::getList(['m_id' => ['in',$member_ids]],['m_id','m_cname','m_phone']);
+            $member_list = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name','mobile']);
         }
         #获取相关商户列表
         $merchant_list = [];
@@ -162,10 +161,10 @@ class SendService extends BaseService
             if ($value['user_type'] == MessageEnum::MEMBER){
                 $value['user_name']     = '会员公告';
                 $value['user_mobile']   = '--';
-                if ($member = $this->searchArray($member_list,'m_id',$value['user_id'])){
+                if ($member = $this->searchArray($member_list,'id',$value['user_id'])){
                     $member = reset($member);
-                    $value['user_name']     = $member['m_cname'];
-                    $value['user_mobile']   = $member['m_phone'];
+                    $value['user_name']     = $member['ch_name'];
+                    $value['user_mobile']   = $member['mobile'];
                 }
             }
             #匹配商户信息
@@ -204,7 +203,7 @@ class SendService extends BaseService
     {
         #匹配会员信息
         if ($request['user_type'] == MessageEnum::MEMBER){
-            if (!MemberRepository::exists(['m_id' => $request['user_id']])){
+            if (!MemberBaseRepository::exists(['id' => $request['user_id']])){
                 $this->setError('会员信息不存在！');
             }
         }
@@ -251,7 +250,7 @@ class SendService extends BaseService
     public function memberMessageList($request)
     {
         $member             = Auth::guard('member_api')->user();
-        $member_id          = $member->m_id;
+        $member_id          = $member->id;
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];

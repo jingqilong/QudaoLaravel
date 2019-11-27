@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Enums\MemberEnum;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use Illuminate\Console\Command;
 
-class LessingBirthday extends Command
+class BlessingBirthday extends Command
 {
     /**
      * The name and signature of the console command.
@@ -39,12 +40,11 @@ class LessingBirthday extends Command
      */
     public function handle()
     {
-        $list = MemberRepository::getAll();
-        foreach ($list as $value){
-            if ($key = array_search($value['m_sex'],MemberEnum::$labels)){
-                MemberRepository::getUpdId(['m_id' => $value['m_id']],['m_sex' => array_search($key,MemberEnum::$sex)]);
-            }
-        }
+//        $list = MemberRepository::getAll();
+//        foreach ($list as $value){
+//            if (!empty($value['m_time']))
+//            MemberBaseRepository::getUpdId(['id' => $value['m_id']],['created_at' => strtotime($value['m_time'])]);
+//        }
         print 'ok';
     }
 }

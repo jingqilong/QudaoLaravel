@@ -7,7 +7,7 @@ use App\Enums\MemberBindEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use EasyWeChat\Factory;
 use Illuminate\Support\Facades\Cache;
@@ -95,66 +95,6 @@ class WeChatService extends BaseService
         }
         $cacheData = Cache::get("officialAccountLogin$request[code]");
         return $this->bindMobile($mobile,$request['referral_code'],$cacheData);
-//        DB::beginTransaction();
-//        #如果手机号已经注册，直接进行绑定
-//        if ($member = MemberRepository::getOne(['m_phone' => $mobile])){
-//            $user_id = $member['m_id'];
-//            if (MemberBindRepository::exists(['user_id' => $user_id])){
-//                $this->setError('手机号已被绑定，请更换手机号！');
-//                DB::rollBack();
-//                return false;
-//            }
-//        }else{#如果手机号未注册，进行注册，必须要推荐码，创建推荐关系
-//            if (!isset($request['referral_code'])){
-//                $this->setError('该手机号未注册，需要使用推荐码！');
-//                DB::rollBack();
-//                return false;
-//            }
-//            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $request['referral_code']])){
-//                $this->setError('无效的推荐码！');
-//                DB::rollBack();
-//                return false;
-//            }
-//            #获取推荐人的推荐关系，如果不存在，则给推荐人创建一个初始的推荐关系，再进行新用户注册的推荐关系创建
-//            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])){
-//                $relation_user = ['parent_id' => 0,'path' => '0,'.$referral_user['m_id'].',','level' => 1];
-//                if (!MemberRelationRepository::getAddId($relation_user)){
-//                    $this->setError('绑定失败！');
-//                    DB::rollBack();
-//                    Loggy::write('error','微信公众号绑定手机号，推荐用户推荐关系添加失败！推荐码：'.$referral_user['m_phone'].'，手机号：'.$mobile);
-//                    return false;
-//                }
-//            }
-//            if (!$user_id = MemberRepository::addUser($mobile)){
-//                $this->setError('绑定失败！');
-//                DB::rollBack();
-//                Loggy::write('error','微信公众号绑定手机号，新用户创建失败！手机号：'.$mobile);
-//                return false;
-//            }
-//            $relation_data = [
-//                'member_id'     => $user_id,
-//                'parent_id'     => $referral_user['m_id'],
-//                'path'          => $relation_user['path'] . $user_id . ',',
-//                'level'         => $relation_user['level'] + 1,
-//                'created_at'    => time(),
-//                'updated_at'    => time(),
-//            ];
-//            if (!MemberRelationRepository::getAddId($relation_data)){
-//                $this->setError('绑定失败！');
-//                DB::rollBack();
-//                Loggy::write('error','微信公众号绑定手机号，新用户推荐关系创建失败！手机号：'.$mobile);
-//                return false;
-//            }
-//        }
-//        $bind_upd = ['user_id' => $user_id,'verified_at' => time()];
-//        if (!MemberBindRepository::getUpdId(['identifier' => $cacheData['unionnid']],$bind_upd)){
-//            $this->setError('绑定失败！');
-//            DB::rollBack();
-//            return false;
-//        }
-//        $this->setMessage('绑定成功！');
-//        DB::commit();
-//        return true;
     }
 
     /**
@@ -175,12 +115,12 @@ class WeChatService extends BaseService
         $unionid    = $user_arr['unionid'] ?? '';
         if ($bind = MemberBindRepository::getOne(['identifier' => $openId])){
             if (!empty($bind['user_id'])){
-                if ($member = MemberRepository::getOne(['m_id' => $bind['user_id']])){
+                if ($member = MemberBaseRepository::getOne(['id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
                     return [
                         'code'  => 1,
                         'data'  => [
-                            'token' => MemberRepository::getToken($member['m_id']),
+                            'token' => MemberBaseRepository::getToken($member['id']),
                             'user_info'=> $member
                         ]
                     ];
@@ -232,8 +172,8 @@ class WeChatService extends BaseService
     public function bindMobile($mobile, $referral_code, $cacheData){
         DB::beginTransaction();
         #如果手机号已经注册，直接进行绑定
-        if ($member = MemberRepository::getOne(['m_phone' => $mobile])){
-            $user_id = $member['m_id'];
+        if ($member = MemberBaseRepository::getOne(['mobile' => $mobile])){
+            $user_id = $member['id'];
             if (MemberBindRepository::exists(['user_id' => $user_id])){
                 $this->setError('手机号已被绑定，请更换手机号！');
                 DB::rollBack();
@@ -245,23 +185,23 @@ class WeChatService extends BaseService
                 DB::rollBack();
                 return false;
             }
-            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])){
+            if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])){
                 $this->setError('无效的推荐码！');
                 DB::rollBack();
                 return false;
             }
             #获取推荐人的推荐关系，如果不存在，则给推荐人创建一个初始的推荐关系，再进行新用户注册的推荐关系创建
-            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])){
-                $relation_user = ['parent_id' => 0,'path' => '0,'.$referral_user['m_id'].',','level' => 1];
+            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['id']])){
+                $relation_user = ['parent_id' => 0,'path' => '0,'.$referral_user['id'].',','level' => 1];
                 if (!MemberRelationRepository::getAddId($relation_user)){
                     $this->setError('绑定失败！');
                     DB::rollBack();
-                    Loggy::write('error','微信绑定手机号，推荐用户推荐关系添加失败！推荐码：'.$referral_user['m_phone'].'，手机号：'.$mobile);
+                    Loggy::write('error','微信绑定手机号，推荐用户推荐关系添加失败！推荐码：'.$referral_user['mobile'].'，手机号：'.$mobile);
                     return false;
                 }
             }
-            $m_img_id = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
-            if (!$user_id = MemberRepository::addUser($mobile,['m_img_id' => $m_img_id,'m_cname' => $cacheData['nickname']])){
+            $avatar_id = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
+            if (!$user_id = MemberBaseRepository::addUser($mobile,['avatar_id' => $avatar_id,'ch_name' => $cacheData['nickname']])){
                 $this->setError('绑定失败！');
                 DB::rollBack();
                 Loggy::write('error','微信绑定手机号，新用户创建失败！手机号：'.$mobile);
@@ -269,7 +209,7 @@ class WeChatService extends BaseService
             }
             $relation_data = [
                 'member_id'     => $user_id,
-                'parent_id'     => $referral_user['m_id'],
+                'parent_id'     => $referral_user['id'],
                 'path'          => $relation_user['path'] . $user_id . ',',
                 'level'         => $relation_user['level'] + 1,
                 'created_at'    => time(),
@@ -293,7 +233,7 @@ class WeChatService extends BaseService
         return [
             'code'  => 1,
             'data'  => [
-                'token'     => MemberRepository::getToken($member['m_id']),
+                'token'     => MemberBaseRepository::getToken($member['id']),
                 'user_info' => $member
             ]
         ];

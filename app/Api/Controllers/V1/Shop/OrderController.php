@@ -452,7 +452,7 @@ class OrderController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->orderRelateService->orderDetail($this->request['order_relate_id'],$member->m_id);
+        $res = $this->orderRelateService->orderDetail($this->request['order_relate_id'],$member->id);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }

@@ -136,9 +136,9 @@ class ReservationService extends BaseService
             return false;
         }
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $reservation['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $reservation['member_id']])){
             $member_name = $reservation['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 HouseEnum::PASS         =>
                     MessageEnum::getTemplate(
@@ -154,9 +154,9 @@ class ReservationService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
             $title = '房产预约通知';
             #发送站内信

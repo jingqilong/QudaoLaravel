@@ -141,7 +141,7 @@ class MessageController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->sendService->getMessageDetail($member->m_id,MessageEnum::MEMBER,$this->request['send_id']);
+        $res = $this->sendService->getMessageDetail($member->id,MessageEnum::MEMBER,$this->request['send_id']);
         if ($res === false){
             return ['code' => 100,'message' => $this->sendService->error];
         }

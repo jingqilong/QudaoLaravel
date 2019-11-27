@@ -13,9 +13,8 @@ use App\Services\Member\AddressService;
 use App\Repositories\{CommonExpressRepository,
     MemberAddressRepository,
     MemberOrdersRepository,
-    MemberRepository,
+    MemberBaseRepository,
     MemberTradesRepository,
-    ScoreCategoryRepository,
     ShopGoodsRepository,
     ShopOrderGoodsRepository,
     ShopOrderRelateRepository,
@@ -64,11 +63,11 @@ class OrderRelateService extends BaseService
         }
         $total_price            = sprintf('%.2f',round($total_price / 100,2));
         #可抵扣积分
-        $score_deduction        = $scoreService->getUsableScore($member->m_id,$goods_param,$goods_list,$total_price);
+        $score_deduction        = $scoreService->getUsableScore($member->id,$goods_param,$goods_list,$total_price);
         $express_title          = empty($express_price) ? '包邮' : '江浙沪地区包邮，其它地区总邮费：' . sprintf('%.2f',round($express_price / 100,2)).'元';
         $member                 = Auth::guard('member_api')->user();
         #收货地址
-        $res['address']         = AddressService::getDefaultAddress($member->m_id);
+        $res['address']         = AddressService::getDefaultAddress($member->id);
         #商品信息
         $res['goods_info']      = GoodsSpecRelateService::getListCommonInfo($goods_param);
         #邮费展示标签
@@ -139,7 +138,7 @@ class OrderRelateService extends BaseService
             $payment_price = $total_price - ($score_deduction * $score['expense_rate']);
             $trade_score   = $score_deduction;
             //扣除积分
-            if (!$scoreService->expenseScore($score_type,$score_deduction,$member->m_id,'商品抵扣')){
+            if (!$scoreService->expenseScore($score_type,$score_deduction,$member->id,'商品抵扣')){
                 $this->setError('积分抵扣失败！');
                 DB::rollBack();
                 return false;
@@ -151,7 +150,7 @@ class OrderRelateService extends BaseService
         #创建订单
         $order_add_arr = [
             'order_no'          => MemberOrdersRepository::getOrderNo(),
-            'user_id'           => $member->m_id,
+            'user_id'           => $member->id,
             'order_type'        => OrderEnum::SHOP,
             'amount'            => $total_price,
             'payment_amount'    => $payment_price,
@@ -163,7 +162,7 @@ class OrderRelateService extends BaseService
         ];
         if (!$order_id = MemberOrdersRepository::getAddId($order_add_arr)){
             $this->setError('订单创建失败！');
-            Loggy::write('order','创建总订单记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
+            Loggy::write('order','创建总订单记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
             DB::rollBack();
             return false;
         }
@@ -178,16 +177,16 @@ class OrderRelateService extends BaseService
             $trade_method = TradeEnum::SCORE;
         }
         $trade_status = $order_add_arr['status'] == OrderEnum::STATUSSUCCESS ? TradeEnum::STATUSSUCCESS : TradeEnum::STATUSTRADING;
-        if (!$TradesService->tradesUpdOrder($order_id,$member->m_id,0,$trade_amount,'+',$trade_method,$trade_status)){
+        if (!$TradesService->tradesUpdOrder($order_id,$member->id,0,$trade_amount,'+',$trade_method,$trade_status)){
             $this->setError('订单创建失败！');
-            Loggy::write('order','创建交易记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
+            Loggy::write('order','创建交易记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
             DB::rollBack();
             return false;
         }
         #添加订单关联信息
         $order_relate_arr = [
             'order_id'          => $order_id,
-            'member_id'         => $member->m_id,
+            'member_id'         => $member->id,
             'status'            => $order_add_arr == OrderEnum::STATUSSUCCESS ? ShopOrderEnum::SHIP : ShopOrderEnum::PAYMENT,
             'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
             'address_id'        => $request['address_id'],
@@ -198,7 +197,7 @@ class OrderRelateService extends BaseService
         ];
         if (!$order_relate_id = ShopOrderRelateRepository::getAddId($order_relate_arr)){
             $this->setError('订单创建失败！');
-            Loggy::write('order','创建订单关联记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
+            Loggy::write('order','创建订单关联记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
             DB::rollBack();
             return false;
         }
@@ -215,7 +214,7 @@ class OrderRelateService extends BaseService
         }
         if (!ShopOrderGoodsRepository::create($order_relate_add_arr)){
             $this->setError('订单创建失败！');
-            Loggy::write('order','创建订单商品记录失败！用户ID：'.$member->m_id.'，提交数据：'.json_encode($request));
+            Loggy::write('order','创建订单商品记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
             DB::rollBack();
             return false;
         }
@@ -241,7 +240,7 @@ class OrderRelateService extends BaseService
     public function goodsReceiving($order_relate_id)
     {
         $member = Auth::guard('member_api')->user();
-        $where = ['member_id' => $member->m_id,'id' => $order_relate_id,'deleted_at' => 0,'status' => ['<>',ShopOrderEnum::CANCELED]];
+        $where = ['member_id' => $member->id,'id' => $order_relate_id,'deleted_at' => 0,'status' => ['<>',ShopOrderEnum::CANCELED]];
         if (!$order_relate = ShopOrderRelateRepository::getOne($where)){
             $this->setError('订单信息不存在！');
             return false;
@@ -274,7 +273,7 @@ class OrderRelateService extends BaseService
     public function cancelOrder($order_relate_id)
     {
         $member = Auth::guard('member_api')->user();
-        $where = ['member_id' => $member->m_id,'id' => $order_relate_id,'deleted_at' => 0];
+        $where = ['member_id' => $member->id,'id' => $order_relate_id,'deleted_at' => 0];
         if (!$order_relate = ShopOrderRelateViewRepository::getOne($where)){
             $this->setError('订单信息不存在！');
             return false;
@@ -357,7 +356,7 @@ class OrderRelateService extends BaseService
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
-        $where      = ['id' => ['<>',0],'member_id' => $member->m_id];
+        $where      = ['id' => ['<>',0],'member_id' => $member->id];
         if (!is_null($status)){
             $where['status']    = $status;
         }
@@ -562,9 +561,9 @@ class OrderRelateService extends BaseService
             return false;
         }
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $order_relate['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $order_relate['member_id']])){
             $member_name = $member['m_cname'];
-            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['m_sex']);
+            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['sex']);
             $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
             $sms_template =
                 MessageEnum::getTemplate(
@@ -573,9 +572,9 @@ class OrderRelateService extends BaseService
                     ['member_name' => $member_name,'order_no' => $order_no,'express_company_name' => $express_company['company_name'],'express_number' => $request['express_number']]
                 );
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template);
+                $smsService->sendContent($member['mobile'],$sms_template);
             }
             $title = '商城订单通知';
             #发送站内信

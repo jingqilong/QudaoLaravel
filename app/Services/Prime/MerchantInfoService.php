@@ -67,7 +67,7 @@ class MerchantInfoService extends BaseService
         list($area_address) = $this->makeAddress($merchant['area_code'],$merchant['address']);
         $merchant['area_address'] = $area_address;
         #是否收藏
-        $collect_where = ['type' => CollectTypeEnum::PRIME,'target_id' => $merchant['id'],'member_id' => $member->m_id,'deleted_at' => 0];
+        $collect_where = ['type' => CollectTypeEnum::PRIME,'target_id' => $merchant['id'],'member_id' => $member->id,'deleted_at' => 0];
         $merchant['is_collect'] = MemberCollectRepository::exists($collect_where) ? 1 : 0;
         unset($merchant['area_code'],$merchant['address'],$merchant['banner_ids'],$merchant['display_img_ids'],$merchant['address']);
         $this->setMessage('获取成功！');
