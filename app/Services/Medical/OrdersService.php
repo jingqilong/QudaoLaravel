@@ -49,7 +49,7 @@ class OrdersService extends BaseService
             return false;
         }
         $add_arr = [
-            'member_id'          =>  $memberInfo->m_id,
+            'member_id'          =>  $memberInfo->id,
             'name'               =>  $request['name'],
             'mobile'             =>  $request['mobile'],
             'sex'                =>  $request['sex'],

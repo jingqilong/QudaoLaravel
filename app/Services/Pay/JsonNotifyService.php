@@ -1,21 +1,28 @@
 <?php
 
 
-namespace App\Library\UmsPay\Notify;
+namespace App\Services\Pay;
 
 
 use App\Library\UmsPay\Utils\UmsConstants;
-use Illuminate\Http\Response;
 
-class JsonNotify
+class JsonNotifyService
 {
-    public function doPost($request,$response)
+
+    /**
+     * 银联支付接口
+     * @param $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|mixed
+     */
+    public function doPost($request)
     {
         if (empty($request['mac']) || empty($request['context'])){
-            return false;
+            $res  = json_encode(['response_code' => '01','response_msg' => '缺少必要参数mac or context']);
+            $sign = md5($res . UmsConstants::CHECK_STR);
+            return Response($res . '&mac=' . $sign);
         }
         //验证签名，对收到的原始报文和秘钥进行md5加密
-        $localMac = MD5($request['context'] . UmsConstants::CHECK_STR);
+        $localMac = MD5($request['context'] . env('UMS_CHECK_STR',UmsConstants::CHECK_STR));
         $res = [];
         #验证签名
         if ($localMac !== $request['mac']){
@@ -54,4 +61,5 @@ class JsonNotify
             return Response($res . '&mac=' . $sign);
         }
     }
+
 }

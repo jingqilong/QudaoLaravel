@@ -42,7 +42,7 @@ class CommentsService extends BaseService
             return false;
         }
         $member = $this->auth->user();
-        if (ActivityCommentsRepository::exists(['activity_id' => $request['activity_id'],'member_id' => $member->m_id,'deleted_at' => 0])){
+        if (ActivityCommentsRepository::exists(['activity_id' => $request['activity_id'],'member_id' => $member->id,'deleted_at' => 0])){
             $this->setError('您已经评论过了，无法再次评论！');
             return false;
         }
@@ -51,7 +51,7 @@ class CommentsService extends BaseService
             'comment_name'  => $request['comment_name'] ?? $member->m_cname,
             'comment_avatar'=> $request['comment_avatar'] ?? $member->m_img,
             'activity_id'   => $request['activity_id'],
-            'member_id'     => $member->m_id,
+            'member_id'     => $member->id,
             'created_at'    => time()
         ];
         if (ActivityCommentsRepository::getAddId($add_arr)){
@@ -78,7 +78,7 @@ class CommentsService extends BaseService
             return false;
         }
         $member = $this->auth->user();
-        if ($comment['member_id'] != $member->m_id){
+        if ($comment['member_id'] != $member->id){
             $this->setError('只能删除自己的评论！');
             return false;
         }

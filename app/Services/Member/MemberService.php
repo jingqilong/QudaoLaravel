@@ -709,9 +709,9 @@ class MemberService extends BaseService
     public function getRelationList($type){
         $user = $this->auth->user();
         if ($type == 1){
-            $relation_list = MemberRelationRepository::doubleRelation($user->m_id);
+            $relation_list = MemberRelationRepository::doubleRelation($user->id);
         }else{
-            $relation_list = MemberRelationRepository::detailRelation($user->m_id);
+            $relation_list = MemberRelationRepository::detailRelation($user->id);
         }
         if ($relation_list === false){
             $this->setError('推荐关系获取失败！');
@@ -795,7 +795,7 @@ class MemberService extends BaseService
     public function editMemberInfo($request)
     {
         $memberInfo = $this->auth->user();
-        $member_id     = $memberInfo->m_id;
+        $member_id     = $memberInfo->id;
         if (!$member = MemberRepository::getOne(['m_id' => $member_id,'deleted_at' => 0])){
             $this->setError('成员不存在!');
             return false;

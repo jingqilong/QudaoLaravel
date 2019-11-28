@@ -130,7 +130,7 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = jjson_decode($content,true) ;
+            $content = json_decode($content,true) ;
         }
         if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','关闭订单发生错误',$content);
