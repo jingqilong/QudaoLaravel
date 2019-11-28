@@ -7,14 +7,15 @@ class JsonNotify
 {
 
 
-protected function doPost($request, $response){
-$request.setCharacterEncoding("UTF-8");
+protected void doPost(HttpServletRequest request,
+HttpServletResponse response) throws ServletException, IOException {
+request.setCharacterEncoding("UTF-8");
 
-$context = $request->getParameter("context");
-$mac = $request->getParameter("mac");
+String context=request.getParameter("context");
+String mac=request.getParameter("mac");
 System.out.println("大华异步通知的报文context是："+context);
 System.out.println("大华异步通知的签名mac是："+mac);
-if($context==null || "".equals(context)){
+if(context==null || "".equals(context)){
 response.getWriter().write("An empty message was received.");
 System.out.println("收到了空的报文");
 return ;//有可能存在通知报文没有参数的情况，例如验证商户系统是否正常
