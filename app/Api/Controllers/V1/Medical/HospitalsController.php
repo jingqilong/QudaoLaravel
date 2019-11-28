@@ -65,12 +65,12 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="domain",
+     *         name="category",
      *         in="query",
-     *         description="擅长领域",
+     *         description="医院类别【1公立 2私立 3综合】",
      *         required=true,
      *         @OA\Schema(
-     *             type="string"
+     *             type="integer"
      *         )
      *
      *     ),
@@ -78,15 +78,6 @@ class HospitalsController extends ApiController
      *         name="department_ids",
      *         in="query",
      *         description="科室 1,2,3,",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="awards",
-     *         in="query",
-     *         description="获奖情况",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
@@ -139,9 +130,8 @@ class HospitalsController extends ApiController
         $rules = [
             'name'              => 'required',
             'img_ids'           => 'required',
-            'domain'            => 'required',
+            'category'          => 'required|in:1,2,3',
             'department_ids'    => 'required',
-            'awards'            => 'required',
             'introduction'      => 'required',
             'recommend'         => 'required|in:1,2',
             'area_code'         => 'required|regex:/^(\d+[,])*\d+$/',
@@ -150,9 +140,9 @@ class HospitalsController extends ApiController
         $messages = [
             'name.required'             => '医疗医院标题不能为空',
             'img_ids.required'          => '医疗医院照片不能为空',
-            'domain.required'           => '医疗医院擅长领域不能为空',
+            'category.required'         => '医疗医院类别不能为空',
+            'category.in'               => '医疗医院类别不存在',
             'department_ids.required'   => '医疗医院科室不能为空',
-            'awards.required'           => '医疗医院获奖情况不能为空',
             'introduction.required'     => '医疗医院标题不能为空',
             'recommend.required'        => '医疗医院简介不能为空',
             'recommend.in'              => '医疗医院推荐不正确',
@@ -285,12 +275,12 @@ class HospitalsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="domain",
+     *         name="category",
      *         in="query",
-     *         description="擅长领域",
+     *         description="医院类别【1公立 2私立 3综合】",
      *         required=true,
      *         @OA\Schema(
-     *             type="string"
+     *             type="integer"
      *         )
      *
      *     ),
@@ -298,15 +288,6 @@ class HospitalsController extends ApiController
      *         name="department_ids",
      *         in="query",
      *         description="科室 1,2,3,",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="awards",
-     *         in="query",
-     *         description="获奖情况",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
@@ -359,6 +340,7 @@ class HospitalsController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
+            'category'      => 'required|in:1,2,3',
             'recommend'     => 'required|in:0,1',
             'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
             'address'       => 'required',
@@ -366,6 +348,8 @@ class HospitalsController extends ApiController
         $messages = [
             'id.required'           => '医疗医院ID不能为空',
             'id.integer'            => '医疗医院ID必须为整数',
+            'category.required'     => '医疗医院类别不能为空',
+            'category.in'           => '医疗医院类别不存在',
             'name.required'         => '医疗医院标题不能为空',
             'recommend.required'    => '医疗医院推荐不能为空',
             'recommend.in'          => '医疗医院推荐类型不存在',

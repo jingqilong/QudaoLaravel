@@ -18,6 +18,9 @@ class DoctorEnum extends BaseEnum
         'INHOSPATIL'          => '住院',
         'MAN'                 => '男',
         'WOMANTIL'            => '女',
+        'PUBLICS'             => '公立',
+        'PRIVATES'            => '私立',
+        'SYNTHESIS'           => '综合',
     ];
 
     public static $status = [
@@ -38,6 +41,12 @@ class DoctorEnum extends BaseEnum
         2 => 'WOMAN',       //2女
     ];
 
+    public static $category = [
+        1 => 'PUBLICS',         //1公立
+        2 => 'PRIVATES',        //2私立
+        3 => 'SYNTHESIS',       //3综合
+    ];
+
     //审核状态
 
     const PASS              = 1;    //审核通过
@@ -52,6 +61,15 @@ class DoctorEnum extends BaseEnum
     const SURGERY                = 2;    //手术
 
     const INHOSPATIL             = 3;    //住院
+
+
+
+     //category  类型
+    const PUBLICS                    = 1;    //公立
+
+    const PRIVATES                   = 2;    //私立
+
+    const SYNTHESIS                  = 3;    //综合
 
     //sex  类型
     const MAN                    = 1;    //男
@@ -87,5 +105,13 @@ class DoctorEnum extends BaseEnum
      */
     public static function getSex(int $value){
         return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : '';
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getCategory(int $value){
+        return isset(self::$category[$value]) ? self::$labels[self::$category[$value]] : '';
     }
 }
