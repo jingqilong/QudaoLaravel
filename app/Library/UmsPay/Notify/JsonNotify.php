@@ -10,7 +10,7 @@ class JsonNotify
 protected function doPost($request, $response){
 $request.setCharacterEncoding("UTF-8");
 
-$context = $request->getParameter("context");
+$context = request->getParameter("context");
 $mac = $request->getParameter("mac");
 System.out.println("大华异步通知的报文context是："+context);
 System.out.println("大华异步通知的签名mac是："+mac);
