@@ -58,7 +58,7 @@ class OrderRelateService extends BaseService
             if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $buy_score          += reset($goods)['gift_score'];
                 $express_price      += reset($goods)['express_price'];
-                $total_price        += reset($goods)['price'];
+                $total_price        += (reset($goods)['price'] * $value['number']);
             }
         }
         $total_price            = sprintf('%.2f',round($total_price / 100,2));
