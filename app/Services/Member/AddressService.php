@@ -106,10 +106,10 @@ class AddressService extends BaseService
             'address'        => $request['address'],
             'default'        => $default,
         ];
-        /*if (MemberAddressRepository::exists($upd_arr)){
+        if (MemberAddressRepository::exists($upd_arr)){
             $this->setError('地址已经存在!');
             return false;
-        }*/
+        }
         DB::beginTransaction();
         if ($default == 1){
             if (MemberAddressRepository::getUpdId(['default' => 1, 'member_id' => $member_id],['default' => 0])) {
