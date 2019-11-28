@@ -14,12 +14,14 @@ use App\Library\UmsPay\Utils\UmsPayWay;
  * 测试代码示例：
  * $umsPay = new UmsPay();
  * $order_no = date("Ymdhis");
- * $umsPay->createOrder($order_no,0.01);//不分账支付请求，获取app支付要素
+ * $response = $umsPay->createOrder($order_no,0.01);//不分账支付请求，获取app支付要素
+ * $query_id = $response['content']['queryId'];
+ * $response = $umsPay->closeOrder($order_no, $query_id);
  * 以下是银联提供的测式参数
- * $umsPay->queryClearDate("201901041549161","20190104");//根据清算日期和单号查询订单支付情况
- * $umsPay->queryTransDate("201901041549161","20190104");//根据交易日期和单号查询订单支付情况
- * $umsPay->queryBySystemCode("21190122100423194476");//根据查询流水号查询订单支付情况
- * $umsPay->refund("21190122100423194476");//不分账退款
+ * $response = $umsPay->queryClearDate("201901041549161","20190104");//根据清算日期和单号查询订单支付情况
+ * $response = $umsPay->queryTransDate("201901041549161","20190104");//根据交易日期和单号查询订单支付情况
+ * $response = $umsPay->queryBySystemCode("21190122100423194476");//根据查询流水号查询订单支付情况
+ * $response = $umsPay->refund("21190122100423194476");//不分账退款
  * 
  */
 class UmsPay
@@ -48,7 +50,7 @@ class UmsPay
      * @param string $busi_order_no 商户业务订单号 选填：业务订单号，支付通知会回传
      * @param string $memo 备注  100  非必填
      * @param string $order_desc  订单信息  100  非必填，为空时支付完成后展示的商户
-     * @return array
+     * @return string 返回给前端页面
      */
     public function createOrder($order_no,$cod, $busi_order_no='',$memo='',$order_desc='') {
         //接口返回说明
@@ -82,25 +84,11 @@ class UmsPay
 
         $order_map = $this->signData($order_map);
         if('test' == UmsConstants::PAY_ENV)
-            $pay_url =UmsConstants::TEST_PAY_URL;
+            $pay_url = UmsConstants::TEST_PAY_URL;
         else
-            $pay_url =UmsConstants::PAY_URL;
-        $response = Curl::to($pay_url)
-            ->withData( $order_map )
-            ->returnResponseObject()
-            ->post();
-
-        if(200 != $response->status){
-            Loggy::write('umspay',$response->error);
-        }
-        $content = $response->content;
-        if($content){
-            $content = json_decode($content);
-        }
-        if('00' != $content['errCode']){
-            Loggy::write('umspay','支付发生错误',$content);
-        }
-        return ['code' => $response->status, 'content'=> $content ];
+            $pay_url = UmsConstants::PAY_URL;
+        //返回前端页面，用于跳转
+        return  $pay_url .'?'. http_build_query($order_map);
     }
 
     /**
@@ -142,12 +130,12 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = json_decode($content);
+            $content = jjson_decode($content,true) ;
         }
-        if('00' != $content['errCode']){
+        if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','关闭订单发生错误',$content);
         }
-        return ['code' => $response->status, 'content'=> $content ];
+        return $content;
     }
 
     /**
@@ -158,13 +146,17 @@ class UmsPay
      * @param string $refund_desc   退款描述  选填 50  退款通知，会原样返回
      * @return array
      */
-    public function refund($query_id, $refund_no, $refund_amount, $refund_desc='') {
+    public function refund($query_id, $refund_no='', $refund_amount='', $refund_desc='') {
         $refund_map = [];
         $refund_map['mer_id'] = UmsConstants::STATIC_MER_ID;
-        $refund_map['refund_no'] = $refund_no;  //date("Ymdhis")
-        $refund_map['refund_amt'] = $refund_amount;
         $refund_map['qrtype'] = UmsQrType::QR_TYPE_H5;
         $refund_map['queryId'] = $query_id;
+        if(!empty($refund_no)){
+            $refund_map['refund_no'] = $refund_no;  //date("Ymdhis")
+        }
+        if(!empty($refund_amount)){
+            $refund_map['refund_amt'] = $refund_amount;
+        }
         if(!empty($refund_desc)){
             $order_map['refund_desc']  = $refund_desc;
         }
@@ -183,12 +175,12 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = json_decode($content);
+            $content = json_decode($content,true) ;
         }
-        if('00' != $content['errCode']){
+        if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','退款发生错误',$content);
         }
-        return ['code' => $response->status, 'content'=> $content ];
+        return $content;
     }
 
     /**
@@ -244,12 +236,12 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = json_decode($content);
+            $content = json_decode($content,true) ;
         }
-        if('00' != $content['errCode']){
+        if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','查询发生错误',$content);
         }
-        return ['code' => $response->status, 'content'=> $content ];
+        return $content;
 	}
 
     /**
@@ -280,12 +272,12 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = json_decode($content);
+            $content = json_decode($content,true) ;
         }
-        if('00' != $content['errCode']){
+        if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','查询发生错误',$content);
         }
-        return ['code' => $response->status, 'content'=> $content ];
+        return $content;
  	}
 
     /**
@@ -316,12 +308,12 @@ class UmsPay
         }
         $content = $response->content;
         if($content){
-            $content = json_decode($content);
+            $content = json_decode($content,true) ;
         }
-        if('00' != $content['errCode']){
+        if((!isset($content['errCode'])) || ('00' != $content['errCode'])){
             Loggy::write('umspay','查询发生错误',$content);
         }
-        return ['code' => $response->status, 'content'=> $content ];
+        return $content;
 	}
 
 

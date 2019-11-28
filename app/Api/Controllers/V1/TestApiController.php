@@ -4,6 +4,7 @@ namespace App\Api\Controllers\V1;
 
 use App\Api\Controllers\ApiController;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
+use App\Library\UmsPay\UmsPay;
 use App\Services\Common\EventProcessorService;
 use Illuminate\Support\Facades\Schema;
 
@@ -432,5 +433,126 @@ class $serviceName extends BaseService
             }
         }
         return ['code' => 200, 'message' => '生成成功', 'data' => $data];
+    }
+
+    /**
+     * createOrder
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/create_order",
+     *     tags={"测试"},
+     *     summary="createOrder",
+     *     description="sang" ,
+     *     operationId="create_order",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function createOrder(){
+        $order_no = date("Ymdhis");
+        $umsPay = new UmsPay();
+        $response = $umsPay->createOrder($order_no,0.01);
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+    /**
+     * queryClearDate
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/query_clear_date",
+     *     tags={"测试"},
+     *     summary="queryClearDate",
+     *     description="sang" ,
+     *     operationId="query_clear_date",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function queryClearDate(){
+        $order_no = date("Ymdhis");
+        $umsPay = new UmsPay();
+        $response = $umsPay->queryClearDate("201901041549161","20190104");
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+    /**
+     * queryTransDate
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/query_trans_date",
+     *     tags={"测试"},
+     *     summary="queryTransDate",
+     *     description="sang" ,
+     *     operationId="query_trans_date",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function queryTransDate(){
+        $order_no = date("Ymdhis");
+        $umsPay = new UmsPay();
+        $response = $umsPay->queryTransDate("201901041549161","20190104");
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+    /**
+     * queryBySystemCode
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/query_by_system_code",
+     *     tags={"测试"},
+     *     summary="queryBySystemCode",
+     *     description="sang" ,
+     *     operationId="query_by_system_code",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function queryBySystemCode(){
+        $order_no = date("Ymdhis");
+        $umsPay = new UmsPay();
+        $response = $umsPay->queryBySystemCode("21190122100423194476");
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+    /**
+     * refund
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/refund",
+     *     tags={"测试"},
+     *     summary="refund",
+     *     description="sang" ,
+     *     operationId="refund",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function refund(){
+        $order_no = date("Ymdhis");
+        $umsPay = new UmsPay();
+        $response = $umsPay->refund("21190122100423194476");
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
     }
 }
