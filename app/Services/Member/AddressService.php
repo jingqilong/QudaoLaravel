@@ -141,7 +141,7 @@ class AddressService extends BaseService
         $memberInfo   = $this->auth->user();
         $page         = $request['page'] ?? 1;
         $page_num     = $request['page_num'] ?? 20;
-        $column       = ['name','mobile','area_code','address','default'];
+        $column       = ['id','name','mobile','area_code','address','default'];
         $where        = ['deleted_at' => 0,'member_id' => $memberInfo->id];
         if (!$list = MemberAddressRepository::getList($where,$column,null,null,$page,$page_num)){
             $this->setError('获取失败!');

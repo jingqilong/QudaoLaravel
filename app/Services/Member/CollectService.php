@@ -183,14 +183,21 @@ class CollectService extends BaseService
             return false;
         }
         $goods_list = $this->removePagingField($goods_list);
+        dd($goods_list);
         foreach ($goods_list['data'] as $key => &$value){
             $value['goods_id'] = $value['id'];
             $value['number']   = 1;
         }
         $GoodsSpecRelateService = new GoodsSpecRelateService();
+        $result = [];
         switch ($request['type']){
             case CommentsEnum::SHOP:
                 $common_list['data'] = $GoodsSpecRelateService->getListCommonInfo($goods_list['data']);
+                foreach ($common_list['data'] as $k => $v){
+                    $result[$k] = [
+                        'id' => $v['id'],
+                    ];
+                }
                 break;
             default:
                 $this->setError('暂无此收藏类别！');
