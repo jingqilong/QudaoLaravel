@@ -5,12 +5,12 @@ namespace App\Services\Project;
 use App\Enums\ProjectEnum;
 use App\Repositories\ProjectOrderRepository;
 use App\Services\BaseService;
-use App\Services\Common\SmsService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectService extends BaseService
 {
-
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -20,50 +20,31 @@ class ProjectService extends BaseService
     {
         $this->auth = Auth::guard('member_api');
     }
+
     /**
      * 获取项目对接订单列表  （前端使用）
+     * @param $request
      * @return mixed
      */
-    public function getProjectList()
+    public function getProjectList($request)
     {
         $user = $this->auth->user();
-
-        $status= [
-            ProjectEnum::SUBMITTED,
-            ProjectEnum::INREVIEW,
-            ProjectEnum::PASS,
-            ProjectEnum::FAILURE
-        ];
-        $where = ['user_id' => $user['m_id'],'status' => ['in',$status]];
-
-        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc')){
-            $this->setMessage('没有数据！');
-            return [];
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where = ['user_id' => $user->m_id,'deleted_at' => 0];
+        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
         }
-
-        foreach ($list as &$value)
-        {
-            switch ($value['status']) {
-                case ProjectEnum::SUBMITTED:
-                    $value['status'] = '已提交';
-                    break;
-                case ProjectEnum::INREVIEW:
-                    $value['status'] = '审核中';
-                    break;
-                case ProjectEnum::PASS:
-                    $value['status'] = '审核通过';
-                    break;
-                case ProjectEnum::FAILURE:
-                    $value['status'] = '审核失败';
-                    break;
-                case ProjectEnum::DELETE:
-                    $value['status'] = '已删除';
-                    break;
-                default ;
-            }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据');
+            return$list;
+        }
+        foreach ($list['data'] as &$value){
+            $value['status_name']       =   ProjectEnum::getStatus($value['status']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
-            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            unset($value['deleted_at'],$value['status'],$value['updated_at'],$value['user_id'],$value['created_at']);
         }
         $this->setMessage('查找成功');
         return $list;
@@ -76,15 +57,13 @@ class ProjectService extends BaseService
      */
     public function getProjectInfo(string $id)
     {
-        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'status' => ['in',[1,2,3,4]]])){
-            $this->setError('查询不到该条数据！');
+        $user = $this->auth->user();
+        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'user_id' => $user->m_id],['id','name','mobile','reservation_at','project_name','remark','status'])){
+            $this->setError('暂无数据!');
             return false;
         }
-
+        $list['status_name']       =   ProjectEnum::getStatus($list['status']);
         $list['reservation_at']    =   date('Y-m-d H:m:s',$list['reservation_at']);
-        $list['created_at']        =   date('Y-m-d H:m:s',$list['created_at']);
-        $list['updated_at']        =   date('Y-m-d H:m:s',$list['updated_at']);
-
         $this->setMessage('查找成功');
         return $list;
     }
@@ -97,27 +76,31 @@ class ProjectService extends BaseService
      */
     public function addProject(array $data)
     {
-        unset($data['sign'], $data['token']);
-
         $user = $this->auth->user();
-        $data['user_id']            =   $user['m_id'];
-        $data['created_at']         =   time();
-        $data['reservation_at']     =   strtotime($data['reservation_at']);
-        $data['status']             =   ProjectEnum::SUBMITTED;
-
-        if ($res = ProjectOrderRepository::getAddId($data)){
-            //TODO 此处可以添加报名后发通知的事务
-            #发送短信
-            if (!empty($data['mobile'])){
-                $sms = new SmsService();
-                $content = '您好！您预约的《'.$data['project_name'].'》项目,我们将在24小时内受理您的报名申请，如有疑问请联系客服：000-00000！';
-                $sms->sendContent($data['mobile'],$content);
-            }
-            $this->setMessage('恭喜你，预约成功!稍后请等工作人员联系您!');
-            return true;
+        $member_id = $user->m_id;
+        $add_arr = [
+            'user_id'           => $member_id,
+            'name'              => $data['name'],
+            'mobile'            => $data['mobile'],
+            'project_name'      => $data['project_name'],
+            'remark'            => $data['remark'],
+            'reservation_at'    => strtotime($data['reservation_at']),
+        ];
+        if (ProjectOrderRepository::getOne($add_arr)){
+            $this->setError('信息已存在');
+            return false;
         }
-        $this->setError('预约失败,请重试！');
-        return false;
+        $add_arr['user_id']      =   $member_id;
+        $add_arr['created_at']   =   time();
+        $add_arr['status']       =   ProjectEnum::SUBMIT;
+        if (!ProjectOrderRepository::getAddId($add_arr)){
+            $this->setError('预约失败!');
+            return false;
+        }
+        $this->setMessage('预约成功!');
+        return true;
+
+
     }
 
     /**
@@ -127,20 +110,19 @@ class ProjectService extends BaseService
      */
     public function updProject(array $data)
     {
-        $id = $data['id'];
-
-        unset($data['sign'], $data['token'], $data['id']);
-
-        $data['updated_at']     = time();
-        $data['reservation_at'] = strtotime($data['reservation_at']);
-        $data['status']         = ProjectEnum::SUBMITTED;  // 修改数据后  状态值从新开始
-
-        if (!$ProjectInfo = ProjectOrderRepository::getOne(['id' => $id])){
-            $this->setError('没有查找到该数据,请重试！');
+        $add_arr = [
+            'id'                => $data['id'],
+            'name'              => $data['name'],
+            'mobile'            => $data['mobile'],
+            'project_name'      => $data['project_name'],
+            'remark'            => $data['remark'],
+            'reservation_at'    => strtotime($data['reservation_at']),
+        ];
+        if (ProjectOrderRepository::getOne($add_arr)){
+            $this->setError('信息已存在');
             return false;
         }
-
-        if (!$res = ProjectOrderRepository::getUpdId(['id' => $id],$data)){
+        if (!ProjectOrderRepository::getUpdId(['id' => $data['id']],$add_arr)){
             $this->setError('修改失败,请重试！');
             return false;
         }
@@ -155,14 +137,10 @@ class ProjectService extends BaseService
     public function delProject(string $id)
     {
         if (!$ProjectInfo = ProjectOrderRepository::getOne(['id' => $id])){
-            $this->setError('没有查找到该数据,请重试！');
+            $this->setError('暂无数据!');
             return false;
         }
-        if ($ProjectInfo['status'] == ProjectEnum::DELETE){
-            $this->setError('项目已被删除！请勿重新操作');
-            return false;
-        }
-        if (!$res = ProjectOrderRepository::getUpdId(['id' => $id],['status' => ProjectEnum::DELETE])){
+        if (!ProjectOrderRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
         }
@@ -170,4 +148,3 @@ class ProjectService extends BaseService
         return true;
     }
 }
-            

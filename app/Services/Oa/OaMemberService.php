@@ -7,10 +7,12 @@ namespace App\Services\Oa;
 use App\Enums\MemberEnum;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class OaMemberService extends BaseService
 {
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -24,26 +26,34 @@ class OaMemberService extends BaseService
 
     /**
      * 获取成员列表
-     * @return array|bool|null
+     * @param array $data
+     * @return mixed
      */
-    public function getMemberList()
+    public function getMemberList(array $data)
     {
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
+        }
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_cname','m_ename','m_groupname','m_workunits','m_time','m_phone','m_address','m_category','m_sex'];
-        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::DISABLEMEMBER,MemberEnum::ACTIVITEOFFICER,MemberEnum::DISABLEOFFICER]]];
-        $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
-
-        if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time','desc')){
-            $this->setMessage('没有查到该成员！');
-            return [];
+        $column         = ['deleted_at','m_id','m_num','m_cname','m_ename','m_groupname','m_starte','m_workunits','m_time','m_phone','m_address','m_category','m_sex','m_identity'];
+        $where          = ['deleted_at' => 0];
+        if (!empty($keywords)){
+            $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
+            if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
+                $this->setMessage('暂无成员信息！');
+                return [];
+            }
+        }else {
+            if(!$member_list = OaMemberRepository::getList($where,$column,'m_time',$asc,$page,$page_num)){
+                $this->setMessage('没有查到该成员！');
+                return [];
+            }
         }
 
-        unset($member_list['first_page_url'], $member_list['from'],
-              $member_list['last_page_url'],  $member_list['from'],
-              $member_list['next_page_url'],  $member_list['path'],
-              $member_list['prev_page_url'],  $member_list['to']);
+        $this->removePagingField($member_list);
 
         if (empty($member_list['data'])) {
             $this->setMessage('没有成员!');
@@ -51,8 +61,9 @@ class OaMemberService extends BaseService
         foreach ($member_list['data'] as &$value){
             $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
             $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['starte_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
+            $value['sex_name']          = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+            $value['identity_name']     = empty($value['m_identity']) ? '' : MemberEnum::getIdentity($value['m_identity']);
         }
         $this->setMessage('获取成功！');
         return $member_list;
@@ -77,7 +88,7 @@ class OaMemberService extends BaseService
             $this->setError('用户信息获取失败!');
             return false;
         }
-        if (!$memberInfo['m_starte']  == MemberEnum::DELETEMEMBER){
+        if (!$memberInfo['deleted_at']  != 0){
             $this->setError('用户已被删除，有需求请联系超级管理员!');
             return false;
         }
@@ -104,15 +115,19 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::exists(['m_id' => $id])){
+        if (!OaMemberRepository::exists(['m_id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
         if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
-            $this->setError('用户信息获取失败!');
+            $this->setError('没有该成员!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DELETEMEMBER])){
+        if ($memberInfo['deleted_at']  != 0){
+            $this->setError('用户已被删除!');
+            return false;
+        }
+        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['deleted_at' => time()])){
             $this->setError('删除成员失败!');
             return false;
         }
@@ -137,10 +152,6 @@ class OaMemberService extends BaseService
         }
         if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
             $this->setError('用户信息获取失败!');
-            return false;
-        }
-        if ($memberInfo['m_starte'] == MemberEnum::DELETEMEMBER){
-            $this->setError('成员已被删除!');
             return false;
         }
 

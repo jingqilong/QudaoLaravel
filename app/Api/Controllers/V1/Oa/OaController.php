@@ -67,11 +67,6 @@ class OaController extends ApiController
      * )
      *
      */
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return array|JsonResponse|string
-     */
     public function login()
     {
         $rules = [
@@ -90,10 +85,10 @@ class OaController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->employeeService->login($this->request['account'],$this->request['password']);
-        if (is_string($res)){
-            return ['code' => 100, 'message' => $res];
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->employeeService->error];
         }
-        return ['code' => 200, 'message' => '登录成功！', 'data' => $res];
+        return ['code' => 200, 'message' => $this->employeeService->message, 'data' => $res];
     }
 
     /**
@@ -218,10 +213,6 @@ class OaController extends ApiController
      *     ),
      * )
      *
-     */
-    /**
-     * Get user info.
-     * @return array
      */
     public function getUserInfo()
     {

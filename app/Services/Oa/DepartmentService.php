@@ -4,24 +4,12 @@ namespace App\Services\Oa;
 
 use App\Repositories\OaDepartmentRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentService extends BaseService
 {
-
-    /**
-     * @return array|null
-     * @return array
-     * @desc 获取部门
-     */
-    public function getDepart()
-    {
-        if (!$depart = OaDepartmentRepository::getAll()){
-            return ['code' => 0, 'message' => '没有部门存在，请添加部门！'];
-        }
-        return $depart;
-    }
-
+    use HelpTrait;
 
     /**
      * @param array $data
@@ -78,26 +66,25 @@ class DepartmentService extends BaseService
      * @return mixed
      * @desc 修改部门
      */
-    /*public function updateDepart(array $data)
-    {
-        if ($depart = OaDepartmentRepository::getOne(['parent_id' => $data['parent_id'],'path' => $data['path'],'level' => $data['level']]))
-        {
-            if (!$res = OaDepartmentRepository::updateDepartment($data)){
-                return ['code' => 0, 'message' => '修改失败'];
-            }
-            return ['code' => 1, 'message' => '修改成功'];
-        }
-        return ['code' => 0, 'message' => '查询不到该部门'];
-
-    }*/
     public function updateDepart(array $data)
     {
         if (!$departInfo = OaDepartmentRepository::getOne(['id' => $data['id']])){
-            $this->setError('未查到该部门信息！请重试');
+            $this->setError('未查到该部门信息！');
             return false;
         }
-        $data['updated_at'] = time();
-        if (!$id = OaDepartmentRepository::getUpdId(['id' => $data['id']],['name' => $data['name'],'updated_at' => $data['updated_at']])){
+        if (!$parentInfo = OaDepartmentRepository::getOne(['id' => $data['parent_id']])){
+            $this->setError('父级部门不存在！');
+            return false;
+        }
+
+        $upd_arr = [
+            'name'        => $data['name'],
+            'path'        => $parentInfo['path'].$data['id'].',',
+            'level'       => $parentInfo['level'] + 1,
+            'parent_id'   => $data['parent_id'],
+            'updated_at'  => time(),
+        ];
+        if (!$id = OaDepartmentRepository::getUpdId(['id' => $data['id']],$upd_arr)){
             $this->setError('修改部门信息失败！');
             return false;
         }
@@ -133,10 +120,8 @@ class DepartmentService extends BaseService
                 return false;
         }
 
-        unset($depart_list['first_page_url'], $depart_list['from'],
-            $depart_list['from'], $depart_list['last_page_url'],
-            $depart_list['next_page_url'], $depart_list['path'],
-            $depart_list['prev_page_url'], $depart_list['to']);
+        $this->removePagingField($depart_list);
+
         if (empty($depart_list['data'])){
             $this->setMessage('暂无数据!');
             return $depart_list;

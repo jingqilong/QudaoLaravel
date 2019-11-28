@@ -7,11 +7,12 @@ namespace App\Repositories;
 use App\Enums\AdminMenuEnum;
 use App\Models\OaAdminMenuModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Traits\HelpTrait;
 use phpDocumentor\Reflection\Types\Integer;
 
 class OaAdminMenuRepository extends ApiRepository
 {
-    use RepositoryTrait;
+    use RepositoryTrait,HelpTrait;
 
     /**
      * AdminUserRepository constructor.
@@ -57,16 +58,14 @@ class OaAdminMenuRepository extends ApiRepository
         if (!$list = $this->getList($where,$column,'order','asc')){
             return [];
         }
-        $parent_ids = array_column($list,'parent_id');
+        $parent_ids = array_unique(array_column($list,'parent_id'));
+        $menu_ids   = array_column($list,'id');
+        $parent_list= $this->getList(['id' => ['in',array_diff($parent_ids,$menu_ids)]],$column,'order','asc');
         $menu_list = [];
         //查询填补上级菜单
         foreach ($list as &$value){
-//            $http = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-//            $value['path'] = $http . $_SERVER['HTTP_HOST'] .'/' . $value['path'];
-            if (!in_array($value['parent_id'],$parent_ids)){
-                $menu_list[$value['parent_id']] = OaAdminMenuRepository::getOne(['id' => $value['parent_id']],$column);
-                $parent_ids += [$value['parent_id']];
-                continue;
+            if ($parent = $this->searchArray($parent_list,'id',$value['parent_id'])){
+                $menu_list[$value['parent_id']] = reset($parent);
             }
             $menu_list[$value['id']] = $value;
         }
@@ -74,8 +73,6 @@ class OaAdminMenuRepository extends ApiRepository
         $res    = [];
         foreach ($menu_list as $id => $v){
             if ($v['parent_id'] == 0){
-//                $res[$id] = $v;
-//                $res[$id]['next_level'] = $this->levelPartition($menu_list,$id);
                 $res[] = array_merge($v,['next_level' => $this->levelPartition($menu_list,$id)]);
             }
         }

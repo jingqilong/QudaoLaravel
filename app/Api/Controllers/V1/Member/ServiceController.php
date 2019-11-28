@@ -5,6 +5,7 @@ namespace App\Api\Controllers\V1\Member;
 
 
 use App\Api\Controllers\ApiController;
+use App\Enums\MemberEnum;
 use App\Services\Member\GradeServiceService;
 use App\Services\Member\ServiceService;
 use Illuminate\Http\JsonResponse;
@@ -877,6 +878,101 @@ class ServiceController extends ApiController
             return ['code' => 100, 'message' => '请至少输入一个可查看成员条件'];
         }
         $res = $this->gradeServiceService->addViewMember($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message];
+    }
+
+ /**
+     * @OA\Post(
+     *     path="/api/v1/member/add_grade_view",
+     *     tags={"会员权限"},
+     *     summary="添加等级可查看成员",
+     *     description="添加等级可查看成员,jing",
+     *     operationId="add_grade_view",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型 1等级 2成员身份",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="value",
+     *         in="query",
+     *         description="查看值[1 内部测试2 亦享成员3  至享成员4  悦享成员5  真享成员6  君享成员7  尊享成员8  致享成员9 高级顾问10 临时成员]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="添加成功！",
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败！",
+     *     ),
+     * )
+     *
+     */
+    public function addGradeView()
+    {
+        $rules = [
+            'grade'        => 'required|integer',
+            'type'         => 'required|integer',
+        ];
+        $messages = [
+            'grade.required'       => '等级不能为空',
+            'grade.integer'        => '等级必须为整数',
+            'type.required'        => '类型不能为空',
+            'type.integer'         => '类型必须为整数',
+            'value.required'       => '查看值不能为空',
+            'value.in'             => '查看值不存在',
+        ];
+        if (1 == $this->request['type']){
+            $rules['value'] = 'required|in:'.implode(',',array_keys(MemberEnum::$grade));
+        }
+        if (2 == $this->request['type']){
+            $rules['value'] = 'required|in:'.implode(',',array_keys(MemberEnum::$identity));
+        }
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->addGradeView($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }

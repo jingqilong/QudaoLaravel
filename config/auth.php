@@ -83,11 +83,11 @@ return [
         ],
         'prime_users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\PrimeShopsModel::class,
+            'model' => \App\Models\PrimeMerchantModel::class,
         ],
         'member_users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\MemberModel::class,
+            'model' => \App\Models\MemberBaseModel::class,
         ],
 
         // 'users' => [

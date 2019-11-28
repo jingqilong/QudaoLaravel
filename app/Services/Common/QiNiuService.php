@@ -4,6 +4,7 @@
 namespace App\Services\Common;
 
 
+use App\Enums\CommonImagesEnum;
 use App\Enums\ImageTypeEnum;
 use App\Enums\QiNiuEnum;
 use App\Repositories\CommonImagesRepository;
@@ -152,8 +153,8 @@ class QiNiuService extends BaseService
      * @return bool|string  返回图片上传后存入数据表中的id
      */
     public function uploadQiniu($module, $name, $path){
-        $config = $this->module_config_test[$module];//测试
-//        $config = $this->module_config[$module];
+//        $config = $this->module_config_test[$module];//测试
+        $config = $this->module_config[$module];
         $model = $this->getModel('my_images');
         //获取七牛云配置
         config([
@@ -225,7 +226,6 @@ class QiNiuService extends BaseService
             'filesystems.disks.qiniu.domains' => $config['domains']
         ]);
         $disk = QiniuStorage::disk('qiniu');
-        $model = $this->getModel('my_images');
         $result = [];
         $count = 0;
         foreach ($files as $info){
@@ -242,9 +242,9 @@ class QiNiuService extends BaseService
                 continue;
             }
             $url = (string)$disk->downloadUrl($file_name);
-            if (!$id = $model->insertGetId([
-                'type' => ImageTypeEnum::getConst(QiNiuEnum::$module[$storage_space]),
-                'img_url' => $url,
+            if (!$id = CommonImagesRepository::getAddId([
+                'type' => $storage_space,
+                'img_url' => $url.'',
                 'create_at' => time()
             ])){
                 Loggy::write('error','图片添加失败，图片名称：'.$name.'  七牛云地址：'.$url.' 类型：'.QiNiuEnum::$module[$storage_space]);
@@ -260,7 +260,10 @@ class QiNiuService extends BaseService
     }
 
 
-
+    /**
+     * 上传切割图至七牛云并更新正式服中的数据
+     * @return array
+     */
     public function migrationBigImage(){
         /**
          * 1，读取所有文件

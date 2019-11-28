@@ -4,6 +4,8 @@
 namespace App\Traits;
 
 
+use App\Repositories\CommonAreaRepository;
+
 trait HelpTrait
 {
     /**
@@ -234,9 +236,99 @@ trait HelpTrait
      */
     public function removePagingField($list){
         unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+              $list['from'], $list['last_page_url'],
+              $list['next_page_url'], $list['path'],
+              $list['prev_page_url'], $list['to']);
         return $list;
+    }
+
+    /**
+     * 加工房产地址，将地区码转换成详细地址，并获取经纬度
+     * @param $codes
+     * @param $append
+     * @param null $level
+     * @param bool $after   为true表示该等级以下地区
+     * @return mixed
+     */
+    protected function  makeAddress($codes, $append, $level = null,$after = false){
+        $codes      = trim($codes,',');
+        $area_codes = explode(',',$codes);
+        $where      = ['code' => ['in',$area_codes]];
+        if (!empty($level)){
+            if ($after){
+                $where['level'] = ['>',$level];
+            }else{
+                $where['level'] = $level;
+            }
+        }
+        $area_list  = CommonAreaRepository::getList($where,['code','name','lng','lat']);
+        $area_address = '';
+        foreach ($area_codes as $code){
+            if ($area = $this->searchArray($area_list,'code',$code)){
+                $area_address .= reset($area)['name'];
+            }
+        }
+        $area_address .= $append;
+        $lng = '';
+        $lat = '';
+        if ($area_l_l = $this->searchArray($area_list,'code',end($area_codes))){
+            $lng = reset($area_l_l)['lng'];
+            $lat = reset($area_l_l)['lat'];
+        }
+        return [$area_address,$lng,$lat];
+    }
+
+    /**
+     * 计算二维数组中指定键的和
+     * @param $array
+     * @param $field
+     * @return int|mixed
+     */
+    protected function arrayFieldSum($array, $field){
+        if (empty($array)){
+            return 0;
+        }
+        $sum = 0;
+        foreach ($array as $value){
+            if (isset($value[$field])){
+                if (is_integer($value[$field]))
+                $sum += $value[$field];
+            }
+        }
+        return $sum;
+    }
+
+    /**
+     * 获取列表中id串等的数组
+     * @param array $list
+     * @param array $column
+     * @return array|bool
+     */
+    protected function getArrayIds(array $list, array $column){
+        if (empty($list) || empty($column)){
+            return [];
+        }
+        foreach ($list as &$value){
+            foreach ($column as $item){
+                if (!isset($value[$item])){
+                    return false;
+                }
+            }
+        }
+        $res = [];
+        foreach ($column as $k => $v){
+            $res[$k] = [];
+            $item_arr = array_unique(array_column($list,$v));
+            $strs = '';
+            foreach ($item_arr as $i){
+                if (!empty($i)){
+                    $strs .= trim($i,',').',';
+                }
+            }
+            if (!empty($strs)){
+                $res[$k] = explode(',',trim($strs,','));
+            }
+        }
+        return $res;
     }
 }

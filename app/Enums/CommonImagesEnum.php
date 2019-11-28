@@ -38,27 +38,29 @@ class CommonImagesEnum extends BaseEnum
         10=> 'SPACE',
     ];
     // banner类别
-    const COMMON        = 1;    //公共
+    const COMMON        = 0;    //公共
 
-    const ACTIVITY      = 2;    //精彩活动
+    const ACTIVITY      = 1;    //精彩活动
 
-    const MEDICAL       = 3;    //医疗特约
+    const MEDICAL       = 2;    //医疗特约
 
-    const ENTERPRISE    = 4;    //企业咨询
+    const ENTERPRISE    = 3;    //企业咨询
 
-    const ESTATE        = 5;    //房产租售
+    const ESTATE        = 4;    //房产租售
 
-    const AVATAR        = 6;    //会员头像
+    const AVATAR        = 5;    //会员头像
 
-    const PROJECT       = 7;    //项目对接
+    const PROJECT       = 6;    //项目对接
 
-    const MEMBER        = 8;    //成员风采
+    const MEMBER        = 7;    //成员风采
 
-    const SPECIALS      = 9;    //精选生活
+    const SPECIALS      = 8;    //精选生活
 
-    const SHOP          = 10;   //商城模块
+    const SHOP          = 9;    //商城模块
 
-    /**
+    const SPACE         = 10;    //私享空间
+
+    /**1
      * 获取图片类别标签
      * @param $type
      * @return mixed|string

@@ -4,14 +4,14 @@ namespace App\Services\Member;
 
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
-use App\Repositories\MedicalDepartmentRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
-use App\Repositories\OaAdminPermissionsRepository;
-use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
@@ -49,21 +49,26 @@ class MemberService extends BaseService
         //兼容用户名登录、手机号登录、邮箱登录
         $mobile_regex = '/^(1(([35789][0-9])|(47)))\d{8}$/';
         $email_regex  = '/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/';
-        $account_type = 'm_num';
+        $account_type = 'card_no';
         if (preg_match($mobile_regex, $account)) {
-            $account_type = 'm_phone';
+            $account_type = 'mobile';
         }
         if (preg_match($email_regex, $account)) {
-            $account_type = 'm_email';
+            $account_type = 'email';
         }
-        if (!MemberRepository::exists([$account_type => $account])){
+        if (!MemberBaseRepository::exists([$account_type => $account])){
             return '用户不存在！';
         }
-        $token = MemberRepository::login([$account_type => $account, 'password' => $password]);
+        $token = MemberBaseRepository::login([$account_type => $account, 'password' => $password]);
         if (is_array($token)){
             return $token['message'];
         }
         $user = $this->auth->user();
+        $user = $user->toArray();
+        $user['m_id']   = $user['id'];
+        $user['sex'] = MemberEnum::getSex($user['sex']);
+        $user   = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         return ['user' => $user, 'token' => $token];
     }
 
@@ -75,14 +80,14 @@ class MemberService extends BaseService
      */
     public function register($data)
     {
-        if (MemberRepository::exists(['m_phone' => $data['mobile']])){
+        if (MemberBaseRepository::exists(['mobile' => $data['mobile']])){
             $this->setError('该手机号码已注册过!');
             return false;
         }
         $referral_code = $data['referral_code'] ?? '';
         //添加用户
         DB::beginTransaction();
-        if (!$user_id = MemberRepository::addUser($data['mobile'])) {
+        if (!$user_id = MemberBaseRepository::addUser($data['mobile'])) {
             DB::rollBack();
             $this->setError('注册失败!');
             Loggy::write('error', '手机号注册创建用户失败，手机号：' . $data['mobile'] . '  推荐人推荐码：' . $referral_code);
@@ -96,16 +101,16 @@ class MemberService extends BaseService
             $relation_data['path'] = '0,' . $user_id . ',';
             $relation_data['level'] = 1;
         } else {
-            if (!$referral_user = MemberRepository::getOne(['m_referral_code' => $referral_code])) {
+            if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])) {
                 DB::rollBack();
                 $this->setError('无效的推荐码!');
                 return false;
             }
-            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['m_id']])) {
+            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['id']])) {
                 $relation_user = [
-                    'member_id'     => $referral_user['m_id'],
+                    'member_id'     => $referral_user['id'],
                     'parent_id'     => 0,
-                    'path'          => '0,' . $referral_user['m_id'] . ',',
+                    'path'          => '0,' . $referral_user['id'] . ',',
                     'level'         => 1,
                     'created_at'    => time(),
                     'updated_at'    => time(),
@@ -113,26 +118,30 @@ class MemberService extends BaseService
                 if (!MemberRelationRepository::getAddId($relation_user)){
                     DB::rollBack();
                     $this->setError('注册失败!');
-                    Loggy::write('error', '手机号注册创建推荐关系失败，推荐人id：' . $referral_user['m_id'] . '  推荐人推荐码：' . $referral_code);
+                    Loggy::write('error', '手机号注册创建推荐关系失败，推荐人id：' . $referral_user['id'] . '  推荐人推荐码：' . $referral_code);
                     return false;
                 }
             }
-            $relation_data['parent_id'] = $referral_user['m_id'];
-            $relation_data['path'] = $relation_user['path'] . $user_id . ',';
-            $relation_data['level'] = $relation_user['level'] + 1;
+            $relation_data['parent_id'] = $referral_user['id'];
+            $relation_data['path']      = $relation_user['path'] . $user_id . ',';
+            $relation_data['level']     = $relation_user['level'] + 1;
         }
         if (!MemberRelationRepository::getAddId($relation_data)) {
             DB::rollBack();
-            Loggy::write('error', '推荐关系建立失败，用户id：' . $relation_data['m_id'] . '  推荐人id：' . $relation_data['parent_id']);
+            Loggy::write('error', '推荐关系建立失败，用户id：' . $user_id . '  推荐人id：' . $relation_data['parent_id']);
             $this->setError('注册失败!');
             return false;
         }
-        $token = MemberRepository::getToken($user_id);
-        $user_info = MemberRepository::getUser();
+        $token = MemberBaseRepository::getToken($user_id);
+        $user_info      = MemberBaseRepository::getUser();
+        $user           = $user_info->toArray();
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         DB::commit();
 
         $this->setMessage('注册成功');
-        return ['user' => $user_info->toArray(),'token' => $token];
+        return ['user' => $user,'token' => $token];
     }
 
 
@@ -171,101 +180,138 @@ class MemberService extends BaseService
     public function getMemberList($data)
     {
         $memberInfo = $this->auth->user();
+        if (empty($data['asc'])){
+            $data['asc']  = 1;
+        }
 
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
-        $where          = ['m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-        $groupMember    = [
-            MemberEnum::HONOURENJOY,
-            MemberEnum::YUEENJOY,
-            MemberEnum::ADVISER,
-            MemberEnum::ALSOENJOY,
-            MemberEnum::TOENJOY,
-            MemberEnum::REALLYENJOY,
-            MemberEnum::YOUENJOY
-        ];
+        $column         = ['m_id','m_cname','m_groupname','m_workunits','m_category','m_img_id'];
+        $where          = ['deleted_at' => 0];
         $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
 
-        if (in_array($memberInfo['m_groupname'],$groupMember)){
+        if (MemberEnum::isset($memberInfo['m_groupname'])){
             if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
                 return [];
             }
         }else {
-            if (!$user_list = MemberRepository::search($keyword,['m_starte' => MemberEnum::ACTIVITEMEMBER],$column,$page,$page_num,'m_time',$asc)){
+            if (!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
                 return [];
             }
         }
 
-        unset($user_list['first_page_url'], $user_list['from'],
-              $user_list['last_page_url'],  $user_list['from'],
-              $user_list['next_page_url'],  $user_list['path'],
-              $user_list['prev_page_url'],  $user_list['to']);
+        $this->removePagingField($user_list);
 
-        foreach ($user_list['data'] as &$value){
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+        $img_ids        = array_column($user_list['data'],'m_img_id');
+        $img_list       = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
+        $result         = [];
+        foreach ($user_list['data'] as $key => $value){
+            $result[$key]['id']    = $value['m_id'];
+            $result[$key]['name']  = $value['m_cname'];
+            $result[$key]['head_url']          = '';
+            if ($head_img = $this->searchArray($img_list,'id',$value['m_img_id'])){
+                $result[$key]['head_url']     = reset($head_img)['img_url'];
+            }
+            $result[$key]['group_name']        =  MemberEnum::getGrade($value['m_groupname']);
+            $result[$key]['category_name']     =  empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $result[$key]['m_workunits']       =  empty($value['m_workunits']) ? '' : $value['m_workunits'];
         }
 
             $this->setMessage('获取成功！');
-            return $user_list;
+            return $result;
     }
+
+    /**
+     * 成员查看成员信息
+     * @param $request
+     * @return array|bool
+     */
+    public function getMemberInfo($request){
+        $check_column = ['m_id','m_cname','m_workunits','m_socialposition','m_position','m_introduce','m_img_id','m_starte'];
+        if (!$memberInfo = MemberRepository::getOne(['m_id' => $request['id'],'deleted_at' => 0],$check_column)){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        $img = CommonImagesRepository::getOne(['id' => $memberInfo['m_img_id']],['img_url']);
+        if ($memberInfo['m_starte'] == MemberEnum::DISABLEMEMBER &&  $memberInfo['m_starte'] == MemberEnum::DISABLEOFFICER){
+            $this->setError('该成员已被禁用');
+            return false;
+        }
+        $member = [];
+        $member['id']       =  empty($memberInfo['m_id']) ? '' : $memberInfo['m_id'];
+        $member['name']     =  empty($memberInfo['m_cname']) ? '' : $memberInfo['m_cname'];
+        $member['position_name']           =  empty($memberInfo['m_position']) ? '' : $memberInfo['m_position'];
+        $member['socialposition_name']     =  empty($memberInfo['m_socialposition']) ? '' : $memberInfo['m_socialposition'];
+        $member['introduce_name']          =  empty($memberInfo['m_introduce']) ? '' : $memberInfo['m_introduce'];
+        $member['work_name']               =  empty($memberInfo['m_workunits']) ? '' : $memberInfo['m_workunits'];
+        $member['img_url']                 =  $img['img_url'];
+        unset($member['m_groupname'],$member['m_category'],
+              $member['m_category'], $member['m_img_id'],
+              $member['m_cname'],    $member['m_id'],
+              $member['m_workunits'],$member['m_socialposition'],
+              $member['m_position']
+        );
+        $this->setMessage('获取成功!');
+        return $member;
+    }
+
 
     /**
      * 根据成员分类获取成员列表
      * @param $data
-     * @return array|null
+     * @return bool|mixed|null
      */
     public function getMemberCategoryList($data)
     {
-        $memberInfo = $this->auth->user();
-        $page           = $data['page'] ?? 1;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $page_num       = $data['page_num'] ?? 20;
-        $column         = ['m_id','m_num','m_ename','m_groupname','m_workunits','m_time','m_category'];
-        $where          = ['m_category' => $data['category'],'m_starte' => ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]]];
-        $groupMember    = [
-            MemberEnum::HONOURENJOY,
-            MemberEnum::YUEENJOY,
-            MemberEnum::ADVISER,
-            MemberEnum::ALSOENJOY,
-            MemberEnum::TOENJOY,
-            MemberEnum::REALLYENJOY,
-            MemberEnum::YOUENJOY
-        ];
-
-        if (in_array($memberInfo['m_groupname'],$groupMember)){
-            if(!$user_list = MemberRepository::getList($where,$column,'m_time',$asc,$page,$page_num)){
-                $this->setMessage('暂无成员信息！');
-                return [];
-            }
-        }else {
-            if (!$user_list = MemberRepository::getList(['m_category' => $data['category'],'m_starte' => MemberEnum::ACTIVITEMEMBER],$column,'m_time',$asc,$page,$page_num)){
-                $this->setMessage('暂无成员信息！');
-                return [];
-            }
+        if (empty($data['asc'])){
+            $data['asc'] = 1;
         }
-
-        unset($user_list['first_page_url'], $user_list['from'],
-              $user_list['last_page_url'],  $user_list['from'],
-              $user_list['next_page_url'],  $user_list['path'],
-              $user_list['prev_page_url'],  $user_list['to']);
-
-        foreach ($user_list['data'] as &$value){
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte']            = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex']               = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
+        $memberInfo     =   $this->auth->user();
+        $page           =   $data['page'] ?? 1;
+        $asc            =   $data['asc'] == 1 ? 'asc' : 'desc';
+        $page_num       =   $data['page_num'] ?? 20;
+        $category       =   $data['category'] ?? null;
+        $column         =   ['m_id','m_cname','m_groupname','m_socialposition','m_workunits','m_category','m_img_id'];
+        $where          =   ['deleted_at' => 0];
+        if (!empty($category)){
+            $where['m_category'] = $category;
+         }
+        if (MemberEnum::HONOURENJOY == $memberInfo->m_groupname){
+            $where['m_starte'] = ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]];
+        }else{
+            $where['m_starte'] =  MemberEnum::ACTIVITEMEMBER;
+        }
+        if (!$list = MemberRepository::getList($where,$column, 'm_time',$asc,$page,$page_num)) {
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list       = $this->removePagingField($list);
+        $img_ids    = array_column($list['data'],'m_img_id');
+        $img_list   = CommonImagesRepository::getList(['id' => ['in',$img_ids]],['id','img_url']);
+        foreach ($list['data'] as &$value){
+            $value['id']                = empty($value['m_id']) ? '' : $value['m_id'];
+            $value['name']              =  empty($value['m_cname']) ? '' : $value['m_cname'];
+            $value['head_url']          = '';
+            if ($head_img  = $this->searchArray($img_list,'id',$value['m_img_id'])){
+                $value['head_url']      = reset($head_img)['img_url'];
+            }
+            $value['group_name']               = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
+            $value['category_name']            = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
+            $value['work_name']                = empty($value['m_workunits']) ? '' : $value['m_workunits'];
+            $member['socialposition_name']     =  empty($value['m_socialposition']) ? '' : $value['m_socialposition'];
+            unset($value['m_groupname'],$value['m_category'],
+                    $value['m_category'],$value['m_img_id'],
+                    $value['m_cname'],$value['m_id'],
+                    $value['m_workunits'],$value['m_socialposition']
+                    );
         }
 
         $this->setMessage('获取成功！');
-        return $user_list;
+        return $list;
     }
 
     /**
@@ -273,10 +319,18 @@ class MemberService extends BaseService
      * @return mixed
      */
     public function getUserInfo(){
-        if ($user = MemberRepository::getUser()){
-            return $user;
+        if (!$user = MemberRepository::getUser()){
+            return false;
         }
-        return false;
+        $img                        = CommonImagesRepository::getOne(['id' => $user['m_img_id']],['img_url']);
+        $user['head_portrait']      = reset($img);
+        $user['group_name']         = empty($user['m_groupname']) ? '' : MemberEnum::getGrade($user['m_groupname']);
+        $user['category_name']      = empty($user['m_category']) ? '' : MemberEnum::getCategory($user['m_category']);
+        $user['starte']             = empty($user['m_starte']) ? '' : MemberEnum::getStatus($user['m_starte']);
+        $user['sex']                = empty($user['m_sex']) ? '' : MemberEnum::getSex($user['m_sex']);
+        unset($user['m_password']);
+
+        return $user;
     }
 
     /**
@@ -307,7 +361,7 @@ class MemberService extends BaseService
             //return ['code'=>1,'message'=>'success','data'=>['decrypt_data'=>$decrypt_data,'wx_data'=>$wx_data]];
             if (!isset($wx_data['unionid'])){
                 Loggy::write('error',"v2/WeChatController.php Line:70,message:获取unionid失败,请重试");
-                //return ['code'=>0,'message'=>'获取unionid失败,请重试'];
+                return ['code'=>0,'message'=>'获取unionid失败,请重试'];
             }
             $result = $this->miniWechatLogin($wx_data['openid'],$accessToken['access_token'],isset($wx_data['unionid'])?$wx_data['unionid']:0);
         } catch (DecryptException $e) {
@@ -624,9 +678,9 @@ class MemberService extends BaseService
     {
         //$password = Hash::make($data['m_password']);
         $upd_repwd = Hash::make($data['m_repwd']);
-        /*if ($resd = MemberRepository::getFields(['m_id' => $data['m_id']])){dd($resd);
+        if ($resd = MemberRepository::getFields(['m_id' => $data['m_id']])){
             return ['code' => 1,'message' => '原始密码不正确！'];
-        }*/
+        }
         if (!$res = MemberRepository::getUpdId(['m_id' => $data['m_id']],['m_password' => $upd_repwd])){
             return ['code' => 0,'message' => '修改失败！'];
         }
@@ -731,5 +785,77 @@ class MemberService extends BaseService
             }
         }
         return $view_user_list['data'];
+    }
+
+    /**
+     * 成员编辑个人信息
+     * @param $request
+     * @return bool
+     */
+    public function editMemberInfo($request)
+    {
+        $memberInfo = $this->auth->user();
+        $member_id     = $memberInfo->m_id;
+        if (!$member = MemberRepository::getOne(['m_id' => $member_id,'deleted_at' => 0])){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        $edit_arr = [
+            'm_id'                => $member_id,
+            'm_phone'             => $request['m_phone'],
+            'm_sex'               => $request['m_sex'],
+            'm_birthday'          => $request['m_birthday'],
+            'm_email'             => $request['m_email'],
+            'm_workunits'         => empty($request['m_workunits']) ? null : $request['m_workunits'],
+            'm_industry'          => empty($request['m_industry']) ? null : $request['m_industry'],
+            'm_address'           => empty($request['m_address']) ? null : $request['m_address'],
+            'm_zipaddress'        => empty($request['m_zipaddress']) ? null : $request['m_zipaddress'],
+            'm_socialposition'    => empty($request['m_socialposition']) ? null : $request['m_socialposition'],
+            'm_introduce'         => empty($request['m_introduce']) ? null : $request['m_introduce']
+        ];
+        if (MemberRepository::exists($edit_arr)){
+            $this->setError('成员已存在!');
+            return false;
+        }
+        if (!$member = MemberRepository::getUpdId(['m_id' => $member_id],$edit_arr)){
+            $this->setError('修改失败!');
+            return false;
+        }
+        $this->setMessage('修改成功!');
+        return true;
+
+    }
+
+    /**
+     * 获取成员人数
+     * @return array|bool
+     */
+    public function getUserCount()
+    {
+        $res = [];
+        $res[] = [
+            'value' => MemberGradeRepository::count(['status' => 1]),
+            'name'  => '全部会员'
+        ];
+        $where = [
+            MemberEnum::TEST          => ['grade' => MemberEnum::TEST       ,  'status' => 1 ],
+            MemberEnum::ALSOENJOY     => ['grade' => MemberEnum::ALSOENJOY  ,  'status' => 1 ],
+            MemberEnum::TOENJOY       => ['grade' => MemberEnum::TOENJOY    ,  'status' => 1 ],
+            MemberEnum::YUEENJOY      => ['grade' => MemberEnum::YUEENJOY   ,  'status' => 1 ],
+            MemberEnum::REALLYENJOY   => ['grade' => MemberEnum::REALLYENJOY,  'status' => 1 ],
+            MemberEnum::YOUENJOY      => ['grade' => MemberEnum::YOUENJOY   ,  'status' => 1 ],
+            MemberEnum::HONOURENJOY   => ['grade' => MemberEnum::HONOURENJOY,  'status' => 1 ],
+            MemberEnum::ZHIRENJOY     => ['grade' => MemberEnum::ZHIRENJOY  ,  'status' => 1 ],
+            MemberEnum::ADVISER       => ['grade' => MemberEnum::ADVISER    ,  'status' => 1 ],
+            MemberEnum::TEMPORARY     => ['grade' => MemberEnum::TEMPORARY  ,  'status' => 1 ],
+        ];
+        foreach ($where as $key => $value){
+            $res[] = [
+                'value' => MemberGradeRepository::count($value),
+                'name'  => MemberEnum::getGrade($key),
+            ];
+        }
+        $this->setMessage('获取成功!');
+        return $res;
     }
 }

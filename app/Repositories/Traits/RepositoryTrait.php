@@ -150,7 +150,7 @@ trait RepositoryTrait
      */
     protected function firstOrCreate(array $where,array $data){
         $result=$this->model->firstOrCreate($where,$data);
-        return $result ? 1 : null;
+        return $result ? $result->toArray() : null;
     }
 
     /**
@@ -237,7 +237,7 @@ trait RepositoryTrait
 
     /**
      * 把条件加进模型中
-     * @param $model
+     * @param Model $model
      * @param $where
      * @return Model
      */
@@ -250,6 +250,10 @@ trait RepositoryTrait
                 switch (reset($v)){
                     case 'in':
                         $model = $model->whereIn($k, end($v));
+                        break;
+                    case 'range':
+                        $range = end($v);
+                        $model = $model->whereRaw($k.' > '.reset($range) . ' and ' . $k .' < '. end($range));
                         break;
                     default:
                         $model = $model->where($k, reset($v), end($v));
@@ -296,5 +300,48 @@ trait RepositoryTrait
         }
         $result = $model->get($column);
         return $result ? $result->toArray() : null;
+    }
+
+    /**
+     * 获取指定列表
+     * @param array $ids
+     * @param array $column
+     * @return array|null
+     */
+    protected function getAssignList(array $ids, $column=['*']){
+        if (empty($ids)){
+            return [];
+        }
+        $all_ids = [];
+        foreach ($ids as $str){
+            $str_arr = explode(',',$str);
+            $all_ids = array_merge($all_ids,$str_arr);
+        }
+        $all_ids = array_unique($all_ids);
+        $list = $this->getList(['id' => ['in',$all_ids]],$column);
+        return $list;
+    }
+
+    /**
+     * 给指定列减去一点数量，指定列必须为数字
+     * @param $where
+     * @param string $column    指定列
+     * @param int $number       减量
+     * @return int
+     */
+    protected function decrement($where, $column, $number = -1){
+        $model = self::addWhere($this->model,$where);
+        return $model->increment($column,$number);
+    }
+    /**
+     * 给指定列增加一定数量，指定列必须为数字
+     * @param $where
+     * @param string $column    指定列
+     * @param int $number       增量
+     * @return int
+     */
+    protected function increment($where,$column,$number = 1){
+        $model = self::addWhere($this->model,$where);
+        return $model->increment($column,$number);
     }
 }

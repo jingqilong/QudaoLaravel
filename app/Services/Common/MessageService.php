@@ -49,7 +49,7 @@ class MessageService extends BaseService
                 'payload' => '{msg:"Hello World!"}',
             ],
         ];
-        dd($notifications);
+        //dd($notifications);
 
         $webPush = new WebPush();
 

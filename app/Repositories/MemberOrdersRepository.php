@@ -27,15 +27,19 @@ class MemberOrdersRepository extends ApiRepository
      * @param $payment_amount
      * @param $user_id
      * @param $order_type
+     * @param int $score_deduction
+     * @param int $score_type
      * @return integer|null
      */
-    protected function addOrder($amount, $payment_amount , $user_id, $order_type){
+    protected function addOrder($amount, $payment_amount , $user_id, $order_type,$score_deduction = 0,$score_type = 0){
         $add_arr = [
             'order_no'      => self::getOrderNo(),
             'user_id'       => $user_id,
             'order_type'    => $order_type,
             'amount'        => $amount,
             'payment_amount'=> $payment_amount,
+            'score_deduction'=> $score_deduction,
+            'score_type'    => $score_type,
             'status'        => 0,
             'create_at'    => time()
         ];
@@ -49,7 +53,7 @@ class MemberOrdersRepository extends ApiRepository
      * @param int $length
      * @return string
      */
-    private function getOrderNo($length = 8){
+    protected function getOrderNo($length = 8){
         $number = '0123456789';
         for ($i = 0, $num = '', $lc = strlen($number)-1; $i < $length; $i++) {
             $num .= $number[mt_rand(0, $lc)];

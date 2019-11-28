@@ -24,9 +24,10 @@ class MemberTradesRepository extends ApiRepository
      * 添加交易记录
      * @param $add_arr
      * @param string $fund_flow
+     * @param int $status
      * @return integer|null
      */
-    protected function addTrade($add_arr, $fund_flow = '+'){
+    protected function addTrade($add_arr, $fund_flow = '+', $status = TradeEnum::STATUSTRADING){
         $trade_add = [
             'trade_no'      => self::getTradeNo(),
             'order_id'      => $add_arr['order_id'],
@@ -35,9 +36,12 @@ class MemberTradesRepository extends ApiRepository
             'amount'        => $add_arr['amount'],
             'fund_flow'     => $fund_flow,
             'trade_method'  => $add_arr['pay_method'],
-            'status'        => TradeEnum::STATUSTRADING,
+            'status'        => $status,
             'create_at'     => time()
         ];
+        if ($status == TradeEnum::STATUSSUCCESS){
+            $trade_add['end_at'] = time();
+        }
         return MemberTradesRepository::getAddId($trade_add);
     }
 

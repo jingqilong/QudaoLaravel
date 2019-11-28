@@ -45,7 +45,25 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【卡号，姓名，手机号,项目对接名称,审核状态：1已提交 2审核中 3审核通过 4审核失败】",
+     *         description="搜索内容【手机号，姓名，项目对接名称】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【0待审核 1审核通过 2审核失败】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="排序【1 正序 2 倒叙  默认 正序】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -57,7 +75,7 @@ class OaProjectController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -66,7 +84,7 @@ class OaProjectController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取项目订单列表失败",),
@@ -78,16 +96,17 @@ class OaProjectController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
+            'status'        => 'in:0,1,2',
         ];
         $messages = [
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
+            'status.in'                 => '状态值不存在 ',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-
         $list = $this->OaProjectService->getProjectOrderList($this->request);
 
         return ['code' => 200, 'message' => $this->OaProjectService->message,'data' => $list];
@@ -188,7 +207,7 @@ class OaProjectController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="状态 1已提交 2审核中 3审核通过 4审核失败 9已删除",
+     *         description="状态 【1审核通过 2审核驳回 】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -202,13 +221,13 @@ class OaProjectController extends ApiController
     {
         $rules = [
             'id'            => 'required|integer',
-            'status'        => 'required|integer',
+            'status'        => 'required|in:1,2',
         ];
         $messages = [
             'id.required'        => '请填写ID',
             'id.integer'         => 'ID必须为整数',
             'status.required'    => '请填写状态值',
-            'status.integer'     => '状态值必须为整数',
+            'status.in'          => '审核值不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

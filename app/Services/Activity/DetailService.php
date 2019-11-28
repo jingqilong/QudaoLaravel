@@ -2,16 +2,15 @@
 namespace App\Services\Activity;
 
 
-use App\Enums\ActivityCommentEnum;
-use App\Repositories\ActivityCollectRepository;
-use App\Repositories\ActivityCommentsRepository;
-use App\Repositories\ActivityDetailRepository;
-use App\Repositories\ActivityGuestRepository;
-use App\Repositories\ActivityHostsRepository;
-use App\Repositories\ActivityLinksRepository;
-use App\Repositories\ActivityRegisterRepository;
-use App\Repositories\ActivityThemeRepository;
-use App\Repositories\CommonImagesRepository;
+use App\Repositories\{ActivityCollectRepository,
+    ActivityDetailRepository,
+    ActivityGuestRepository,
+    ActivityHostsRepository,
+    ActivityLinksRepository,
+    ActivityRegisterRepository,
+    ActivityThemeRepository,
+    CommonAreaRepository,
+    CommonImagesRepository};
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +26,11 @@ class DetailService extends BaseService
      */
     public function addActivity($request)
     {
+        $area_codes = explode(',',$request['area_code']);
+        if (count($area_codes) != CommonAreaRepository::count(['code' => ['in',$area_codes]])){
+            $this->setError('无效的地区代码！');
+            return false;
+        }
         if (!ActivityThemeRepository::exists(['id' => $request['theme_id']])){
             $this->setError('活动主题不存在！');
             return false;
@@ -34,9 +38,11 @@ class DetailService extends BaseService
         $is_recommend = $request['is_recommend'] ?? 0;
         $add_arr = [
             'name'          => $request['name'],
+            'area_code'     => $request['area_code'] . ',',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
+            'signin'        => $request['signin'] ?? 0,
             'start_time'    => strtotime($request['start_time']),
             'end_time'      => strtotime($request['end_time']),
             'is_recommend'  => $is_recommend == 0 ? 0 : time(),
@@ -86,7 +92,7 @@ class DetailService extends BaseService
             $where['is_recommend']  = ['>',0];
             $order = 'is_recommend';
         }
-        $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
             if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$order,$desc_asc)){
@@ -94,15 +100,12 @@ class DetailService extends BaseService
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'start_time','desc',$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+       $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -115,6 +118,9 @@ class DetailService extends BaseService
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)
                 $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
+            #处理地址
+            list($area_address) = $this->makeAddress($value['area_code'],'',3);
+            $value['address']  = $area_address;
             $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
             $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
@@ -127,11 +133,11 @@ class DetailService extends BaseService
             if ($value['end_time'] < time()){
                 $value['status'] = '已结束';
             }
-            $start_time    = date('Y年m月d日',$value['start_time']);
-            $end_time      = date('m月d日',$value['end_time']);
-            $value['activity_time'] = $start_time . '～' . $end_time;
+            $start_time    = date('Y年m/d',$value['start_time']);
+            $end_time      = date('m/d',$value['end_time']);
+            $value['activity_time'] = $start_time . '-' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
         }
         $this->setMessage('获取成功！');
         return $list['data'];
@@ -175,6 +181,11 @@ class DetailService extends BaseService
             $this->setError('活动不存在！');
             return false;
         }
+        $area_codes = explode(',',$request['area_code']);
+        if (count($area_codes) != CommonAreaRepository::count(['code' => ['in',$area_codes]])){
+            $this->setError('无效的地区代码！');
+            return false;
+        }
         if (!ActivityThemeRepository::exists(['id' => $request['theme_id']])){
             $this->setError('活动主题不存在！');
             return false;
@@ -182,9 +193,11 @@ class DetailService extends BaseService
         $is_recommend = $request['is_recommend'] ?? 0;
         $upd_arr = [
             'name'          => $request['name'],
+            'area_code'     => $request['area_code'] . ',',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
+            'signin'        => $request['signin'] ?? 0,
             'start_time'    => strtotime($request['start_time']),
             'end_time'      => strtotime($request['end_time']),
             'is_recommend'  => $is_recommend == 0 ? 0 : time(),
@@ -197,7 +210,7 @@ class DetailService extends BaseService
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
         ];
-        if (ActivityDetailRepository::exists($upd_arr)){
+        if (ActivityDetailRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该活动已存在！');
             return false;
         }
@@ -226,7 +239,7 @@ class DetailService extends BaseService
         $status         = $request['status'] ?? null;
         $is_member      = $request['is_member'] ?? null;
         $keywords       = $request['keywords'] ?? null;
-        $where          = ['id' => ['>',0]];
+        $where          = ['id' => ['>',0],'deleted_at' => 0];
         if (!empty($start_time)){
             $where['start_time']    = ['>',strtotime($start_time)];
         }
@@ -242,7 +255,7 @@ class DetailService extends BaseService
         if (!empty($is_member)){
             $where['is_member']  = $is_member;
         }
-        $activity_column = ['id','name','address','price','start_time','end_time','is_recommend','status','theme_id','firm','is_member','created_at','updated_at','deleted_at'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','created_at','updated_at','deleted_at'];
         if (!empty($keywords)){
             if ($search_themes = ActivityThemeRepository::getList(['name' => $keywords],['id'])){
                 $theme_ids = array_column($search_themes,'id');
@@ -269,12 +282,16 @@ class DetailService extends BaseService
         foreach ($list['data'] as &$value){
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
-            $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
-            $value['start_time']    = date('Y-m-d H:m:i',$value['start_time']);
-            $value['end_time']      = date('Y-m-d H:m:i',$value['end_time']);
-            $value['created_at']      = date('Y-m-d H:m:i',$value['created_at']);
-            $value['updated_at']      = date('Y-m-d H:m:i',$value['updated_at']);
-            $value['deleted_at']      = $value['deleted_at'] != 0 ? date('Y-m-d H:m:i',$value['deleted_at']) : '0';
+            #处理地址
+            list($area_address) = $this->makeAddress($value['area_code'],$value['address'],1,true);
+            $value['area_address']  = $area_address;
+            $value['is_recommend']  = $value['is_recommend'] != 0 ? 1 : 0;
+            $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
+            $value['start_time']    = date('Y-m-d H:m',$value['start_time']);
+            $value['end_time']      = date('Y-m-d H:m',$value['end_time']);
+            $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
+            $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
+            $value['deleted_at']    = $value['deleted_at'] != 0 ? date('Y-m-d H:m:i',$value['deleted_at']) : '0';
             unset($value['theme_id']);
         }
         $this->setMessage('获取成功！');
@@ -288,16 +305,18 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
+        $column = ['id','name','area_code','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
         }
-        $activity['theme'] = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
-        $activity['price'] = empty($activity['price']) ? '0' : round($activity['price'] / 100,2);
-        $activity['start_time']    = date('Y-m-d H:m:i',$activity['start_time']);
-        $activity['end_time']      = date('Y-m-d H:m:i',$activity['end_time']);
-        $activity['images']     = [];
+        list($area_address) = $this->makeAddress($activity['area_code'],$activity['address'],1,true);
+        $activity['area_address']  = $area_address;
+        $activity['theme']         = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
+        $activity['price']         = empty($activity['price']) ? '0' : round($activity['price'] / 100,2);
+        $activity['start_time']    = date('Y-m-d H:m',$activity['start_time']);
+        $activity['end_time']      = date('Y-m-d H:m',$activity['end_time']);
+        $activity['images']        = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
             if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
@@ -345,7 +364,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
+        $column = ['id','name','area_code','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -353,23 +372,25 @@ class DetailService extends BaseService
         $auth = Auth::guard('member_api');
         $member = $auth->user();
         $name = explode('·',$activity['name']);
-        $activity['name']   = reset($name);
-        $activity['title']  = count($name) > 1 ? end($name) : '';
-        $activity['theme'] = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
-        $activity['price'] = empty($activity['price']) ? '免费' : round($activity['price'] / 100,2).'元';
+        $activity['name']       = reset($name);
+        $activity['title']      = count($name) > 1 ? end($name) : '';
+        list($area_address)     = $this->makeAddress($activity['area_code'],$activity['address'],1,true);
+        $activity['address']    = $area_address;
+        $activity['theme']      = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
+        $activity['price']      = empty($activity['price']) ? '免费' : round($activity['price'] / 100,2).'元';
         $activity['images']     = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
             if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
-                $image_list     = array_column($image_list,'img_url');
-                $activity['images']= $image_list;
+                $image_list         = array_column($image_list,'img_url');
+                $activity['images'] = $image_list;
             }
         }
         $activity['banners'] = [];
         if (!empty($activity['banner_ids'])){
             $image_ids = explode(',',$activity['banner_ids']);
             if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
-                $image_list     = array_column($image_list,'img_url');
+                $image_list         = array_column($image_list,'img_url');
                 $activity['banners']= $image_list;
             }
         }
@@ -384,15 +405,15 @@ class DetailService extends BaseService
         }
         #是否收藏
         $activity['is_collect'] = 0;
-        if (ActivityCollectRepository::exists(['activity_id' => $activity['id'],'member_id' => $member->m_id])){
+        if (ActivityCollectRepository::exists(['activity_id' => $activity['id'],'member_id' => $member->id])){
             $activity['is_collect'] = 1;
         }
         $start_time    = date('Y年m月d日',$activity['start_time']);
         $end_time      = date('m月d日',$activity['end_time']);
         $activity['activity_time']  = $start_time . '～' . $end_time;
         $activity['day_time']       = date('H:i',$activity['start_time']) .'-'.date('H:i',$activity['end_time']);
-        $activity['cover'] = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
-        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids']);
+        $activity['cover']          = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
+        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code']);
         #获取举办方信息
         $activity['hosts'] = [];
         if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id,'type' => 1],['name','type','logo_id'])){

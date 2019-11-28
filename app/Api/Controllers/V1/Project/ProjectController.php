@@ -43,16 +43,47 @@ class ProjectController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *      @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Response(response=100,description="获取项目订单列表失败",),
      * )
      *
      */
     public function getProjectList()
     {
-
-        $list = $this->projectService->getProjectList();
-
-        return ['code' => 200, 'message' => $this->projectService->message,'data' => $list];
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer'
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->projectService->getProjectList($this->request);
+        if ($list){
+            return ['code' => 200, 'message' => $this->projectService->message,'data' => $list];
+        }
+        return ['code' => 100, 'message' => $this->projectService->error];
     }
 
 

@@ -19,10 +19,10 @@ class OaMemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/oa/get_member_list",
+     *     path="/api/v1/oa/member_list",
      *     tags={"OA成员管理"},
      *     summary="获取成员列表(OA)",
-     *     operationId="get_member_list",
+     *     operationId="member_list",
      *     @OA\Parameter(
      *          name="sign",
      *          in="query",
@@ -51,12 +51,21 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="asc",
+     *         in="query",
+     *         description="时间排序【1正序 2倒叙】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -65,14 +74,14 @@ class OaMemberController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="Integer",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="获取成员列表失败",),
      * )
      *
      */
-    public function getMemberList()
+    public function memberList()
     {
         $rules = [
             'page'          => 'integer',
@@ -373,62 +382,15 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(name="m_img",in="query",description="照片",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_birthday",in="query",description="生日",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_numcard",in="query",description="身份证",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_openid",in="query",description="微信openID",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_fixedphone",in="query",description="固定电话",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_idcard",in="query",description="身份证号",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_zipcode",in="query",description="邮编",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_works",in="query",description="工作类",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_socials",in="query",description="社交类",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_lifes",in="query",description="生活类",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_arts",in="query",description="艺术类",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_intacts",in="query",description="感兴趣活动",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_intactbest",in="query",description="最喜爱活动偏好",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_goodat",in="query",description="个人擅长",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_degree",in="query",description="最高学历",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_school",in="query",description="毕业院校",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_constellation",in="query",description="星座",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_zodiac",in="query",description="属相",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_birthplace",in="query",description="籍贯",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_notes",in="query",description="备注",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_indate",in="query",description="有效期",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_referrerid",in="query",description="推荐人卡号",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_integrals",in="query",description="积分",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_storefront",in="query",description="登记店面",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_pushid",in="query",description="提成人编号",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_pushname",in="query",description="提成人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_connection",in="query",description="高端人脉",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_doctors",in="query",description="名医特约",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_airport",in="query",description="机场特享",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_finance",in="query",description="金融支持",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_private",in="query",description="私人订制",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_magazine",in="query",description="杂志专访",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_wechatshow",in="query",description="微信朋友圈展示",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_wechattext",in="query",description="微信推广软文",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_actname",in="query",description="精彩活动名称",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_tcspwdl",in="query",description="是否签署天朝上品微代理协议",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_brandstrat",in="query",description="铭牌状态",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_pamanager",in="query",description="服务经理",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_memberships",in="query",description="会籍服务人",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_brands",in="query",description="品牌",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_business",in="query",description="经营范围",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_recby",in="query",description="推荐机构",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_zipaddress",in="query",description="杂志寄送地址",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_tablemer",in="query",description="会员信息表",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_bcardid",in="query",description="名片",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_gifthand",in="query",description="伴手礼",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_infop",in="query",description="个人资料提供者",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_starte",in="query",description="状态",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_wechatid",in="query",description="微信号",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_demand",in="query",description="需求",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_stored",in="query",description="总储值",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_opened_people",in="query",description="开卡人",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_major",in="query",description="专业",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_recognize",in="query",description="积分身份识别",required=false,@OA\Schema(type="string",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",

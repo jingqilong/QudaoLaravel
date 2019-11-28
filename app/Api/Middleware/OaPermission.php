@@ -2,9 +2,12 @@
 
 namespace App\Api\Middleware;
 
+use App\Repositories\OaAdminMenuRepository;
 use App\Repositories\OaAdminOperationLogRepository;
 use App\Repositories\OaAdminPermissionsRepository;
+use App\Repositories\OaAdminRoleMenuRepository;
 use App\Repositories\OaAdminRolePermissionsRepository;
+use App\Traits\HelpTrait;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +16,7 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class OaPermission extends BaseMiddleware
 {
+    use HelpTrait;
     /**
      * Handle an incoming request.
      *
@@ -27,14 +31,16 @@ class OaPermission extends BaseMiddleware
         $path       = substr($raw_path,strripos($raw_path,"oa") + 2);
         $auth       = Auth::guard('oa_api');
         $user       = $auth->user();
-        if (!empty($user->permissions)){
-            $permissions_ids = explode(',', $user->permissions);
+        if (in_array($path,['/login','/logout','/refresh','/get_user_info','/menu_list','/get_all_menu_list'])){
+            return $next($request);
+        }
+        if (!empty($user->permission_ids)){
+            $permissions_ids = explode(',', trim($user->permission_ids,','));
         }else{
-            if (empty($user->role_id)){
+            if (empty($user->role_ids)){
                 return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
-//                return ['code' => 405, 'message' => '无权访问！'];
             }
-            $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => $user->role_id],['permission_id']);
+            $roles_info = OaAdminRolePermissionsRepository::getList(['role_id' => ['in',explode(',',trim($user->role_ids,','))]],['permission_id']);
             $permissions_ids = array_column($roles_info,'permission_id');
         }
         if ($permission_list = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]])){
@@ -44,15 +50,23 @@ class OaPermission extends BaseMiddleware
                     return $next($request);
                 }
                 $http_method = explode(',',$value['http_method']);
-                $http_path   = explode(',',$value['http_path']);//dd($http_path);
+                $http_path   = explode(',',$value['http_path']);
                 if (in_array($method, $http_method) && in_array($path, $http_path)){
                     $this->recordLog($request,$user->id);
                     return $next($request);
                 }
             }
         }
+        if (!empty($user->role_ids)){
+            if ($menu_role = OaAdminRoleMenuRepository::getList(['role_id' => ['in',explode(',',trim($user->role_ids,','))]])){
+                $menu_ids  = array_column($menu_role,'menu_id');
+                if (OaAdminMenuRepository::exists(['id' => ['in',$menu_ids],'path' => '/'.$raw_path,'method' => $method])){
+                    $this->recordLog($request,$user->id);
+                    return $next($request);
+                }
+            }
+        }
         return new Response(json_encode(['code' => 405, 'message' => '无权访问']));
-//        return ['code' => 405, 'message' => '无权访问！'];
     }
 
     /**
@@ -69,8 +83,12 @@ class OaPermission extends BaseMiddleware
             'method'    => $request->method(),
             'ip'        => $request->getClientIp(),
             'input'     => json_encode($input),
-            'created_at'=> date('Y-m-d H:m:s')
+            'created_at'=> date('Y-m-d H:m:s',time())
         ];
         OaAdminOperationLogRepository::getAddId($add_log);
+    }
+
+    public function getRolePermission($role_id){
+
     }
 }

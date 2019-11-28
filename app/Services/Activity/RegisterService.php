@@ -4,13 +4,16 @@ namespace App\Services\Activity;
 
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
+use App\Enums\MemberEnum;
+use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
+use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -60,14 +63,14 @@ class RegisterService extends BaseService
         }
         if (ActivityRegisterRepository::exists([
             'activity_id' => $request['activity_id'],
-            'member_id' => $member->m_id,
+            'member_id' => $member->id,
             'status' => ['<',5]])){
             $this->setError('您已经报过名了，请勿重复报名！');
             return false;
         }
         $add_arr = [
             'activity_id'   => $request['activity_id'],
-            'member_id'     => $member->m_id,
+            'member_id'     => $member->id,
             'name'          => $request['name'],
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
@@ -76,14 +79,16 @@ class RegisterService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (ActivityRegisterRepository::getAddId($add_arr)){
-            //TODO 此处可以添加报名后发通知的事务
+        if ($register_id = ActivityRegisterRepository::getAddId($add_arr)){
+            $title   = '活动报名成功';
+            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
             #发送短信
             if (!empty($member->m_phone)){
                 $sms = new SmsService();
-                $content = '您好！欢迎参加活动《'.$activity['name'].'》,我们将在24小时内受理您的报名申请，如有疑问请联系客服：000-00000！';
                 $sms->sendContent($member->m_phone,$content);
             }
+            #发送站内信
+            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
             $this->setMessage('报名成功！');
             return true;
         }
@@ -99,16 +104,40 @@ class RegisterService extends BaseService
      */
     public function getRegisterList($request)
     {
+        $keywords       = $request['keywords'] ?? '';
+        $status         = $request['status'] ?? '';
+        $status_arr     = $request['status_arr'] ?? '';
+        $activity_id    = $request['activity_id'] ?? '';
+        $is_sign        = $request['is_sign'] ?? '';
         $page           = $request['page'] ?? 1;
         $page_num       = $request['page_num'] ?? 20;
-        if (!$list = ActivityRegisterRepository::getList(['id' =>['>',0]],['*'],'id','desc',$page,$page_num)){
+        $where          = ['id' => ['>',0]];
+        if (!empty($status)){
+            $where['status'] = $status;
+        }
+        if (!empty($status_arr)){
+            $where['status'] = ['in',$status_arr];
+        }
+        if (!empty($activity_id)){
+            $where['activity_id'] = $activity_id;
+        }
+        if (!empty($is_sign)){
+            if ($is_sign == 1){
+                $where['is_register'] = ['>',0];
+            }else{
+                $where['is_register'] = 0;
+            }
+        }
+        if (!empty($keywords)){
+            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],$page,$page_num,'id','desc');
+        }else{
+            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc',$page,$page_num);
+        }
+        if (!$list){
             $this->setError('获取失败！');
             return false;
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -116,12 +145,12 @@ class RegisterService extends BaseService
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
         $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
-        $members    = MemberRepository::getList(['m_id' => ['in',$member_ids]],['m_id','m_cname']);
+        $members    = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
-            $member   = $this->searchArray($members,'m_id',$value['member_id']);
+            $member   = $this->searchArray($members,'id',$value['member_id']);
             $value['theme_name']    = reset($activity)['name'];
-            $value['member_name']   = reset($member)['m_cname'];
+            $value['member_name']   = reset($member)['ch_name'];
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterEnum::getStatus($value['status']);
@@ -189,19 +218,37 @@ class RegisterService extends BaseService
             }
         }
         //通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $register['member_id']])){
-            $member_name = !empty($member['m_cname']) ? $member['m_cname'] : (!empty($member['m_ename']) ? $member['m_ename'] : (substr($member['m_phone'],-4)));
-            $member_name = $member_name.$member['m_sex'];
+        if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
+            $member_name = !empty($member['ch_name']) ? $member['ch_name'] : (!empty($member['en_name']) ? $member['en_name'] : (substr($member['mobile'],-4)));
+            $member_name = $member_name.MemberEnum::getSex($member['sex']);
+            $sms_template = [
+                ActivityRegisterEnum::SUBMIT        =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditPassSubmit',
+                        ['member_name' => $member_name,'activity_name' => $activity['name'],'time' => date('Y-m-d H:i',$activity['start_time'])]
+                    ),
+                ActivityRegisterEnum::EVALUATION    =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditPassEvaluation',
+                        ['member_name' => $member_name,'activity_name' => $activity['name'],'time' => date('Y-m-d H:i',$activity['start_time'])]
+                    ),
+                ActivityRegisterEnum::NOPASS        =>
+                    MessageEnum::getTemplate(
+                        MessageEnum::ACTIVITYENROLL,
+                        'auditNoPass',
+                        ['member_name' => $member_name,'activity_name' => $activity['name']]
+                    ),
+            ];
             #短信通知
             if (!empty($member['m_phone'])){
                 $smsService = new SmsService();
-                $sms_template = [
-                    ActivityRegisterEnum::SUBMIT        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).',支付后即可参加活动！',
-                    ActivityRegisterEnum::EVALUATION    => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动已经通过审核，活动开始时间：'.date('Y-m-d H:i',$activity['start_time']).'，记得提前到场哦！',
-                    ActivityRegisterEnum::NOPASS        => '尊敬的'.$member_name.'您好！您报名的 '.$activity['name'].' 活动审核未通过，请不要灰心，您还可以参加我们后续的活动哦！',
-                ];
                 $smsService->sendContent($member['m_phone'],$sms_template[$status]);
             }
+            $title   = '活动报名通知';
+            #发送站内信
+            SendService::sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$sms_template[$status],$register_id);
         }
         $this->setMessage('审核成功！');
         DB::commit();
@@ -215,7 +262,7 @@ class RegisterService extends BaseService
      */
     public function sign($sign_in_code)
     {
-        if (!$register = ActivityRegisterRepository::getOne(['sign_in_code' => $sign_in_code,'status' => ['>',ActivityRegisterEnum::EVALUATION]])){
+        if (!$register = ActivityRegisterRepository::getOne(['sign_in_code' => $sign_in_code,'status' => ['>',ActivityRegisterEnum::SUBMIT]])){
             $this->setError('报名信息不存在！');
             return false;
         }
@@ -224,12 +271,12 @@ class RegisterService extends BaseService
             return false;
         }
         $time = time();
-        if ($activity['start_time'] > ($time + 3600)){
+        if ($activity['start_time'] > ($time + $activity['signin'] * 60)){
             $this->setError('活动还没开始，不能签到！');
             return false;
         }
         if (($activity['end_time'] + 3600) < $time){
-            $this->setError('活动还没开始，不能签到！');
+            $this->setError('活动已经结束，不能签到了！');
             return false;
         }
         if (!ActivityRegisterRepository::getUpdId(['sign_in_code' => $sign_in_code],['is_register' => $time,'updated_at' => $time])){
@@ -263,11 +310,11 @@ class RegisterService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $member_list = MemberRepository::getList(['m_id' => $member_ids],['m_id','m_cname']);
+        $member_list = MemberBaseRepository::getList(['id' => $member_ids],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $value['member_name'] = '';
-            if ($member = $this->searchArray($member_list,'m_id',$value['member_id'])){
-                $value['activity_name'] = reset($member)['m_cname'];
+            if ($member = $this->searchArray($member_list,'id',$value['member_id'])){
+                $value['activity_name'] = reset($member)['ch_name'];
             }
             $value['sign_time'] = date('Y-m-d H:i',$value['is_register']);
             unset($value['is_register']);

@@ -357,11 +357,70 @@ class MemberController extends ApiController
 
         return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_info",
+     *     tags={"会员"},
+     *     summary="成员查看成员信息",
+     *     operationId="get_member_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="用户id",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberInfo()
+    {
+        $rules = [
+            'id'           => 'required|integer',
+        ];
+        $messages = [
+            'id.required'           => '会员id不能为空',
+            'id.integer'            => '查看会员id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $list = $this->memberService->getMemberInfo($this->request);
+
+        return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
+    }
     /**
      * @OA\Get(
      *     path="/api/v1/member/get_member_category_list",
      *     tags={"会员"},
-     *     summary="根据查找分类获取会员列表",
+     *     description="jing" ,
+     *     summary="根据成员分类查找会员列表",
      *     operationId="get_member_category_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -384,7 +443,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="category",
      *         in="query",
-     *         description="成员类别[1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
+     *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -393,10 +452,10 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="asc",
      *         in="query",
-     *         description="排序方式[1 正序 2 倒叙]",
+     *         description="排序方式[1 正序(默认) 2 倒叙]",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -405,7 +464,7 @@ class MemberController extends ApiController
      *         description="页码",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -414,7 +473,7 @@ class MemberController extends ApiController
      *         description="每页显示条数",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -429,14 +488,12 @@ class MemberController extends ApiController
         $rules = [
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'category'      => 'integer',
-            'asc'           => 'integer',
+            'asc'           => 'in:1,2',
         ];
         $messages = [
-            'page.integer'              => '页码不是整数',
-            'page_num.integer'          => '每页显示条数不是整数',
-            'category.integer'          => '成员分类不是整数',
-            'asc.integer'               => '排序方式不是整数',
+            'page.integer'      => '页码不是整数',
+            'page_num.integer'  => '每页显示条数不是整数',
+            'asc.in'            => '排序方式不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -451,7 +508,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_user_info",
      *     tags={"会员"},
-     *     summary="获取用户信息",
+     *     summary="获取成员自己的信息",
      *     operationId="get_user_info",
      *     @OA\Parameter(
      *         name="sign",
@@ -485,9 +542,9 @@ class MemberController extends ApiController
     public function getUserInfo()
     {
         if ($user = $this->memberService->getUserInfo()){
-            return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['user' => $user]];
+            return ['code' => 200, 'message' => '成员信息获取成功！', 'data' => ['user' => $user]];
         }
-        return ['code' => 100, 'message' => '用户信息获取失败！'];
+        return ['code' => 100, 'message' => '成员信息获取失败！'];
     }
 
     /**
@@ -914,9 +971,7 @@ class MemberController extends ApiController
             'm_cname.string'             => '请正确填写姓名',
             'm_cname.required'           => '请填写中文姓名',
             'm_email.email'              => '邮箱格式不正确',
-            'mbirthday.required'        => '邮箱格式不正确',
-            //'m_numcard.required'         => '请填写您的身份证号码',
-            //'m_numcard.regex'            => '您输入的身份证号码不是有效格式',
+            'm_birthday.required'        => '生日未填写',
             'm_address.required'         => '请填写您的地址',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -928,5 +983,112 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->memberService->error];
         }
         return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['memberId' => $member]];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/edit_member_info",
+     *     tags={"会员"},
+     *     summary="成员编辑个人信息",
+     *     operationId="edit_member_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(name="token",in="query",description="用户 token",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_birthday",in="query",description="生日【格式 2019-11-18】",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_workunits",in="query",description="单位",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="m_address",in="query",description="地址",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_zipaddress",in="query",description="杂志寄送地址",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_socialposition",in="query",description="社会职务[泰基企业 董事长,老凤祥 董事长]",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMemberInfo()
+    {
+        $rules = [
+            'm_phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
+            'm_sex'                      => 'required|in:1,2',
+            'm_email'                    => 'required|email',
+            'm_birthday'                 => 'required',
+            'm_address'                  => 'required',
+        ];
+        $messages = [
+            'm_phone.required'           => '请填写手机号码',
+            'm_birthday.required'        => '请填写生日',
+            'm_phone.regex'              => '手机号码不正确',
+            'm_sex.required'             => '请填写性别',
+            'm_sex.integer'              => '请正确填写性别',
+            'm_email.email'              => '邮箱格式不正确',
+            'm_email.required'           => '邮箱格式不正确',
+            'm_address.required'         => '请填写您的地址',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $member = $this->memberService->editMemberInfo($this->request);
+        if (!$member){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_user_count",
+     *     tags={"会员"},
+     *     summary="获取成员人数",
+     *     operationId="get_user_count",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getUserCount()
+    {
+        $member = $this->memberService->getUserCount();
+        $all_member = $member[0]['value'];
+        unset($member[0]);
+        if (!$member){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'all_member' => $all_member, 'message' => $this->memberService->message,'data' => $member];
     }
 }

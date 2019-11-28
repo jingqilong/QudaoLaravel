@@ -27,7 +27,7 @@ class MemberOrdersModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','order_no','trade_id','user_id','order_type','amount','payment_amount','status','create_at','updated_at'];
+    protected $fillable = ['id','order_no','trade_id','user_id','order_type','amount','payment_amount','score_deduction','score_type','status','create_at','updated_at'];
 
 
 

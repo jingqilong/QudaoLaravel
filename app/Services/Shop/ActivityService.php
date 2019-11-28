@@ -4,9 +4,11 @@ namespace App\Services\Shop;
 
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopActivityRepository;
+use App\Repositories\ShopActivityViewRepository;
 use App\Repositories\ShopGoodsCommonRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 
 class ActivityService extends BaseService
@@ -33,39 +35,13 @@ class ActivityService extends BaseService
      * @return array|mixed
      */
     public static function getHomeRecommendGoods(){
-        if (!$activity_goods = ShopActivityRepository::getList(['type' => 2,'status' => 2,])){
+        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['goods_id','name','price','banner_ids'])){
 //            self::setMessage('没有活动商品！');
             return [];
         }
-        $goods_ids = array_column($activity_goods,'goods_id');
-        if (!$goods_list = ShopGoodsRepository::getList(['goods_id' => ['in',$goods_ids]],['goods_common_id','goods_price'])){
-//            self::setMessage('活动商品不存在！');
-            return [];
-        }
-        $goods_common_ids = array_column($goods_list,'goods_common_id');
-        $goods_common_column = ['goods_common_id','goods_name','main_img_id'];
-        if (!$goods_common_list = ShopGoodsCommonRepository::getList(['goods_common_id' => ['in',$goods_common_ids]],$goods_common_column)){
-//            self::setMessage('活动商品信息不存在！');
-            return [];
-        }
-        $img_ids = array_column($goods_common_list,'main_img_id');
-        $image_list = CommonImagesRepository::getList(['id' => ['in',$img_ids]]);
-        foreach ($goods_common_list as &$value){
-            $value['image'] = '';
-            if ($image = self::searchArrays($image_list,'id',$value['main_img_id'])){
-                $value['image'] = reset($image)['img_url'];
-            }
-        }
-        foreach ($goods_list as &$value){
-            $value['goods_name'] = '';
-            $value['goods_image'] = '';
-            if ($image = self::searchArrays($goods_common_list,'goods_common_id',$value['goods_common_id'])){
-                $value['goods_name'] = reset($image)['goods_name'];
-                $value['goods_image'] = reset($image)['image'];
-            }
-        }
+        $activity_goods = ImagesService::getListImages($activity_goods,['banner_ids' => 'single']);
 //        self::setMessage('获取成功！');
-        return $goods_list;
+        return $activity_goods;
     }
 
     /**
@@ -75,7 +51,7 @@ class ActivityService extends BaseService
      */
     public function addActivityGoods($request)
     {
-        if (!ShopGoodsRepository::exists(['goods_id' => $request['goods_id']])){
+        if (!ShopGoodsRepository::exists(['id' => $request['goods_id']])){
             $this->setError('该商品不存在！');
             return false;
         }
@@ -135,44 +111,34 @@ class ActivityService extends BaseService
         $type           = $request['type'] ?? null;
         $keywords       = $request['keywords'] ?? null;
         $where          = ['id' => ['>',0]];
+        $order          = 'created_at';
+        $desc_asc       = 'desc';
         if (!empty($type)){
             $where['type'] = $type;
         }
+        $column = ['id','name','price','type','show_image','stop_time','status','created_at','updated_at'];
         if (!empty($keywords)){
-            if ($goods_list = ShopGoodsRepository::search([$keywords => ['goods_name']])){
-                $goods_ids = array_column($goods_list,'goods_id');
-                $where['goods_id'] = ['in',$goods_ids];
+            if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = ShopActivityViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
             }
         }
-        if (!$list = ShopActivityRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
-        }
+
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $activity_goods_ids = array_column($list['data'],'goods_id');
-        $activity_goods_list = ShopGoodsRepository::getList(['goods_id' => ['in',$activity_goods_ids]],['goods_id','goods_name','goods_price','goods_storage']);
-        $show_image_ids = array_column($list['data'],'show_image');
-        $show_image_list = CommonImagesRepository::getList(['id' => ['in',$show_image_ids]]);
+        $list['data'] = ImagesService::getListImages($list['data'],['show_image' => 'single']);
         foreach ($list['data'] as &$value){
-            $value['goods_name']    = '未知';
-            $value['goods_price']   = 0;
-            $value['goods_storage'] = 0;
-            $value['show_image_url'] = '';
-            if ($goods = $this->searchArray($activity_goods_list,'goods_id',$value['goods_id'])){
-                $value['goods_name']    = reset($goods)['goods_name'];
-                $value['goods_price']   = reset($goods)['goods_price'];
-                $value['goods_storage'] = reset($goods)['goods_storage'];
-            }
-            if ($show_image = $this->searchArray($show_image_list,'id',$value['show_image'])){
-                $value['show_image_url']    = reset($show_image)['img_url'];
-            }
-            $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']):0;
-            $value['created_at']      = date('Y-m-d H:m:i',$value['created_at']);
-            $value['updated_at']      = date('Y-m-d H:m:i',$value['updated_at']);
+            $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']) : 0;
+            $value['status_name']     = $value['status'] == 1 ? '禁用' : '展示';
+            $value['type_name']       = $value['type'] == 1 ? '积分兑换' : '好物推荐';
         }
         $this->setMessage('获取成功！');
         return $list;
