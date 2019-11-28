@@ -106,21 +106,19 @@ class AddressService extends BaseService
             'address'        => $request['address'],
             'default'        => $default,
         ];
-        if (MemberAddressRepository::exists($upd_arr)){
+        /*if (MemberAddressRepository::exists($upd_arr)){
             $this->setError('地址已经存在!');
             return false;
-        }
+        }*/
         DB::beginTransaction();
         if ($default == 1){
-            if (MemberAddressRepository::getOne($upd_arr)) {
-                if (!MemberAddressRepository::getUpdId(['default' => 1, 'member_id' => $member_id, 'deleted_at' => 0], ['default' => 0])) {
-                    DB::rollBack();
-                    $this->setError('修改失败!');
-                    return false;
-                }
+            if (MemberAddressRepository::getUpdId(['default' => 1, 'member_id' => $member_id],['default' => 0])) {
+                DB::rollBack();
+                $this->setError('修改失败!');
+                return false;
             }
         }
-        $add_arr['updated_at']      =  time();
+        $upd_arr['updated_at']      =  time();
         if (!MemberAddressRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             DB::rollBack();
             $this->setError('修改失败!');
@@ -172,7 +170,7 @@ class AddressService extends BaseService
     {
         $page         = $request['page'] ?? 1;
         $page_num     = $request['page_num'] ?? 20;
-        $column       = ['name','mobile','area_code','address','default','created_at','updated_at'];
+        $column       = ['id','name','mobile','area_code','address','default','created_at','updated_at'];
         $where        = ['deleted_at' => 0];
         $keywords     = $request['keywords'] ?? null;
         $asc          = isset($request['asc']) ? ($request['asc'] == 1 ? 'asc' : 'desc' ) : 'asc';
