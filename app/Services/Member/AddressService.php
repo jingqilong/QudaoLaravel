@@ -207,7 +207,7 @@ class AddressService extends BaseService
      * @return array|null
      */
     protected function getDefaultAddress($member_id){
-        $where  = ['member_id' => $member_id];
+        $where  = ['member_id' => $member_id,'deleted_at' => 0];
         $column = ['id','name','mobile','area_code','address'];
         if (!$address = MemberAddressRepository::getOne(array_merge($where,['default' => 1]),$column)){
             if (!$address = MemberAddressRepository::getOne($where,$column)){
