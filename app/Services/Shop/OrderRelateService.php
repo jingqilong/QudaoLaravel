@@ -359,7 +359,7 @@ class OrderRelateService extends BaseService
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
-        $where      = ['id' => ['<>',0],'member_id' => $member->id];
+        $where      = ['id' => ['<>',0],'member_id' => $member->id,'deleted_at' => 0];
         if (!is_null($status)){
             $where['status']    = $status;
         }
