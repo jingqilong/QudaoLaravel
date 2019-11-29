@@ -375,5 +375,13 @@ class RecordService extends BaseService
         $this->setMessage('获取成功！');
         return $result;
     }
+
+    public function getScoreStatisticsRecord($day){
+        if (!$list = ScoreRecordRepository::getAll()){
+            $this->setMessage('暂无数据');
+            return [];
+        }
+
+    }
 }
             

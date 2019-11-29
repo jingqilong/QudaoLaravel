@@ -48,6 +48,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('reserve:loan')
             ->dailyAt('20:00');//每天20点运行
 
+        //医疗预约即将到时提醒
+        $schedule->command('reserve:medical')
+            ->dailyAt('20:00');//每天20点运行
+
         //精选生活预约即将到时提醒
         $schedule->command('reserve:prime')
             ->dailyAt('20:00');//每天20点运行

@@ -60,6 +60,7 @@ $api->version('v1',function ($api){
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
                 #OA首页
                 $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
+                $api->get('get_reservation_number','HomeController@getReservationNumber')->name('获取预约数量');
                 #OA部门
                 $api->get('get_depart','DepartController@getDepart')->name("获取部门");
                 $api->post('add_depart','DepartController@addDepart')->name("添加部门");

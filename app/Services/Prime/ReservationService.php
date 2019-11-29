@@ -376,5 +376,22 @@ class ReservationService extends BaseService
         $this->setMessage('取消成功！');
         return true;
     }
+
+    /**
+     * 获取预约统计数据（OA后台首页展示）
+     * @return array
+     */
+    public static function getStatistics(){
+        $total_count    = PrimeReservationRepository::count(['id' => ['<>',0]]) ?? 0;
+        $audit_count    = PrimeReservationRepository::count(['state' => ['in',[PrimeTypeEnum::RESERVATIONOK,PrimeTypeEnum::RESERVATIONNO]]]) ?? 0;
+        $no_audit_count = PrimeReservationRepository::count(['state' => PrimeTypeEnum::RESERVATION]) ?? 0;
+        $cancel_count   = PrimeReservationRepository::count(['state' => PrimeTypeEnum::RESERVATIONCANCEL]) ?? 0;
+        return [
+            'total'     => $total_count,
+            'audit'     => $audit_count,
+            'no_audit'  => $no_audit_count,
+            'cancel'    => $cancel_count
+        ];
+    }
 }
             

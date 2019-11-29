@@ -12,7 +12,7 @@ class Time
      * @return array
      */
     public static function getStartStopTime($time_str = 'today'){
-        $res = ['start' => '','end' => ''];
+        $res = ['start' => 0,'end' => 0];
         switch ($time_str){
             case 'today':
                 $res['start']   = mktime(0,0,0,date('m'),date('d'),date('Y'));
