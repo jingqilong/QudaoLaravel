@@ -24,7 +24,7 @@ class BlessingFestival extends Command
      *
      * @var string
      */
-    protected $description = '会员节日祝福';
+    protected $description = '节日祝福';
 
     /**
      * Create a new command instance.
@@ -76,13 +76,15 @@ class BlessingFestival extends Command
         foreach ($member_list as $value){
             $member_name = !empty($value['ch_name']) ? $value['ch_name'] : (!empty($value['en_name']) ? $value['en_name'] : '会员');
             $member_name = $member_name.MemberEnum::getSex($value['sex']);
-            $content    = '尊敬的'.$member_name.'，在您的生日到来之时，愿我们的祝福为您的生日添彩，祝您生日快乐，年年今日，岁岁今朝！';
-            $title      = '生日祝福';
-            //短信通知
-            if (isset($value['mobile']))
-                $SmsService->sendContent($value['mobile'],$content);
-            //站内信通知
-            $MessageService->sendMessage($value['id'],MessageEnum::SYSTEMNOTICE,$title,$content);
+            foreach ($lunar_time as $item){
+                $content    = '尊敬的'.$member_name.'，今天是'.$item.'，祝您节日快乐！';
+                $title      = '节日祝福';
+                //短信通知
+                if (isset($value['mobile']))
+                    $SmsService->sendContent($value['mobile'],$content);
+                //站内信通知
+                $MessageService->sendMessage($value['id'],MessageEnum::SYSTEMNOTICE,$title,$content);
+            }
             print '通知完成  ';
         }
         print '结束  ';

@@ -198,6 +198,7 @@ class GoodsSpecRelateService extends BaseService
             $this->setMessage('暂无规格！');
             return [];
         }
+        #获取数据列表中所有的规格id，用于一次性查询
         $spec_ids = array_column($spec_related,'spec_ids');
         $spec_str = '';
         foreach ($spec_ids as $id){
@@ -211,27 +212,40 @@ class GoodsSpecRelateService extends BaseService
         foreach ($spec_list as $item){
             if ($spec = $this->searchArray($spec_list,'spec_name',$item['spec_name'])){
                 foreach ($spec as &$value){
+                    //规格对应显示，用于前端方便展示
+                    $value['show'] = [];
+                    if ($like_spec = $this->likeSearchArray($spec_related,'spec_ids',','.$value['id'].',')){
+                        foreach ($like_spec as $v){
+                            if (!empty($v['stock'])){
+                                $value['show'] = array_merge($value['show'],explode(',',trim($v['spec_ids'],',')));
+                            }
+                        }
+                        $value['show'] = array_values(array_diff($value['show'],[$value['id']]));
+                    }
                     unset($value['image_id'],$value['spec_name']);
                 }
                 $res['spec_arr'][$item['spec_name']] = $spec;
             }
         }
-        $res['spec_relate'] = $spec_related;
-        foreach ($res['spec_relate'] as &$value){
-            $value['price'] = sprintf('%.2f',round($value['price'] / 100,2));
-            $value['img_url'] = '';
+        $spec_arr = [];
+        foreach ($spec_related as &$value){
+            $key = trim($value['spec_ids'],',');
+            $spec_arr[$key]['id']       = $value['id'];
+            $spec_arr[$key]['stock']       = $value['stock'];
+            $spec_arr[$key]['price'] = sprintf('%.2f',round($value['price'] / 100,2));
+            $spec_arr[$key]['img_url'] = '';
             $value_spec_ids = explode(',',$value['spec_ids']);
             foreach ($value_spec_ids as $value_spec_id){
                 if ($value_spec = $this->searchArray($spec_list,'id',$value_spec_id)){
                     foreach ($value_spec as $v){
                         if (isset($v['image_url']) && !empty($v['image_url'])){
-                            $value['img_url'] = $v['image_url'];break;
+                            $spec_arr[$key]['img_url'] = $v['image_url'];break;
                         }
                     }
                 }
             }
-            $value['spec_ids'] = trim($value['spec_ids'],',');
         }
+        $res['spec_relate'] = $spec_arr;
         $this->setMessage('获取成功！');
         return $res;
     }
