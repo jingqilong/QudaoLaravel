@@ -61,6 +61,8 @@ $api->version('v1',function ($api){
                 #OA首页
                 $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
                 $api->get('get_reservation_number','HomeController@getReservationNumber')->name('获取预约数量');
+                $api->get('get_score_statistics_record','HomeController@getScoreStatisticsRecord')->name('获取积分消费数据');
+                $api->get('get_revenue_record','HomeController@getRevenueRecord')->name('获取收益数据');
                 #OA部门
                 $api->get('get_depart','DepartController@getDepart')->name("获取部门");
                 $api->post('add_depart','DepartController@addDepart')->name("添加部门");
