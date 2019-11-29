@@ -31,7 +31,7 @@ class ProjectService extends BaseService
         $user = $this->auth->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $where = ['user_id' => $user->m_id,'deleted_at' => 0];
+        $where = ['user_id' => $user->id,'deleted_at' => 0];
         if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -58,7 +58,7 @@ class ProjectService extends BaseService
     public function getProjectInfo(string $id)
     {
         $user = $this->auth->user();
-        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'user_id' => $user->m_id],['id','name','mobile','reservation_at','project_name','remark','status'])){
+        if (!$list = ProjectOrderRepository::getOne(['id' => $id,'user_id' => $user->id],['id','name','mobile','reservation_at','project_name','remark','status'])){
             $this->setError('暂无数据!');
             return false;
         }
@@ -77,7 +77,7 @@ class ProjectService extends BaseService
     public function addProject(array $data)
     {
         $user = $this->auth->user();
-        $member_id = $user->m_id;
+        $member_id = $user->id;
         $add_arr = [
             'user_id'           => $member_id,
             'name'              => $data['name'],

@@ -142,7 +142,7 @@ class PersonalService extends BaseService
               $this->setError('该推荐类型不存在');
         }
         $add_arr  = [
-            'user_id'         =>  $memberInfo->m_id,
+            'user_id'         =>  $memberInfo->id,
             'name'            =>  $data['name'],
             'mobile'          =>  $data['mobile'],
             'price'           =>  $data['price'],

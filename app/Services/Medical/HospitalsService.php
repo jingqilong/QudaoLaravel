@@ -2,6 +2,7 @@
 namespace App\Services\Medical;
 
 
+use App\Enums\DoctorEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MedicalDepartmentsRepository;
@@ -31,12 +32,15 @@ class HospitalsService extends BaseService
             $this->setError('医院名称已被使用！');
             return false;
         }
+        if (!DoctorEnum::getCategory($request['category'])){
+            $this->setError('医院类别不存在!');
+            return false;
+        }
         $add_arr = [
             'name'             => $request['name'],
-            'domain'           => $request['domain'],
+            'category'         => $request['category'],
             'img_ids'          => $request['img_ids'],
             'department_ids'   => $request['department_ids'],
-            'awards'           => $request['awards'],
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
             'address'          => $request['address'],
@@ -88,10 +92,9 @@ class HospitalsService extends BaseService
         }
         $upd_arr = [
             'name'             => $request['name'],
-            'domain'           => $request['domain'],
+            'category'         => $request['category'],
             'img_ids'          => $request['img_ids'],
             'department_ids'   => $request['department_ids'],
-            'awards'           => $request['awards'],
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
             'address'          => $request['address'],

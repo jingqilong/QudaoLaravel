@@ -82,7 +82,7 @@ class CollectService extends BaseService
         $add_arr = [
             'type'          => $type,
             'target_id'     => $target_id,
-            'member_id'     => $member->m_id,
+            'member_id'     => $member->id,
         ];
         if ($id = MemberCollectRepository::getField(array_merge($add_arr,['deleted_at' => 0]),'id')){
             $add_arr['deleted_at'] = time();
@@ -125,7 +125,7 @@ class CollectService extends BaseService
         $member     = $this->auth->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 999;
-        $where = ['type' => $request['type'],'member_id' => $member->m_id,'deleted_at' => 0];
+        $where = ['type' => $request['type'],'member_id' => $member->id,'deleted_at' => 0];
         if (!$collect_list = MemberCollectRepository::getList($where,['*'],'id','desc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
@@ -183,14 +183,21 @@ class CollectService extends BaseService
             return false;
         }
         $goods_list = $this->removePagingField($goods_list);
+        dd($goods_list);
         foreach ($goods_list['data'] as $key => &$value){
             $value['goods_id'] = $value['id'];
             $value['number']   = 1;
         }
         $GoodsSpecRelateService = new GoodsSpecRelateService();
+        $result = [];
         switch ($request['type']){
             case CommentsEnum::SHOP:
                 $common_list['data'] = $GoodsSpecRelateService->getListCommonInfo($goods_list['data']);
+                foreach ($common_list['data'] as $k => $v){
+                    $result[$k] = [
+                        'id' => $v['id'],
+                    ];
+                }
                 break;
             default:
                 $this->setError('暂无此收藏类别！');

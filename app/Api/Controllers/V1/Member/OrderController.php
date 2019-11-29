@@ -99,7 +99,7 @@ class OrderController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $member = Auth::guard('member_api')->user();
-        $res = $this->ordersService->placeOrder($member->m_id,$this->request['amount'],$this->request['order_type']);
+        $res = $this->ordersService->placeOrder($member->id,$this->request['amount'],$this->request['order_type']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->ordersService->error];
         }

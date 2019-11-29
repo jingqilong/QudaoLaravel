@@ -27,7 +27,7 @@ class MediclaHospitalsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','img_ids','introduction','address','area_code','domain','department_ids','awards','recommend','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','name','img_ids','introduction','address','area_code','category','department_ids','recommend','created_at','updated_at','deleted_at'];
 
 
 

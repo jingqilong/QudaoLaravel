@@ -36,12 +36,18 @@ $api->version('v1',function ($api){
             $api->get('create_model','TestApiController@createModel')->name('批量创建模型');
             $api->get('create_repository','TestApiController@createRepository')->name('批量创建Repository');
             $api->get('create_service','TestApiController@createService')->name('批量创建Service');
+            $api->get('create_order','TestApiController@createOrder')->name('createOrder');
+            $api->get('query_trans_date','TestApiController@queryTransDate')->name('queryTransDate');
+            $api->get('query_clear_date','TestApiController@queryClearDate')->name('queryClearDate');
+            $api->get('query_by_system_code','TestApiController@queryBySystemCode')->name('queryBySystemCode');
+            $api->get('refund','TestApiController@refund')->name('refund');
         });
         $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->any('we_chat_pay_call_back', 'WeChatPayController@weChatPayCallBack')->name('微信小程序微信支付回调接口');
+            $api->any('ums_pay_call_back', 'UmsPayController@UmsPayCallBack')->name('银联支付回调接口');
         });
     });
     //需要验签的接口

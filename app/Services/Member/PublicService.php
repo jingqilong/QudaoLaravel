@@ -52,19 +52,19 @@ class PublicService extends BaseService
 //        }
 //        if (empty($user->m_referral_code)){
 //            $referral_code = OaMemberRepository::getReferralCode();
-//            if (!OaMemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_code' => $referral_code])){
+//            if (!OaMemberRepository::getUpdId(['m_id' => $user->id],['m_referral_code' => $referral_code])){
 //                $this->setError('图片获取失败！');
 //                return false;
 //            }
 //        }
-//        $image_name = 'qr_code'.$user->m_id;//dd(unlink($image_name));
+//        $image_name = 'qr_code'.$user->id;//dd(unlink($image_name));
 //        $img_path = $this->buildQrCode('http://qudaoplus.cc/?referral_code='.$referral_code, $image_name);
 //        $qiniuService = new QiNiuService();
-//        if (!$res = $qiniuService->uploadImages('Member',$image_name.$user->m_id,$img_path)){
+//        if (!$res = $qiniuService->uploadImages('Member',$image_name.$user->id,$img_path)){
 //            $this->setError('图片获取失败！');
 //            return false;
 //        }
-//        OaMemberRepository::getUpdId(['m_id' => $user->m_id],['m_referral_qrcode' => $res['url']]);
+//        OaMemberRepository::getUpdId(['m_id' => $user->id],['m_referral_qrcode' => $res['url']]);
 //        unlink($img_path);
 //        $this->setMessage('图片获取成功！');
 //        return ['url' => $res['url']];

@@ -35,7 +35,7 @@ class CollectService extends BaseService
         $member = $this->auth->user();
         $add_arr = [
             'activity_id' => $activity_id,
-            'member_id'   => $member->m_id,
+            'member_id'   => $member->id,
         ];
         if ($id = ActivityCollectRepository::getField(array_merge($add_arr,['deleted_at' => 0]),'id')){
             $add_arr['deleted_at'] = time();
@@ -75,7 +75,7 @@ class CollectService extends BaseService
         $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'];
         $member     = $this->auth->user();
-        $where      = ['member_id' => $member->m_id,'deleted_at' => 0];
+        $where      = ['member_id' => $member->id,'deleted_at' => 0];
         $activity_where = ['created_at' => ['<>',0]];
         $time = time();
         switch ($type){
