@@ -4,12 +4,15 @@ namespace App\Services\Member;
 
 use App\Enums\OrderEnum;
 use App\Enums\TradeEnum;
+use App\Library\Time\Time;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 
 class TradesService extends BaseService
 {
+    use HelpTrait;
     /**
      * 添加交易记录并更新订单
      * @param int $order_id         订单id
@@ -43,6 +46,64 @@ class TradesService extends BaseService
         }
         $this->setMessage('添加成功！');
         return true;
+    }
+
+    /**
+     * 获取收益曲线（OA后台首页使用）
+     * @param $day
+     * @return array|bool
+     */
+    public function getRevenueRecord($day)
+    {
+        if ($day < 1){
+            $this->setError('查看天数不能低于1天');
+            return false;
+        }
+        $trade_method   = [TradeEnum::WECHANT,TradeEnum::UNION];
+        $res            = [];
+        $today          = Time::getStartStopTime('today');
+        $where          = [
+            'status'        => TradeEnum::STATUSSUCCESS,
+            'fund_flow'     => '+',
+            'trade_method'  => ['<>',TradeEnum::SCORE],
+            'create_at'     => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
+        ];
+        $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
+        #总收入
+        for ($i = $day;$i >= 0;$i--){
+            $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+            $res['总收入']['day'][]     = $date_time;
+            $start_time                 = $today['start'] - ($i * 86400);
+            $end_time                   = $today['end'] - ($i * 86400);
+            if ($records = $this->searchRangeArray($list,'create_at',[$start_time, $end_time])){
+                $amount  = $this->arrayFieldSum($records,'amount');
+                $res['总收入']['amount'][]    = round($amount/100,2);
+            }else{
+                $res['总收入']['amount'][]    = 0;
+            }
+        }
+        #各支付方式收入
+        foreach ($trade_method as $method){
+            $method_name  = TradeEnum::getTradeMethod($method);
+            for ($i = $day;$i >= 0;$i--){
+                $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+                $res[$method_name]['day'][] = $date_time;
+                if ($trade_record = $this->searchArray($list,'trade_method',$method)){
+                    $start_time   = $today['start'] - ($i * 86400);
+                    $end_time     = $today['end'] - ($i * 86400);
+                    if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
+                        $amount   = $this->arrayFieldSum($records,'amount');
+                        $res[$method_name]['amount'][]    = round($amount/100,2);
+                    }else{
+                        $res[$method_name]['amount'][]    = 0;
+                    }
+                }else{
+                    $res[$method_name]['amount'][]    = 0;
+                }
+            }
+        }
+        $this->setMessage('获取成功！');
+        return $res;
     }
 }
             

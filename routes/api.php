@@ -62,6 +62,8 @@ $api->version('v1',function ($api){
                 #OA首页
                 $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
                 $api->get('get_reservation_number','HomeController@getReservationNumber')->name('获取预约数量');
+                $api->get('get_score_statistics_record','HomeController@getScoreStatisticsRecord')->name('获取积分消费数据');
+                $api->get('get_revenue_record','HomeController@getRevenueRecord')->name('获取收益数据');
                 #OA部门
                 $api->get('get_depart','DepartController@getDepart')->name("获取部门");
                 $api->post('add_depart','DepartController@addDepart')->name("添加部门");
@@ -548,9 +550,9 @@ $api->version('v1',function ($api){
                 $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
-                $api->post('order_detail','OrderController@orderDetail')->name('获取订单详情');
-                $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
+                $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
+                $api->delete('delete_order','OrderController@deleteOrder')->name('删除订单');
                 $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情');
 
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');

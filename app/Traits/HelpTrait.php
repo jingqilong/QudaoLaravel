@@ -60,6 +60,30 @@ trait HelpTrait
     }
 
     /**
+     * 数组中查询指定范围的数据
+     * @param $array
+     * @param $filed
+     * @param $range
+     * @return array|bool
+     */
+    function searchRangeArray(array $array,string $filed,array $range){
+        if (!in_array($filed,array_keys(reset($array)))){
+            return false;
+        }
+        $res = [];
+        foreach ($array as $k => $v){
+            if (!is_array($v)){
+                continue;
+            }
+            if ($v[$filed] > reset($range) && $v[$filed] < end($range)){
+                $res[] = $v;
+            }
+
+        }
+        return $res;
+    }
+
+    /**
      * 数组中模糊查询指定键值的数据
      * @param $array
      * @param $filed

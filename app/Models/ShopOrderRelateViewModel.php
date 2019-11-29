@@ -50,6 +50,7 @@ class ShopOrderRelateViewModel extends Model
         'receive_mobile',
         'receive_area_code',
         'receive_address',
+        'income_score',
         'member_name',
         'member_mobile',
         'shipment_at',

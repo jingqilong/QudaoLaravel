@@ -5,6 +5,7 @@ namespace App\Services\Score;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ScoreEnum;
+use App\Library\Time\Time;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\ScoreCategoryRepository;
 use App\Repositories\ScoreRecordRepository;
@@ -376,12 +377,60 @@ class RecordService extends BaseService
         return $result;
     }
 
-    public function getScoreStatisticsRecord($day){
-        if (!$list = ScoreRecordRepository::getAll()){
-            $this->setMessage('暂无数据');
-            return [];
+    /**
+     * 获取积分消费曲线（OA后台首页使用）
+     * @param int $day
+     * @return array|bool
+     */
+    public function getScoreStatisticsRecord(int $day){
+        if ($day < 1){
+            $this->setError('查看天数不能低于1天');
+            return false;
         }
-
+        if (!$score_types = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN])){
+            $this->setError('没有积分类别可查看');
+            return false;
+        }
+        $res   = [];
+        $today = Time::getStartStopTime('today');
+        $where = [
+            'action'        => ScoreEnum::EXPENSE,
+            'score_type'    => ['in',array_column($score_types,'id')],
+            'created_at'    => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
+        ];
+        $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
+        #总积分消费记录
+        for ($i = $day;$i >= 0;$i--){
+            $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
+            $res['总消费']['day'][] = $date_time;
+            $start_time             = $today['start'] - ($i * 86400);
+            $end_time               = $today['end'] - ($i * 86400);
+            if ($records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
+                $res['总消费']['count'][]    = $this->arrayFieldSum($records,'action_score');
+            }else{
+                $res['总消费']['count'][]    = 0;
+            }
+        }
+        foreach ($score_types as $type){
+            $type_name  = ScoreCategoryRepository::getField(['id' => $type],'name');
+            for ($i = $day;$i >= 0;$i--){
+                $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+                $res[$type_name]['day'][]   = $date_time;
+                if ($type_record = $this->searchArray($list,'score_type',$type['id'])){
+                    $start_time  = $today['start'] - ($i * 86400);
+                    $end_time    = $today['end'] - ($i * 86400);
+                    if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
+                        $res[$type_name]['count'][]    = $this->arrayFieldSum($records,'action_score');
+                    }else{
+                        $res[$type_name]['count'][]    = 0;
+                    }
+                }else{
+                    $res[$type_name]['count'][]    = 0;
+                }
+            }
+        }
+        $this->setMessage('获取成功！');
+        return $res;
     }
 }
             

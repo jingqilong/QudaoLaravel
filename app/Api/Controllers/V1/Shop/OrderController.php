@@ -458,6 +458,66 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/shop/delete_order",
+     *     tags={"商城"},
+     *     summary="删除订单",
+     *     description="sang" ,
+     *     operationId="delete_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function deleteOrder(){
+        $rules = [
+            'order_relate_id'       => 'required|integer'
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $member = Auth::guard('member_api')->user();
+        $res = $this->orderRelateService->deleteOrder($this->request['order_relate_id'],$member->id);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
 
     /**
      * @OA\Post(
