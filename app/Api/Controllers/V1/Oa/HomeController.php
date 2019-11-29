@@ -6,19 +6,23 @@ namespace App\Api\Controllers\V1\Oa;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Common\PvService;
+use App\Services\Common\ReservationService;
 
 class HomeController extends ApiController
 {
     public $pvService;
+    public $reservationService;
 
     /**
      * HomeController constructor.
-     * @param $pvService
+     * @param PvService $pvService
+     * @param ReservationService $reservationService
      */
-    public function __construct(PvService $pvService)
+    public function __construct(PvService $pvService,ReservationService $reservationService)
     {
         parent::__construct();
-        $this->pvService = $pvService;
+        $this->pvService            = $pvService;
+        $this->reservationService   = $reservationService;
     }
 
     /**
@@ -80,5 +84,46 @@ class HomeController extends ApiController
             return ['code' => 100,'message' => $this->pvService->error];
         }
         return ['code' => 200,'message' => $this->pvService->message,'date' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_reservation_number",
+     *     tags={"OA"},
+     *     summary="获取预约数量",
+     *     description="sang" ,
+     *     operationId="get_reservation_number",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="100",
+     *         description="获取失败",
+     *         @OA\JsonContent(ref=""),
+     *     )
+     * )
+     *
+     */
+    public function getReservationNumber(){
+        $res = $this->reservationService->getReservationNumber();
+        if ($res === false){
+            return ['code' => 100,'message' => $this->reservationService->error];
+        }
+        return ['code' => 200,'message' => $this->reservationService->message,'date' => $res];
     }
 }

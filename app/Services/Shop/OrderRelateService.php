@@ -382,7 +382,7 @@ class OrderRelateService extends BaseService
                     }
                 }
             }
-            $value['status'] = ShopOrderEnum::getStatus($value['status']);
+            $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
         }
         $this->setMessage('获取成功！');
         return $order_list;

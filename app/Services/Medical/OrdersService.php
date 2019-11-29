@@ -386,5 +386,21 @@ class OrdersService extends BaseService
         return true;
     }
 
+    /**
+     * 获取预约统计数据（OA后台首页展示）
+     * @return array
+     */
+    public static function getStatistics(){
+        $total_count    = MedicalOrdersRepository::count(['deleted_at' => 0]) ?? 0;
+        $audit_count    = MedicalOrdersRepository::count(['deleted_at' => 0,'status' => ['in',[DoctorEnum::PASS,DoctorEnum::NOPASS]]]) ?? 0;
+        $no_audit_count = MedicalOrdersRepository::count(['deleted_at' => 0,'status' => DoctorEnum::SUBMIT]) ?? 0;
+        $cancel_count   = 0;
+        return [
+            'total'     => $total_count,
+            'audit'     => $audit_count,
+            'no_audit'  => $no_audit_count,
+            'cancel'    => $cancel_count
+        ];
+    }
 }
             

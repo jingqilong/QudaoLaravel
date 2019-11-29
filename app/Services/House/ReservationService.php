@@ -188,5 +188,23 @@ class ReservationService extends BaseService
         $this->setMessage('获取成功！');
         return $house_list;
     }
+
+
+    /**
+     * 获取预约统计数据（OA后台首页展示）
+     * @return array
+     */
+    public static function getStatistics(){
+        $total_count    = HouseReservationRepository::count(['id' => ['<>',0]]) ?? 0;
+        $audit_count    = HouseReservationRepository::count(['state' => ['in',[HouseEnum::PASS,HouseEnum::NOPASS]]]) ?? 0;
+        $no_audit_count = HouseReservationRepository::count(['state' => HouseEnum::PENDING]) ?? 0;
+        $cancel_count   = 0;
+        return [
+            'total'     => $total_count,
+            'audit'     => $audit_count,
+            'no_audit'  => $no_audit_count,
+            'cancel'    => $cancel_count
+        ];
+    }
 }
             
