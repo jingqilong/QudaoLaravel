@@ -516,7 +516,7 @@ class OrderController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
-        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
     }
 
     /**
