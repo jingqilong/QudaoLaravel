@@ -401,10 +401,10 @@ class RecordService extends BaseService
         $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
-            $date_time                      = date('Y-m-d',strtotime('-'.$i.' day'));
-            $res['总消费']['day'][]      = $date_time;
-            $start_time = $today['start'] - ($i * 86400);
-            $end_time   = $today['end'] - ($i * 86400);
+            $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
+            $res['总消费']['day'][] = $date_time;
+            $start_time             = $today['start'] - ($i * 86400);
+            $end_time               = $today['end'] - ($i * 86400);
             if ($records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
                 $res['总消费']['count'][]    = $this->arrayFieldSum($records,'action_score');
             }else{
@@ -414,11 +414,11 @@ class RecordService extends BaseService
         foreach ($score_types as $type){
             $type_name  = ScoreCategoryRepository::getField(['id' => $type],'name');
             for ($i = $day;$i >= 0;$i--){
-                $date_time                      = date('Y-m-d',strtotime('-'.$i.' day'));
-                $res[$type_name]['day'][]      = $date_time;
+                $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+                $res[$type_name]['day'][]   = $date_time;
                 if ($type_record = $this->searchArray($list,'score_type',$type['id'])){
-                    $start_time = $today['start'] - ($i * 86400);
-                    $end_time   = $today['end'] - ($i * 86400);
+                    $start_time  = $today['start'] - ($i * 86400);
+                    $end_time    = $today['end'] - ($i * 86400);
                     if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
                         $res[$type_name]['count'][]    = $this->arrayFieldSum($records,'action_score');
                     }else{

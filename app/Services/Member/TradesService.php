@@ -59,10 +59,10 @@ class TradesService extends BaseService
             $this->setError('查看天数不能低于1天');
             return false;
         }
-        $trade_method = [TradeEnum::WECHANT,TradeEnum::UNION];
-        $res   = [];
-        $today = Time::getStartStopTime('today');
-        $where = [
+        $trade_method   = [TradeEnum::WECHANT,TradeEnum::UNION];
+        $res            = [];
+        $today          = Time::getStartStopTime('today');
+        $where          = [
             'status'        => TradeEnum::STATUSSUCCESS,
             'fund_flow'     => '+',
             'trade_method'  => ['<>',TradeEnum::SCORE],
@@ -71,12 +71,12 @@ class TradesService extends BaseService
         $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
         #总收入
         for ($i = $day;$i >= 0;$i--){
-            $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
-            $res['总收入']['day'][]  = $date_time;
-            $start_time = $today['start'] - ($i * 86400);
-            $end_time   = $today['end'] - ($i * 86400);
+            $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+            $res['总收入']['day'][]     = $date_time;
+            $start_time                 = $today['start'] - ($i * 86400);
+            $end_time                   = $today['end'] - ($i * 86400);
             if ($records = $this->searchRangeArray($list,'create_at',[$start_time, $end_time])){
-                $amount = $this->arrayFieldSum($records,'amount');
+                $amount  = $this->arrayFieldSum($records,'amount');
                 $res['总收入']['amount'][]    = round($amount/100,2);
             }else{
                 $res['总收入']['amount'][]    = 0;
@@ -86,13 +86,13 @@ class TradesService extends BaseService
         foreach ($trade_method as $method){
             $method_name  = TradeEnum::getTradeMethod($method);
             for ($i = $day;$i >= 0;$i--){
-                $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
-                $res[$method_name]['day'][]  = $date_time;
+                $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
+                $res[$method_name]['day'][] = $date_time;
                 if ($trade_record = $this->searchArray($list,'trade_method',$method)){
-                    $start_time = $today['start'] - ($i * 86400);
-                    $end_time   = $today['end'] - ($i * 86400);
-                    if ($records = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
-                        $amount = $this->arrayFieldSum($records,'amount');
+                    $start_time   = $today['start'] - ($i * 86400);
+                    $end_time     = $today['end'] - ($i * 86400);
+                    if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
+                        $amount   = $this->arrayFieldSum($records,'amount');
                         $res[$method_name]['amount'][]    = round($amount/100,2);
                     }else{
                         $res[$method_name]['amount'][]    = 0;

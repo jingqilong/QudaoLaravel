@@ -190,6 +190,7 @@ class OrderRelateService extends BaseService
             'status'            => $order_add_arr == OrderEnum::STATUSSUCCESS ? ShopOrderEnum::SHIP : ShopOrderEnum::PAYMENT,
             'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
             'address_id'        => $request['address_id'],
+            'income_score'      => $submit_order_info['buy_score'],#此处赠送积分待支付完成赠送
             'remarks'           => $request['remarks'] ?? '',
             'receive_method'    => $request['express_type'],
             'created_at'        => time(),
@@ -360,7 +361,7 @@ class OrderRelateService extends BaseService
         if (!is_null($status)){
             $where['status']    = $status;
         }
-        $column = ['id','status','payment_amount'];
+        $column = ['id','status','payment_amount','income_score'];
         if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
