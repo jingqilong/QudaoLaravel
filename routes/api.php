@@ -47,6 +47,7 @@ $api->version('v1',function ($api){
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->any('we_chat_pay_call_back', 'WeChatPayController@weChatPayCallBack')->name('微信小程序微信支付回调接口');
+            $api->any('ums_pay', 'UmsPayController@umsPay')->name('银联支付接口');
             $api->any('ums_pay_call_back', 'UmsPayController@UmsPayCallBack')->name('银联支付回调接口');
         });
     });
