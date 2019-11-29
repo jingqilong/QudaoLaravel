@@ -6,6 +6,7 @@ namespace App\Api\Controllers\V1\Common;
 use App\Api\Controllers\ApiController;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\HomeService;
+use App\Services\Common\PvService;
 use App\Services\Common\SmsService;
 use App\Services\Member\CollectService;
 use App\Services\Member\MemberService;
@@ -204,6 +205,7 @@ class CommonController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->homeService->error];
         }
+        PvService::recordPV();
         return ['code' => 200, 'message' => $this->homeService->message,'data' => $res];
     }
     /**

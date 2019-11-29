@@ -52,6 +52,8 @@ $api->version('v1',function ($api){
                 $api->post('logout','OaController@logout')->name('退出');
                 $api->post('refresh','OaController@refresh')->name('刷新token');
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
+                #OA首页
+                $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
                 #OA部门
                 $api->get('get_depart','DepartController@getDepart')->name("获取部门");
                 $api->post('add_depart','DepartController@addDepart')->name("添加部门");

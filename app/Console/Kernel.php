@@ -64,6 +64,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('blessing:birthday')
             ->dailyAt('11:00')
             ->saturdays();//周末11点
+
+        //访问量存储
+        $schedule->command('record:pv')
+            ->everyMinute();//每分钟运行
     }
 
     /**

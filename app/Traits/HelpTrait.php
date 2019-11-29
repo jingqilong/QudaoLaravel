@@ -60,6 +60,23 @@ trait HelpTrait
     }
 
     /**
+     * 数组中模糊查询指定键值的数据
+     * @param $array
+     * @param $filed
+     * @param $value
+     * @return array|bool
+     */
+    function likeSearchArray($array, $filed, $value){
+        $res = [];
+        foreach ($array as $k => $v){
+            if (is_array($v) && (strpos($v[$filed],$value) !== false)){
+                $res[] = $v;continue;
+            }
+        }
+        return $res;
+    }
+
+    /**
      * 静态访问数组中查询指定键值的数据
      * @param $array
      * @param $filed
