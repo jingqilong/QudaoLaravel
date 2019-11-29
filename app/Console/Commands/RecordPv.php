@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Repositories\CommonPvRepository;
+use App\Services\Common\PvService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -53,32 +54,19 @@ class RecordPv extends Command
             if (!CommonPvRepository::exists(['created_at' => $value['created_at']])){
                 if (!CommonPvRepository::getAddId($value)){
                     DB::rollBack();
-                    $this->callback($key,$data);
+                    PvService::returnData($key,$data);
                     return false;
                 }
                 continue;
             }
             if (!CommonPvRepository::increment(['created_at' => $value['created_at']],'count')){
                 DB::rollBack();
-                $this->callback($key,$data);
+                PvService::returnData($key,$data);
                 return false;
             }
         }
         print '存储完成';
         DB::commit();
-        return true;
-    }
-
-    /**
-     *
-     * @param $key
-     * @param $data
-     * @return bool
-     */
-    function callback($key, $data){
-        $new_data = Cache::has($key) ? Cache::get($key) : [];
-        array_push($new_data,$data);
-        Cache::forever($key,$data);
         return true;
     }
 }
