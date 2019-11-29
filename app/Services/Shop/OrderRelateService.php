@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CommentsEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
@@ -10,7 +11,8 @@ use App\Enums\TradeEnum;
 use App\Services\BaseService;
 use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
-use App\Repositories\{CommonExpressRepository,
+use App\Repositories\{CommonCommentsRepository,
+    CommonExpressRepository,
     MemberAddressRepository,
     MemberOrdersRepository,
     MemberBaseRepository,
@@ -374,12 +376,18 @@ class OrderRelateService extends BaseService
         $order_relate_ids   = array_column($order_list['data'],'id');
         $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
+        $goods_ids          = array_column($goods_list,'goods_id');
+        $comments           = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
         foreach ($order_list['data'] as &$value){
+            $value['is_comment'] = 0;
             $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
             if ($search_goods_list = $this->searchArray($order_goods_list,'order_relate_id',$value['id'])){
                 foreach ($search_goods_list as $item){
                     if ($goods = $this->searchArray($goods_list,'order_relate_id',$item['order_relate_id'])){
                         $value['goods_list'][] = reset($goods);
+                        if ($this->existsArray($comments,'related_id',$item['order_relate_id'].','.reset($goods)['goods_id'])){
+                            $value['is_comment'] = 1;
+                        }
                     }
                 }
             }
@@ -626,6 +634,34 @@ class OrderRelateService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+    /**
+     * 删除订单
+     * @param $order_relate_id
+     * @param $member_id
+     * @return bool
+     */
+    public function deleteOrder($order_relate_id, $member_id)
+    {
+        if (!$order = ShopOrderRelateRepository::getOne(['id' => $order_relate_id,'member_id' => $member_id])){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order['deleted_at'] != 0){
+            $this->setError('订单已删除！');
+            return false;
+        }
+        if (!in_array($order['status'],[ShopOrderEnum::CANCELED,ShopOrderEnum::CANCELED,ShopOrderEnum::RECEIVED])){
+            $this->setError('当前状态不可以删除！');
+            return false;
+        }
+        if (ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['deleted_at' => time(),'updated_at' => time()])){
+            $this->setMessage('删除成功！');
+            return true;
+        }
+        $this->setError('删除失败！');
+        return false;
     }
 }
             
