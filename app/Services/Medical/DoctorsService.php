@@ -100,6 +100,7 @@ class DoctorsService extends BaseService
         $upd_arr = [
             'name'              => $request['name'],
             'title'             => $request['title'],
+            'img_id'            => $request['img_id'],
             'sex'               => $request['sex'],
             'good_at'           => $request['good_at'],
             'introduction'      => $request['introduction'],
