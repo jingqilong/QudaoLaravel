@@ -399,6 +399,15 @@ class CommonController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="商品的ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="分页页码",
@@ -425,11 +434,14 @@ class CommonController extends ApiController
      */
     public function commonList(){
         $rules = [
+            'id'            => 'required|integer',
             'type'          => 'required|in:1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'id.required'           => '商城类别不能为空',
+            'id.integer'            => '商城类别不能为空',
             'type.required'         => '评论类别不能为空',
             'type.in'               => '评论类别不存在',
             'page.integer'          => '页码必须为整数',

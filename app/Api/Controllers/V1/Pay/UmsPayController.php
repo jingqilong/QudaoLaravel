@@ -152,7 +152,8 @@ class UmsPayController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $result = $this->JsonNotifyService->umsPay($this->request);
-        if($result['code'] == 1) {
+        return $result;
+        if($result  != false) {
             return ['code' => 200, 'message' => $result['message'], 'data' => $result['data']];
         }else{
             return ['code' => 100, 'message' => $result['message']];

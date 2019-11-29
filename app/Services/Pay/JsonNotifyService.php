@@ -8,6 +8,7 @@ use App\Enums\PayMethodEnum;
 use App\Library\UmsPay\Utils\UmsConstants;
 use App\Repositories\MemberOrdersRepository;
 use App\Services\BaseService;
+use Ixudra\Curl\Facades\Curl;
 
 class JsonNotifyService extends BaseService
 {
@@ -20,21 +21,29 @@ class JsonNotifyService extends BaseService
             $this->setError('订单号不存在!');
             return false;
         }
-
         $ums_data   = [
             'order_no'          => $request['order_no'],
             'busi_order_no'     => $request['busi_order_no'],
             'mer_id'            => $mer_id,
             'payway'            => PayMethodEnum::getPayway($request['payway']),
             'cod'               => $request['cod'],
-            'qrtype'            => empty(PayMethodEnum::getScenario($request['qrtype'])) ? PayMethodEnum::SM3 : $request['qrtype'],
+            'qrtype'            => PayMethodEnum::getScenario($request['qrtype']),
             'memo'              => $request['memo'],
-            'orderDesc'         => $request['orderDesc'],
-            'employeeNo'        => $request['employeeNo'],
-            'signType'          => empty(PayMethodEnum::getEncryption($request['signType'])) ? '01' : $request['signType'],
+            'orderDesc'         => $request['orderDesc'] ?? '',
+            'employeeNo'        => $request['employeeNo'] ?? '01',
+            'signType'          => PayMethodEnum::getEncryption($request['signType'],PayMethodEnum::SM3),
             'mac'               => $mac,
         ];
-        dd($ums_data);
+        //context={“header”:{“version”:”1.0”,”transtype”:”P003”,”employno”:”072001”,”termid”:”12345678”}}
+
+
+        $result = Curl::to(config('ums.TEST_PAY_URL'))->withData($ums_data)->asJsonRequest()->get();
+        if ($result['code'] != '00'){
+
+        }
+        if (!$ums_pay_prosperity = $this->umsPaySuccess($result)){
+
+        }
     }
 
 

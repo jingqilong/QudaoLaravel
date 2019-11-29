@@ -16,6 +16,8 @@ use App\Repositories\{CommonExpressRepository,
     MemberBaseRepository,
     MemberTradesRepository,
     ShopGoodsRepository,
+    ShopGoodsSpecRelateRepository,
+    ShopGoodsSpecRepository,
     ShopOrderGoodsRepository,
     ShopOrderRelateRepository,
     ShopOrderRelateViewRepository};
@@ -34,8 +36,6 @@ class OrderRelateService extends BaseService
 
     #包邮地区编码
     public static $free_shipping_area_code = ['330000','320000','310000'];
-
-
     /**
      * 获取下单详情
      * @param $request
@@ -625,6 +625,45 @@ class OrderRelateService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+    /**
+     * 获取评论中商品规格
+     * @param array $data
+     * @return array
+     */
+    protected function getCommentList(array $data)
+    {
+        $related_ids = array_column($data,'related_id');
+        $order_ids   = [];
+        $goods_ids   = [];
+        foreach ($related_ids as $related_id){
+            $related_arr = explode(',',$related_id);
+            $order_ids[] = reset($related_arr);
+            $goods_ids[] = end($related_arr);
+        }
+        $order_goods_where  = ['order_relate_id' => ['in',$order_ids],'goods_id' => ['in',$goods_ids]];
+        $order_goods_list   = ShopOrderGoodsRepository::getList($order_goods_where);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getList(['id' => ['in',array_column($order_goods_list,'spec_relate_id')]]);
+        $spec_ids           = implode(',',array_column($spec_relate_list,'spec_ids'));
+        $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
+        foreach ($data as &$value){
+            $related_id = explode(',',$value['related_id']);
+            $spec_str = '';
+            if ($spec_relate = $this->searchArray($spec_relate_list,'id',reset($related_id))){
+                if ($spec_relate = $this->searchArray($spec_relate,'goods_id',end($related_id))){
+                    $value_spec_ids = explode(',',trim(reset($spec_relate)['spec_ids'],','));
+                    foreach ($value_spec_ids as $value_spec_id){
+                        if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
+                            $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
+                        }
+                    }
+                }
+
+            }
+            $value['spec_str']  = $spec_str;
+        }
+        return $data;
     }
 }
             
