@@ -46,24 +46,39 @@ class RecordPv extends Command
             return true;
         }
         $data = Cache::get($key);
+        Cache::forget($key);
         print '有'.count($data).'条可存储数据  ';
         DB::beginTransaction();
         foreach ($data as $value){
             if (!CommonPvRepository::exists(['created_at' => $value['created_at']])){
                 if (!CommonPvRepository::getAddId($value)){
                     DB::rollBack();
+                    $this->callback($key,$data);
                     return false;
                 }
                 continue;
             }
             if (!CommonPvRepository::increment(['created_at' => $value['created_at']],'count')){
                 DB::rollBack();
+                $this->callback($key,$data);
                 return false;
             }
         }
         print '存储完成';
-        Cache::forget($key);
         DB::commit();
+        return true;
+    }
+
+    /**
+     *
+     * @param $key
+     * @param $data
+     * @return bool
+     */
+    function callback($key, $data){
+        $new_data = Cache::has($key) ? Cache::get($key) : [];
+        array_push($new_data,$data);
+        Cache::forever($key,$data);
         return true;
     }
 }
