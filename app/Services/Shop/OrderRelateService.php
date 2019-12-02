@@ -380,7 +380,7 @@ class OrderRelateService extends BaseService
             return $order_list;
         }
         $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);dd($order_goods_list);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         $goods_ids          = array_column($goods_list,'goods_id');
         $comments           = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);

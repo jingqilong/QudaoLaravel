@@ -12,6 +12,7 @@ use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
+use App\Repositories\ShopOrderGoodsRepository;
 use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
@@ -342,8 +343,9 @@ class GoodsService extends BaseService
         }
         $comments = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $goods_detail = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several']);
+        $goods_detail['sales']  = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]) ?? 0;
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
-        $goods_detail['price'] = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
+        $goods_detail['price']  = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['stock']   = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
         $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
