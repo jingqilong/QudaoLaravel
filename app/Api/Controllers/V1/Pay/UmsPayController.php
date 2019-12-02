@@ -83,7 +83,10 @@ class UmsPayController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $result = $this->umsPayService->createOrder($this->request);
-        return ['code' => 200, 'message' => '成功', 'data' => $result];
+        if ($result == false){
+            return ['code' => 100, 'message' => $this->umsPayService->error];
+        }
+        return ['code' => 200, 'message' => $this->umsPayService->message, 'data' => $result];
     }
 
     /**

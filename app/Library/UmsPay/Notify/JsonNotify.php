@@ -60,7 +60,7 @@ class JsonNotify
                 //此处更新数据库的动作省略....
                 //银联变态垃圾代码，只能这样去调了。
                 $umsPayDbService = new UmsPayDbService();
-                $result= $umsPayDbService->createOrder($requestData);
+                $result= $umsPayDbService->updateOrder($requestData);
                 //组装响应的报文
                 $ret=JSONUtils::getResponseParam($requestData,JSONUtils::$responseP033BodyNodes);
             } catch (\Exception $e) {
@@ -75,7 +75,7 @@ class JsonNotify
                 //此处更新数据库的动作省略....
                 //银联变态垃圾代码，只能这样去调了。
                 $umsPayDbService = new UmsPayDbService();
-                $result= $umsPayDbService->refund($requestData);
+                $result= $umsPayDbService->refundUpdateOrder($requestData);
                 //组装响应的报文
                 $ret=JSONUtils::getResponseParam($requestData,JSONUtils::$responseP033BodyNodes);
             } catch (\Exception $e) {

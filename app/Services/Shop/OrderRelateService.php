@@ -6,6 +6,7 @@ use App\Enums\CommentsEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
+use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
 use App\Services\BaseService;
@@ -386,6 +387,9 @@ class OrderRelateService extends BaseService
         $goods_list            = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         $goods_ids             = array_column($goods_list,'goods_id');
         $comments              = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
+        $order_relate_ids   = array_column($order_list['data'],'id');
+        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);dd($order_goods_list);
+        $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = 0;
             $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
@@ -393,8 +397,11 @@ class OrderRelateService extends BaseService
                 foreach ($search_goods_list as $item){
                     if ($goods = $this->searchArray($goods_list,'order_relate_id',$item['order_relate_id'])){
                         $value['goods_list'][] = reset($goods);
-                        if ($this->existsArray($comments,'related_id',$item['order_relate_id'].','.reset($goods)['goods_id'])){
-                            $value['is_comment'] = 1;
+                        if ($value['is_comment'] == 1)continue;
+                        if(CommonCommentsRepository::exists(
+                            ['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => $item['order_relate_id'] .','. reset($goods)['goods_id']]
+                        )){
+                            $value['is_comment']   = 1;
                         }
                     }
                 }
@@ -424,7 +431,7 @@ class OrderRelateService extends BaseService
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
-        $column = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at'];
+        $column = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at','created_at'];
         if (!$order = ShopOrderRelateViewRepository::getOne($where,$column)){
             $this->setError('订单不存在！');
             return false;
@@ -715,6 +722,30 @@ class OrderRelateService extends BaseService
         }
         $this->setError('删除失败！');
         return false;
+    }
+
+    /**
+     *
+     * @param $order_id
+     * @param $status
+     * @return bool
+     * @throws \Exception
+     */
+    public static function payCallBack($order_id, $status){
+        if (!$order_relate = ShopOrderRelateRepository::getOne(['order_id' => $order_id])){
+            Throw new \Exception('订单相关信息不存在！');
+        }
+        if (!ShopOrderRelateRepository::getUpdId(['order_id' => $order_id],['status' => $status,'updated_at' => time()])){
+            Throw new \Exception('订单状态更新失败！');
+        }
+        if ($status == ShopOrderEnum::SHIP){
+            $scoreService = new RecordService();
+            if (!$scoreService->increaseScore(2,$order_relate['income_score'],$order_relate['member_id'],'购买商品','活动消费积分')){
+                DB::rollBack();
+                Loggy::write('error','积分赠送失败！消费积分：'.$order_relate['income_score'].' ,会员ID：'.$order_relate['member_id']);
+            }
+        }
+        return true;
     }
 }
             
