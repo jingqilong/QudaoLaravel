@@ -346,7 +346,7 @@ class GoodsService extends BaseService
         $goods_detail['sales']  = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]) ?? 0;
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price']  = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
-        $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2)) ?? 0;
         $goods_detail['stock']   = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
         $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
         $goods_detail['comment'] = $comments;

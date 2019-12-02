@@ -369,7 +369,7 @@ class OrderRelateService extends BaseService
         if (!is_null($status)){
             $where['status']    = $status;
         }
-        $column = ['id','status','payment_amount','income_score'];
+        $column = ['id','status','payment_amount','income_score','express_number','express_company_id'];
         if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -379,11 +379,13 @@ class OrderRelateService extends BaseService
             $this->setMessage('您还没有订单，快去购买吧！');
             return $order_list;
         }
-        $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);dd($order_goods_list);
-        $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
-        $goods_ids          = array_column($goods_list,'goods_id');
-        $comments           = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
+        $order_relate_ids      = array_column($order_list['data'],'id');
+        $order_goods_list      = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $express_company_ids   = array_column($order_list['data'],'express_company_id');
+        $express_company_list  = CommonExpressRepository::getList(['id' => ['in',$express_company_ids]]);
+        $goods_list            = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
+        $goods_ids             = array_column($goods_list,'goods_id');
+        $comments              = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = 0;
             $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
@@ -396,6 +398,13 @@ class OrderRelateService extends BaseService
                         }
                     }
                 }
+            }
+            $value['company_code'] = '';
+            $value['company_name'] = '';
+            if (!empty($value['express_company_id'])){
+                $express_company = $this->searchArray($express_company_list,'id',$value['express_company_id']);
+                $value['company_name'] = empty($express_company) ? '' : reset($express_company)['company_name'];
+                $value['company_code'] = empty($express_company) ? '' : reset($express_company)['code'];
             }
             $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
         }
