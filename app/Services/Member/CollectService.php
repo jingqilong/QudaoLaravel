@@ -46,8 +46,10 @@ class CollectService extends BaseService
                 }
                 break;
             case CollectTypeEnum::SHOP:
-                $this->setError('暂未开发！');
-                return false;
+                if (!ShopGoodsRepository::exists(['id' => $target_id])){
+                    $this->setError('商品不存在！');
+                    return false;
+                }
                 break;
             case CollectTypeEnum::HOUSE:
                 if (!HouseDetailsRepository::exists(['id' => $target_id])){
@@ -66,6 +68,8 @@ class CollectService extends BaseService
                 return false;
                 break;
         }
+        $this->setMessage('校验通过！');
+        return true;
     }
 
 
