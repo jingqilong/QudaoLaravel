@@ -47,8 +47,12 @@ $api->version('v1',function ($api){
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->any('we_chat_pay_call_back', 'WeChatPayController@weChatPayCallBack')->name('微信小程序微信支付回调接口');
-            $api->any('ums_pay', 'UmsPayController@umsPay')->name('银联支付接口');
-            $api->any('ums_pay_call_back', 'UmsPayController@UmsPayCallBack')->name('银联支付回调接口');
+            $api->any('ums_create_order', 'UmsPayController@createOrder')->name('银联支付接口');
+            $api->any('ums_query_clear_date', 'UmsPayController@queryClearDate')->name('银联支付按清算日期查询接口');
+            $api->any('ums_query_trans_date', 'UmsPayController@queryTransDate')->name('银联支付按交易日期查询接口');
+            $api->any('ums_query_by_system_code', 'UmsPayController@queryBySystemCode')->name('银联支付根据查询流水号查询订单支付情况');
+            $api->any('ums_refund', 'UmsPayController@refund')->name('银联支付退款接口');
+            $api->any('ums_pay_call_back', 'UmsPayController@umsPayCallBack')->name('银联支付回调接口');
         });
     });
     //需要验签的接口
