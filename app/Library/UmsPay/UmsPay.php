@@ -10,7 +10,7 @@ use App\Library\UmsPay\Utils\UmsPayWay;
 /**
  * Class UmsPay
  * @package App\Library\UmsPay
- * 
+ *
  * 测试代码示例：
  * $umsPay = new UmsPay();
  * $order_no = date("Ymdhis");
@@ -22,7 +22,7 @@ use App\Library\UmsPay\Utils\UmsPayWay;
  * $response = $umsPay->queryTransDate("201901041549161","20190104");//根据交易日期和单号查询订单支付情况
  * $response = $umsPay->queryBySystemCode("21190122100423194476");//根据查询流水号查询订单支付情况
  * $response = $umsPay->refund("21190122100423194476");//不分账退款
- * 
+ *
  */
 class UmsPay
 {
@@ -242,7 +242,7 @@ class UmsPay
             Loggy::write('umspay','查询发生错误',$content);
         }
         return $content;
-	}
+    }
 
     /**
      * @desc 根据交易日期和单号查询订单支付情况
@@ -250,7 +250,7 @@ class UmsPay
      * @param $trans_date
      * @return array
      */
-	public function queryTransDate($way_bill_no, $trans_date) {
+    public function queryTransDate($way_bill_no, $trans_date) {
         $query_map = [];
         $query_map['mer_id'] = UmsConstants::STATIC_MER_ID;
         $query_map['qrtype'] =  UmsQrType::QR_TYPE_H5;
@@ -278,7 +278,7 @@ class UmsPay
             Loggy::write('umspay','查询发生错误',$content);
         }
         return $content;
- 	}
+    }
 
     /**
      * @desc 根据清算日期和单号查询订单支付情况
@@ -314,7 +314,7 @@ class UmsPay
             Loggy::write('umspay','查询发生错误',$content);
         }
         return $content;
-	}
+    }
 
 
 }
