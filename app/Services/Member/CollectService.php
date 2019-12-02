@@ -184,17 +184,67 @@ class CollectService extends BaseService
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['comment_avatar' => 'single']);
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['image_ids' => 'several']);
         $comment_list['data'] =  OrderRelateService::getCommentList($comment_list['data']);
-        dd($comment_list);
-        switch ($request['type']){
-            case CommentsEnum::SHOP:
-                //$common_list['data'] = $GoodsSpecRelateService->getListCommonInfo($goods_list['data']);
-                break;
-            default:
-                $this->setError('暂无此收藏类别！');
-                return false;
-                break;
+        foreach ($comment_list['data'] as &$value){
+            $value['created_at']    = date('Y-m-d',strtotime($value['created_at']));
+            unset($value['comment_avatar'],$value['related_id'],$value['image_ids']);
         }
+
         $this->setMessage('获取成功!');
         return $comment_list;
 }
+
+    /**
+     * 添加评论
+     * @param $request
+     * @return bool|null
+     */
+    public function addComment($request)
+    {
+        $member  = $this->auth->user();
+        $add_arr = [
+            'member_id'         => $member->id,
+            'content'           => $request['content'],
+            'comment_name'      => $member->ch_name,
+            'comment_avatar'    => $member->avatar_id,
+            'type'              => CommentsEnum::SHOP,
+            'related_id'        => $request['related_id'],
+            'image_ids'         => $request['image_ids'],
+            'status'            => CommentsEnum::SUBMIT,
+            'hidden'            => CommentsEnum::HIDDEN,
+        ];
+        if (CommonCommentsRepository::exists($add_arr)){
+            $this->setError('评论已存在,请勿重复操作!');
+            return false;
+        }
+        $add_arr['created_at']   = time();
+        if (!$comments_id = CommonCommentsRepository::getAddId($add_arr)){
+            $this->setError('评论添加失败!');
+            return false;
+        }
+        $this->setMessage('评论添加成功!');
+        return $comments_id;
+    }
+
+    /**
+     * OA设置评论状态
+     * @param $request
+     * @return bool
+     */
+    public function setCommentStatus($request)
+    {
+        if (!CommonCommentsRepository::getOne(['id' => $request['id']])){
+            $this->setError('获取失败');
+            return false;
+        }
+        $set_arr = [
+            'status' => CommentsEnum::PASS,
+            'hidden' => CommentsEnum::ACTIVITE,
+        ];
+        if (!CommonCommentsRepository::getUpdId(['id' => $request['id']],$set_arr)){
+            $this->setError('设置状态失败!');
+            return false;
+        }
+        $this->setMessage('设置成功!');
+        return true;
+    }
 }

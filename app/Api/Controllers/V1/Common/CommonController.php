@@ -402,7 +402,7 @@ class CommonController extends ApiController
      *         name="id",
      *         in="query",
      *         description="商品的ID",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -440,7 +440,7 @@ class CommonController extends ApiController
             'page_num'      => 'integer',
         ];
         $messages = [
-            'id.required'           => '商城类别不能为空',
+            'id.required'           => '评论ID不能为空',
             'id.integer'            => '商城类别不能为空',
             'type.required'         => '评论类别不能为空',
             'type.in'               => '评论类别不存在',
@@ -454,6 +454,172 @@ class CommonController extends ApiController
         $res = $this->collectService->commonList($this->request);
         if ($res){
             return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->collectService->error];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/add_comment",
+     *     tags={"公共"},
+     *     summary="添加商品评论",
+     *     description="jing" ,
+     *     operationId="add_comment",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="related_id",
+     *         in="query",
+     *         description="商品订单ID,商品的ID【1,2】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="content",
+     *         in="query",
+     *         description="评论内容",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_ids",
+     *         in="query",
+     *         description="评论图",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="",
+     *     ),
+     * )
+     *
+     */
+    public function addComment(){
+        $rules = [
+            'related_id'    => 'required',
+            'content'       => 'required',
+            'type'          => 'required|in:1',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'related_id.required'   => '评论ID不能为空',
+            'content.required'      => '评论内容不能为空',
+            'type.required'         => '评论类别不能为空',
+            'type.in'               => '评论类别不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->collectService->addComment($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->collectService->message,'comment_id' => $res];
+        }
+        return ['code' => 100, 'message' => $this->collectService->error];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/set_comment_status",
+     *     tags={"公共"},
+     *     summary="设置评论状态",
+     *     description="jing" ,
+     *     operationId="set_comment_status",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="评论列表类别，1商城 （目前只有商城）..",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="评论ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="评论状态【2、审核通过，3、审核未通过...】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="",
+     *     ),
+     * )
+     *
+     */
+    public function setCommentStatus(){
+        $rules = [
+            'id'            => 'required',
+            'status'        => 'required|in:2,3',
+        ];
+        $messages = [
+            'id.required'   => '评论ID不能为空',
+            'status.in'     => '设置评论状态不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->collectService->setCommentStatus($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->collectService->message];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }

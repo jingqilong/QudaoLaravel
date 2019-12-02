@@ -7,6 +7,7 @@ use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\MemberCollectRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
@@ -344,7 +345,8 @@ class GoodsService extends BaseService
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price'] = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
-        $goods_detail['stock'] = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
+        $goods_detail['stock']   = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
+        $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
         $goods_detail['comment'] = $comments;
         unset($goods_detail['banner_ids'], $goods_detail['image_ids'],
             $goods_detail['score_categories']
@@ -354,7 +356,7 @@ class GoodsService extends BaseService
     }
 
 
-     /*
+    /**
      * 前端获取商品列表
      * @param $request
      * @return bool|mixed|null

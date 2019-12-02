@@ -597,11 +597,13 @@ $api->version('v1',function ($api){
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
                 $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
+                $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
 
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->get('collect_list', 'CommonController@collectList')->name('收藏类别列表');
+                $api->post('add_comment', 'CommonController@addComment')->name('添加评论');
                 $api->get('common_list', 'CommonController@commonList')->name('获取评论列表');
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
                 $api->post('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
