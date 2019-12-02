@@ -254,7 +254,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content'];
+        $column             = ['id','message_id','message_category','title','content','created_at'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -271,6 +271,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
+            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -304,6 +305,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
+            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -337,6 +339,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
+            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
