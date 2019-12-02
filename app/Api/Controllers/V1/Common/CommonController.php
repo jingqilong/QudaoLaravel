@@ -486,15 +486,6 @@ class CommonController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="type",
-     *         in="query",
-     *         description="评论列表类别，1商城 （目前只有商城）..",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="related_id",
      *         in="query",
      *         description="商品订单ID,商品的ID【1,2】",
@@ -507,7 +498,7 @@ class CommonController extends ApiController
      *         name="content",
      *         in="query",
      *         description="评论内容",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -628,7 +619,7 @@ class CommonController extends ApiController
         }
         $res = $this->collectService->setCommentStatus($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->collectService->message,'comment_id' => $res];
+            return ['code' => 200, 'message' => $this->collectService->message];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }

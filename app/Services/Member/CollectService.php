@@ -184,6 +184,11 @@ class CollectService extends BaseService
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['comment_avatar' => 'single']);
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['image_ids' => 'several']);
         $comment_list['data'] =  OrderRelateService::getCommentList($comment_list['data']);
+        foreach ($comment_list['data'] as &$value){
+            $value['created_at']    = date('Y-m-d',strtotime($value['created_at']));
+            unset($value['comment_avatar'],$value['related_id'],$value['image_ids']);
+        }
+
         $this->setMessage('获取成功!');
         return $comment_list;
 }
@@ -201,7 +206,7 @@ class CollectService extends BaseService
             'content'           => $request['content'],
             'comment_name'      => $member->ch_name,
             'comment_avatar'    => $member->avatar_id,
-            'type'              => $request['type'],
+            'type'              => CommentsEnum::SHOP,
             'related_id'        => $request['related_id'],
             'image_ids'         => $request['image_ids'],
             'status'            => CommentsEnum::SUBMIT,
