@@ -67,7 +67,7 @@ class UmsPayDbService extends BaseService
         //可以为空的字段（用不到的字段）
             //"banktrace"： 系统参考号 （当刷卡交易时必需要有此项）
             //"postrace"：POS 机的流水号  当刷卡交易时必需要有此项
-            //"cxbanktrace"：
+            //"cxbanktrace"：撤消的系统参考号 （与banktrace相同）
     }
 
 }
