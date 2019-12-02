@@ -17,6 +17,7 @@ use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class RegisterService extends BaseService
 {
@@ -321,6 +322,21 @@ class RegisterService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 支付回调
+     * @param $order_no
+     * @param int $status
+     * @return bool
+     * @throws \Exception
+     */
+    public static function payCallBack($order_no, $status = ActivityRegisterEnum::EVALUATION){
+        if (!ActivityRegisterRepository::getUpdId(['order_no' => $order_no],['status' => $status])){
+            Loggy::write('error','支付回调：活动订单状态更新失败！订单号：'.$order_no.'，支付结果：'.$status);
+            Throw new \Exception('活动订单状态更新失败！');
+        }
+        return true;
     }
 }
             
