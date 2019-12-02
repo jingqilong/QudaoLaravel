@@ -742,10 +742,10 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->memberService->changePassword($this->request);
-        if ($res['code'] == 0){
-            return ['code' => 100, 'message' => $res['message']];
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $res['message']];
+        return ['code' => 200, 'message' => $this->memberService->message];
     }
 
 

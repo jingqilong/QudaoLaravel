@@ -184,7 +184,6 @@ class MemberService extends BaseService
         if (empty($data['asc'])){
             $data['asc']  = 1;
         }
-
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
@@ -675,21 +674,34 @@ class MemberService extends BaseService
     }
 
     /**
-     * 会员修改密码
+     * 会员修改密码 (拆表后  已修改)
      * @param array $data
-     * @return array
+     * @return bool
      */
     public function changePassword(array $data)
     {
-        //$password = Hash::make($data['m_password']);
-        $upd_repwd = Hash::make($data['m_repwd']);
-        if ($resd = MemberRepository::getFields(['m_id' => $data['m_id']])){
-            return ['code' => 1,'message' => '原始密码不正确！'];
+        if ($data['m_password'] !== $data['m_repwd']){
+            $this->setError('密码不一致!');
+            return false;
         }
-        if (!$res = MemberRepository::getUpdId(['m_id' => $data['m_id']],['m_password' => $upd_repwd])){
-            return ['code' => 0,'message' => '修改失败！'];
+        if (!$old_password = MemberBaseRepository::getField(['id' => $data['m_id'],'deleted_at' => 0],'password')){
+            $this->setError('获取信息失败!');
+            return false;
         }
-        return ['code' => 1,'message' => '恭喜您，修改成功！'];
+        $upd_arr = [
+            'password'      => Hash::make($data['m_password']),
+            'updated_at'    => time(),
+        ];
+        if (!$old_password !== $upd_arr['password']){
+            $this->setError('两次密码不一致哦!');
+            return false;
+        }
+        if (!MemberBaseRepository::getUpdId(['id' => $data['m_id']],$upd_arr)){
+            $this->setError('修改密码失败!');
+            return false;
+        }
+        $this->setMessage('修改成功!');
+        return true;
     }
 
     /**

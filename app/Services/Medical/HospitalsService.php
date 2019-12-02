@@ -122,7 +122,7 @@ class HospitalsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' =>0],['*'],'id','asc',$page,$page_num)){
+        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' => 0],['*'],'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
@@ -134,8 +134,6 @@ class HospitalsService extends BaseService
         $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         $department_ids  = array_column($list['data'],'department_ids');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
-        $img_ids         = array_column($list['data'],'img_ids');
-        $img_list        = CommonImagesRepository::getAssignList($img_ids,['id','img_url']);
         foreach ($list['data'] as &$value){
             $value['departments']    = [];
             $value['img_urls']       = [];
@@ -143,12 +141,6 @@ class HospitalsService extends BaseService
             foreach ($department_arr as $item){
                 if ($department = $this->searchArray($department_list,'id',$item)){
                     $value['departments'][] = reset($department);
-                }
-            }
-            $img_arr = explode(',',$value['img_ids']);
-            foreach ($img_arr as $val_str) {
-                if ($img = $this->searchArray($img_list, 'id', $val_str)) {
-                    $value['img_urls'][] = reset($img);
                 }
             }
             #处理地址
@@ -175,8 +167,8 @@ class HospitalsService extends BaseService
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
-        $column     = ['id','name','recommend','domain','awards','introduction','department_ids','area_code','address','img_ids'];
-        $where      = ['deleted_at' =>0];
+        $column     = ['id','name','recommend','introduction','department_ids','area_code','address','img_ids'];
+        $where      = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','domain','address','awards']];
             if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'recommend','desc')){
