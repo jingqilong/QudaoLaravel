@@ -180,17 +180,39 @@ class CollectService extends BaseService
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['comment_avatar' => 'single']);
         $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['image_ids' => 'several']);
         $comment_list['data'] =  OrderRelateService::getCommentList($comment_list['data']);
-        dd($comment_list);
-        switch ($request['type']){
-            case CommentsEnum::SHOP:
-                //$common_list['data'] = $GoodsSpecRelateService->getListCommonInfo($goods_list['data']);
-                break;
-            default:
-                $this->setError('暂无此收藏类别！');
-                return false;
-                break;
-        }
         $this->setMessage('获取成功!');
         return $comment_list;
 }
+
+    /**
+     * 添加评论
+     * @param $request
+     * @return bool|null
+     */
+    public function addComment($request)
+    {
+        $member  = $this->auth->user();
+        $add_arr = [
+            'member_id'         => $member->id,
+            'content'           => $request['content'],
+            'comment_name'      => $member->ch_name,
+            'comment_avatar'    => $member->avatar_id,
+            'type'              => $request['type'],
+            'related_id'        => $request['related_id'],
+            'image_ids'         => $request['image_ids'],
+            'status'            => CommentsEnum::SUBMIT,
+            'hidden'            => CommentsEnum::HIDDEN,
+        ];
+        if (CommonCommentsRepository::exists($add_arr)){
+            $this->setError('评论已存在,请勿重复操作!');
+            return false;
+        }
+        $add_arr['created_at']   = time();
+        if (!$comments_id = CommonCommentsRepository::getAddId($add_arr)){
+            $this->setError('评论添加失败!');
+            return false;
+        }
+        $this->setMessage('评论添加成功!');
+        return $comments_id;
+    }
 }
