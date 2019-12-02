@@ -592,6 +592,7 @@ $api->version('v1',function ($api){
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
                 $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
+                $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
 
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });

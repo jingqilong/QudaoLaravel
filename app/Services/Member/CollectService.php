@@ -219,4 +219,27 @@ class CollectService extends BaseService
         $this->setMessage('评论添加成功!');
         return $comments_id;
     }
+
+    /**
+     * OA设置评论状态
+     * @param $request
+     * @return bool
+     */
+    public function setCommentStatus($request)
+    {
+        if (!CommonCommentsRepository::getOne(['id' => $request['id']])){
+            $this->setError('获取失败');
+            return false;
+        }
+        $set_arr = [
+            'status' => CommentsEnum::PASS,
+            'hidden' => CommentsEnum::ACTIVITE,
+        ];
+        if (!CommonCommentsRepository::getUpdId(['id' => $request['id']],$set_arr)){
+            $this->setError('设置状态失败!');
+            return false;
+        }
+        $this->setMessage('设置成功!');
+        return true;
+    }
 }
