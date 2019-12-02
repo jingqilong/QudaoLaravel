@@ -31,12 +31,13 @@ class CommonCommentsRepository extends ApiRepository
             'hidden'        => CommentsEnum::ACTIVITE,
             'deleted_at'    => 0
         ];
-        $check = ['id','content','comment_name','comment_avatar','image_ids','member_id','created_at'];
+        $check = ['id','content','comment_name','comment_avatar','image_ids','created_at'];
         if (!$comment = $this->getOrderOne($where,'created_at','desc',$check)){
             return [];
         }
-        $comment = ImagesService::getOneImagesConcise($comment,['image_ids' => 'several']);
-        unset($comment['image_ids']);
+        $comment = ImagesService::getOneImagesConcise($comment,['comment_avatar' => 'several']);
+        $comment['created_at'] = date('Y-m-d',strtotime($comment['created_at']));
+        unset($comment['image_ids'],$comment['comment_avatar']);
         return $comment;
     }
 }
