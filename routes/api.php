@@ -313,6 +313,8 @@ $api->version('v1',function ($api){
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
                 $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
+
+                $api->post('place_order','OrderController@placeOrder')->name('支付下单');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
@@ -332,6 +334,9 @@ $api->version('v1',function ($api){
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
+
+                $api->get('get_order_list','OrderController@getOrderList')->name('获取会员所有订单列表');
+                $api->get('get_trade_list','OrderController@getTradeList')->name('获取会员所有交易列表');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');

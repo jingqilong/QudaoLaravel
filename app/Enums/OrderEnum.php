@@ -59,7 +59,7 @@ class OrderEnum extends BaseEnum
      * @param string $default   默认值
      * @return mixed|string
      */
-    public static function getStatus(int $value,$default = ''){
+    public static function getStatus($value,$default = ''){
         return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : $default;
     }
     /**
@@ -67,7 +67,7 @@ class OrderEnum extends BaseEnum
      * @param string $default   默认值
      * @return mixed|string
      */
-    public static function getOrderType(int $value,$default = ''){
+    public static function getOrderType($value,$default = ''){
         return isset(self::$order_type[$value]) ? self::$labels[self::$order_type[$value]] : $default;
     }
 }
