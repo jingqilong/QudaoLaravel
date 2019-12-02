@@ -356,7 +356,7 @@ class GoodsService extends BaseService
     }
 
 
-     /*
+    /**
      * 前端获取商品列表
      * @param $request
      * @return bool|mixed|null

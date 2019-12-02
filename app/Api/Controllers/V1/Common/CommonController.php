@@ -402,7 +402,7 @@ class CommonController extends ApiController
      *         name="id",
      *         in="query",
      *         description="商品的ID",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -440,7 +440,7 @@ class CommonController extends ApiController
             'page_num'      => 'integer',
         ];
         $messages = [
-            'id.required'           => '商城类别不能为空',
+            'id.required'           => '评论ID不能为空',
             'id.integer'            => '商城类别不能为空',
             'type.required'         => '评论类别不能为空',
             'type.in'               => '评论类别不存在',
