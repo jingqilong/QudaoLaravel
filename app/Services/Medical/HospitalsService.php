@@ -170,7 +170,7 @@ class HospitalsService extends BaseService
         $column     = ['id','name','recommend','introduction','department_ids','area_code','address','img_ids'];
         $where      = ['deleted_at' => 0];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['name','domain','address','awards']];
+            $keyword = [$keywords => ['name','address']];
             if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'recommend','desc')){
                 $this->setError('获取失败！');
                 return false;

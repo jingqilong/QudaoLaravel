@@ -291,7 +291,7 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索条件 【医院:(医院名字 擅长 获奖情况 详细地址)  医生:(医生姓名，医生性别，医生科室)】",
+     *         description="搜索条件 【医院:(医院名字 详细地址)  医生:(医生姓名，医生性别，医生科室)】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
