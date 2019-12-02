@@ -3,33 +3,30 @@
 
 namespace App\Api\Controllers\V1\Pay;
 
-
 use App\Api\Controllers\ApiController;
-use App\Services\Pay\JsonNotifyService;
+use App\Services\Pay\UmsPayService;
 
 class UmsPayController extends ApiController
 {
-    public $JsonNotifyService;
+    public $umsPayService;
 
     /**
-     * UmsPayController constructor.
-     * @param $JsonNotifyService
+     * WeChatPayController constructor.
+     * @param $umsPayService
      */
-    public function __construct(JsonNotifyService $JsonNotifyService)
+    public function __construct(UmsPayService $umsPayService)
     {
         parent::__construct();
-        $this->JsonNotifyService = $JsonNotifyService;
+        $this->umsPayService = $umsPayService;
     }
 
     /**
-     * 微信小程序微信支付接口
-     *
      * @OA\Post(
-     *     path="/api/v1/payments/ums_pay",
+     *     path="/api/v1/payments/ums_create_order",
      *     tags={"支付模块"},
-     *     summary="银联支付",
-     *     description="银联支付jing",
-     *     operationId="ums_pay",
+     *     summary="createOrder",
+     *     description="sang" ,
+     *     operationId="ums_create_order",
      *     @OA\Parameter(
      *     in="query",
      *     name="sign",
@@ -37,6 +34,15 @@ class UmsPayController extends ApiController
      *             type="string",
      *         ),
      *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
      *          required=true,
      *     ),
      *     @OA\Parameter(
@@ -45,136 +51,48 @@ class UmsPayController extends ApiController
      *          @OA\Schema(
      *                  type="string",
      *              ),
-     *          description="支付单号",
+     *          description="订单号",
      *          required=true,
      *     ),
      *     @OA\Parameter(
      *          in="query",
-     *          name="busi_order_no",
+     *          name="amount",
      *          @OA\Schema(
      *                  type="string",
      *              ),
-     *          description="商户业务订单号",
+     *          description="金额",
      *          required=true,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="cod",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="支付金额",
-     *          required=true,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="qrtype",
-     *          @OA\Schema(
-     *                  type="integer",
-     *              ),
-     *          description="使用场景【 1.h5 手机 浏览器使用  2.微信支付宝云闪付 app 内的浏览器中进行支付;】 ",
-     *          required=true,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="payway",
-     *          @OA\Schema(
-     *                  type="integer",
-     *              ),
-     *          description="支付方式【1,银联在线(云闪付)】",
-     *          required=true,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="memo",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="备注",
-     *          required=false,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="orderDesc",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="订单备注",
-     *          required=false,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="signType",
-     *          @OA\Schema(
-     *                  type="integer",
-     *              ),
-     *          description="签名方式【取值范围:1.MD5 2.SHA256 3.SM3 不传递默认使用 3】",
-     *          required=false,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="employeeNo",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="操作员工号【不传值默认01】",
-     *          required=false,
      *     ),
      *     @OA\Response(
-     *          response="default",
-     *          description="操作成功：code = 200，data = ['appId' => 'APPID','timeStamp' => '时间戳','nonceStr' => '随机字符串','package' => '数据包','signType' => '签名类型','sign' => '签名',]",
-     *      )
+     *         response=200,
+     *         description="成功"
+     *     ),
      * )
-     * )
+     *
      */
-    public function umsPay(){
+    public function createOrder(){
         $rules = [
-            'order_no'          => 'required',
-            'busi_order_no'     => 'required|regex:/\d+$/',
-            'cod'               => 'required',
-            'payway'            => 'required|in:1',
-            'qrtype'            => 'required|in:1,2',
-            'integer'           => 'in:1,2,3',
+            'order_no'     => 'required|regex:/\d+$/',
         ];
         $message = [
-            'order_no.required'             => '订单号不能为空',
-            'busi_order_no.required'        => '商户业务订单号不能为空',
-            'busi_order_no.regex'           => '商户业务订单号必须为纯数字',
-            'cod.required'                  => '支付金额不能为空',
-            'payway.required'               => '支付方式不能为空',
-            'payway.in'                     => '支付方式不存在',
-            'qrtype.required'               => '支付场景不能为空',
-            'qrtype.in'                     => '支付场景不存在',
-            'integer.in'                    => '加密方法不存在',
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
         ];
         $Validate = $this->ApiValidate($rules, $message);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $result = $this->JsonNotifyService->umsPay($this->request);
-        return $result;
-        if($result  != false) {
-            return ['code' => 200, 'message' => $result['message'], 'data' => $result['data']];
-        }else{
-            return ['code' => 100, 'message' => $result['message']];
-        }
+        $result = $this->umsPayService->createOrder($this->request);
+        return ['code' => 200, 'message' => '成功', 'data' => $result];
     }
 
-
-
-
-
-
-
     /**
-     * 微信小程序微信支付接口
-     *
      * @OA\Post(
-     *     path="/api/v1/payments/ums_pay_call_back",
+     *     path="/api/v1/payments/ums_query_clear_date",
      *     tags={"支付模块"},
-     *     summary="银联支付回调接口",
-     *     description="银联支付回调接口,jing",
-     *     operationId="ums_pay_call_back",
+     *     summary="queryClearDate",
+     *     description="sang" ,
+     *     operationId="ums_query_clear_date",
      *     @OA\Parameter(
      *     in="query",
      *     name="sign",
@@ -186,40 +104,265 @@ class UmsPayController extends ApiController
      *     ),
      *     @OA\Parameter(
      *          in="query",
-     *          name="mac",
+     *          name="token",
      *          @OA\Schema(
      *                  type="string",
      *              ),
-     *          description="数据签名 mac",
+     *          description="用户token",
      *          required=true,
      *     ),
      *     @OA\Parameter(
      *          in="query",
-     *          name="code",
+     *          name="order_no",
      *          @OA\Schema(
      *                  type="string",
      *              ),
-     *          description="状态码 code【 00,01,02...】",
+     *          description="订单号",
      *          required=true,
      *     ),
      *     @OA\Parameter(
      *          in="query",
-     *          name="context",
+     *          name="clear_date",
      *          @OA\Schema(
      *                  type="string",
      *              ),
-     *          description="返回的数据json对象",
+     *          description="清算日期",
      *          required=true,
      *     ),
      *     @OA\Response(
-     *          response="default",
-     *          description="操作成功：code = 200，data = ['appId' => 'APPID','timeStamp' => '时间戳','nonceStr' => '随机字符串','package' => '数据包','signType' => '签名类型','sign' => '签名',]",
-     *      )
+     *         response=200,
+     *         description="成功",
+     *     ),
      * )
+     *
+     */
+    public function queryClearDate(){
+        $rules = [
+            'order_no'     => 'required|regex:/\d+$/',
+        ];
+        $message = [
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $response = $this->umsPayService->queryClearDate($this->request);
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/payments/ums_query_trans_date",
+     *     tags={"支付模块"},
+     *     summary="queryTransDate",
+     *     description="sang" ,
+     *     operationId="ums_query_trans_date",
+     *     @OA\Parameter(
+     *     in="query",
+     *     name="sign",
+     *     @OA\Schema(
+     *             type="string",
+     *         ),
+     *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="order_no",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="订单号",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="trans_date",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="交易日期",
+     *          required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function queryTransDate(){
+        $rules = [
+            'order_no'     => 'required|regex:/\d+$/',
+        ];
+        $message = [
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+
+        $response = $this->umsPayService->queryTransDate($this->request);
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/payments/ums_query_by_system_code",
+     *     tags={"支付模块"},
+     *     summary="queryBySystemCode",
+     *     description="sang" ,
+     *     operationId="ums_query_by_system_code",
+     *     @OA\Parameter(
+     *     in="query",
+     *     name="sign",
+     *     @OA\Schema(
+     *             type="string",
+     *         ),
+     *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="order_no",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="订单号",
+     *          required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function queryBySystemCode(){
+        $rules = [
+            'order_no'     => 'required|regex:/\d+$/',
+        ];
+        $message = [
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+
+        $response = $this->umsPayService->queryBySystemCode($this->request);
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/payments/ums_refund",
+     *     tags={"支付模块"},
+     *     summary="refund",
+     *     description="sang" ,
+     *     operationId="ums_refund",
+     *     @OA\Parameter(
+     *     in="query",
+     *     name="sign",
+     *     @OA\Schema(
+     *             type="string",
+     *         ),
+     *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="order_no",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="订单号",
+     *          required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function refund(){
+        $rules = [
+            'order_no'     => 'required|regex:/\d+$/',
+        ];
+        $message = [
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $response = $this->umsPayService->refund($this->request);
+        return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    /**
+     *
+     * @OA\Post(
+     *     path="/api/v1/payments/ums_pay_call_back",
+     *     tags={"支付模块"},
+     *     summary="银联支付回调接口",
+     *     description="用于银联支付支付回调,bardo",
+     *     operationId="ums_pay_call_back",
+     *   @OA\Response(
+     *     response="default",
+     *     description="操作成功：return_code = 'SUCCESS' , return_msg = 'OK'",
+     *     @OA\Schema(
+     *          @OA\Property(property="code",type="string"),
+     *          @OA\Property(property="msg",type="string"),
+     *          @OA\Property(property="data",type="array",
+     *              @OA\Items(
+     *                  @OA\Property(property="appId",type="string"),
+     *                  @OA\Property(property="timeStamp",type="string"),
+     *                  @OA\Property(property="nonceStr",type="string"),
+     *                  @OA\Property(property="package",type="string"),
+     *                  @OA\Property(property="signType",type="string"),
+     *                  @OA\Property(property="sign",type="string"),
+     *              )
+     *          ),
+     *      )
+     *   )
      * )
      */
-    public function UmsPayCallBack()
-    {
-        return $this->JsonNotifyService->doPost($this->request);
+    public function umsPayCallBack(){
+        return $this->umsPayService->payCallBack($this->request);
     }
 }
