@@ -245,7 +245,7 @@ class CollectService extends BaseService
      */
     public function addComment($request)
     {
-        $member  = $this->auth->user();
+        $member    = $this->auth->user();
         $add_arr = [
             'member_id'         => $member->id,
             'content'           => $request['content'],
@@ -253,7 +253,7 @@ class CollectService extends BaseService
             'comment_avatar'    => $member->avatar_id,
             'type'              => CommentsEnum::SHOP,
             'related_id'        => $request['related_id'],
-            'image_ids'         => $request['image_ids'],
+            'image_ids'         => $request['image_ids'] ?? '',
             'status'            => CommentsEnum::SUBMIT,
             'hidden'            => CommentsEnum::HIDDEN,
         ];
