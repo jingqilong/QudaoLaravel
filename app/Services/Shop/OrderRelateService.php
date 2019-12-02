@@ -719,9 +719,12 @@ class OrderRelateService extends BaseService
      */
     public static function payCallBack($order_id, $status){
         if (!$order_relate = ShopOrderRelateRepository::getOne(['order_id' => $order_id])){
+            Loggy::write('error','支付回调：订单相关信息不存在！订单ID：'.$order_id.'，支付结果：'.$status);
             Throw new \Exception('订单相关信息不存在！');
         }
         if (!ShopOrderRelateRepository::getUpdId(['order_id' => $order_id],['status' => $status,'updated_at' => time()])){
+            Loggy::write('error','积分赠送失败！消费积分：'.$order_relate['income_score'].' ,会员ID：'.$order_relate['member_id']);
+            Loggy::write('error','支付回调：订单状态更新失败！订单ID：'.$order_id.'，支付结果：'.$status);
             Throw new \Exception('订单状态更新失败！');
         }
         if ($status == ShopOrderEnum::SHIP){

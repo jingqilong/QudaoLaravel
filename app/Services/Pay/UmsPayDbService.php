@@ -13,6 +13,7 @@ use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesLogRepository;
 use App\Repositories\MemberTradesRepository;
+use App\Services\Activity\RegisterService;
 use App\Services\Shop\OrderRelateService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
@@ -79,17 +80,30 @@ class UmsPayDbService extends BaseService
         //更新订单关联的表
         switch ($order['order_type']){
             case 1://会员充值
+                //TODO 待开发
                 break;
             case 2://参加活动
+                try{
+                    RegisterService::payCallBack($order['order_no']);
+                }catch (\Exception $exception){
+                    DB::rollBack();
+                    Throw new OrderUpdateFailedException($exception->getMessage());
+                }
                 break;
-            case 3://精选生活
+            case 3://精选生活，无
                 break;
             case 4://商城
-                OrderRelateService::payCallBack($order['id'],ShopOrderEnum::SHIP);
+                try{
+                    OrderRelateService::payCallBack($order['id'],ShopOrderEnum::SHIP);
+                }catch (\Exception $exception){
+                    DB::rollBack();
+                    Throw new OrderUpdateFailedException($exception->getMessage());
+                }
                 break;
             default:
                 return true;
         }
+        DB::commit();
         return true;
     }
 
