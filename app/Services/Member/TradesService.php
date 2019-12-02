@@ -105,5 +105,64 @@ class TradesService extends BaseService
         $this->setMessage('获取成功！');
         return $res;
     }
+
+    /**
+     * 获取交易列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getTradeList($request)
+    {
+        $trade_no       = $request['trade_no'] ?? null;
+        $transaction_no = $request['transaction_no'] ?? null;
+        $pay_user_id    = $request['pay_user_id'] ?? null;
+        $payee_user_id  = $request['payee_user_id'] ?? null;
+        $fund_flow      = $request['fund_flow'] ?? null;
+        $trade_method   = $request['trade_method'] ?? null;
+        $status         = $request['status'] ?? null;
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
+        $where          = ['id' => ['<>',0]];
+        if (!is_null($trade_no)){
+            $where['trade_no'] = $trade_no;
+        }
+        if (!is_null($transaction_no)){
+            $where['transaction_no'] = $transaction_no;
+        }
+        if (!is_null($pay_user_id)){
+            $where['pay_user_id'] = $pay_user_id;
+        }
+        if (!is_null($payee_user_id)){
+            $where['payee_user_id'] = $payee_user_id;
+        }
+        if (!is_null($fund_flow)){
+            $where['fund_flow'] = $fund_flow;
+        }
+        if (!is_null($trade_method)){
+            $where['trade_method'] = $trade_method;
+        }
+        if (!is_null($status)){
+            $where['status'] = $status;
+        }
+        $column = ['*'];
+        if (!$trade_list = MemberTradesRepository::getList($where,$column,'create_at','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $trade_list = $this->removePagingField($trade_list);
+        if (empty($trade_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $trade_list;
+        }
+        foreach ( $trade_list['data'] as &$trade){
+            $trade['fund_flow_title']       = $trade['fund_flow'] == '+' ? '进账' : '出账';
+            $trade['trade_method_title']    = TradeEnum::getTradeMethod($trade['trade_method']);
+            $trade['status_title']          = TradeEnum::getStatus($trade['status']);
+            $trade['create_at']             = date('Y-m-d H:i:s',$trade['create_at']);
+            $trade['end_at']                = date('Y-m-d H:i:s',$trade['end_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $trade_list;
+    }
 }
             

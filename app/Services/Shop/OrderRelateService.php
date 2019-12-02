@@ -29,6 +29,7 @@ use App\Services\Message\SendService;
 use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tolawho\Loggy\Facades\Loggy;
 
@@ -93,6 +94,10 @@ class OrderRelateService extends BaseService
      */
     public function submitOrder($request)
     {
+        if (Cache::has($request['token'])){
+            $this->setError('请勿重复提交！');
+            return false;
+        }
         $member = Auth::guard('member_api')->user();
         if (!$address = MemberAddressRepository::getOne(['id' => $request['address_id']])){
             $this->setError('收货地址不存在！');
@@ -228,6 +233,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         DB::commit();
+        Cache::put($request['token'],$request['token'],5);
         $this->setMessage('下单成功！');
         return [
             'status'    => ( $order_add_arr == OrderEnum::STATUSSUCCESS ? 1 : 2),#此状态1表示不需要支付，2表示需要支付
