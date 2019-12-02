@@ -388,7 +388,7 @@ class OrderRelateService extends BaseService
         $goods_ids             = array_column($goods_list,'goods_id');
         $comments              = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
         $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);dd($order_goods_list);
+        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = 0;
