@@ -23,6 +23,30 @@ class ShopGoodsRepository extends ApiRepository
         $this->model = $model;
     }
 
+    /**$recommend_ids
+     * 随机获取推荐的两个商品
+     * @param $where
+     * @param $column
+     * @return |null
+     */
+    protected function getListToTwo($where, $column)
+    {
+        if (!$list =$this->getList($where,['id'])){
+            return $list;
+        }
+        $recommend_ids = array_rand($list,2);
+        if (count($recommend_ids) != 2){
+            return [];
+        }
+        if (!empty($recommend_ids)){
+            $where['id'] = ['in',$recommend_ids];
+        }
+        if (!$list =$this->getList($where,$column)){
+            return $list;
+        }
+        return $list;
+    }
+
     /**
      * 获取收藏列表
      * @param array $collect_ids

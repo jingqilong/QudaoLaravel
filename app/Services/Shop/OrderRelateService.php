@@ -362,7 +362,7 @@ class OrderRelateService extends BaseService
      */
     public function getMyOrderList($request)
     {
-        $member = Auth::guard('member_api')->user();
+        $member     = Auth::guard('member_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
@@ -381,7 +381,7 @@ class OrderRelateService extends BaseService
             return $order_list;
         }
         $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);dd($order_goods_list);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = 0;
