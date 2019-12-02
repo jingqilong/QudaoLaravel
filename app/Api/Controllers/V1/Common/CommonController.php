@@ -586,6 +586,15 @@ class CommonController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="评论列表类别，1商城 （目前只有商城）..",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="content",
      *         in="query",
      *         description="评论内容",
