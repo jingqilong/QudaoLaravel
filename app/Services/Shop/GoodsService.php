@@ -348,6 +348,8 @@ class GoodsService extends BaseService
         $goods_detail['stock']   = ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock'];
         $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
         $goods_detail['comment'] = $comments;
+        $goods_detail['recommend'] = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids']);
+        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single']);
         unset($goods_detail['banner_ids'], $goods_detail['image_ids'],
             $goods_detail['score_categories']
         );

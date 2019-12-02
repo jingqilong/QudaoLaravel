@@ -361,7 +361,7 @@ class OrderRelateService extends BaseService
      */
     public function getMyOrderList($request)
     {
-        $member = Auth::guard('member_api')->user();
+        $member     = Auth::guard('member_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
