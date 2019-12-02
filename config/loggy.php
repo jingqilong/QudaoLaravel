@@ -32,5 +32,10 @@ return [
             'daily' => true,
             'level' => 'debug'
         ],
+        'autotask' => [
+            'log' => 'autotask.log',
+            'daily' => true,
+            'level' => 'debug'
+        ],
     ]
 ];
