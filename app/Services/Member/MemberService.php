@@ -7,6 +7,7 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeRepository;
+use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSpecifyViewRepository;
@@ -315,22 +316,26 @@ class MemberService extends BaseService
     }
 
     /**
+     * 获取自己的成员信息
      * Get user info.
      * @return mixed
      */
     public function getUserInfo(){
-        if (!$user = MemberRepository::getUser()){
-            return false;
+        $user = $this->auth->user();
+        $member_id = $user->id;
+        $info_column            = ['grade','employer','title','industry','brands','category','profile','birthday','address'];
+        $base_column            = ['ch_name','mobile','email','sex','avatar_id'];
+        $member_info            = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column);
+        $member_base            = MemberBaseRepository::getOne(['id' => $member_id],$base_column);
+        $member                 = array_merge($member_base,$member_info);
+        $member['sex']          = MemberEnum::getSex($member['sex'],$member['sex']);
+        $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+        $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
+        $member['category']     = MemberEnum::getCategory($member['category'],$member['category']);
+        foreach ($member as &$value){
+            $value = $value ?? '';
         }
-        $img                        = CommonImagesRepository::getOne(['id' => $user['m_img_id']],['img_url']);
-        $user['head_portrait']      = reset($img);
-        $user['group_name']         = empty($user['m_groupname']) ? '' : MemberEnum::getGrade($user['m_groupname']);
-        $user['category_name']      = empty($user['m_category']) ? '' : MemberEnum::getCategory($user['m_category']);
-        $user['starte']             = empty($user['m_starte']) ? '' : MemberEnum::getStatus($user['m_starte']);
-        $user['sex']                = empty($user['m_sex']) ? '' : MemberEnum::getSex($user['m_sex']);
-        unset($user['m_password']);
-
-        return $user;
+        return $member;
     }
 
     /**

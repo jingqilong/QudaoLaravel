@@ -459,6 +459,97 @@ class CommonController extends ApiController
     }
 
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/common/comments_list",
+     *     tags={"公共"},
+     *     summary="oa 获取评论列表",
+     *     description="jing" ,
+     *     operationId="comments_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="评论列表类别[1商城 （目前只有商城）默认全部]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索关键字【1，姓名 2手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="分页页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="分页数量",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="",
+     *     ),
+     * )
+     *
+     */
+    public function commentsList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'id.required'           => '评论ID不能为空',
+            'id.integer'            => '商城类别不能为空',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '页码数量必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->collectService->commentsList($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->collectService->error];
+    }
+
+
 
     /**
      * @OA\Post(
@@ -488,7 +579,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="related_id",
      *         in="query",
-     *         description="商品订单ID,商品的ID【1,2】",
+     *         description="【商品订单ID,商品的ID】比如【1,2】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",

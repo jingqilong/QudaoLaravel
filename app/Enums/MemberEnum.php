@@ -146,44 +146,54 @@ class MemberEnum extends BaseEnum
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getStatus(int $value,$default = ''){
+        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : $default;
     }
 
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getGrade(int $value){
-        return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : '';
-    }
-    /**
-     * 获取状态label
-     * @param int $value
-     * @return mixed|string
-     */
-    public static function getCategory(int $value){
-        return isset(self::$category[$value]) ? self::$labels[self::$category[$value]] : '';
+    public static function getGrade(int $value,$default = ''){
+        return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : $default;
     }
 
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getSex(int $value){
-        return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : '';
+    public static function getCategory($value,$default = ''){
+        if (empty($value)){
+            return $default;
+        }
+        return isset(self::$category[$value]) ? self::$labels[self::$category[$value]] : $default;
     }
+
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getIdentity(int $value){
-        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : '';
+    public static function getSex(int $value,$default = ''){
+        return isset(self::$sex[$value]) ? self::$labels[self::$sex[$value]] : $default;
+    }
+
+    /**
+     * 获取状态label
+     * @param int $value
+     * @param string $default
+     * @return mixed|string
+     */
+    public static function getIdentity(int $value,$default = ''){
+        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : $default;
     }
 
 }
