@@ -35,7 +35,7 @@ class CommonCommentsRepository extends ApiRepository
         if (!$comment = $this->getOrderOne($where,'created_at','desc',$check)){
             return [];
         }
-        $comment = ImagesService::getOneImagesConcise($comment,['comment_avatar' => 'several']);
+        $comment = ImagesService::getOneImagesConcise($comment,['comment_avatar' => 'single']);
         $comment['created_at'] = date('Y-m-d',strtotime($comment['created_at']));
         unset($comment['image_ids'],$comment['comment_avatar']);
         return $comment;
