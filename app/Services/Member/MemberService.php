@@ -283,7 +283,7 @@ class MemberService extends BaseService
         }
         foreach ($list['data'] as &$value){
            $value['grade']      = MemberEnum::getGrade($value['grade'],$value['grade']);
-           $value['category']   = MemberEnum::getGrade($value['category'],$value['category']);
+           $value['category']   = MemberEnum::getCategory($value['category'],$value['category']);
         }
         $this->setMessage('获取成功！');
         return $list;
