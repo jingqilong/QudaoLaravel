@@ -19,6 +19,7 @@ class QiNiuEnum extends BaseEnum
         'PROJECT'       => '精选生活',
         'SHOP'          => '商城模块',
         'SPACE'         => '私享空间',
+        'ACTIVITYVIDEO' => '活动视频',
     ];
 
     public static $spaces = [
@@ -32,6 +33,7 @@ class QiNiuEnum extends BaseEnum
         8 => 'qudao-project-img',
         9 => 'qudao-shop-img',
         10 => 'qudao-space-img',
+        11 => 'video-qudao',
     ];
     public static $module = [
         1 => 'ACTIVITY',
@@ -44,6 +46,7 @@ class QiNiuEnum extends BaseEnum
         8 => 'PROJECT',
         9 => 'SHOP',
         10 => 'SPACE',
+        11 => 'ACTIVITYVIDEO',
     ];
 
     // constants
@@ -67,6 +70,8 @@ class QiNiuEnum extends BaseEnum
     const SHOP          = 9;
 
     const SPACE         = 10;
+
+    const ACTIVITYVIDEO = 11;
 
     /**
      * @param $const

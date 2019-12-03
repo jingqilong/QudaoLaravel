@@ -585,6 +585,7 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'qiniu'], function ($api){
             //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
             $api->post('upload_images', 'QiNiuController@uploadImages')->name('上传图片至七牛云');
+            $api->post('add_resource', 'QiNiuController@addResource')->name('添加资源到资源库');
         });
 
         //公共模块

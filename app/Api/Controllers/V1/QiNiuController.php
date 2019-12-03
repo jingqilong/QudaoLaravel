@@ -5,20 +5,24 @@ namespace App\Api\Controllers\V1;
 
 
 use App\Api\Controllers\ApiController;
+use App\Services\Common\ImagesService;
 use App\Services\Common\QiNiuService;
 
 class QiNiuController extends ApiController
 {
     public $qiNiuService;
+    public $imagesService;
 
     /**
      * QiNiuController constructor.
-     * @param $qiNiuService
+     * @param QiNiuService $qiNiuService
+     * @param ImagesService $imagesService
      */
-    public function __construct(QiNiuService $qiNiuService)
+    public function __construct(QiNiuService $qiNiuService,ImagesService $imagesService)
     {
         parent::__construct();
         $this->qiNiuService = $qiNiuService;
+        $this->imagesService = $imagesService;
     }
 
     /**
@@ -85,7 +89,6 @@ class QiNiuController extends ApiController
             'storage_space.required' => '请输入存储空间类别',
             'storage_space.integer'  => '存储空间类别必须为整数',
         ];
-        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
@@ -95,5 +98,73 @@ class QiNiuController extends ApiController
             return ['code' => 100, 'message' => $res['message']];
         }
         return ['code' => 200, 'message' => $res['message'], 'data' => $res['data']];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/qiniu/add_resource",
+     *     tags={"七牛云"},
+     *     summary="添加资源到资源库",
+     *     description="sang" ,
+     *     operationId="add_resource",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="storage_space",
+     *         in="query",
+     *         description="存储空间类别【1、精彩活动，2、医疗特约，3、企业咨询，4、房产-租赁，
+     *                      5、会员头像，6、项目对接，7、成员风采，8、精选生活，9、商城模块，10、私享空间，11，活动视频】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="url",
+     *         in="query",
+     *         description="资源url",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return array
+     */
+    public function addResource(){
+        $rules = [
+            'storage_space' => 'required|integer',
+            'url'           => 'required|url',
+        ];
+        $messages = [
+            'storage_space.required' => '请输入存储空间类别',
+            'storage_space.integer'  => '存储空间类别必须为整数',
+            'url.required'           => '请输入资源url',
+            'url.url'                => '资源url不是一个合法的链接',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->imagesService->addResource($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->imagesService->error];
+        }
+        return ['code' => 200, 'message' => $this->imagesService->message, 'data' => $res];
     }
 }
