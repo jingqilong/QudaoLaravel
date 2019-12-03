@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\Gd\Font;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Tolawho\Loggy\Facades\Loggy;
 
 class RegisterService extends BaseService
@@ -434,13 +435,14 @@ class RegisterService extends BaseService
         }
         //职称
         $member_employer = MemberInfoRepository::getField(['member_id' => $member->id],'employer');
-        $member_employer = empty($member_employer) ? '' : reset(explode(',',$member_employer));
+//        $member_employer = empty($member_employer) ? '' : reset(explode(',',$member_employer));
         list($address)   = $this->makeAddress($activity['area_code'],$activity['address'],2);
         //生成图片
         $image_url = $this->createdAdmissionTicket([
             'activity_name' => $activity['name'],
             'member_name'   => $member->ch_name,
-            'member_title'  => $member_employer,
+//            'member_title'  => $member_employer,
+            'member_title'  => '上海市茶叶行业协会 秘书长',
             'activity_time' => date('Y年m/d',$activity['start_time']) .'-'. date('m/d',$activity['end_time']),
             'activity_address' => $address,
             'sign_in_code'  => $register['sign_in_code']
@@ -455,50 +457,76 @@ class RegisterService extends BaseService
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
-        $back_image = public_path('images\admission_ticket.png');
         //获取背景图
+        $back_image = public_path('images\admission_ticket.png');
+        Image::cache(function (Image $admission_image){
+
+        },2592000,true);
         $admission_image = Image::make($back_image);
+        $font_path = public_path('font\pingfang\PingFangBold.ttf');
         //添加活动名称
         $activity_name = $data['activity_name'];
-        $admission_image->text($activity_name,315,200,function (Font $font){
+        $admission_image->text($activity_name,315,120,function (Font $font)use ($font_path){
+            $font->file($font_path);
+            $font->size(48);
+            $font->color('#F5E6BA');
+            $font->align('center');
+            $font->valign('top');
+        });
+        //添加《渠道PLUS成员专享通道》
+        $admission_image->line(117, 182, 177, 182, function ($draw) {
+            $draw->color('#F5E6BA');
+        });
+        $admission_image->text("渠道PLUS成员专享通道",315,175,function (Font $font)use ($font_path){
+            $font->file($font_path);
             $font->size(24);
             $font->color('#F5E6BA');
-//            $font->align('center');
-//            $font->valign('top');
-//            $font->angle(45);
-        });dd($admission_image);
-//        //添加会员名称
-//        $admission_image->text($data['member_name'],0,0,function ($font){
-//            $font->size(24);
-//            $font->color('#fdf6e3');
-//            $font->align('center');
-//            $font->valign('top');
-//            $font->angle(45);
-//        });
-//        //添加会员职务
-//        $admission_image->text($data['member_title'],0,0,function ($font){
-//            $font->size(24);
-//            $font->color('#fdf6e3');
-//            $font->align('center');
-//            $font->valign('top');
-//            $font->angle(45);
-//        });
-//        //添加活动时间
-//        $admission_image->text('TIME:'.$data['activity_time'],0,0,function ($font){
-//            $font->size(24);
-//            $font->color('#fdf6e3');
-//            $font->align('center');
-//            $font->valign('top');
-//            $font->angle(45);
-//        });
-//        //添加活动地点
-//        $admission_image->text('ADD:'.$data['activity_address'],0,0,function ($font){
-//            $font->size(24);
-//            $font->color('#fdf6e3');
-//            $font->align('center');
-//            $font->valign('top');
-//            $font->angle(45);
-//        });
+            $font->align('center');
+            $font->valign('top');
+        });
+        $admission_image->line(453, 182, 513, 182, function ($draw) {
+            $draw->color('#F5E6BA');
+        });
+        //添加会员名称
+        $admission_image->text($data['member_name'],315,346,function (Font $font)use ($font_path){
+            $font->file($font_path);
+            $font->size(46);
+            $font->color('#FFFFFF');
+            $font->align('center');
+            $font->valign('top');
+        });
+        //添加会员职务
+        $admission_image->text($data['member_title'],315,400,function (Font $font)use ($font_path){
+            $font->file($font_path);
+            $font->size(38);
+            $font->color('#FFFFFF');
+            $font->align('center');
+            $font->valign('top');
+        });
+        //添加活动时间
+        $admission_image->text('TIME:'.$data['activity_time'],40,724,function (Font $font)use ($font_path){
+            $font->file($font_path);
+            $font->size(20);
+            $font->color('#999999');
+            $font->valign('left');
+        });
+        //添加活动地点
+        $admission_image->text('ADD:'.$data['activity_address'],40,768,function (Font $font)use ($font_path){
+            $font->file($font_path);
+            $font->size(20);
+            $font->color('#999999');
+            $font->valign('left');
+        });
+        //生成二维码并插入到图片
+        $qrcode_path = public_path('/'.$data['sign_in_code'].'.png');
+        QrCode::format('png')
+            ->size(120)
+            ->margin(0)
+            ->errorCorrection('M')
+            ->generate($data['sign_in_code'], $qrcode_path);
+        $admission_image->insert($qrcode_path, 'bottom-right', 40, 40);
+        //使用完二维码后，删除它
+        unlink($qrcode_path);
         $path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
         $admission_image->save($path,80,'png');
         return url('admission_ticket/'.$data['sign_in_code'].'.png');

@@ -414,13 +414,16 @@ class DetailService extends BaseService
             }
         }
         if ($activity['start_time'] > time()){
-            $activity['status'] = '报名中';
+            $activity['status'] = 1;
+            $activity['status_title'] = '报名中';
         }
         if ($activity['start_time'] < time() && $activity['end_time'] > time()){
-            $activity['status'] = '进行中';
+            $activity['status'] = 2;
+            $activity['status_title'] = '进行中';
         }
         if ($activity['end_time'] < time()){
-            $activity['status'] = '已结束';
+            $activity['status'] = 3;
+            $activity['status_title'] = '已结束';
         }
         #是否收藏
         $activity['is_collect'] = 0;
