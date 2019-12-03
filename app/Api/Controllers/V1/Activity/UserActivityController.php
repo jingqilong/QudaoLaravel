@@ -292,6 +292,24 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="price",
+     *         in="query",
+     *         description="收费，1免费，2收费",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态，1，未开始，2进行中，3已结束",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -320,12 +338,16 @@ class UserActivityController extends ApiController
         $rules = [
             'theme_id'      => 'integer',
             'is_recommend'  => 'in:1',
+            'price'         => 'in:1,2',
+            'status'        => 'in:1,2,1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'theme_id.integer'      => '活动主题ID必须为整数',
             'is_recommend.in'       => '是否推荐取值应为1',
+            'price.in'              => '费用类型不存在',
+            'status.in'             => '状态不存在',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];

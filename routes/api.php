@@ -261,6 +261,7 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_comment','CommentController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','RegisterController@activityRegister')->name('活动报名');
+                $api->get('get_admission_ticket','RegisterController@getAdmissionTicket')->name('获取入场券');
                 $api->post('sign_in','RegisterController@signIn')->name('活动签到');
                 $api->get('sign_in_list','RegisterController@signList')->name('获取活动签到列表');
             });

@@ -517,7 +517,7 @@ class RegisterController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/activity/get_admission_ticket",
      *     tags={"精选活动"},
      *     summary="获取入场券",
@@ -550,15 +550,6 @@ class RegisterController extends ApiController
      *             type="integer",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="audit",
-     *         in="query",
-     *         description="审核结果，1通过，2驳回",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="审核失败",
@@ -569,13 +560,10 @@ class RegisterController extends ApiController
     public function getAdmissionTicket(){
         $rules = [
             'register_id'   => 'required|integer',
-            'audit'         => 'required|in:1,2',
         ];
         $messages = [
             'register_id.required'      => '报名ID不能为空',
             'register_id.integer'       => '报名ID必须为整数',
-            'audit.required'            => '审核结果不能为空',
-            'audit.in'                  => '审核结果取值有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
