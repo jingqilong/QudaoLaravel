@@ -213,12 +213,8 @@ $api->version('v1',function ($api){
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
 
                 $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
-                $api->delete('delete_host','ActivityController@deleteHost')->name('删除活动举办方');
-                $api->post('edit_host','ActivityController@editHost')->name('修改活动举办方');
 
                 $api->post('activity_add_link','ActivityController@activityAddLink')->name('添加活动相关链接');
-                $api->delete('delete_link','ActivityController@deleteLink')->name('删除活动链接');
-                $api->post('edit_link','ActivityController@editLink')->name('修改活动链接');
 
                 $api->post('add_activity_theme','ThemeController@addActivityTheme')->name('添加活动主题');
                 $api->delete('delete_activity_theme','ThemeController@deleteActivityTheme')->name('删除活动主题');

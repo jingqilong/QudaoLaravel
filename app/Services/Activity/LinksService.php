@@ -5,6 +5,7 @@ namespace App\Services\Activity;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityLinksRepository;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\DB;
 
 class LinksService extends BaseService
 {
@@ -44,55 +45,20 @@ class LinksService extends BaseService
                 'updated_at'    => time(),
             ];
         }
+        DB::beginTransaction();
+        ActivityLinksRepository::delete(['activity_id'   => $request['activity_id']]);
+        if (ActivityLinksRepository::exists(['activity_id'   => $request['activity_id']])){
+            $this->setError('添加失败！');
+            DB::rollBack();
+            return false;
+        }
         if (!ActivityLinksRepository::create($add_arr)){
             $this->setError('添加失败！');
+            DB::rollBack();
             return false;
         }
         $this->setMessage('添加成功！');
-        return true;
-    }
-
-    /**
-     * 删除链接
-     * @param $id
-     * @return bool
-     */
-    public function deleteLink($id)
-    {
-        if (!ActivityLinksRepository::exists(['id' => $id])){
-            $this->setError('链接不存在！');
-            return false;
-        }
-        if (!ActivityLinksRepository::delete(['id' => $id])){
-            $this->setError('删除失败！');
-            return false;
-        }
-        $this->setMessage('删除成功！');
-        return true;
-    }
-
-    /**
-     * 编辑链接
-     * @param $request
-     * @return bool
-     */
-    public function editLink($request)
-    {
-        if (!ActivityLinksRepository::exists(['id' => $request['id']])){
-            $this->setError('链接不存在！');
-            return false;
-        }
-        $upd_arr = [
-            'title'         => $request['title'],
-            'url'           => $request['url'],
-            'image_id'      => $request['image_id'],
-            'updated_at'    => time()
-        ];
-        if (!ActivityLinksRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            $this->setError('修改失败！');
-            return false;
-        }
-        $this->setMessage('修改成功！');
+        DB::commit();
         return true;
     }
 }

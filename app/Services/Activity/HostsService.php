@@ -5,6 +5,7 @@ namespace App\Services\Activity;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityHostsRepository;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\DB;
 
 class HostsService extends BaseService
 {
@@ -53,55 +54,20 @@ class HostsService extends BaseService
                 'updated_at'    => time(),
             ];
         }
+        DB::beginTransaction();
+        ActivityHostsRepository::delete(['activity_id'   => $request['activity_id']]);
+        if (ActivityHostsRepository::exists(['activity_id'   => $request['activity_id']])){
+            $this->setError('添加失败！');
+            DB::rollBack();
+            return false;
+        }
         if (!ActivityHostsRepository::create($add_arr)){
             $this->setError('添加失败！');
+            DB::rollBack();
             return false;
         }
         $this->setMessage('添加成功！');
-        return true;
-    }
-
-    /**
-     * 删除活动举办方记录
-     * @param $id
-     * @return bool
-     */
-    public function deleteHost($id)
-    {
-        if (!ActivityHostsRepository::exists(['id' => $id])){
-            $this->setError('举办方记录不存在！');
-            return false;
-        }
-        if (!ActivityHostsRepository::delete(['id' => $id])){
-            $this->setError('删除失败！');
-            return false;
-        }
-        $this->setMessage('删除成功！');
-        return true;
-    }
-
-    /**
-     * 修改活动举办单位
-     * @param $request
-     * @return bool
-     */
-    public function editHost($request)
-    {
-        if (!ActivityHostsRepository::exists(['id' => $request['id']])){
-            $this->setError('举办方记录不存在！');
-            return false;
-        }
-        $upd_arr = [
-            'type'          => $request['type'],
-            'name'          => $request['name'],
-            'logo_id'       => $request['logo_id'],
-            'updated_at'    => time()
-        ];
-        if (!ActivityHostsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            $this->setError('修改失败！');
-            return false;
-        }
-        $this->setMessage('修改成功！');
+        DB::commit();
         return true;
     }
 }
