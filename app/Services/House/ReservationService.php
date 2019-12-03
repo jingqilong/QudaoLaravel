@@ -8,6 +8,7 @@ use App\Enums\MessageEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
@@ -184,7 +185,7 @@ class ReservationService extends BaseService
             return [];
         }
         $house_ids = array_column($house_list,'id');
-        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time','house_id'],'id','desc',$page,$page_num)){
+        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time','name','house_id'],'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
