@@ -54,7 +54,7 @@ class ImagesService extends BaseService
      * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
      * @return array
      */
-    protected function getListImages(array $list, array $column){
+    protected function getListImages(array $list, array $column,$merge = false){
         if (empty($list) || empty($column)){
             $this->setError('数据列表或查询列为空！');
             return $list;
@@ -88,6 +88,9 @@ class ImagesService extends BaseService
                         $urls = [];
                         foreach ($ids as $id){
                             if ($image = self::searchArray($all_image_list,'id',$id)){
+                                if ($merge)
+                                    $urls[] = reset($image)['img_url'];
+                                else
                                 $urls[] = reset($image);
                             }
                         }

@@ -412,6 +412,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 #房源发布
                 $api->post('publish_house', 'HouseController@publishHouse')->name('个人发布房源');
+                $api->get('get_my_house_list', 'HouseController@getMyHouseList')->name('获取我的房源列表');
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
                 $api->delete('delete_self_house', 'HouseController@deleteSelfHouse')->name('个人删除房源');
                 $api->get('get_home_list', 'HouseController@getHomeList')->name('获取房产首页列表');

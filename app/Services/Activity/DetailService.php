@@ -2,6 +2,7 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\ActivityRegisterEnum;
 use App\Enums\CollectTypeEnum;
 use App\Repositories\{ActivityCollectRepository,
     ActivityDetailRepository,
@@ -451,6 +452,16 @@ class DetailService extends BaseService
                 $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
             }
             $activity['links'] = $link_list;
+        }
+        //判断用户是否已报名
+        $activity['register_status'] = 0;
+        $activity['order_no'] = '';
+        $activity_where = ['member_id' => $member->id,'activity_id' => $id,'status' => ['in',[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]];
+        if ($register = ActivityRegisterRepository::getOrderOne($activity_where,'created_at')){
+            $activity['register_status'] = $register['status'];
+            if ($register['status'] != ActivityRegisterEnum::PENDING){
+                $activity['order_no'] = $register['order_no'];
+            }
         }
         $this->setMessage('获取成功！');
         return $activity;

@@ -89,21 +89,21 @@ class RegisterService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if ($register_id = ActivityRegisterRepository::getAddId($add_arr)){
-            $title   = '活动报名成功';
-            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
-            #发送短信
-            if (!empty($member->m_phone)){
-                $sms = new SmsService();
-                $sms->sendContent($member->m_phone,$content);
-            }
-            #发送站内信
-            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
-            $this->setMessage('报名成功！');
-            return true;
+        if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
+            $this->setError('报名失败！');
+            return false;
         }
-        $this->setError('报名失败！');
-        return false;
+        $title   = '活动报名成功';
+        $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
+        #发送短信
+        if (!empty($member->m_phone)){
+            $sms = new SmsService();
+            $sms->sendContent($member->m_phone,$content);
+        }
+        #发送站内信
+        SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        $this->setMessage('报名成功！');
+        return true;
     }
 
 

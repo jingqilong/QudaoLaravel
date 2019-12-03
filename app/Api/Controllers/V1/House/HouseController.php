@@ -269,6 +269,76 @@ class HouseController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/house/get_my_house_list",
+     *     tags={"房产租赁"},
+     *     summary="获取我的房源列表",
+     *     description="sang" ,
+     *     operationId="get_my_house_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMyHouseList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->detailService->getMyHouseList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->detailService->error];
+        }
+        return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/house/get_house_detail",
      *     tags={"房产租赁"},
      *     summary="获取房产详情",
