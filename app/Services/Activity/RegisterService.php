@@ -19,6 +19,8 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
+use function GuzzleHttp\Promise\inspect_all;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
@@ -431,6 +433,10 @@ class RegisterService extends BaseService
             $this->setError('报名信息不存在！');
             return false;
         }
+        if (!in_array($register['status'],[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED])){
+            $this->setError('您的报名未成功，还不能获取入场券！');
+            return false;
+        }
         //获取用户信息及活动信息
         if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id']],['name','area_code','address','start_time','end_time'])){
             $this->setError('活动信息不存在！');
@@ -461,7 +467,7 @@ class RegisterService extends BaseService
     /**
      * 入场券图片合成
      * @param $data
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
         $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
