@@ -286,7 +286,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户TOKEN",
+     *         description="用户 TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -295,7 +295,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【会员卡号，成员中文名，成员英文名，成员类别，成员手机号】",
+     *         description="搜索内容【成员中文名，，成员类别，成员手机号】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -304,7 +304,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="asc",
      *         in="query",
-     *         description="排序方式[1 最早加入 2 最新加入]",
+     *         description="排序方式[1 最早加入 2 最新加入 默认1]",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -341,21 +341,21 @@ class MemberController extends ApiController
             'keywords'      => 'string',
             'page'          => 'integer',
             'page_num'      => 'integer',
-            'asc'           => 'integer',
         ];
         $messages = [
             'keywords.string'           => '关键字类型不正确',
             'page.integer'              => '页码不是整数',
             'page_num.integer'          => '每页显示条数不是整数',
-            'asc.integer'               => '排序方式不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->memberService->getMemberList($this->request);
-
-        return ['code' => 200,'message' => $this->memberService->message,'data' => $list];
+        $res  = $this->memberService->getMemberList($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->memberService->error];
+        }
+        return ['code' => 200,'message' => $this->memberService->message,'data' => $res];
     }
 
     /**
@@ -404,8 +404,8 @@ class MemberController extends ApiController
             'id'           => 'required|integer',
         ];
         $messages = [
-            'id.required'           => '会员id不能为空',
-            'id.integer'            => '查看会员id不是整数',
+            'id.required'  => '会员id不能为空',
+            'id.integer'   => '会员id不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -612,10 +612,10 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $check_sms];
         }
         $res = $this->memberService->mobileLogin($this->request['mobile']);
-        if ($res['code'] == 0){
-            return ['code' => 100, 'message' => $res['message']];
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $res['message'], 'data' => $res['data']];
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
     }
 
 
@@ -668,32 +668,14 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="m_id",
-     *         in="query",
-     *         description="用户ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="m_phone",
-     *         in="query",
-     *         description="手机号",
+     *         description="用户 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *      @OA\Parameter(
-     *         name="m_password",
+     *         name="password",
      *         in="query",
      *         description="原始密码",
      *         required=true,
@@ -702,7 +684,7 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="m_repwd",
+     *         name="repwd",
      *         in="query",
      *         description="新密码",
      *         required=true,
@@ -723,18 +705,18 @@ class MemberController extends ApiController
     public function updateUserPassword()
     {
         $rules = [
-            //'m_password'    => 'required',
-            'm_repwd'       => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
-            'm_phone'       => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'password'    => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
+            'repwd'       => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
         ];
         $messages = [
-            //'m_password.required'   => '请输入原始密码',
-            'm_repwd.required'      => '请输入新密码',
-            'm_repwd.regex'         => '新密码格式不正确',
-            'm_repwd.min'           => '新密码最少6位数',
-            'm_repwd.max'           => '新密码最多30位数',
-            'mobile.required'       => '请输入手机号',
-            'mobile.regex'          => '手机号格式有误',
+            'password.required'   => '请输入原始密码',
+            'password.regex'      => '密码格式不正确',
+            'password.min'        => '密码最少6位数',
+            'password.max'        => '密码最多30位数',
+            'repwd.required'      => '请输入新密码',
+            'repwd.regex'         => '新密码格式不正确',
+            'repwd.min'           => '新密码最少6位数',
+            'repwd.max'           => '新密码最多30位数',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
@@ -775,7 +757,7 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="m_phone",
+     *         name="mobile",
      *         in="query",
      *         description="手机号",
      *         required=true,
@@ -793,7 +775,7 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="m_password",
+     *         name="password",
      *         in="query",
      *         description="新密码",
      *         required=true,
@@ -802,7 +784,7 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="m_repwd",
+     *         name="repwd",
      *         in="query",
      *         description="确认密码",
      *         required=true,
@@ -823,23 +805,23 @@ class MemberController extends ApiController
     public function forgetPassword()
     {
         $rules = [
-            'm_password'    => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
-            'm_repwd'       => 'required|same:m_password',
-            'm_phone'       => 'required|regex:/^1[3456789][0-9]{9}$/',
-            'code'          => 'required|min:4|max:4',
+            'password'    => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
+            'repwd'       => 'required|same:password',
+            'mobile'      => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'code'        => 'required|min:4|max:4',
         ];
         $messages = [
-            'm_password.required' => '请输入新密码',
-            'm_password.regex'    => '新密码格式不正确',
-            'm_password.min'      => '新密码最少6位数',
-            'm_password.max'      => '新密码最多30位数',
-            'm_repwd.required'    => '请输入确认密码',
-            'm_repwd.same'        => '两次密码不一致',
-            'm_phone.required'     => '请输入手机号',
-            'm_phone.regex'        => '手机号格式有误',
-            'code.required'       => '请输入验证码',
-            'code.min'            => '验证码不能少于4位',
-            'code.max'            => '验证码不能多于4位',
+            'password.required' => '请输入新密码',
+            'password.regex'    => '新密码格式不正确',
+            'password.min'      => '新密码最少6位数',
+            'password.max'      => '新密码最多30位数',
+            'repwd.required'    => '请输入确认密码',
+            'repwd.same'        => '两次密码不一致',
+            'mobile.required'   => '请输入手机号',
+            'mobile.regex'      => '手机号格式有误',
+            'code.required'     => '请输入验证码',
+            'code.min'          => '验证码不能少于4位',
+            'code.max'          => '验证码不能多于4位',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
@@ -847,15 +829,15 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         //短信验证
-        $check_sms = $this->smsService->checkCode($this->request['m_phone'],SMSEnum::CHANGEPASSWORD, $this->request['code']);
+        $check_sms = $this->smsService->checkCode($this->request['phone'],SMSEnum::CHANGEPASSWORD, $this->request['code']);
         if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
         }
         $res = $this->memberService->smsChangePassword($this->request);
-        if ($res['code'] == 0){
-            return ['code' => 100, 'message' => $res['message']];
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $res['message']];
+        return ['code' => 200, 'message' => $this->memberService->message];
     }
 
 
@@ -935,16 +917,16 @@ class MemberController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_numcard",in="query",description="身份证",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_wechattext",in="query",description="微信推广",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="numcard",in="query",description="身份证",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="wechattext",in="query",description="微信推广[1需要 2 不需要]",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -955,24 +937,23 @@ class MemberController extends ApiController
     public function perfectMemberInfo()
     {
         $rules = [
-            'm_phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
-            'm_sex'                      => 'required|integer',
-            'm_cname'                    => 'required|string',
-            'm_email'                    => 'email',
-            'm_birthday'                 => 'required',
-            //'m_numcard'                  => 'required|regex:/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/',
-            'm_address'                  => 'required',
+            'phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
+            'sex'                      => 'required|integer',
+            'cname'                    => 'required|string',
+            'email'                    => 'email',
+            'birthday'                 => 'required',
+            'address'                  => 'required',
         ];
         $messages = [
-            'm_phone.required'           => '请填写手机号码',
-            'm_phone.regex'              => '手机号码不正确',
-            'm_sex.required'             => '请填写性别',
-            'm_sex.integer'              => '请正确填写性别',
-            'm_cname.string'             => '请正确填写姓名',
-            'm_cname.required'           => '请填写中文姓名',
-            'm_email.email'              => '邮箱格式不正确',
-            'm_birthday.required'        => '生日未填写',
-            'm_address.required'         => '请填写您的地址',
+            'phone.required'           => '请填写手机号码',
+            'phone.regex'              => '手机号码不正确',
+            'sex.required'             => '请填写性别',
+            'sex.integer'              => '请正确填写性别',
+            'cname.string'             => '请正确填写姓名',
+            'cname.required'           => '请填写中文姓名',
+            'email.email'              => '邮箱格式不正确',
+            'birthday.required'        => '生日未填写',
+            'address.required'         => '请填写您的地址',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -1010,7 +991,6 @@ class MemberController extends ApiController
      *     @OA\Parameter(name="m_workunits",in="query",description="单位",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="m_address",in="query",description="地址",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_zipaddress",in="query",description="杂志寄送地址",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_socialposition",in="query",description="社会职务[泰基企业 董事长,老凤祥 董事长]",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
      *     @OA\Response(

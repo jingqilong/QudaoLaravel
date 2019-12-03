@@ -10,7 +10,7 @@ class MemberGradeViewModel extends Model
      *
      * @var string
      */
-    protected $table = 'member_grade_view';
+    protected $table = 'member_grade_info_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -24,10 +24,10 @@ class MemberGradeViewModel extends Model
      *
      * @var bool
      */
-    protected $primaryKey = 'user_id';
+    protected $primaryKey = 'id';
 
 
-    protected $fillable = ['user_id','grade','view_grade','created_at','updated_at'];
+    protected $fillable = ['id','card_no','ch_name','mobile','grade','img_url','title','category','status','hidden','created_at','deleted_at'];
 
 
 
