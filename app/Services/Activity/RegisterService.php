@@ -15,6 +15,7 @@ use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
@@ -353,7 +354,7 @@ class RegisterService extends BaseService
         $page_num = $request['page_num'] ?? 20;
         $status = $request['status'] ?? null;
         $where  = ['member_id' => $member->id];
-        if (!$register_list = ActivityRegisterRepository::getList($where,['id','activity_id','status'])){
+        if (!$register_list = ActivityRegisterRepository::getList($where,['id','activity_id','sign_in_code','status'])){
             $this->setMessage('暂无活动！');
             return [];
         }
@@ -387,6 +388,7 @@ class RegisterService extends BaseService
         $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
         $icon_ids   = array_column($themes,'icon_id');
         $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        $activity_list['data'] = ImagesService::getListImagesConcise($activity_list['data'],['cover_id' => 'single']);
         foreach ($activity_list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)
@@ -409,7 +411,8 @@ class RegisterService extends BaseService
             $start_time    = date('Y年m/d',$value['start_time']);
             $end_time      = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
-            $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
+            $sign_code_list = $this->searchArray($register_list,'activity_id',$value['id']);
+            $value['sign_in_code']  = reset($sign_code_list)['sign_in_code'];
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
         }
         $this->setMessage('获取成功！');
