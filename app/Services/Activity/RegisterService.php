@@ -19,6 +19,8 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
+use function GuzzleHttp\Promise\inspect_all;
+use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
@@ -431,6 +433,10 @@ class RegisterService extends BaseService
             $this->setError('报名信息不存在！');
             return false;
         }
+        if (!in_array($register['status'],[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED])){
+            $this->setError('您的报名未成功，还不能获取入场券！');
+            return false;
+        }
         //获取用户信息及活动信息
         if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id']],['name','area_code','address','start_time','end_time'])){
             $this->setError('活动信息不存在！');
@@ -438,17 +444,21 @@ class RegisterService extends BaseService
         }
         //职称
         $member_employer = MemberInfoRepository::getField(['member_id' => $member->id],'employer');
-//        $member_employer = empty($member_employer) ? '' : reset(explode(',',$member_employer));
+        if (!empty($member_employer)){
+            $member_employers = explode(',',$member_employer);
+            $member_employer  = reset($member_employers);
+        }
+        $member_employer = empty($member_employer) ? '' : $member_employer;
         list($address)   = $this->makeAddress($activity['area_code'],$activity['address'],2);
         //生成图片
         $image_url = $this->createdAdmissionTicket([
-            'activity_name' => $activity['name'],
-            'member_name'   => $member->ch_name,
-//            'member_title'  => $member_employer,
-            'member_title'  => '上海市茶叶行业协会 秘书长',
-            'activity_time' => date('Y年m/d',$activity['start_time']) .'-'. date('m/d',$activity['end_time']),
-            'activity_address' => $address,
-            'sign_in_code'  => $register['sign_in_code']
+            'activity_name'     => $activity['name'],
+            'member_name'       => $member->ch_name,
+            'member_title'      => $member_employer,
+//            'member_title'      => '上海市茶叶行业协会 秘书长',
+            'activity_time'     => date('Y年m/d',$activity['start_time']) .'-'. date('m/d',$activity['end_time']),
+            'activity_address'  => $address,
+            'sign_in_code'      => $register['sign_in_code']
         ]);
         $this->setMessage('生成成功！');
         return $image_url;
@@ -457,14 +467,15 @@ class RegisterService extends BaseService
     /**
      * 入场券图片合成
      * @param $data
-     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     * @return UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
+        $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        if (file_exists($img_path)){
+            return url('admission_ticket/'.$data['sign_in_code'].'.png');
+        }
         //获取背景图
         $back_image = public_path('images\admission_ticket.png');
-        Image::cache(function (Image $admission_image){
-
-        },2592000,true);
         $admission_image = Image::make($back_image);
         $font_path = public_path('font\pingfang\PingFangBold.ttf');
         //添加活动名称
@@ -530,8 +541,8 @@ class RegisterService extends BaseService
         $admission_image->insert($qrcode_path, 'bottom-right', 40, 40);
         //使用完二维码后，删除它
         unlink($qrcode_path);
-        $path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
-        $admission_image->save($path,80,'png');
+        $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        $admission_image->save($img_path);
         return url('admission_ticket/'.$data['sign_in_code'].'.png');
     }
 }
