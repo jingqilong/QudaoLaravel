@@ -36,7 +36,7 @@ class HouseDetailsRepository extends ApiRepository
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS,'id' => ['in',$collect_ids]];
         $order      = 'id';
         $desc_asc   = 'desc';
-        $column = ['id','title','area_code','describe','rent','tenancy','decoration','image_ids','storey','condo_name','category'];
+        $column = ['id','title','area','area_code','describe','rent','tenancy','decoration','image_ids','storey','condo_name','category'];
         if (!$list = $this->getList($where,$column,$order,$desc_asc,$page,$page_num)){
             return [];
         }
