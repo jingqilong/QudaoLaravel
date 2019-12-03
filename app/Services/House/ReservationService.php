@@ -102,7 +102,12 @@ class ReservationService extends BaseService
         $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
         $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
-            $value['house_title'] = '';
+            $value['condo_name']   = '';
+            $value['decoration']   = '';
+            $value['area']         = '';
+            $value['category']     = '';
+            $value['image_url']    = '';
+            $value['house_title']  = '';
             $value['area_address'] = '';
             $value['rent'] = '';
             if ($house = $this->searchArray($house_list,'id',$value['house_id'])){
@@ -113,7 +118,7 @@ class ReservationService extends BaseService
                 $value['category']              = HouseEnum::getCategory($house['category']);
                 $value['image_url']             = $house['image_url'];
                 $value['house_title']           = $house['title'];
-                list($area_address,$lng,$lat)   = $this->makeAddress($house['area_code'],$house['address']);
+                list($area_address)   = $this->makeAddress($house['area_code'],$house['address']);
                 $value['area_address']          = $area_address;
                 $value['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
             }
