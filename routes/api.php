@@ -258,6 +258,7 @@ $api->version('v1',function ($api){
                 $api->get('collect_list','UserActivityController@collectList')->name('获取活动收藏列表');
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
+                $api->get('get_my_activity_list','UserActivityController@getMyActivityList')->name('获取我的活动列表');
 
                 $api->post('comment','CommentController@comment')->name('成员评论活动');
                 $api->delete('delete_comment','CommentController@deleteComment')->name('成员删除评论');

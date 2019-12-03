@@ -231,7 +231,7 @@ class QiNiuService extends BaseService
         foreach ($files as $info){
             $name = $info->getClientOriginalName();
             $path = $info->getRealPath();
-            $file_name = $config['bucket'].'/'.md5($name.$path.rand()).'.'.$name;
+            $file_name = $config['bucket'].'/'.md5($name.$path.rand());
             $result[$name]['name'] = $file_name;
             $res = $disk->put($file_name, file_get_contents($path));
             $url = '';

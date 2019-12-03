@@ -2,6 +2,7 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Repositories\{ActivityCollectRepository,
     ActivityDetailRepository,
     ActivityGuestRepository,
@@ -10,7 +11,8 @@ use App\Repositories\{ActivityCollectRepository,
     ActivityRegisterRepository,
     ActivityThemeRepository,
     CommonAreaRepository,
-    CommonImagesRepository};
+    CommonImagesRepository,
+    MemberCollectRepository};
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -140,7 +142,7 @@ class DetailService extends BaseService
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
         }
         $this->setMessage('获取成功！');
-        return $list['data'];
+        return $list;
     }
 
     /**
@@ -405,7 +407,7 @@ class DetailService extends BaseService
         }
         #是否收藏
         $activity['is_collect'] = 0;
-        if (ActivityCollectRepository::exists(['activity_id' => $activity['id'],'member_id' => $member->id])){
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id])){
             $activity['is_collect'] = 1;
         }
         $start_time    = date('Y年m月d日',$activity['start_time']);
