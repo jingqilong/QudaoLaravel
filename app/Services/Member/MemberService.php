@@ -190,8 +190,7 @@ class MemberService extends BaseService
         $keywords       = $data['keywords'] ?? null;
         $column         = ['m_id','m_cname','m_groupname','m_workunits','m_category','m_img_id'];
         $where          = ['deleted_at' => 0];
-        $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone']];
-
+        $keyword        = [$keywords => ['ch_name','en_name','category','m_num','mobile']];
         if (MemberEnum::isset($memberInfo['m_groupname'])){
             if(!$user_list = MemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
                 $this->setMessage('暂无成员信息！');
