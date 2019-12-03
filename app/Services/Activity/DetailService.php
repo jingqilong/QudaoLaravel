@@ -407,7 +407,7 @@ class DetailService extends BaseService
         }
         #是否收藏
         $activity['is_collect'] = 0;
-        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id])){
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id,'deleted_at' => 0])){
             $activity['is_collect'] = 1;
         }
         $start_time    = date('Y年m月d日',$activity['start_time']);
