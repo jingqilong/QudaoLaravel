@@ -140,7 +140,7 @@ class DetailService extends BaseService
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
         }
         $this->setMessage('获取成功！');
-        return $list['data'];
+        return $list;
     }
 
     /**

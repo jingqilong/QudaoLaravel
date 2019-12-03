@@ -8,6 +8,8 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
+use App\Repositories\ActivityThemeRepository;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
@@ -145,8 +147,8 @@ class RegisterService extends BaseService
         }
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
-        $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
-        $members    = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $activities     = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
+        $members        = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $member   = $this->searchArray($members,'id',$value['member_id']);
@@ -337,6 +339,80 @@ class RegisterService extends BaseService
             Throw new \Exception('活动订单状态更新失败！');
         }
         return true;
+    }
+
+    /**
+     * 获取我的活动列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function getMyActivityList($request){
+        $member = $this->auth->user();
+        $page = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $status = $request['status'] ?? null;
+        $where  = ['member_id' => $member->id];
+        if (!$register_list = ActivityRegisterRepository::getList($where,['id','activity_id','status'])){
+            $this->setMessage('暂无活动！');
+            return [];
+        }
+        $activity_ids = array_column($register_list,'activity_id');
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
+        $activity_where = ['id' => ['in',$activity_ids]];
+        switch ($status){
+            case 1://未开始
+                $activity_where['start_time'] = ['>',time()];
+                break;
+            case 2://进行中
+                $activity_where['start_time'] = ['<',time()];
+                $activity_where['end_time'] = ['>',time()];
+                break;
+            case 3://已结束
+                $activity_where['end_time'] = ['<',time()];
+                break;
+            default:
+                break;
+        }
+        if (!$activity_list = ActivityDetailRepository::getList($activity_where,$activity_column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $activity_list = $this->removePagingField($activity_list);
+        if (empty($activity_list['data'])){
+            $this->setMessage('暂无活动！');
+            return $activity_list;
+        }
+        $theme_ids  = array_column($activity_list['data'],'theme_id');
+        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $icon_ids   = array_column($themes,'icon_id');
+        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        foreach ($activity_list['data'] as &$value){
+            $theme = $this->searchArray($themes,'id',$value['theme_id']);
+            if ($theme)
+                $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
+            #处理地址
+            list($area_address) = $this->makeAddress($value['area_code'],'',3);
+            $value['address']  = $area_address;
+            $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
+            $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
+            $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
+            if ($value['start_time'] > time()){
+                $value['status'] = '报名中';
+            }
+            if ($value['start_time'] < time() && $value['end_time'] > time()){
+                $value['status'] = '进行中';
+            }
+            if ($value['end_time'] < time()){
+                $value['status'] = '已结束';
+            }
+            $start_time    = date('Y年m/d',$value['start_time']);
+            $end_time      = date('m/d',$value['end_time']);
+            $value['activity_time'] = $start_time . '-' . $end_time;
+            $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
+        }
+        $this->setMessage('获取成功！');
+        return $activity_list;
     }
 }
             

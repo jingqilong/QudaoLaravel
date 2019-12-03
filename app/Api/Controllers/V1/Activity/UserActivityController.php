@@ -16,7 +16,6 @@ class UserActivityController extends ApiController
     public $activityPrizeService;
     public $activityCollectService;
     public $activityService;
-    public $commentsService;
     public $registerService;
 
     /**
@@ -24,20 +23,17 @@ class UserActivityController extends ApiController
      * @param PrizeService $activityPrizeService
      * @param CollectService $collectService
      * @param DetailService $activityService
-     * @param CommentsService $commentsService
      * @param RegisterService $registerService
      */
     public function __construct(PrizeService $activityPrizeService,
                                 CollectService $collectService,
                                 DetailService $activityService,
-                                CommentsService $commentsService,
                                 RegisterService $registerService)
     {
         parent::__construct();
         $this->activityPrizeService     = $activityPrizeService;
         $this->activityCollectService   = $collectService;
         $this->activityService          = $activityService;
-        $this->commentsService          = $commentsService;
         $this->registerService          = $registerService;
     }
     /**
@@ -403,4 +399,85 @@ class UserActivityController extends ApiController
         return ['code' => 100, 'message' => $this->activityService->error];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_my_activity_list",
+     *     tags={"精选活动"},
+     *     summary="获取我的活动列表",
+     *     description="sang" ,
+     *     operationId="get_my_activity_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="活动状态，不传获取全部，1、未开始，2、进行中，3、已结束",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function getMyActivityList(){
+        $rules = [
+            'status'        => 'integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'status.integer'        => '活动状态必须为整数',
+            'is_recommend.in'       => '是否推荐取值应为1',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getMyActivityList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+    }
 }
