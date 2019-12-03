@@ -27,7 +27,7 @@ class CommonAreaModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','code','parent_code','name','short_name','level','lng','lat','sort','memo','state','created_at','updated_at'];
+    protected $fillable = ['id','code','parent_code','name','short_name','level','lng','lat','sort','memo','image_url','state','created_at','updated_at'];
 
 
 

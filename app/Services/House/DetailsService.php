@@ -11,6 +11,7 @@ use App\Repositories\HouseFacilitiesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
+use App\Services\Common\AreaService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
@@ -323,7 +324,10 @@ class DetailsService extends BaseService
                 return false;
             }
         }
-        $list = $this->removePagingField($list);
+        $code           = new AreaService();
+        $area_list      = $code->getAreaList(310100);
+        $list['code']   = $area_list;
+        $list           = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -422,7 +426,7 @@ class DetailsService extends BaseService
             return false;
         }
         if (!empty($area_code)){
-            $where['area_code'] = ['like','%,'.$area_code.',%'];
+            $where['area_code'] = ['like',$area_code.',%'];
         }
         if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
             $this->setError('获取失败!');
