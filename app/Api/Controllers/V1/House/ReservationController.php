@@ -389,10 +389,19 @@ class ReservationController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="house_id",
+     *         name="page",
      *         in="query",
-     *         description="房源ID",
-     *         required=true,
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -406,18 +415,18 @@ class ReservationController extends ApiController
      */
     public function isReservationList(){
         $rules = [
-            'house_id'          => 'required|integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
         ];
         $messages = [
-            'house_id.required'     => '房源ID不能为空',
-            'house_id.integer'      => '房源ID必须为整数',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $member = Auth::guard('member_api')->user();
-        $res = $this->reservationService->isReservationList($this->request['house_id'],$member->id);
+        $res = $this->reservationService->isReservationList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }

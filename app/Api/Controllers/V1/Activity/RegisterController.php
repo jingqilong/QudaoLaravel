@@ -516,4 +516,75 @@ class RegisterController extends ApiController
         return ['code' => 100, 'message' => $this->registerService->error];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/get_admission_ticket",
+     *     tags={"精选活动"},
+     *     summary="获取入场券",
+     *     description="sang" ,
+     *     operationId="get_admission_ticket",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="register_id",
+     *         in="query",
+     *         description="报名ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit",
+     *         in="query",
+     *         description="审核结果，1通过，2驳回",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="审核失败",
+     *     ),
+     * )
+     *
+     */
+    public function getAdmissionTicket(){
+        $rules = [
+            'register_id'   => 'required|integer',
+            'audit'         => 'required|in:1,2',
+        ];
+        $messages = [
+            'register_id.required'      => '报名ID不能为空',
+            'register_id.integer'       => '报名ID必须为整数',
+            'audit.required'            => '审核结果不能为空',
+            'audit.in'                  => '审核结果取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getAdmissionTicket($this->request['register_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message,'data' => $res];
+    }
 }

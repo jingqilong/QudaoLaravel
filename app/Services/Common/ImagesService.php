@@ -206,9 +206,9 @@ class ImagesService extends BaseService
             $this->setError('存储空间类别不存在!');
             return false;
         }
-        if (CommonImagesRepository::exists(['img_url' => $request['url']])){
-            $this->setError('该资源已存在！');
-            return false;
+        if ($resource = CommonImagesRepository::getOne(['img_url' => $request['url']])){
+            $this->setMessage('该资源已存在！');
+            return $resource['id'];
         }
         $add_arr = [
             'type'      => $request['storage_space'],

@@ -411,5 +411,13 @@ class RegisterService extends BaseService
         $this->setMessage('获取成功！');
         return $activity_list;
     }
+
+    public function getAdmissionTicket($register_id)
+    {
+        if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
+            $this->setError('报名信息不存在！');
+            return false;
+        }
+    }
 }
             
