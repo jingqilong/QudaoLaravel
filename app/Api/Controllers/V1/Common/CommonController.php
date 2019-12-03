@@ -155,7 +155,10 @@ class CommonController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->memberService->mobileExists($this->request['mobile']);
-        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
     }
 
     /**

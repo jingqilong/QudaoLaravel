@@ -10,6 +10,7 @@ class MemberEnum extends BaseEnum
 
     public static $labels=[
         //成员级别
+        'DEFAULT'             => '默认',
         'TEST'                => '内部测试',
         'ALSOENJOY'           => '亦享成员',
         'TOENJOY'             => '至享成员',
@@ -37,6 +38,9 @@ class MemberEnum extends BaseEnum
         //成员身份
         'OFFICER'             => '官员',
         'MEMBER'              => '成员',
+        //状态
+        'HIDDEN'              => '隐藏',
+        'ACTIVITE'            => '显示',
     ];
 
 
@@ -53,6 +57,7 @@ class MemberEnum extends BaseEnum
         8  => 'ZHIRENJOY',
         9  => 'ADVISER',
         10 => 'TEMPORARY',
+        0  => 'DEFAULT',
     ];
 
     //成员分类
@@ -66,7 +71,6 @@ class MemberEnum extends BaseEnum
 
     //成员or官员or软删除   状态
     public static $status = [
-
         0 => 'ACTIVITEMEMBER',
         1 => 'DISABLEMEMBER',
         2 => 'ACTIVITEOFFICER',
@@ -75,7 +79,6 @@ class MemberEnum extends BaseEnum
 
     //成员性别
     public static $sex = [
-
         0 => 'NOSET',
         1 => 'MAN',
         2 => 'WOMAN',
@@ -83,12 +86,19 @@ class MemberEnum extends BaseEnum
 
     //成员身份
     public static $identity = [
-
         1 => 'OFFICER',
-        2 => 'MEMBER',
+        0 => 'MEMBER',
+    ];
+
+    //状态
+    public static $hidden = [
+        0 => 'ACTIVITE',
+        1 => 'HIDDEN',
     ];
 
     // 成员等级
+    const DEFAULT          = 0;    //默认
+
     const TEST             = 1;    //内部测试
 
     const ALSOENJOY        = 2;    //亦享成员
@@ -140,7 +150,12 @@ class MemberEnum extends BaseEnum
     //成员身份
     const OFFICER           = 1;    //官员
 
-    const MEMBER            = 2;    //成员
+    const MEMBER            = 0;    //成员
+
+    //状态
+    const ACTIVITE          = 1;    //显示
+
+    const HIDDEN            = 2;    //隐藏
 
 
     /**
@@ -194,6 +209,15 @@ class MemberEnum extends BaseEnum
      */
     public static function getIdentity(int $value,$default = ''){
         return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : $default;
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @param string $default
+     * @return mixed|string
+     */
+    public static function getHidden(int $value,$default = ''){
+        return isset(self::$hidden[$value]) ? self::$labels[self::$hidden[$value]] : $default;
     }
 
 }
