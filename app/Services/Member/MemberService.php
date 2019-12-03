@@ -311,6 +311,8 @@ class MemberService extends BaseService
         foreach ($member as &$value){
             $value = $value ?? '';
         }
+        MemberInfoRepository::getUpdId(['id' => $member_id],['profile' => $member['profile']]); //去除html标签
+        $this->setMessage('获取成功!');
         return $member;
     }
 
