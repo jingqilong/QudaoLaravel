@@ -101,6 +101,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/is_collect_activity",
      *     tags={"精选活动"},
      *     summary="收藏或取消收藏活动",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="is_collect_activity",
      *     @OA\Parameter(
@@ -161,6 +162,7 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/collect_list",
      *     tags={"精选活动"},
      *     summary="获取活动收藏列表",
+     *     deprecated=true,
      *     description="sang" ,
      *     operationId="collect_list",
      *     @OA\Parameter(

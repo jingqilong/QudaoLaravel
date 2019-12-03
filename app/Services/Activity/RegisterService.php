@@ -299,15 +299,12 @@ class RegisterService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page'] ?? 20;
-        $where = ['status' => ['>',ActivityRegisterEnum::EVALUATION],'is_register' => ['>',0]];
+        $where = ['is_register' => ['<>',0],'activity_id' => $request['activity_id']];
         if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-        unset($list['first_page_url'], $list['from'],
-            $list['from'], $list['last_page_url'],
-            $list['next_page_url'], $list['path'],
-            $list['prev_page_url'], $list['to']);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -317,7 +314,7 @@ class RegisterService extends BaseService
         foreach ($list['data'] as &$value){
             $value['member_name'] = '';
             if ($member = $this->searchArray($member_list,'id',$value['member_id'])){
-                $value['activity_name'] = reset($member)['ch_name'];
+                $value['member_name'] = reset($member)['ch_name'];
             }
             $value['sign_time'] = date('Y-m-d H:i',$value['is_register']);
             unset($value['is_register']);

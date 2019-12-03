@@ -279,9 +279,23 @@ class DetailService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name']);
+        $theme_ids      = array_column($list['data'],'theme_id');
+        $themes         = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name']);
+        $activity_ids   = array_column($list['data'],'id');
+        $host_list      = ActivityHostsRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','type','name','logo_id']);
+        $link_list      = ActivityLinksRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','title','url','image_id']);
         foreach ($list['data'] as &$value){
+            $value['hosts'] = '';
+            if ($hosts = $this->searchArray($host_list,'activity_id',$value['id'])){
+                foreach ($hosts as &$v)unset($v['activity_id']);
+                $value['hosts'] = json_encode($hosts);
+            }
+            $value['links'] = '';
+            if ($links = $this->searchArray($link_list,'activity_id',$value['id'])){
+                foreach ($links as &$v)unset($v['activity_id']);
+                $value['links'] = json_encode($links);
+            }
+
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             #处理地址
@@ -339,22 +353,6 @@ class DetailService extends BaseService
                 $activity['cover']= $cover_image;
             }
         }
-        #获取主办方
-        $activity['host'] = [];
-        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id],['id','type','name','logo_id'])){
-            foreach ($host_list as &$value){
-                $value['logo'] = CommonImagesRepository::getOne(['id' => $value['logo_id']],['id','img_url']);
-            }
-            $activity['host'] = $host_list;
-        }
-        #获取相关链接
-        $activity['links'] = [];
-        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $id],['id','title','url','image_id'])){
-            foreach ($link_list as &$value){
-                $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
-            }
-            $activity['links'] = $link_list;
-        }
         $this->setMessage('获取成功！');
         return $activity;
     }
@@ -407,7 +405,7 @@ class DetailService extends BaseService
         }
         #是否收藏
         $activity['is_collect'] = 0;
-        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id])){
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id,'deleted_at' => 0])){
             $activity['is_collect'] = 1;
         }
         $start_time    = date('Y年m月d日',$activity['start_time']);
