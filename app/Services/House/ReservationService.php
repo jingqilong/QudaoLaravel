@@ -5,10 +5,12 @@ namespace App\Services\House;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
@@ -174,15 +176,15 @@ class ReservationService extends BaseService
      */
     public function isReservationList($request)
     {
-        $member = Auth::guard('member_api')->user();
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
+        $member     = Auth::guard('member_api')->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
         if (!$house_list = HouseDetailsRepository::getList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
-            $this->setMessage('您还没有发布过房源！');
+            $this->setMessage('您还没有发布过房源!');
             return [];
         }
         $house_ids = array_column($house_list,'id');
-        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time'],'id','desc',$page,$page_num)){
+        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time','house_id'],'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
@@ -192,8 +194,16 @@ class ReservationService extends BaseService
             return $reservation_list;
         }
         foreach ($reservation_list['data'] as &$value){
+            $value['img_id'] = '';
+            $value['house_title'] = '';
+            if ($house = $this->searchArray($house_list,'id',$value['house_id'])){
+                $value['img_id'] = reset($house)['image_ids'];
+                $value['house_title'] = reset($house)['title'];
+            }
             $value['time']  = date('Y-m-d H:i:s',$value['time']);
         }
+        $reservation_list['data'] = ImagesService::getListImagesConcise($reservation_list['data'],['img_id' => 'single']);
+        foreach ($reservation_list['data'] as &$value) unset($value['img_id']);
         $this->setMessage('获取成功！');
         return $reservation_list;
     }
