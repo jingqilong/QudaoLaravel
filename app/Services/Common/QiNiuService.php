@@ -201,10 +201,10 @@ class QiNiuService extends BaseService
             return ['code' => 0, 'message' => '存储空间类别不存在'];
         }
         if (!$files = request()->file()){
-            return ['code' => 0, 'message' => '请传入要上传的图片'];
+            return ['code' => 0, 'message' => '请传入要上传的图片或视频'];
         }
         if (count($files) > 20){
-            return ['code' => 0, 'message' => '单次上传图片不能超过20张'];
+            return ['code' => 0, 'message' => '单次上传不能超过20个'];
         }
         //对传入的文件进行预检
         foreach ($files as $info){

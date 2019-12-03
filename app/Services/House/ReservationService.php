@@ -12,6 +12,7 @@ use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationService extends BaseService
 {
@@ -168,25 +169,33 @@ class ReservationService extends BaseService
 
     /**
      * 获取被预约列表
-     * @param $house_id
-     * @param $member_id
-     * @return array|null
+     * @param $request
+     * @return mixed
      */
-    public function isReservationList($house_id, $member_id)
+    public function isReservationList($request)
     {
-        if (!$house = HouseDetailsRepository::exists(['id' => $house_id,'publisher' => HouseEnum::PERSON,'publisher_id' => $member_id])){
-            $this->setError('房源不存在！');
-            return false;
-        }
-        if (!$house_list = HouseReservationRepository::getList(['house_id' => $house_id,'state' => HouseEnum::RESERVATIONOK],['id','time'])){
-            $this->setMessage('暂无预约！');
+        $member = Auth::guard('member_api')->user();
+        $page = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        if (!$house_list = HouseDetailsRepository::getList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
+            $this->setMessage('您还没有发布过房源！');
             return [];
         }
-        foreach ($house_list as &$value){
+        $house_ids = array_column($house_list,'id');
+        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time'],'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $reservation_list = $this->removePagingField($reservation_list);
+        if (empty($reservation_list['data'])){
+            $this->setMessage('暂无预约！');
+            return $reservation_list;
+        }
+        foreach ($reservation_list['data'] as &$value){
             $value['time']  = date('Y-m-d H:i:s',$value['time']);
         }
         $this->setMessage('获取成功！');
-        return $house_list;
+        return $reservation_list;
     }
 
 

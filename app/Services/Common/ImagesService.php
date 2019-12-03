@@ -3,6 +3,7 @@ namespace App\Services\Common;
 
 
 use App\Enums\CommonImagesEnum;
+use App\Enums\QiNiuEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -192,6 +193,34 @@ class ImagesService extends BaseService
         }
         $this->setMessage('查询成功！');
         return $info;
+    }
+
+
+    /**
+     * 添加资源
+     * @param $request
+     * @return bool|null
+     */
+    public function addResource($request){
+        if (!QiNiuEnum::exists($request['storage_space'])){
+            $this->setError('存储空间类别不存在!');
+            return false;
+        }
+        if ($resource = CommonImagesRepository::getOne(['img_url' => $request['url']])){
+            $this->setMessage('该资源已存在！');
+            return $resource['id'];
+        }
+        $add_arr = [
+            'type'      => $request['storage_space'],
+            'img_url'   => $request['url'],
+            'create_at' => time()
+        ];
+        if ($id = CommonImagesRepository::getAddId($add_arr)){
+            $this->setMessage('添加成功！');
+            return $id;
+        }
+        $this->setError('添加失败！');
+        return false;
     }
 }
             

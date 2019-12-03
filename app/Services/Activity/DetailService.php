@@ -83,6 +83,8 @@ class DetailService extends BaseService
         $page_num       = $request['page_num'] ?? 20;
         $theme_id       = $request['theme_id'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
+        $price          = $request['price'] ?? null;
+        $status         = $request['status'] ?? null;
         $keywords       = $request['keywords'] ?? null;
         $where          = ['status' => 1];
         $order          = 'id';
@@ -93,6 +95,23 @@ class DetailService extends BaseService
         if (!empty($is_recommend)){
             $where['is_recommend']  = ['>',0];
             $order = 'is_recommend';
+        }
+        if (!empty($price)){
+            $where['price']  = $price == 1 ? 0 : ['>',0];
+        }
+        if (!empty($status)){
+            switch ($status){
+                case 1:
+                    $where['start_time'] = ['>',time()];
+                    break;
+                case 2:
+                    $where['start_time'] = ['<',time()];
+                    $where['end_time'] = ['>',time()];
+                    break;
+                case 3:
+                    $where['end_time'] = ['<',time()];
+                    break;
+            }
         }
         $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
         if (!empty($keywords)){

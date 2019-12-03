@@ -145,6 +145,7 @@
       <path value="$PROJECT_DIR$/vendor/laravel-notification-channels/webpush" />
       <path value="$PROJECT_DIR$/vendor/bacon/bacon-qr-code" />
       <path value="$PROJECT_DIR$/vendor/simplesoftwareio/simple-qrcode" />
+      <path value="$PROJECT_DIR$/vendor/intervention/image" />
     </include_path>
   </component>
   <component name="PhpProjectServersManager">

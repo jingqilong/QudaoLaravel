@@ -261,6 +261,7 @@ $api->version('v1',function ($api){
                 $api->get('get_activity_comment','CommentController@getActivityComment')->name('获取活动评论列表');
 
                 $api->post('activity_register','RegisterController@activityRegister')->name('活动报名');
+                $api->get('get_admission_ticket','RegisterController@getAdmissionTicket')->name('获取入场券');
                 $api->post('sign_in','RegisterController@signIn')->name('活动签到');
                 $api->get('sign_in_list','RegisterController@signList')->name('获取活动签到列表');
             });
@@ -585,6 +586,7 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'qiniu'], function ($api){
             //$api->get('images_migration', 'QiNiuController@imagesMigration')->name('本地图片迁移至七牛云');
             $api->post('upload_images', 'QiNiuController@uploadImages')->name('上传图片至七牛云');
+            $api->post('add_resource', 'QiNiuController@addResource')->name('添加资源到资源库');
         });
 
         //公共模块

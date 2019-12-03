@@ -11,6 +11,7 @@ use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberGradeRepository;
+use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
@@ -19,6 +20,8 @@ use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use Intervention\Image\Gd\Font;
 use Tolawho\Loggy\Facades\Loggy;
 
 class RegisterService extends BaseService
@@ -410,6 +413,95 @@ class RegisterService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $activity_list;
+    }
+
+    /**
+     * 生成入场券
+     * @param $register_id
+     * @return bool|void
+     */
+    public function getAdmissionTicket($register_id)
+    {
+        $member = $this->auth->user();
+        if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
+            $this->setError('报名信息不存在！');
+            return false;
+        }
+        //获取用户信息及活动信息
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id']],['name','area_code','address','start_time','end_time'])){
+            $this->setError('活动信息不存在！');
+            return false;
+        }
+        //职称
+        $member_employer = MemberInfoRepository::getField(['member_id' => $member->id],'employer');
+        $member_employer = empty($member_employer) ? '' : reset(explode(',',$member_employer));
+        list($address)   = $this->makeAddress($activity['area_code'],$activity['address'],2);
+        //生成图片
+        $image_url = $this->createdAdmissionTicket([
+            'activity_name' => $activity['name'],
+            'member_name'   => $member->ch_name,
+            'member_title'  => $member_employer,
+            'activity_time' => date('Y年m/d',$activity['start_time']) .'-'. date('m/d',$activity['end_time']),
+            'activity_address' => $address,
+            'sign_in_code'  => $register['sign_in_code']
+        ]);
+        $this->setMessage('生成成功！');
+        return $image_url;
+    }
+
+    /**
+     * 入场券图片合成
+     * @param $data
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
+    public function createdAdmissionTicket($data){
+        $back_image = public_path('images\admission_ticket.png');
+        //获取背景图
+        $admission_image = Image::make($back_image);
+        //添加活动名称
+        $activity_name = $data['activity_name'];
+        $admission_image->text($activity_name,315,200,function (Font $font){
+            $font->size(24);
+            $font->color('#F5E6BA');
+//            $font->align('center');
+//            $font->valign('top');
+//            $font->angle(45);
+        });dd($admission_image);
+//        //添加会员名称
+//        $admission_image->text($data['member_name'],0,0,function ($font){
+//            $font->size(24);
+//            $font->color('#fdf6e3');
+//            $font->align('center');
+//            $font->valign('top');
+//            $font->angle(45);
+//        });
+//        //添加会员职务
+//        $admission_image->text($data['member_title'],0,0,function ($font){
+//            $font->size(24);
+//            $font->color('#fdf6e3');
+//            $font->align('center');
+//            $font->valign('top');
+//            $font->angle(45);
+//        });
+//        //添加活动时间
+//        $admission_image->text('TIME:'.$data['activity_time'],0,0,function ($font){
+//            $font->size(24);
+//            $font->color('#fdf6e3');
+//            $font->align('center');
+//            $font->valign('top');
+//            $font->angle(45);
+//        });
+//        //添加活动地点
+//        $admission_image->text('ADD:'.$data['activity_address'],0,0,function ($font){
+//            $font->size(24);
+//            $font->color('#fdf6e3');
+//            $font->align('center');
+//            $font->valign('top');
+//            $font->angle(45);
+//        });
+        $path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        $admission_image->save($path,80,'png');
+        return url('admission_ticket/'.$data['sign_in_code'].'.png');
     }
 }
             
