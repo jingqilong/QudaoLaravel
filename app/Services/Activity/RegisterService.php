@@ -457,8 +457,11 @@ class RegisterService extends BaseService
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
-        $back_image = public_path('images\admission_ticket.png');
         //获取背景图
+        $back_image = public_path('images\admission_ticket.png');
+        Image::cache(function (Image $admission_image){
+
+        },2592000,true);
         $admission_image = Image::make($back_image);
         $font_path = public_path('font\pingfang\PingFangBold.ttf');
         //添加活动名称
@@ -474,26 +477,26 @@ class RegisterService extends BaseService
         $admission_image->line(117, 182, 177, 182, function ($draw) {
             $draw->color('#F5E6BA');
         });
-        $admission_image->text("渠道PLUS成员专享通道",188,175,function (Font $font)use ($font_path){
+        $admission_image->text("渠道PLUS成员专享通道",315,175,function (Font $font)use ($font_path){
             $font->file($font_path);
             $font->size(24);
             $font->color('#F5E6BA');
-//            $font->align('center');
+            $font->align('center');
             $font->valign('top');
-//            $font->angle(45);
         });
         $admission_image->line(453, 182, 513, 182, function ($draw) {
             $draw->color('#F5E6BA');
         });
         //添加会员名称
-        $admission_image->text($data['member_name'],315,316,function (Font $font)use ($font_path){
+        $admission_image->text($data['member_name'],315,346,function (Font $font)use ($font_path){
             $font->file($font_path);
             $font->size(46);
             $font->color('#FFFFFF');
             $font->align('center');
+            $font->valign('top');
         });
         //添加会员职务
-        $admission_image->text($data['member_title'],315,380,function (Font $font)use ($font_path){
+        $admission_image->text($data['member_title'],315,400,function (Font $font)use ($font_path){
             $font->file($font_path);
             $font->size(38);
             $font->color('#FFFFFF');
@@ -515,11 +518,15 @@ class RegisterService extends BaseService
             $font->valign('left');
         });
         //生成二维码并插入到图片
-        $qrcode = QrCode::size(120)
-            ->format('png')
+        $qrcode_path = public_path('/'.$data['sign_in_code'].'.png');
+        QrCode::format('png')
+            ->size(120)
             ->margin(0)
             ->errorCorrection('M')
-            ->generate($data['sign_in_code']);
+            ->generate($data['sign_in_code'], $qrcode_path);
+        $admission_image->insert($qrcode_path, 'bottom-right', 40, 40);
+        //使用完二维码后，删除它
+        unlink($qrcode_path);
         $path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
         $admission_image->save($path,80,'png');
         return url('admission_ticket/'.$data['sign_in_code'].'.png');

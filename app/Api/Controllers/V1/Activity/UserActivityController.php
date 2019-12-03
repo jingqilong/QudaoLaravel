@@ -339,7 +339,7 @@ class UserActivityController extends ApiController
             'theme_id'      => 'integer',
             'is_recommend'  => 'in:1',
             'price'         => 'in:1,2',
-            'status'        => 'in:1,2,1',
+            'status'        => 'in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
