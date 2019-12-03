@@ -99,13 +99,19 @@ class ReservationService extends BaseService
             return $list;
         }
         $house_ids = array_column($list['data'],'house_id');
-        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','area_code','address','rent','tenancy']);
+        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
+        $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['house_title'] = '';
             $value['area_address'] = '';
             $value['rent'] = '';
             if ($house = $this->searchArray($house_list,'id',$value['house_id'])){
                 $house = reset($house);
+                $value['condo_name']            = $house['condo_name'];
+                $value['decoration']            = $house['decoration'];
+                $value['area']                  = $house['area'];
+                $value['category']              = HouseEnum::getCategory($house['category']);
+                $value['image_url']             = $house['image_url'];
                 $value['house_title']           = $house['title'];
                 list($area_address,$lng,$lat)   = $this->makeAddress($house['area_code'],$house['address']);
                 $value['area_address']          = $area_address;
