@@ -27,7 +27,7 @@ class ExpressController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/common/get_express_details",
      *     tags={"公共"},
      *     summary="用户获取订单物流状态",

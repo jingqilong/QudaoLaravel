@@ -602,6 +602,7 @@ $api->version('v1',function ($api){
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
+                $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');
 
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
@@ -610,7 +611,7 @@ $api->version('v1',function ($api){
                 $api->post('add_comment', 'CommonController@addComment')->name('添加评论');
                 $api->get('common_list', 'CommonController@commonList')->name('获取评论列表');
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
-                $api->post('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
+                $api->get('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
             });
         });
         //支付模块模块
