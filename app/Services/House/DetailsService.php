@@ -11,6 +11,7 @@ use App\Repositories\HouseFacilitiesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 
@@ -399,6 +400,53 @@ class DetailsService extends BaseService
             $name = OaEmployeeRepository::getField(['id' => $publisher_id],'mobile');
         }
         return $name;
+    }
+
+    /**
+     * 地域选房列表
+     * @param $request
+     * @return bool
+     */
+    public function getCodeList($request)
+    {
+        $area_code  = $request['area_code'] ?? '';
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','height','area'
+        ,'image_ids','storey','unit','condo_name','toward','category','publisher','facilities_ids'];
+        if (!CommonAreaRepository::exists(['code' => $area_code])){
+            $this->setError('无效的区域!');
+            return false;
+        }
+        if (!empty($area_code)){
+            $where['area_code'] = ['like','%,'.$area_code.',%'];
+        }
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data']       = ImagesService::getListImagesConcise($list['data'],['image_ids' => 'several']);
+        foreach ($list['data'] as &$value){
+            #处理地址
+            list($area_address) = $this->makeAddress($value['area_code'],'',3);
+            $value['area_address']  = $area_address;
+            $value['storey']        = $value['storey'].'层';
+            #处理价格
+            $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+            $value['decoration'] = HouseEnum::getDecoration($value['decoration']);
+            $value['category']      = HouseEnum::getCategory($value['category']);
+            unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
+        }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 }
             

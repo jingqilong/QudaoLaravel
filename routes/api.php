@@ -417,6 +417,7 @@ $api->version('v1',function ($api){
                 $api->get('get_house_detail', 'HouseController@getHouseDetail')->name('获取房产详情');
                 $api->delete('delete_self_house', 'HouseController@deleteSelfHouse')->name('个人删除房源');
                 $api->get('get_home_list', 'HouseController@getHomeList')->name('获取房产首页列表');
+                $api->get('get_code_list', 'HouseController@getCodeList')->name('地域选房列表');
                 #预约
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
