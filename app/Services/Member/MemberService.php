@@ -306,6 +306,7 @@ class MemberService extends BaseService
         $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
         $member['category']     = MemberEnum::getCategory($member['category'],$member['category']);
+        $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
         foreach ($member as &$value){
             $value = $value ?? '';
         }
