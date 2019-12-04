@@ -19,7 +19,6 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
-use function GuzzleHttp\Promise\inspect_all;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
