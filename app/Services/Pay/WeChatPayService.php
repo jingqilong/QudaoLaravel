@@ -131,16 +131,17 @@ class WeChatPayService extends BaseService
                     Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单成功');
                     $prepay_id   = $res['prepay_id'];
                     $return_data = [
-                        'nonceStr'  => $res['nonce_str'],
-                        'timeStamp' => time(),
-                        'package'   => 'prepay_id='.$prepay_id,
-                        'signType'  => 'MD5',
                         'appId'     => $res['appid'],
+                        'timeStamp' => time(),
+                        'nonceStr'  => $res['nonce_str'],
+                        'package'   => 'prepay_id='.$prepay_id,
+                        'signType'  => 'MD5'
                     ];
                     $str = '';
                     foreach ($return_data as $k => $v){
-                        $str .= ($k == 'signType') ? $k.'='.$v : $k.'='.$v.'&';
+                        $str .= $k.'='.$v.'&';
                     }
+                    $str .= 'key='.$config['key'];
                     $return_data['sign'] = md5($str);
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
