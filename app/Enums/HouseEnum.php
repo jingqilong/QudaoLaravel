@@ -5,6 +5,8 @@
 namespace App\Enums;
 
 
+use http\Encoding\Stream\Deflate;
+
 class HouseEnum extends BaseEnum
 {
 
@@ -93,7 +95,7 @@ class HouseEnum extends BaseEnum
     // 装修
     const GENERAL       = 1;    //普装
     const DELICATE      = 2;    //精装
-    const LUXURY        = 1;    //豪装
+    const LUXURY        = 3;    //豪装
 
     // 房产类别
     const RESIDENCE     = 1;    //住宅
@@ -129,10 +131,11 @@ class HouseEnum extends BaseEnum
     /**
      * 获取装修label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getDecoration(int $value){
-        return isset(self::$decoration[$value]) ? self::$labels[self::$decoration[$value]] : '';
+    public static function getDecoration(int $value,$default = ''){
+        return isset(self::$decoration[$value]) ? self::$labels[self::$decoration[$value]] : $default;
     }
 
     /**

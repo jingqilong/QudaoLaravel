@@ -327,7 +327,7 @@ class DetailsService extends BaseService
         }
         $code           = new AreaService();
         $area_list      = $code->getAreaList(310100);
-        $list['code']   = $area_list;
+        $list['code']   = $area_list; unset($list['code']['8'],$list['code']['10']);
         $list           = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
@@ -335,7 +335,7 @@ class DetailsService extends BaseService
         }
         foreach ($list['data'] as &$value){
             #处理地址
-            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],'',3);
+            list($area_address) = $this->makeAddress($value['area_code'],'',3);
             $value['area_address']  = $area_address;
             $value['storey']        = $value['storey'].'层';
             #处理价格

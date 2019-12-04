@@ -113,7 +113,7 @@ class ReservationService extends BaseService
             if ($house = $this->searchArray($house_list,'id',$value['house_id'])){
                 $house = reset($house);
                 $value['condo_name']            = $house['condo_name'];
-                $value['decoration']            = $house['decoration'];
+                $value['decoration']            = HouseEnum::getDecoration($house['decoration'],'');
                 $value['area']                  = $house['area'];
                 $value['category']              = HouseEnum::getCategory($house['category']);
                 $value['image_url']             = $house['image_url'];
