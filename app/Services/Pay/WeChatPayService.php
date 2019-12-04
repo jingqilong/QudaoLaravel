@@ -141,6 +141,8 @@ class WeChatPayService extends BaseService
                     foreach ($return_data as $k => $v){
                         $str .= $k.'='.$v.'&';
                     }
+                    $str .= 'key='.$config['key'];
+                    $return_data['str'] = $str;
                     $return_data['sign'] = md5($str);
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
