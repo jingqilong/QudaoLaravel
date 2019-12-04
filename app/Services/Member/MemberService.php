@@ -815,20 +815,12 @@ class MemberService extends BaseService
             return [];
         }
         $view_user_ids  = array_column($list,'view_user_id');
-        $column         = ['m_id','m_cname','m_workunits','m_img_id'];
-        if (!$view_user_list = MemberRepository::getList(['m_id' => ['in',$view_user_ids]],$column,'m_id','asc',1,$count)){
+        $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
+        if (!$view_user_list = MemberGradeViewRepository::getList(['id' => ['in',$view_user_ids]],$column,'id','asc',1,$count)){
             return [];
         }
         if (empty($view_user_list['data'])){
             return [];
-        }
-        $img_ids    = array_column($view_user_list['data'],'m_img_id');
-        $image_list = CommonImagesRepository::getList(['id' => ['in',$img_ids]]);
-        foreach ($view_user_list['data'] as &$value){
-            $value['image'] = '';
-            if ($image = self::searchArrays($image_list,'id',$value['m_img_id'])){
-                $value['image'] = reset($image)['img_url'];
-            }
         }
         return $view_user_list['data'];
     }
