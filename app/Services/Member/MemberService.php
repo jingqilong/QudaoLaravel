@@ -20,6 +20,7 @@ use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
+use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
@@ -925,6 +926,15 @@ class MemberService extends BaseService
             'is_sign'       => 0,
             'total_score'   => 0
         ];
+        //获取会员等级
+        $res['member_grade'] = '普通成员';
+        if ($grade = MemberGradeRepository::getOne(['user_id' => $member->id,'status' => 1])){
+            if(!empty($grade['end_at']) && $grade['end_at'] < time()){
+                $res['member_grade'] = '普通成员';
+            }else{
+                $res['member_grade'] = MemberEnum::getGrade($grade['grade']);
+            }
+        }
         if ($sign = MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){
             $res['is_sign'] = 1;
         }
@@ -937,6 +947,77 @@ class MemberService extends BaseService
         $res['shipped']     = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIPPED]) ? 1 : 0;
         //待评价
         $res['received']    = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::RECEIVED]) ? 1 : 0;
+        $this->setMessage('获取成功！');
+        return $res;
+    }
+
+    /**
+     * 每日签到
+     * @return bool
+     */
+    public function sign()
+    {
+        $member = $this->auth->user();
+        if (MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){
+            $this->setError('今天已经签到过了,明天再来吧！');
+            return false;
+        }
+        $add_arr = [
+            'member_id' => $member->id,
+            'sign_at'   => strtotime(date('Y-m-d')),
+            'sign_score'=> 1
+        ];
+        DB::beginTransaction();
+        if (!MemberSignRepository::getAddId($add_arr)){
+            $this->setError('签到失败！');
+            DB::rollBack();
+            return false;
+        }
+        $RecordService = new RecordService();
+        //赠送金币积分
+        if (!$RecordService->increaseScore(3,1,$member->id,'每日签到','每日签到',false)){
+            $this->setError('签到失败！');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('签到成功！');
+        DB::commit();
+        return true;
+    }
+
+    /**
+     * 签到页详情
+     * @return array
+     */
+    public function signDetails()
+    {
+        $member = $this->auth->user();
+        $str_time = 'HI,';
+        $hour = date('H');
+        if ($hour >= 4 && $hour < 9){
+            $str_time .= '早上好';
+        }
+        if ($hour > 9 && $hour < 12){
+            $str_time .= '上午好';
+        }
+        if ($hour >= 12 && $hour < 14){
+            $str_time .= '中午好';
+        }
+        if ($hour >= 14 && $hour < 18){
+            $str_time .= '下午好';
+        }
+        if ($hour >= 18 && $hour < 24){
+            $str_time .= '下午好';
+        }
+        if ($hour >= 0 && $hour < 4){
+            $str_time .= '夜深了，早点休息';
+        }
+        $res = [
+            'title'         => $str_time,
+            'get_score'     => 1,
+            'total_score'   => MemberSignRepository::sum(['member_id' => $member->id],'sign_score'),
+            'is_sign'       => MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))]) ? 1 : 0
+        ];
         $this->setMessage('获取成功！');
         return $res;
     }

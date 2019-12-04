@@ -28,9 +28,10 @@ class RecordService extends BaseService
      * @param $member_id
      * @param $remark
      * @param string $explain
+     * @param bool $notify
      * @return bool
      */
-    public function increaseScore($score_type, $score, $member_id, $remark,$explain = '获得'){
+    public function increaseScore($score_type, $score, $member_id, $remark,$explain = '获得',$notify = true){
         if (!ScoreCategoryRepository::exists(['id' => $score_type,'status' => ScoreEnum::OPEN])){
             $this->setMessage('积分类别不存在！');
             return false;
@@ -61,23 +62,25 @@ class RecordService extends BaseService
             }
         }
         //通知用户
-        if ($member = MemberBaseRepository::getOne(['id' => $score_record['member_id']])){
-            $member_name = mb_substr($score_record['member_name'],0,1);
-            $member_name = $member_name . MemberEnum::getSex($member['sex']);
-            $sms_template =
-                MessageEnum::getTemplate(
-                    MessageEnum::SCOREBOOKING,
-                    'increaseScore',
-                    ['member_name' => $member_name,'time' => date('Y年m月d日',time()),'explain' => $explain,'score_name' => $score_record['score_name'],'remnant_score' => $add_arr['remnant_score'],'score' => $score]
-                );
-            #短信通知
-            if (!empty($score_record['member_mobile'])){
-                $smsService = new SmsService();
-                $smsService->sendContent($score_record['member_mobile'],$sms_template);
+        if ($notify){
+            if ($member = MemberBaseRepository::getOne(['id' => $score_record['member_id']])){
+                $member_name = mb_substr($score_record['member_name'],0,1);
+                $member_name = $member_name . MemberEnum::getSex($member['sex']);
+                $sms_template =
+                    MessageEnum::getTemplate(
+                        MessageEnum::SCOREBOOKING,
+                        'increaseScore',
+                        ['member_name' => $member_name,'time' => date('Y年m月d日',time()),'explain' => $explain,'score_name' => $score_record['score_name'],'remnant_score' => $add_arr['remnant_score'],'score' => $score]
+                    );
+                #短信通知
+                if (!empty($score_record['member_mobile'])){
+                    $smsService = new SmsService();
+                    $smsService->sendContent($score_record['member_mobile'],$sms_template);
+                }
+                $title = '积分赠送通知';
+                #发送站内信
+                SendService::sendMessage($score_record['member_id'],MessageEnum::SCOREBOOKING,$title,$sms_template,$score_id);
             }
-            $title = '积分赠送通知';
-            #发送站内信
-            SendService::sendMessage($score_record['member_id'],MessageEnum::SCOREBOOKING,$title,$sms_template,$score_id);
         }
         $this->setMessage('操作成功！');
         DB::commit();

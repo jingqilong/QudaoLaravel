@@ -10,7 +10,7 @@ class MemberEnum extends BaseEnum
 
     public static $labels=[
         //成员级别
-        'DEFAULT'             => '默认',
+        'DEFAULT'             => '普通成员',
         'TEST'                => '内部测试',
         'ALSOENJOY'           => '亦享成员',
         'TOENJOY'             => '至享成员',
