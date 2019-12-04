@@ -143,7 +143,7 @@ class WeChatPayService extends BaseService
                     }
                     $str .= 'key='.$config['key'];
                     $return_data['str'] = $str;
-                    $return_data['sign'] = md5($str);
+                    $return_data['sign'] = strtoupper(md5($str));
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
                 Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res['return_msg']);
