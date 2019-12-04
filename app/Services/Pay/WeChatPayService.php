@@ -137,6 +137,7 @@ class WeChatPayService extends BaseService
                         'signType'  => 'MD5',
                         'timeStamp' => time()
                     ];
+                    ksort($return_data);
                     $str = '';
                     foreach ($return_data as $k => $v){
                         $str .= $k.'='.$v.'&';
