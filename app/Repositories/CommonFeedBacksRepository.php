@@ -4,18 +4,18 @@
 namespace App\Repositories;
 
 
-use App\Models\CommonFeedbacksModel;
+use App\Models\CommonFeedBacksModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class CommonFeedbacksRepository extends ApiRepository
+class CommonFeedBacksRepository extends ApiRepository
 {
     use RepositoryTrait;
 
     /**
-     * AdminUserRepository constructor.
+     * CommonFeedBacksModel constructor.
      * @param $model
      */
-    public function __construct(CommonFeedbacksModel $model)
+    public function __construct(CommonFeedBacksModel $model)
     {
         $this->model = $model;
     }
