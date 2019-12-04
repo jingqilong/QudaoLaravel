@@ -19,7 +19,6 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
-use function GuzzleHttp\Promise\inspect_all;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -470,14 +469,15 @@ class RegisterService extends BaseService
      * @return UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
-        $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         if (file_exists($img_path)){
-            return url('admission_ticket/'.$data['sign_in_code'].'.png');
+            return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         }
         //获取背景图
-        $back_image = public_path('images\admission_ticket.png');
+        $back_image = public_path('images'.DIRECTORY_SEPARATOR.'admission_ticket.png');
+        Loggy::write('error',$back_image);
         $admission_image = Image::make($back_image);
-        $font_path = public_path('font\pingfang\PingFangBold.ttf');
+        $font_path = public_path('font'.DIRECTORY_SEPARATOR.'pingfang'.DIRECTORY_SEPARATOR.'PingFangBold.ttf');
         //添加活动名称
         $activity_name = $data['activity_name'];
         $admission_image->text($activity_name,315,120,function (Font $font)use ($font_path){
@@ -532,7 +532,7 @@ class RegisterService extends BaseService
             $font->valign('left');
         });
         //生成二维码并插入到图片
-        $qrcode_path = public_path('/'.$data['sign_in_code'].'.png');
+        $qrcode_path = public_path(DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         QrCode::format('png')
             ->size(120)
             ->margin(0)
@@ -541,9 +541,9 @@ class RegisterService extends BaseService
         $admission_image->insert($qrcode_path, 'bottom-right', 40, 40);
         //使用完二维码后，删除它
         unlink($qrcode_path);
-        $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         $admission_image->save($img_path);
-        return url('admission_ticket/'.$data['sign_in_code'].'.png');
+        return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
     }
 
     public function getActivityDetailOver($request)
