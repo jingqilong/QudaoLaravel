@@ -264,10 +264,9 @@ class WeChatPayService extends BaseService
     /**
      *
      * @param $url
-     * @param $code
      * @return array|bool
      */
-    public function getJsapiTicket($url, $code)
+    public function getJsapiTicket($url)
     {
         try{
             $config         = config('wechat.official_account.default');

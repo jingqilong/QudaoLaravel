@@ -139,7 +139,7 @@ class WeChatPayController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $result = $this->weChatPayService->getJsapiTicket($this->request['url'],$this->request['code']);
+        $result = $this->weChatPayService->getJsapiTicket($this->request['url']);
         if($result == false) {
             return ['code' => 100, 'message' => $this->weChatPayService->error];
         }else{
