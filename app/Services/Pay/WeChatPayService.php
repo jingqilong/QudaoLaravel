@@ -139,13 +139,12 @@ class WeChatPayService extends BaseService
                     ];
                     $str = '';
                     foreach ($return_data as $k => $v){
-//                        if ($k == 'signType'){
-//                            $str .= $k.'='.$v;
-//                        }else{
+                        if ($k == 'signType'){
+                            $str .= $k.'='.$v;
+                        }else{
                             $str .= $k.'='.$v.'&';
-//                        }
+                        }
                     }
-                    $str .= 'key='.$config['key'];
                     $return_data['sign'] = md5($str);
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
