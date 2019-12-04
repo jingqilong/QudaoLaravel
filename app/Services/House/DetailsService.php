@@ -16,6 +16,7 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use phpDocumentor\Reflection\Types\This;
 
 class DetailsService extends BaseService
 {
@@ -325,9 +326,6 @@ class DetailsService extends BaseService
                 return false;
             }
         }
-        $code           = new AreaService();
-        $area_list      = $code->getAreaList(310100,['code' => ['notIn',['310108','310230']]]);
-        $list['code']   = $area_list;
         $list           = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
@@ -350,6 +348,47 @@ class DetailsService extends BaseService
         return $list;
     }
 
+    /**
+     * 获取房产首页接口
+     * @return mixed
+     */
+    public function getHouseHomeList()
+    {
+        $code           = new AreaService();
+        #获取精品商铺
+        $res['shops']       = $this->categoryList(['category' => HouseEnum::OFFICE]);
+        #获取住宅
+        $res['residence']   = $this->categoryList(['category' => HouseEnum::OFFICE]);
+        #获取写字楼
+        $res['office']      = $this->categoryList(['category' => HouseEnum::OFFICE]);
+        #获取区域
+        $res['area']        = $code->getAreaList(310100,['code' => ['notIn',['310108','310230']]]);
+        $this->setMessage('获取成功！');
+        return $res;
+    }
+
+    protected function categoryList($data)
+    {
+        $category = $data['category'] ?? null;
+        $where    = ['deleted_at' => 0];
+        $page     = '1';
+        $page_num = '4';
+        $column   = ['id','title','rent','tenancy','image_ids'];
+        if (!empty($category)){
+            $where['category'] = $category;
+        }
+        if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['image_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            #处理价格
+            $value['rent_tenancy']   = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+        }
+        return $list;
+    }
     /**
      * 审核房源
      * @param $id
