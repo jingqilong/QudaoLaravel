@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Enums\HouseEnum;
 use App\Models\HouseDetailsModel;
 use App\Repositories\Traits\RepositoryTrait;
@@ -26,26 +27,26 @@ class HouseDetailsRepository extends ApiRepository
 
     /**
      * 获取房屋收藏
-     * @param array $collect_ids
+     * @param $request
      * @return bool|mixed|null
      */
-    protected function getCollectList(array $collect_ids)
+    protected function getCollectList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 999;
-        $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS,'id' => ['in',$collect_ids]];
+        $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS,'id' => ['in',$request['collect_ids']]];
         $order      = 'id';
         $desc_asc   = 'desc';
         $column = ['id','title','area','area_code','describe','rent','tenancy','decoration','image_ids','storey','condo_name','category'];
-        if (!$list = $this->getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = $this->getList($where,$column,$order,$desc_asc,$request['page'],$request['page_num'])){
             return [];
         }
         $list = $this->removePagingField($list);
         if (empty($list)){
             return $list;
         }
-        $list = ImagesService::getListImages($list['data'], ['image_ids' => 'single']);
-        foreach ($list as &$value){
+        $list['data'] = ImagesService::getListImages($list['data'], ['image_ids' => 'single']);
+        foreach ($list['data']  as &$value){
+            $value['type'] = $request['type'];
+            $value['type_name'] = CollectTypeEnum::getType($request['type'],'');
             #处理地址
             list($area_address) = $this->makeAddress($value['area_code'],'',3);
             $value['area_address']  = $area_address;

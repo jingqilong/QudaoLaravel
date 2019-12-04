@@ -8,7 +8,6 @@ use App\Enums\CollectTypeEnum;
 use App\Models\PrimeMerchantModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Services\Common\ImagesService;
-use App\Services\Common\ImagesService as CommonImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +25,6 @@ class PrimeMerchantRepository extends ApiRepository
     {
         $this->model = $model;
     }
-
-
     /**
      * Get a JWT via given credentials.
      *
@@ -139,15 +136,18 @@ class PrimeMerchantRepository extends ApiRepository
     }
 
 
-    protected function getCollectList(array $collect_ids)
+    /**
+     * 获取餐饮收藏列表
+     * @param array $request
+     * @return array|mixed|null
+     */
+    protected function getCollectList(array $request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $order      = 'id';
         $desc_asc   = 'desc';
-        $where      = ['id' => ['in',$collect_ids],'disabled' => 0];
+        $where      = ['id' => ['in',$request['collect_ids']],'disabled' => 0];
         $column     = ['id','name','type','banner_ids','address','star','expect_spend','discount'];
-        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$request['page'],$request['page_num'])){
             return [];
         }
         $list = $this->removePagingField($list);
@@ -157,10 +157,41 @@ class PrimeMerchantRepository extends ApiRepository
         $list['data'] = ImagesService::getListImages($list['data'], ['banner_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
-            $value['type_name']          = CollectTypeEnum::getType( $value['type'],'');
+            $value['type']       = $request['type'];
+            $value['type_name']  = CollectTypeEnum::getType($request['type'],'');
             unset($value['banner_ids'],$value['logo_id']);
         }
         return $list;
     }
+
+
+    /**
+     * 获取健身收藏列表
+     * @param array $request['type']
+     * @return array|mixed|null
+     */
+    protected function getCollectListFitness(array $request)
+    {
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['id' => ['in',$request['collect_ids']],'disabled' => 0];
+        $column     = ['id','name','type','banner_ids','address','star','expect_spend','discount'];
+        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$request['page'],$request['page_num'])){
+            return [];
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return $list;
+        }
+        $list['data'] = ImagesService::getListImages($list['data'], ['banner_ids' => 'single']);
+        foreach ($list['data'] as &$value){
+            $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
+            $value['type']        = $request['type'];
+            $value['type_name']   = CollectTypeEnum::getType($request['type'],'');
+            unset($value['banner_ids'],$value['logo_id']);
+        }
+        return $list;
+    }
+
 }
             

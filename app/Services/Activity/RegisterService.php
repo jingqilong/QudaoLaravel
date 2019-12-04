@@ -546,9 +546,9 @@ class RegisterService extends BaseService
         return url('admission_ticket/'.$data['sign_in_code'].'.png');
     }
 
-    public function getActivityDetail($request)
+    public function getActivityDetailOver($request)
     {
-        $where  = ['end_time' => ['<',time()],'deleted_at' => 0,'is_recommend' => ['<>',0]];
+        $where  = ['id' => $request['id'],'end_time' => ['<',time()],'deleted_at' => 0,'is_recommend' => ['<>',0]];
         $column = ['id','name','detail'];
         if (!$list = ActivityDetailRepository::getList($where,$column)){
             $this->setError('获取失败!');

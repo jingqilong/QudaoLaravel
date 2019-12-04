@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Models\ActivityDetailModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Traits\HelpTrait;
@@ -122,13 +123,13 @@ class ActivityDetailRepository extends ApiRepository
 
     /**
      * 收藏列表
-     * @param $activity_ids
+     * @param $request
      * @return array|bool|mixed|null
      */
-    protected function getCollectList($activity_ids)
+    protected function getCollectList($request)
     {
-        $column = ['id','name','address','price','start_time','end_time','cover_id','theme_id','status'];
-        if (!$list = $this->getList(['id' => ['in',$activity_ids],'deleted_at' => 0],$column,'id','desc','1','999')){
+        $column = ['id','name','address','address','price','start_time','end_time','cover_id','theme_id','status'];
+        if (!$list = $this->getList(['id' => ['in',$request['collect_ids']],'deleted_at' => 0],$column,'id','desc',$request['page'],$request['page_num'])){
             return [];
         }
         $list = $this->removePagingField($list);
@@ -157,6 +158,8 @@ class ActivityDetailRepository extends ApiRepository
             }
             $start_time    = date('Y年m月d日',$value['start_time']);
             $end_time      = date('m月d日',$value['end_time']);
+            $value['type'] = $request['type'];
+            $value['type_name'] = CollectTypeEnum::getType($request['type'],'');
             $value['activity_time'] = $start_time . '～' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
