@@ -153,7 +153,7 @@ class PrimeMerchantRepository extends ApiRepository
         if (empty($list['data'])){
             return $list;
         }
-        $list['data'] = ImagesService::getListImages($list['data'], ['image_ids' => 'single']);
+        $list['data'] = ImagesService::getListImages($list['data'], ['banner_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
             unset($value['banner_ids'],$value['logo_id']);
