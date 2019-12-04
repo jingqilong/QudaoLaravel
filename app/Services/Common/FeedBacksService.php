@@ -25,10 +25,12 @@ class FeedBacksService extends BaseService
     public function addFeedBack($request)
     {
         $member     = $this->auth->user();
+        $content    = $request['content'] ?? null;
+        $mobile     = $request['mobile'] ?? null;
         $add_arr = [
             'member_id' => $member->id,
-            'content'   => $request['content'],
-            'mobile'    => $request['mobile'],
+            'content'   => $content,
+            'mobile'    => $mobile,
         ];
         if (CommonFeedBacksRepository::exists($add_arr)){
             $this->setError('您的信息已提交!');
