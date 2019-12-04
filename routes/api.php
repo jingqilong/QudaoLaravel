@@ -623,6 +623,7 @@ $api->version('v1',function ($api){
                 $api->get('common_list', 'CommonController@commonList')->name('获取评论列表');
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
                 $api->get('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
+                $api->post('add_feedBack', 'CommonFeedBacksController@addFeedBack')->name('用户添加反馈');
             });
         });
         //支付模块模块

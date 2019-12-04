@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class CommonFeedbacksModel extends Model
+class CommonFeedBacksModel extends Model
 {
 
     /**
@@ -27,7 +27,7 @@ class CommonFeedbacksModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','content','mobile'];
+    protected $fillable = ['id','member_id','content','mobile','created_at'];
 
 
 

@@ -2,11 +2,11 @@
 namespace App\Services\Common;
 
 
-use App\Repositories\CommonFeedbackRepository;
+use App\Repositories\CommonFeedBacksRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
 
-class FeedbackService extends BaseService
+class FeedBacksService extends BaseService
 {
     public $auth;
 
@@ -25,18 +25,17 @@ class FeedbackService extends BaseService
     public function addFeedBack($request)
     {
         $member     = $this->auth->user();
-        $content    = $request['content'] ?? '';
-        $mobile     = $request['mobile'] ?? '';
         $add_arr = [
             'member_id' => $member->id,
-            'content'   => $content,
-            'mobile'    => $mobile,
+            'content'   => $request['content'],
+            'mobile'    => $request['mobile'],
         ];
-        if (CommonFeedbackRepository::exists($add_arr)){
+        if (CommonFeedBacksRepository::exists($add_arr)){
             $this->setError('您的信息已提交!');
             return false;
         }
-        if (!CommonFeedbackRepository::getAddId($add_arr)){
+        $add_arr['created_at'] = time();
+        if (!CommonFeedBacksRepository::getAddId($add_arr)){
             $this->setError('信息提交失败!');
             return false;
         }
@@ -44,4 +43,3 @@ class FeedbackService extends BaseService
         return true;
     }
 }
-            
