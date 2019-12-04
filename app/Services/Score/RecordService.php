@@ -14,6 +14,7 @@ use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RecordService extends BaseService
@@ -431,6 +432,68 @@ class RecordService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $res;
+    }
+
+    /**
+     * 获取我的积分
+     * @param $member_id
+     * @return array
+     */
+    public function getMyScore($member_id)
+    {
+        $res = [
+            'total_score'    => 0,
+            'score_list'     => []
+        ];
+        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST];
+        if (!$score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc')){
+            $this->setMessage('暂无积分');
+            return $res;
+        }
+        foreach ($score_list as $v){
+            $res['total_score'] += $v['remnant_score'];
+        }
+        $res['score_list'] = $score_list;
+        $this->setMessage('获取成功！');
+        return $res;
+    }
+
+    /**
+     * 获取我的积分列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getMyRecordList($request)
+    {
+        $member     = Auth::guard('member_api')->user();
+        $score_type = $request['score_type'] ?? null;
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['member_id' => $member->id];
+        if (!is_null($score_type)){
+            $where['score_type'] = $score_type;
+        }
+        if (!$record_list = ScoreRecordRepository::getList($where,['action','action_score','explain','created_at'],'created_at','desc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $record_list = $this->removePagingField($record_list);
+        if (empty($record_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $record_list;
+        }
+        foreach ($record_list['data'] as &$value){
+            if ($value['action'] == ScoreEnum::INCREASE){
+                $value['action_score'] = '+ '.$value['action_score'];
+            }
+            if ($value['action'] == ScoreEnum::EXPENSE){
+                $value['action_score'] = '- '.$value['action_score'];
+            }
+            $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
+            unset($value['action']);
+        }
+        $this->setMessage('获取成功！');
+        return $record_list;
     }
 }
             

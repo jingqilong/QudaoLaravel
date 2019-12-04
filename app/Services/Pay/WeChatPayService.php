@@ -42,7 +42,7 @@ class WeChatPayService
     {
         $user = $this->auth->user();
         if (!$open_id = MemberBindRepository::getField(['user_id' => $user->id],'identifier')){
-            return ['code' => 0, 'message' => '请登录小程序后操作！'];
+            return ['code' => 0, 'message' => '请使用微信登录后操作！'];
         }
         if (!$order = MemberOrdersRepository::getOne(['order_no' => $request['order_no']])){
             return ['code' => 0, 'message' => '订单信息不存在！'];
@@ -76,10 +76,10 @@ class WeChatPayService
         }
         $trade_no = MemberTradesRepository::getField(['id' => $order['trade_id']],'trade_no');
         $res = $this->weChatPay([
-            'order_no' => $order['order_no'],
-            'amount' => $order['payment_amount'],
-            'open_id' => $open_id,
-            'pay_trade_no' => $trade_no]);
+            'order_no'      => $order['order_no'],
+            'amount'        => $order['payment_amount'],
+            'open_id'       => $open_id,
+            'pay_trade_no'  => $trade_no]);
         if ($res['code'] == 1){
             DB::commit();
             return ['code' => 1, 'message' => '下单成功！', 'data' => $res['data']];

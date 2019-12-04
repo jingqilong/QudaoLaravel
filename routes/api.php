@@ -582,6 +582,11 @@ $api->version('v1',function ($api){
                 $api->post('add_score_category','OaScoreController@addScoreCategory')->name('添加积分分类');
                 $api->post('open_or_close','OaScoreController@openOrClose')->name('开启或关闭积分分类');
             });
+            #积分
+            $api->group(['middleware' => 'member.jwt.auth'],function($api) {
+                $api->get('get_my_score','ScoreController@getMyScore')->name('获取我的积分');
+                $api->get('get_my_record_list','ScoreController@getMyRecordList')->name('获取我的积分记录列表');
+            });
         });
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
