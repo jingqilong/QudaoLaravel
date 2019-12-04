@@ -273,7 +273,7 @@ class WeChatPayService extends BaseService
             $config         = config('wechat.official_account.default');
             $app            = Factory::officialAccount($config);
 
-            $access_token   = $app->oauth->getAccessToken($code);
+//            $access_token   = $app->oauth->getAccessToken($code);
             $ticket         = $app->jssdk->getTicket();
             $arr            = [
                 'jsapi_ticket'  => $ticket,
