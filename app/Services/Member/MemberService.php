@@ -938,7 +938,7 @@ class MemberService extends BaseService
         //待收货
         $res['shipped'] = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIPPED]) ? 1 : 0;
         //待评价
-        $res['shipped'] = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::FINISHED]) ? 1 : 0;
+        $res['received']= ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::RECEIVED]) ? 1 : 0;
         $this->setMessage('获取成功！');
         return $res;
     }
