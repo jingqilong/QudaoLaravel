@@ -36,10 +36,10 @@ class PublicService extends BaseService
             return false;
         }
         $url        = config('url.'.env('APP_ENV').'_url').'?referral_code='.$referral_code;
-        $image_path = public_path('qrcode\\'.$referral_code.'.png');
+        $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png');
         $res = [
             'referral_code' => $referral_code,
-            'qrcode_url'    => url('qrcode/'.$referral_code.'.png')
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png')
         ];
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
