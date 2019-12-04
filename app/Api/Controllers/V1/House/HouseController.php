@@ -840,6 +840,48 @@ class HouseController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/house/get_house_home_list",
+     *     tags={"房产租赁"},
+     *     summary="获取房产首页列表  只有首页数据",
+     *     description="jing" ,
+     *     operationId="get_house_home_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getHouseHomeList(){
+        $res = $this->detailService->getHouseHomeList();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->detailService->error];
+        }
+        return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
+    }
+
+
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/house/get_code_list",
      *     tags={"房产租赁"},
      *     summary="地域选房列表",
