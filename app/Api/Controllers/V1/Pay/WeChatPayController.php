@@ -85,6 +85,80 @@ class WeChatPayController extends ApiController
     }
 
     /**
+     * 微信小程序微信支付接口
+     *
+     * @OA\Get(
+     *     path="/api/v1/payments/get_jsapi_ticket",
+     *     tags={"支付模块"},
+     *     summary="微信微信获取授权签名",
+     *     description="sang",
+     *     operationId="get_jsapi_ticket",
+     *     @OA\Parameter(
+     *     in="query",
+     *     name="sign",
+     *     @OA\Schema(
+     *             type="string",
+     *         ),
+     *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="url",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="当前页面url",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="code",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="js_code",
+     *          required=true,
+     *     ),
+     *     @OA\Response(
+     *          response="default",
+     *          description="",
+     *      )
+     * )
+     * )
+     */
+    public function getJsapiTicket(){
+        $rules = [
+            'url'     => 'required|url',
+            'code'    => 'required',
+        ];
+        $message = [
+            'url.required'      => '当前页面url不能为空不能为空',
+            'url.url'           => '当前页面url格式有误',
+            'code.required'     => 'code不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $result = $this->weChatPayService->getJsapiTicket($this->request['url'],$this->request['code']);
+        if($result == false) {
+            return ['code' => 100, 'message' => $this->weChatPayService->error];
+        }else{
+            return ['code' => 200, 'message' => $this->weChatPayService->message];
+        }
+    }
+
+    /**
      *
      * @OA\Post(
      *     path="/api/v1/payments/we_chat_pay_call_back",

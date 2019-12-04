@@ -10,6 +10,8 @@ use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesLogRepository;
 use App\Repositories\MemberTradesRepository;
+use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
@@ -19,8 +21,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Tolawho\Loggy\Facades\Loggy;
 
-class WeChatPayService
+class WeChatPayService extends BaseService
 {
+    use HelpTrait;
     protected $we_chat_pay_config;
     protected $auth;
 
@@ -254,6 +257,51 @@ class WeChatPayService
             return true;
         } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {
             Loggy::write('payment',json_encode($e));
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param $url
+     * @param $code
+     * @return array|bool
+     */
+    public function getJsapiTicket($url, $code)
+    {
+        try{
+            $config         = config('wechat.official_account.default');
+            $app            = Factory::officialAccount($config);
+
+            $access_token   = $app->oauth->getAccessToken($code);
+            $ticket         = $app->jssdk->getTicket();
+            $arr            = [
+                'jsapi_ticket'  => $ticket,
+                'noncestr'      => $this->getSignCode(),
+                'timestamp'     => time(),
+                'url'           => $url
+            ];
+            $str = '';
+            foreach ($arr as $k=>$v){
+                $str .= $k.'='.$v.'&';
+            }
+            $signature = sha1(trim($str,'&'));
+            $res = [
+                'appId'     => $config['app_id'],
+                'timestamp' => $arr['timestamp'],
+                'nonceStr'  => $arr['noncestr'],
+                'signature' => $signature
+            ];
+            $this->setMessage('获取成功！');
+            return $res;
+        }catch (\Exception $e){
+            $this->setError($e->getMessage());
+            return false;
+        } catch (GuzzleException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            $this->setError($e->getMessage());
             return false;
         }
     }

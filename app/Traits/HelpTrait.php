@@ -372,4 +372,18 @@ trait HelpTrait
         }
         return $res;
     }
+
+    /**
+     * 生成随机码
+     * @param int $len
+     * @return string
+     */
+    protected function getSignCode($len = 10){
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        mt_srand(10000000*(double)microtime());
+        for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++) {
+            $str .= $chars[mt_rand(0, $lc)];
+        }
+        return $str;
+    }
 }
