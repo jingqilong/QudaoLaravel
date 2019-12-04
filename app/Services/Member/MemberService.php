@@ -3,16 +3,23 @@ namespace App\Services\Member;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\OrderEnum;
+use App\Enums\ScoreEnum;
+use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
+use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
+use App\Repositories\MemberSignRepository;
 use App\Repositories\MemberSpecifyViewRepository;
+use App\Repositories\ScoreRecordRepository;
+use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
@@ -906,6 +913,33 @@ class MemberService extends BaseService
             ];
         }
         $this->setMessage('获取成功!');
+        return $res;
+    }
+
+    /**
+     * 个人中心
+     * @return array
+     */
+    public function personalCenter()
+    {
+        $member = $this->auth->user();
+        $res    = [
+            'is_sign'       => 0,
+            'total_score'   => 0
+        ];
+        if ($sign = MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){
+            $res['is_sign'] = 1;
+        }
+        $res['total_score'] = ScoreRecordRepository::sum(['member_id' => $member->id,'latest' => ScoreEnum::LATEST],'remnant_score');
+        //待付款
+        $res['trading'] = MemberOrdersRepository::exists(['user_id' => $member->id,'status' => OrderEnum::STATUSTRADING]) ? 1 : 0;
+        //待发货
+        $res['ship']    = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIP]) ? 1 : 0;
+        //待收货
+        $res['shipped'] = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIPPED]) ? 1 : 0;
+        //待评价
+        $res['shipped'] = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::FINISHED]) ? 1 : 0;
+        $this->setMessage('获取成功！');
         return $res;
     }
 }

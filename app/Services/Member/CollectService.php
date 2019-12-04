@@ -3,9 +3,11 @@ namespace App\Services\Member;
 
 
 use App\Enums\CommentsEnum;
+use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\PrimeMerchantRepository;
 use App\Repositories\ShopGoodsRepository;
+use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Enums\CollectTypeEnum;
 use App\Repositories\ActivityDetailRepository;
@@ -16,6 +18,7 @@ use App\Services\Shop\GoodsSpecRelateService;
 use App\Services\Shop\OrderRelateService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CollectService extends BaseService
 {
@@ -255,6 +258,27 @@ class CollectService extends BaseService
     public function addComment($request)
     {
         $member    = $this->auth->user();
+        $related_id = $request['related_id'];
+        switch ($request['type']){
+            case CommentsEnum::SHOP:
+                $order_relate_id = reset(explode(',',$related_id));
+                if (!$order = ShopOrderRelateRepository::getOne(['id' => $order_relate_id])){
+                    $this->setError('订单信息不存在！');
+                    return false;
+                }
+                if ($order['status'] == ShopOrderEnum::FINISHED){
+                    $this->setError('该订单已评价！');
+                    return false;
+                }
+                if ($order['status'] != ShopOrderEnum::RECEIVED){
+                    $this->setError('该订单还未签收，无法评论！');
+                    return false;
+                }
+                break;
+            default:
+                $this->setError('评论类型不存在！');
+                return false;
+        }
         $add_arr = [
             'member_id'         => $member->id,
             'content'           => $request['content'],
@@ -264,18 +288,27 @@ class CollectService extends BaseService
             'related_id'        => $request['related_id'],
             'image_ids'         => $request['image_ids'] ?? '',
             'status'            => CommentsEnum::SUBMIT,
-            'hidden'            => CommentsEnum::HIDDEN,
+            'hidden'            => CommentsEnum::ACTIVITE,
         ];
         if (CommonCommentsRepository::exists($add_arr)){
             $this->setError('评论已存在,请勿重复操作!');
             return false;
         }
+        DB::beginTransaction();
         $add_arr['created_at']   = time();
         if (!$comments_id = CommonCommentsRepository::getAddId($add_arr)){
             $this->setError('评论添加失败!');
+            DB::rollBack();
+            return false;
+        }
+        //更改订单状态
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::FINISHED])){
+            $this->setError('评论添加失败!');
+            DB::rollBack();
             return false;
         }
         $this->setMessage('评论添加成功!');
+        DB::commit();
         return $comments_id;
     }
 

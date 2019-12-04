@@ -13,7 +13,8 @@ class ShopOrderEnum extends BaseEnum
         'PAYMENT'       => '待支付',
         'SHIP'          => '待发货',
         'SHIPPED'       => '已发货',
-        'RECEIVED'      => '已完成',
+        'RECEIVED'      => '待评论',
+        'FINISHED'      => '已完成',
         //收货方式
         'BY_MAIL'       => '收费邮寄',
         'COLLECT'       => '快递到付',
@@ -26,6 +27,7 @@ class ShopOrderEnum extends BaseEnum
         2 => 'SHIP',
         3 => 'SHIPPED',
         4 => 'RECEIVED',
+        5 => 'FINISHED',
     ];
 
     public static $receive_method = [
@@ -44,7 +46,9 @@ class ShopOrderEnum extends BaseEnum
 
     const SHIPPED           = 3;    //订单状态-已发货
 
-    const RECEIVED          = 4;    //订单状态-已收货
+    const RECEIVED          = 4;    //订单状态-已收货（待评论）
+
+    const FINISHED          = 5;    //订单状态-已收货（待评论）
 
     //收货方式
 

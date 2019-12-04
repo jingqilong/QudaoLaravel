@@ -1103,5 +1103,11 @@ class MemberController extends ApiController
      * )
      *
      */
-    public function personalCenter(){}
+    public function personalCenter(){
+        $res = $this->memberService->personalCenter();
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
 }
