@@ -132,16 +132,19 @@ class WeChatPayService extends BaseService
                     $prepay_id   = $res['prepay_id'];
                     $return_data = [
                         'appId'     => $res['appid'],
+                        'timeStamp' => time(),
                         'nonceStr'  => $res['nonce_str'],
                         'package'   => 'prepay_id='.$prepay_id,
-                        'signType'  => 'MD5',
-                        'timeStamp' => time(),
+                        'signType'  => 'MD5'
                     ];
                     $str = '';
                     foreach ($return_data as $k => $v){
-                        $str .= $k.'='.$v.'&';
+                        if ($k == 'signType'){
+                            $str .= $k.'='.$v;
+                        }else{
+                            $str .= $k.'='.$v.'&';
+                        }
                     }
-                    $str .= 'key='.$config['key'];
                     $return_data['sign'] = md5($str);
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
