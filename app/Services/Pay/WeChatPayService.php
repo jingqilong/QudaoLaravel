@@ -104,9 +104,9 @@ class WeChatPayService
                 'out_trade_no'      => $data['pay_trade_no'],           //第三方支付接口的商户订单号',
                 'total_fee'         => $data['amount'],                 //单位分
                 'spbill_create_ip'  => $_SERVER['REMOTE_ADDR'],         // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
-                'trade_type'        => 'MWEB',                         // 请对应换成你的支付方式对应的值类型
+                'trade_type'        => 'JSAPI',                         // 请对应换成你的支付方式对应的值类型
                 'openid'            => $data['open_id'],
-            ]);dd($res);
+            ]);
             if ($res['return_code'] == 'SUCCESS'){
                 /*
                  * 返回值示例：
@@ -139,7 +139,6 @@ class WeChatPayService
                         $str .= ($k == 'signType') ? $k.'='.$v : $k.'='.$v.'&';
                     }
                     $return_data['sign'] = md5($str);
-                    $return_data['res'] = $res;
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
                 Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res['return_msg']);
