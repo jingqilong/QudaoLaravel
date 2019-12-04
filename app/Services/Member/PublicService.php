@@ -45,7 +45,8 @@ class PublicService extends BaseService
             $this->setMessage('获取成功！');
             return $res;
         }
-        QrCode::format('png')
+        $qr_code = new BaconQrCodeGenerator;
+        $qr_code->format('png')
             ->size(300)
             ->margin(1)
             ->errorCorrection('M')
