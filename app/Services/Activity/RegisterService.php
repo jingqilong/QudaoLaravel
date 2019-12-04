@@ -554,7 +554,6 @@ class RegisterService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        dd($list);
     }
 }
             
