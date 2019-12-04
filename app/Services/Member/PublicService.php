@@ -52,6 +52,10 @@ class PublicService extends BaseService
             ->errorCorrection('M')
             ->generate($url, $image_path);
         $this->setMessage('获取成功！');
+        if (!file_exists($image_path)){
+            $this->setError('生成失败！');
+            return false;
+        }
         return $res;
     }
 }
