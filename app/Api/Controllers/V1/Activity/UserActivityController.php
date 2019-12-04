@@ -508,44 +508,5 @@ class UserActivityController extends ApiController
 
 
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/activity/get_activity_detail",
-     *     tags={"精选活动"},
-     *     summary="往期活动",
-     *     description="sang" ,
-     *     operationId="get_activity_detail",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="会员token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=100,
-     *         description="获取失败！",
-     *     ),
-     * )
-     *
-     */
-    public function getActivityDetail(){
-
-        $res = $this->registerService->getActivityDetail($this->request);
-        if ($res === false){
-            return ['code' => 100, 'message' => $this->registerService->error];
-        }
-        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
-    }
+    
 }
