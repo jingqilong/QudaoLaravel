@@ -280,7 +280,7 @@ class WeChatPayService extends BaseService
                 'noncestr'      => $this->getSignCode(),
                 'timestamp'     => time(),
                 'url'           => $url
-            ];
+            ];dd($ticket);
             $str = '';
             foreach ($arr as $k=>$v){
                 $str .= $k.'='.$v.'&';
