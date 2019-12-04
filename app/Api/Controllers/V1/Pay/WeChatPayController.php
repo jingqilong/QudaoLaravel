@@ -154,7 +154,7 @@ class WeChatPayController extends ApiController
         if($result == false) {
             return ['code' => 100, 'message' => $this->weChatPayService->error];
         }else{
-            return ['code' => 200, 'message' => $this->weChatPayService->message];
+            return ['code' => 200, 'message' => $this->weChatPayService->message,'data' => $result];
         }
     }
 
