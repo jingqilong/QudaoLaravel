@@ -302,16 +302,35 @@ class OrdersService extends BaseService
      */
     public function doctorsList(array $data)
     {
+        $keywords       = $data['keywords'] ?? null;
+        $hospital_id    = $data['hospital_id'] ?? null;
+        $department_id  = $data['department_id'] ?? null;
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
+        $where          = ['deleted_at' => 0,];
         $column         = ['id','name','img_id','title','good_at','introduction','hospitals_id','department_ids'];
-        if (!empty($data['hospital_id'])){
-            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0,'hospitals_id' => $data['hospital_id']],$column,'id','desc',$page,$page_num)){
+        if (!empty($hospital_id)){
+            if (!MediclaHospitalsRepository::exists(['id' => $hospital_id])){
+                $this->setError('医院不存在!');
+                return false;
+            }
+            $where['hospitals_id'] = $hospital_id;
+        }
+        if (!empty($department_id)){
+            if (!MedicalDepartmentsRepository::exists(['id' => $department_id])){
+                $this->setError('科室不存在!');
+                return false;
+            }
+            $where['department_ids'] = ['like','%,'.$department_id.',%'];
+        }
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name','title','good_at']];
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setError('获取失败');
                 return false;
             }
         }else{
-            if (!$list = MedicalDoctorsRepository::getList(['deleted_at' => 0],$column,'id','desc',$page,$page_num)){
+            if (!$list = MedicalDoctorsRepository::getList($where,$column,'id','desc',$page,$page_num)){
                 $this->setError('获取失败');
                 return false;
             }

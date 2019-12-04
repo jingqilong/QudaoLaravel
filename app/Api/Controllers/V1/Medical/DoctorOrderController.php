@@ -676,12 +676,30 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="关键字搜索【姓名，擅长，职称】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="hospital_id",
      *         in="query",
      *         description="医院id【填写医院id 则搜索该医院下面的所有医生 不填写则是全部】",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="department_id",
+     *         in="query",
+     *         description="科室id【默认为全部】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -711,12 +729,16 @@ class DoctorOrderController extends ApiController
      */
     public function doctorsList(){
         $rules = [
+            'hospital_id'   => 'integer',
+            'department_id' => 'integer',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'page.integer'      => '页码必须为整数',
-            'page_num.integer'  => '每页显示条数必须为整数',
+            'hospital_id.integer'   => '医院ID必须为整数',
+            'department_id.integer' => '科室ID必须为整数',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
