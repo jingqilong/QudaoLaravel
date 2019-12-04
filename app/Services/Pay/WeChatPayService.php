@@ -106,8 +106,8 @@ class WeChatPayService
                 'spbill_create_ip'  => $_SERVER['REMOTE_ADDR'],         // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
                 'trade_type'        => 'JSAPI',                         // 请对应换成你的支付方式对应的值类型
                 'openid'            => $data['open_id'],
-            ]);dd($res);
-            if ($res->return_code == 'SUCCESS'){
+            ]);
+            if ($res['return_code'] == 'SUCCESS'){
                 /*
                  * 返回值示例：
                  * [
@@ -124,7 +124,7 @@ class WeChatPayService
                  * ];
                  */
 
-                if ($res->result_code == 'SUCCESS'){
+                if ($res['result_code'] == 'SUCCESS'){
                     Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单成功');
                     $prepay_id   = $res->prepay_id;
                     $return_data = [
@@ -141,11 +141,11 @@ class WeChatPayService
                     $return_data['sign'] = md5($str);
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
-                Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res->return_msg);
-                return ['code' => 0, 'message' => $res->return_msg, 'data' => []];
+                Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res['return_msg']);
+                return ['code' => 0, 'message' => $res['return_msg'], 'data' => []];
             }else{
-                Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res->return_msg);
-                return ['code' => 0, 'message' => $res->return_msg, 'data' => []];
+                Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res['return_msg']);
+                return ['code' => 0, 'message' => $res['return_msg'], 'data' => []];
             }
         } catch (InvalidConfigException $e) {
             Loggy::write('payment',$e);
