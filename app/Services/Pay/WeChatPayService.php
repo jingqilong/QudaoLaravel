@@ -104,7 +104,7 @@ class WeChatPayService
                 'out_trade_no'      => $data['pay_trade_no'],           //第三方支付接口的商户订单号',
                 'total_fee'         => $data['amount'],                 //单位分
                 'spbill_create_ip'  => $_SERVER['REMOTE_ADDR'],         // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
-                'trade_type'        => 'JSAPI',                         // 请对应换成你的支付方式对应的值类型
+                'trade_type'        => 'MWEB',                         // 请对应换成你的支付方式对应的值类型
                 'openid'            => $data['open_id'],
             ]);
             if ($res['return_code'] == 'SUCCESS'){
