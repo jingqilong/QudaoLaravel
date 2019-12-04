@@ -470,14 +470,16 @@ class RegisterService extends BaseService
      */
     public function createdAdmissionTicket($data){
         $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
+        Loggy::write('error','$img_path'.$img_path);
         if (file_exists($img_path)){
             return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         }
         //获取背景图
         $back_image = public_path('images'.DIRECTORY_SEPARATOR.'admission_ticket.png');
-        Loggy::write('error',$back_image);
+        Loggy::write('error','$back_image'.$back_image);
         $admission_image = Image::make($back_image);
         $font_path = public_path('font'.DIRECTORY_SEPARATOR.'pingfang'.DIRECTORY_SEPARATOR.'PingFangBold.ttf');
+        Loggy::write('error','$font_path'.$font_path);
         //添加活动名称
         $activity_name = $data['activity_name'];
         $admission_image->text($activity_name,315,120,function (Font $font)use ($font_path){
@@ -533,6 +535,7 @@ class RegisterService extends BaseService
         });
         //生成二维码并插入到图片
         $qrcode_path = public_path(DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
+        Loggy::write('error','$qrcode_path'.$qrcode_path);
         QrCode::format('png')
             ->size(120)
             ->margin(0)
@@ -542,6 +545,7 @@ class RegisterService extends BaseService
         //使用完二维码后，删除它
         unlink($qrcode_path);
         $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
+        Loggy::write('error','$img_path'.$img_path);
         $admission_image->save($img_path);
         return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
     }
