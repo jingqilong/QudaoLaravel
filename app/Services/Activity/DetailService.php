@@ -454,10 +454,12 @@ class DetailService extends BaseService
             $activity['links'] = $link_list;
         }
         //判断用户是否已报名
+        $activity['register_id'] = 0;
         $activity['register_status'] = 0;
         $activity['order_no'] = '';
         $activity_where = ['member_id' => $member->id,'activity_id' => $id,'status' => ['in',[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]];
         if ($register = ActivityRegisterRepository::getOrderOne($activity_where,'created_at')){
+            $activity['register_id']     = $register['id'];
             $activity['register_status'] = $register['status'];
             if ($register['status'] != ActivityRegisterEnum::PENDING){
                 $activity['order_no'] = $register['order_no'];
