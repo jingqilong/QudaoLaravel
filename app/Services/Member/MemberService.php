@@ -984,4 +984,41 @@ class MemberService extends BaseService
         DB::commit();
         return true;
     }
+
+    /**
+     * 签到页详情
+     * @return array
+     */
+    public function signDetails()
+    {
+        $member = $this->auth->user();
+        $str_time = 'HI,';
+        $hour = date('H');
+        if ($hour > 4 && $hour < 9){
+            $str_time .= '早上好';
+        }
+        if ($hour > 9 && $hour < 12){
+            $str_time .= '上午好';
+        }
+        if ($hour > 12 && $hour < 14){
+            $str_time .= '中午好';
+        }
+        if ($hour > 14 && $hour < 18){
+            $str_time .= '下午好';
+        }
+        if ($hour > 18 && $hour < 24){
+            $str_time .= '下午好';
+        }
+        if ($hour > 0 && $hour < 4){
+            $str_time .= '夜深了，早点休息';
+        }
+        $res = [
+            'title'         => $str_time,
+            'get_score'     => 1,
+            'total_score'   => MemberSignRepository::sum(['member_id' => $member->id],'sign_score'),
+            'is_sign'       => MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => date('Y-m-d')]) ? 1 : 0
+        ];
+        $this->setMessage('获取成功！');
+        return $res;
+    }
 }
