@@ -251,6 +251,9 @@ trait RepositoryTrait
                     case 'in':
                         $model = $model->whereIn($k, end($v));
                         break;
+                    case 'notIn':
+                        $model = $model->whereNotIn($k, end($v));
+                        break;
                     case 'range':
                         $range = end($v);
                         $model = $model->whereRaw($k.' > '.reset($range) . ' and ' . $k .' < '. end($range));
