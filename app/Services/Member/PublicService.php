@@ -43,7 +43,7 @@ class PublicService extends BaseService
         ];
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
-//            return $res;
+            return $res;
         }
         $qr_code = new BaconQrCodeGenerator();
         $qr_code->format('png')
