@@ -475,6 +475,7 @@ class RegisterService extends BaseService
         }
         //获取背景图
         $back_image = public_path('images'.DIRECTORY_SEPARATOR.'admission_ticket.png');
+        Loggy::write('error',$back_image);
         $admission_image = Image::make($back_image);
         $font_path = public_path('font'.DIRECTORY_SEPARATOR.'pingfang'.DIRECTORY_SEPARATOR.'PingFangBold.ttf');
         //添加活动名称
