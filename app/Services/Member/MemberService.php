@@ -3,7 +3,6 @@ namespace App\Services\Member;
 
 
 use App\Enums\MemberEnum;
-use App\Enums\OrderEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
@@ -12,7 +11,6 @@ use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
-use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
@@ -73,11 +71,11 @@ class MemberService extends BaseService
         if (is_array($token)){
             return $token['message'];
         }
-        $user = $this->auth->user();
-        $user = $user->toArray();
+        $user           = $this->auth->user();
+        $user           = $user->toArray();
         $user['m_id']   = $user['id'];
-        $user['sex'] = MemberEnum::getSex($user['sex']);
-        $user   = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         return ['user' => $user, 'token' => $token];
     }
@@ -104,12 +102,12 @@ class MemberService extends BaseService
             return false;
         }
         //建立用户推荐关系
-        $relation_data['member_id'] = $user_id;
-        $relation_data['created_at'] = time();
+        $relation_data['member_id']     = $user_id;
+        $relation_data['created_at']    = time();
         if (empty($referral_code)) {
             $relation_data['parent_id'] = 0;
-            $relation_data['path'] = '0,' . $user_id . ',';
-            $relation_data['level'] = 1;
+            $relation_data['path']      = '0,' . $user_id . ',';
+            $relation_data['level']     = 1;
         } else {
             if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])) {
                 DB::rollBack();
@@ -330,7 +328,7 @@ class MemberService extends BaseService
     public function miniLogin($request){
         try {
             $config = config('wechat.mini_program.default');
-            $mini = Factory::miniProgram($config);
+            $mini   = Factory::miniProgram($config);
             $wx_data = $mini->auth->session($request['code']);//根据 jsCode 获取用户 session 信息
             if (isset($wx_data['errcode'])){
                 Loggy::write('error',"v2/WeChatController.php Line:58，Message:$wx_data[errmsg]");
@@ -518,7 +516,7 @@ class MemberService extends BaseService
     public function miniBindMobile($request){
         try {
             $config = config('wechat.mini_program.default');
-            $mini = Factory::miniProgram($config);
+            $mini   = Factory::miniProgram($config);
             //获取缓存中的session_key和openid
             if (Cache::has("miniLogin$request[code]")){
                 $wx_data = Cache::get("miniLogin$request[code]");
@@ -656,9 +654,9 @@ class MemberService extends BaseService
             $this->setError('您还没有注册，请先去注册后再登录!');
             return false;
         }
-        $token = MemberBaseRepository::getToken($user['id']);
+        $token      = MemberBaseRepository::getToken($user['id']);
         $this->setMessage('登录成功!');
-        $results = ['token' => $token, 'user' => $user];
+        $results    = ['token' => $token, 'user' => $user];
         return $results;
     }
 
@@ -815,15 +813,15 @@ class MemberService extends BaseService
         if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
             return [];
         }
-        $view_user_ids = array_column($list,'view_user_id');
-        $column = ['m_id','m_cname','m_workunits','m_img_id'];
+        $view_user_ids  = array_column($list,'view_user_id');
+        $column         = ['m_id','m_cname','m_workunits','m_img_id'];
         if (!$view_user_list = MemberRepository::getList(['m_id' => ['in',$view_user_ids]],$column,'m_id','asc',1,$count)){
             return [];
         }
         if (empty($view_user_list['data'])){
             return [];
         }
-        $img_ids = array_column($view_user_list['data'],'m_img_id');
+        $img_ids    = array_column($view_user_list['data'],'m_img_id');
         $image_list = CommonImagesRepository::getList(['id' => ['in',$img_ids]]);
         foreach ($view_user_list['data'] as &$value){
             $value['image'] = '';
@@ -932,13 +930,13 @@ class MemberService extends BaseService
         }
         $res['total_score'] = ScoreRecordRepository::sum(['member_id' => $member->id,'latest' => ScoreEnum::LATEST],'remnant_score');
         //待付款
-        $res['trading'] = MemberOrdersRepository::exists(['user_id' => $member->id,'status' => OrderEnum::STATUSTRADING]) ? 1 : 0;
+        $res['trading']     = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::PAYMENT]) ? 1 : 0;
         //待发货
-        $res['ship']    = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIP]) ? 1 : 0;
+        $res['ship']        = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIP]) ? 1 : 0;
         //待收货
-        $res['shipped'] = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIPPED]) ? 1 : 0;
+        $res['shipped']     = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::SHIPPED]) ? 1 : 0;
         //待评价
-        $res['received']= ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::RECEIVED]) ? 1 : 0;
+        $res['received']    = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::RECEIVED]) ? 1 : 0;
         $this->setMessage('获取成功！');
         return $res;
     }
