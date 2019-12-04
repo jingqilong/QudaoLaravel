@@ -531,7 +531,7 @@ class RegisterService extends BaseService
             $font->valign('left');
         });
         //生成二维码并插入到图片
-        $qrcode_path = public_path('/'.$data['sign_in_code'].'.png');
+        $qrcode_path = public_path(DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         QrCode::format('png')
             ->size(120)
             ->margin(0)
@@ -540,9 +540,9 @@ class RegisterService extends BaseService
         $admission_image->insert($qrcode_path, 'bottom-right', 40, 40);
         //使用完二维码后，删除它
         unlink($qrcode_path);
-        $img_path = public_path('admission_ticket/'.$data['sign_in_code'].'.png');
+        $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         $admission_image->save($img_path);
-        return url('admission_ticket/'.$data['sign_in_code'].'.png');
+        return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
     }
 
     public function getActivityDetailOver($request)
