@@ -287,7 +287,8 @@ class WeChatPayService extends BaseService
             foreach ($arr as $k=>$v){
                 $str .= $k.'='.$v.'&';
             }
-            $signature = sha1(trim($str,'&'));
+            $str .= 'key='.$config['key'];
+            $signature = sha1($str);
             $res = [
                 'appId'     => $config['app_id'],
                 'timestamp' => $arr['timestamp'],
