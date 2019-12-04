@@ -176,6 +176,7 @@ return [
         zgldh\QiniuStorage\QiniuFilesystemServiceProvider::class,
         Ixudra\Curl\CurlServiceProvider::class,
         NotificationChannels\WebPush\WebPushServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -240,6 +241,7 @@ return [
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Curl'          => Ixudra\Curl\Facades\Curl::class,
+        'Image' => Intervention\Image\Facades\Image::class
 
     ],
 
