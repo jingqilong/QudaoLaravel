@@ -132,7 +132,8 @@ class WeChatPayService
                         'timeStamp' => time(),
                         'nonceStr'  => $res['nonce_str'],
                         'package'   => 'prepay_id='.$prepay_id,
-                        'signType'  => 'MD5'
+                        'signType'  => 'MD5',
+                        '$res'      => $res
                     ];
                     $str = '';
                     foreach ($return_data as $k => $v){
