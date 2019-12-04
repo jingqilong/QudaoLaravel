@@ -12,7 +12,8 @@ class CollectTypeEnum extends BaseEnum
         'ACTIVITY'      => '精选活动',
         'SHOP'          => '商品',
         'HOUSE'         => '房产',
-        'PRIME'         => '精选生活',
+        'PRIME'         => '餐饮',
+        'FITNESS'       => '健身',
     ];
 
     public static $type = [
@@ -20,6 +21,7 @@ class CollectTypeEnum extends BaseEnum
         2 => 'SHOP',
         3 => 'HOUSE',
         4 => 'PRIME',
+        5 => 'FITNESS',
     ];
 
     // constants
@@ -31,6 +33,8 @@ class CollectTypeEnum extends BaseEnum
     const HOUSE         = 3;
 
     const PRIME         = 4;
+
+    const FITNESS       = 5;
 
     /**
      * @param int $value        值

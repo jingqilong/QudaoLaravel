@@ -130,7 +130,7 @@ class CollectService extends BaseService
         }
         $member     = $this->auth->user();
         $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 999;
+        $page_num   = $request['page_num'] ?? 20;
         $where = ['type' => $request['type'],'member_id' => $member->id,'deleted_at' => 0];
         if (!$collect_list = MemberCollectRepository::getList($where,['*'],'id','desc',$page,$page_num)){
             $this->setError('获取失败!');
@@ -138,19 +138,28 @@ class CollectService extends BaseService
         }
         $collect_ids = array_column($collect_list['data'],'target_id');
         $request['collect_ids'] = $collect_ids;
+        $request = [
+            'collect_ids'   => $collect_ids,
+            'page'          => $page,
+            'page_num'      => $page_num,
+            'type'          => $request['type'],
+        ];
         $collect_list = $this->removePagingField($collect_list);
         switch ($request['type']){
             case CollectTypeEnum::ACTIVITY:
-                $collect_list['data'] = ActivityDetailRepository::getCollectList($collect_ids);
+                $collect_list['data'] = ActivityDetailRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::SHOP:
-                $collect_list['data'] = ShopGoodsRepository::getCollectList($collect_ids);
+                $collect_list['data'] = ShopGoodsRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::HOUSE:
-                $collect_list['data'] = HouseDetailsRepository::getCollectList($collect_ids);
+                $collect_list['data'] = HouseDetailsRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::PRIME:
-                $collect_list['data'] = PrimeMerchantRepository::getCollectList($collect_ids);
+                $collect_list['data'] = PrimeMerchantRepository::getCollectList($request);
+                break;
+            case CollectTypeEnum::FITNESS:
+                $collect_list['data'] = PrimeMerchantRepository::getCollectListFitness($request);
                 break;
             default:
                 $this->setError('暂无此收藏类别！');

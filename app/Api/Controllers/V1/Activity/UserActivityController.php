@@ -561,7 +561,7 @@ class UserActivityController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->registerService->getActivityDetail($this->request);
+        $res = $this->registerService->getActivityDetailOver($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
