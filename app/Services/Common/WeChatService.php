@@ -24,9 +24,9 @@ class WeChatService extends BaseService
      */
     public function miniLogin($code){
         try{
-        $config = config('wechat.mini_program.default');
-        $mini = Factory::miniProgram($config);
-        $wx_data = $mini->auth->session($code);//根据 jsCode 获取用户 session 信息
+        $config     = config('wechat.mini_program.default');
+        $mini       = Factory::miniProgram($config);
+        $wx_data    = $mini->auth->session($code);//根据 jsCode 获取用户 session 信息
         $accessToken = $mini->access_token->getToken();
         if (isset($wx_data['errcode'])){
             Loggy::write('error',"v2/WeChatController.php Line:58，Message:$wx_data[errmsg]");

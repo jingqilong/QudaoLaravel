@@ -628,6 +628,7 @@ $api->version('v1',function ($api){
         //支付模块模块
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->post('we_chat_pay', 'WeChatPayController@weChatPay')->name('微信小程序微信支付下单接口');
+            $api->get('get_jsapi_ticket', 'WeChatPayController@getJsapiTicket')->name('微信微信获取授权签名');
         });
     });
 });
