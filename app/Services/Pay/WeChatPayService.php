@@ -132,14 +132,14 @@ class WeChatPayService
                         'timeStamp' => time(),
                         'nonceStr'  => $res['nonce_str'],
                         'package'   => 'prepay_id='.$prepay_id,
-                        'signType'  => 'MD5',
-                        '$res'      => $res
+                        'signType'  => 'MD5'
                     ];
                     $str = '';
                     foreach ($return_data as $k => $v){
                         $str .= ($k == 'signType') ? $k.'='.$v : $k.'='.$v.'&';
                     }
                     $return_data['sign'] = md5($str);
+                    $return_data['res'] = $res;
                     return ['code' => 1, 'message' => '下单成功！', 'data' => $return_data];
                 }
                 Loggy::write('payment','订单号【'.$data['order_no'].'】微信支付下单失败，原因：'.$res['return_msg']);
