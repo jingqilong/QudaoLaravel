@@ -356,9 +356,9 @@ class DetailsService extends BaseService
     {
         $code           = new AreaService();
         #获取精品商铺
-        $res['shops']       = $this->categoryList(['category' => HouseEnum::OFFICE]);
+        $res['shops']       = $this->categoryList(['category' => HouseEnum::SHOP]);
         #获取住宅
-        $res['residence']   = $this->categoryList(['category' => HouseEnum::OFFICE]);
+        $res['residence']   = $this->categoryList(['category' => HouseEnum::RESERVATION]);
         #获取写字楼
         $res['office']      = $this->categoryList(['category' => HouseEnum::OFFICE]);
         #获取区域
