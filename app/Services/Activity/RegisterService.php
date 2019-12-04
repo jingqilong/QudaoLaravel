@@ -469,14 +469,14 @@ class RegisterService extends BaseService
      * @return UrlGenerator|string
      */
     public function createdAdmissionTicket($data){
-        $img_path = public_path('admission_ticket\\'.$data['sign_in_code'].'.png');
+        $img_path = public_path('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         if (file_exists($img_path)){
-            return url('admission_ticket/'.$data['sign_in_code'].'.png');
+            return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         }
         //获取背景图
-        $back_image = public_path('images\admission_ticket.png');
+        $back_image = public_path('images'.DIRECTORY_SEPARATOR.'admission_ticket.png');
         $admission_image = Image::make($back_image);
-        $font_path = public_path('font\pingfang\PingFangBold.ttf');
+        $font_path = public_path('font'.DIRECTORY_SEPARATOR.'pingfang'.DIRECTORY_SEPARATOR.'PingFangBold.ttf');
         //添加活动名称
         $activity_name = $data['activity_name'];
         $admission_image->text($activity_name,315,120,function (Font $font)use ($font_path){
