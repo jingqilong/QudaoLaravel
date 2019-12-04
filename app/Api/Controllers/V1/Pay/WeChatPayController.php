@@ -120,15 +120,6 @@ class WeChatPayController extends ApiController
      *          description="当前页面url",
      *          required=true,
      *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="code",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="js_code",
-     *          required=true,
-     *     ),
      *     @OA\Response(
      *          response="default",
      *          description="",
@@ -139,12 +130,10 @@ class WeChatPayController extends ApiController
     public function getJsapiTicket(){
         $rules = [
             'url'     => 'required|url',
-            'code'    => 'required',
         ];
         $message = [
             'url.required'      => '当前页面url不能为空不能为空',
             'url.url'           => '当前页面url格式有误',
-            'code.required'     => 'code不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $message);
         if ($Validate->fails()){
