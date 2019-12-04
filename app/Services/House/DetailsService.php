@@ -15,6 +15,7 @@ use App\Services\Common\AreaService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 
 class DetailsService extends BaseService
 {
@@ -450,6 +451,46 @@ class DetailsService extends BaseService
             unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
         }
         $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * 获取我的房源列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getMyHouseList($request)
+    {
+        $member_id = Auth::guard('member_api')->user()->id;
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['deleted_at' => 0,'publisher' => HouseEnum::PERSON,'publisher_id' => $member_id];
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $column = ['id','title','area_code','rent','tenancy','leasing','decoration','area','image_ids','storey','condo_name','category','status'];
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list           = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data'] = ImagesService::getListImages($list['data'],['image_ids' => 'single'],true);
+        foreach ($list['data'] as &$value){
+            #处理地址
+            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],'',3);
+            $value['area_address']  = $area_address;
+            $value['storey']        = $value['storey'].'层';
+            #处理价格
+            $value['rent_tenancy']  = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+            $value['decoration']    = HouseEnum::getDecoration($value['decoration']);
+            $value['category']      = HouseEnum::getCategory($value['category']);
+            $value['status']        = HouseEnum::getStatus($value['status']);
+            unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
+        }
+        $this->setMessage('获取成功！');
         return $list;
     }
 }

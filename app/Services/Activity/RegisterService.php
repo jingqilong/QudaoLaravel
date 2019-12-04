@@ -89,21 +89,21 @@ class RegisterService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if ($register_id = ActivityRegisterRepository::getAddId($add_arr)){
-            $title   = '活动报名成功';
-            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
-            #发送短信
-            if (!empty($member->m_phone)){
-                $sms = new SmsService();
-                $sms->sendContent($member->m_phone,$content);
-            }
-            #发送站内信
-            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
-            $this->setMessage('报名成功！');
-            return true;
+        if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
+            $this->setError('报名失败！');
+            return false;
         }
-        $this->setError('报名失败！');
-        return false;
+        $title   = '活动报名成功';
+        $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
+        #发送短信
+        if (!empty($member->m_phone)){
+            $sms = new SmsService();
+            $sms->sendContent($member->m_phone,$content);
+        }
+        #发送站内信
+        SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        $this->setMessage('报名成功！');
+        return true;
     }
 
 
@@ -396,11 +396,11 @@ class RegisterService extends BaseService
             if ($theme)
                 $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
             #处理地址
-            list($area_address) = $this->makeAddress($value['area_code'],'',3);
-            $value['address']  = $area_address;
-            $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
-            $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
-            $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
+            list($area_address)     = $this->makeAddress($value['area_code'],'',3);
+            $value['address']       = $area_address;
+            $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
+            $value['theme_icon']    = $icons ? reset($icon)['img_url'] : '';
+            $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = '报名中';
             }
@@ -410,10 +410,10 @@ class RegisterService extends BaseService
             if ($value['end_time'] < time()){
                 $value['status'] = '已结束';
             }
-            $start_time    = date('Y年m/d',$value['start_time']);
-            $end_time      = date('m/d',$value['end_time']);
+            $start_time             = date('Y年m/d',$value['start_time']);
+            $end_time               = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
-            $sign_code_list = $this->searchArray($register_list,'activity_id',$value['id']);
+            $sign_code_list         = $this->searchArray($register_list,'activity_id',$value['id']);
             $value['sign_in_code']  = reset($sign_code_list)['sign_in_code'];
             unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
         }

@@ -29,8 +29,8 @@ class HouseEnum extends BaseEnum
         'PLATFORM'      => '平台',
         //状态
         'PENDING'       => '待审核',
-        'PASS'          => '通过',
-        'NOPASS'        => '未通过',
+        'PASS'          => '招租中',
+        'NOPASS'        => '未过审',
         'RENTED'        => '已出租',
         //预约状态
         'RESERVATION'   => '正在预约',
