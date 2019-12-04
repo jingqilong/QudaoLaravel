@@ -276,11 +276,11 @@ class WeChatPayService extends BaseService
 //            $access_token   = $app->oauth->getAccessToken($code);
             $ticket         = $app->jssdk->getTicket();
             $arr            = [
-                'jsapi_ticket'  => $ticket,
+                'jsapi_ticket'  => $ticket['ticket'] ?? '',
                 'noncestr'      => $this->getSignCode(),
                 'timestamp'     => time(),
                 'url'           => $url
-            ];dd($ticket);
+            ];
             $str = '';
             foreach ($arr as $k=>$v){
                 $str .= $k.'='.$v.'&';
