@@ -310,6 +310,7 @@ $api->version('v1',function ($api){
                 $api->post('update_user_password','MemberController@updateUserPassword')->name('更改用户密码');
                 $api->get('get_relation_list','MemberController@getRelationList')->name('获取用户推荐关系');
                 $api->get('personal_center','MemberController@personalCenter')->name('个人中心');
+                $api->post('sign','MemberController@sign')->name('每日签到');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
                 #用户地址管理
                 $api->post('add_address','AddressController@addAddress')->name('用户添加地址');

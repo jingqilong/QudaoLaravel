@@ -1110,4 +1110,43 @@ class MemberController extends ApiController
         }
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/sign",
+     *     tags={"会员"},
+     *     summary="每日签到",
+     *     operationId="sign",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function sign(){
+        $res = $this->memberService->sign();
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
 }
