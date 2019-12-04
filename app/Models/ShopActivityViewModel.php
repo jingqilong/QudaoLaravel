@@ -27,7 +27,7 @@ class ShopActivityViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','goods_id','type','status','show_image','stop_time','name','category','price','details','banner_ids','image_ids','stock','express_price','score_deduction','score_categories','gift_score','is_recommend','goods_status','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','goods_id','type','status','show_image','stop_time','name','category','price','details','banner_ids','image_ids','stock','express_price','score_deduction','score_categories','gift_score','is_recommend','goods_status','created_at','updated_at','deleted_at','labels'];
 
     /**
      * The attributes that should be cast to native types.
