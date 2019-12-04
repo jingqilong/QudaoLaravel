@@ -326,8 +326,8 @@ class DetailsService extends BaseService
             }
         }
         $code           = new AreaService();
-        $area_list      = $code->getAreaList(310100);
-        $list['code']   = $area_list; unset($list['code']['8']);
+        $area_list      = $code->getAreaList(310100,['code' => ['<>','310108']]);
+        $list['code']   = $area_list;
         $list           = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');

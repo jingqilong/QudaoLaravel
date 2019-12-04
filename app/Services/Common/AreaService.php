@@ -13,12 +13,13 @@ class AreaService extends BaseService
     /**
      * 获取省市区街道四级联动列表
      * @param $parent_code
+     * @param array $add_arr
      * @return bool|mixed|null
      */
-    public function getAreaList($parent_code)
+    public function getAreaList($parent_code,$add_arr = [])
     {
         $column    = ['id','code','name','memo','image_url','short_name','lng','lat'];
-        if (!$list = CommonAreaRepository::getList(['parent_code' => $parent_code],$column,'sort','asc')){
+        if (!$list = CommonAreaRepository::getList(array_merge(['parent_code' => $parent_code],$add_arr),$column,'sort','asc')){
             $this->setMessage('暂无信息！');
             return [];
         }
