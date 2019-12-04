@@ -35,11 +35,14 @@ class ActivityService extends BaseService
      * @return array|mixed
      */
     public static function getHomeRecommendGoods(){
-        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['goods_id','name','price','banner_ids'])){
+        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['goods_id','name','price','banner_ids','labels'])){
 //            self::setMessage('没有活动商品！');
             return [];
         }
         $activity_goods = ImagesService::getListImages($activity_goods,['banner_ids' => 'single']);
+        foreach ($activity_goods as &$goods){
+            $goods['labels'] = empty($goods['labels']) ? [] : explode(',',trim($goods['labels'],','));
+        }
 //        self::setMessage('获取成功！');
         return $activity_goods;
     }
