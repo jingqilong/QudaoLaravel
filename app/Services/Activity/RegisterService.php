@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\Gd\Font;
+use SimpleSoftwareIO\QrCode\BaconQrCodeGenerator;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Tolawho\Loggy\Facades\Loggy;
 
@@ -536,7 +537,8 @@ class RegisterService extends BaseService
         //生成二维码并插入到图片
         $qrcode_path = public_path(DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
         Loggy::write('error','$qrcode_path'.$qrcode_path);
-        QrCode::format('png')
+        $qr_code = new BaconQrCodeGenerator();
+        $qr_code->format('png')
             ->size(120)
             ->margin(0)
             ->errorCorrection('M')
