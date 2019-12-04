@@ -96,6 +96,7 @@ class WeChatPayService
     public function weChatPay(array $data){
         $config     = $this->we_chat_pay_config;
         $config['notify_url'] = url('/api/v1/pay/we_chat_pay_call_back');
+        $config['app_id'] = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app        = Factory::payment($config);
         try {
             $res = $app->order->unify([
