@@ -830,11 +830,10 @@ class HouseController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->detailService->getHomeList($this->request);
-        $code = $res['code'];unset($res['code']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->detailService->error];
         }
-        return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res, 'area_code' =>$code];
+        return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
     }
 
 
