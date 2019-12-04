@@ -95,7 +95,7 @@ class HouseEnum extends BaseEnum
     // 装修
     const GENERAL       = 1;    //普装
     const DELICATE      = 2;    //精装
-    const LUXURY        = 1;    //豪装
+    const LUXURY        = 3;    //豪装
 
     // 房产类别
     const RESIDENCE     = 1;    //住宅
