@@ -105,7 +105,7 @@ class WeChatPayService
                 'spbill_create_ip'  => $_SERVER['REMOTE_ADDR'],         // 可选，如不传该参数，SDK 将会自动获取相应 IP 地址
                 'trade_type'        => 'JSAPI',                         // 请对应换成你的支付方式对应的值类型
                 'openid'            => $data['open_id'],
-            ]);
+            ]);dd($res);
             if ($res->return_code == 'SUCCESS'){
                 /*
                  * 返回值示例：
