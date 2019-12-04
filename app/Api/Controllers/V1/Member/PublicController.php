@@ -48,24 +48,6 @@ class PublicController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="url",
-     *         in="query",
-     *         description="跳转链接",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="size",
-     *         in="query",
-     *         description="二维码大小，单位：px",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="获取失败",
@@ -73,29 +55,9 @@ class PublicController extends ApiController
      * )
      *
      */
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return array|JsonResponse|string
-     */
     public function promoteQrCode()
     {
-        $rules = [
-            'url'       => 'required|url',
-            'size'      => 'required|integer',
-        ];
-        $messages = [
-            'url.required'          => '跳转链接不能为空',
-            'url.url'               => '跳转链接格式有误',
-            'size.required'         => '二维码大小不能为空',
-            'size.url'              => '二维码大小必须为整数',
-        ];
-
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $res = $this->publicService->getQrCode($this->request['url'],$this->request['size']);
+        $res = $this->publicService->getQrCode();
         if (!$res){
             return ['code' => 100, 'message' => $this->publicService->error];
         }
