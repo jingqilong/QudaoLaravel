@@ -255,7 +255,7 @@ $api->version('v1',function ($api){
                 $api->post('get_home_list','UserActivityController@getHomeList')->name('获取活动首页列表');
                 $api->get('get_activity_detail','UserActivityController@activityDetail')->name('获取活动详情');
                 $api->get('get_my_activity_list','UserActivityController@getMyActivityList')->name('获取我的活动列表');
-
+                $api->get('get_activity_detail_over','UserActivityController@getActivityDetailOver')->name('往期活动');
                 $api->post('comment','CommentController@comment')->name('成员评论活动');
                 $api->delete('delete_comment','CommentController@deleteComment')->name('成员删除评论');
                 $api->get('get_activity_comment','CommentController@getActivityComment')->name('获取活动评论列表');

@@ -545,5 +545,15 @@ class RegisterService extends BaseService
         $admission_image->save($img_path);
         return url('admission_ticket/'.$data['sign_in_code'].'.png');
     }
+
+    public function getActivityDetail($request)
+    {
+        $where  = ['end_time' => ['<',time()],'deleted_at' => 0,'is_recommend' => ['<>',0]];
+        $column = ['id','name','detail'];
+        if (!$list = ActivityDetailRepository::getList($where,$column)){
+            $this->setError('获取失败!');
+            return false;
+        }
+    }
 }
             

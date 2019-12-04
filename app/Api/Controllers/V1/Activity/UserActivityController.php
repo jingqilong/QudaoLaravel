@@ -504,4 +504,67 @@ class UserActivityController extends ApiController
         }
         return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
     }
+
+
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_activity_detail_Over",
+     *     tags={"精选活动"},
+     *     summary="往期活动",
+     *     description="jing" ,
+     *     operationId="get_activity_detail_Over",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="活动id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function getActivityDetailOver(){
+        $rules = [
+            'id'        => 'required|integer',
+        ];
+        $messages = [
+            'id.required'       => 'ID不能为空',
+            'id.integer'        => 'ID不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getActivityDetail($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+    }
 }
