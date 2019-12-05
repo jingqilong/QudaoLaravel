@@ -132,7 +132,7 @@ class GoodsSpecRelateService extends BaseService
         }
         DB::beginTransaction();
         foreach ($goods_spec_arr as $key => $value){
-            if (!isset($value['spec_relate_id'])){
+            if (!isset($value['spec_relate_id']) || empty($value['spec_relate_id'])){
                 if (!ShopGoodsRepository::decrement(['id' => $value['goods_id']],'stock',$option.$value['number'])){
                     $this->setError('扣除库存失败！');
                     DB::rollBack();
