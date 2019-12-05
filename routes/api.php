@@ -614,6 +614,7 @@ $api->version('v1',function ($api){
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
                 $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');
+                $api->get('feedBack_list', 'CommonFeedBacksController@feedBackList')->name('oa获取用户反馈列表');
 
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });
