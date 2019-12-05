@@ -333,7 +333,7 @@ class WeChatPayService extends BaseService
         $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app                = Factory::payment($config);
         try {
-            $res = $app->order->queryByOutTradeNumber($trade['trade_no']);dd($res);
+            $res = $app->order->queryByOutTradeNumber($trade['trade_no']);
             /*
              * 【订单查询】返回值示例：
              * [
@@ -370,7 +370,7 @@ class WeChatPayService extends BaseService
                     'status'            => TradeEnum::STATUSFAIL,
                     'end_at'            => time(), // 更新支付时间为当前时间
                 ];
-            }
+            }dd($res);
             DB::beginTransaction();
             //更新订单信息
             if (!MemberOrdersRepository::getUpdId(['id' => $order['id']],$order_upd)){
