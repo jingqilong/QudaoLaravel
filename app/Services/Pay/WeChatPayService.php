@@ -132,7 +132,7 @@ class WeChatPayService extends BaseService
                     $prepay_id   = $res['prepay_id'];
                     $return_data = [
                         'appId'     => $res['appid'],
-                        'nonceStr'  => $this->getSignCode(),
+                        'nonceStr'  => $this->getSignCode(30),
                         'package'   => 'prepay_id='.$prepay_id,
                         'signType'  => 'MD5',
                         'timeStamp' => time()
