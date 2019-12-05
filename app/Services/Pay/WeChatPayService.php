@@ -261,13 +261,13 @@ class WeChatPayService extends BaseService
             $response->send(); // return $response;
             return true;
         } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {
-            Loggy::write('payment',json_encode($e));
+            Loggy::write('payment',$e->getMessage());
             return false;
         }
     }
 
     /**
-     *
+     *  前端jssdk授权
      * @param $url
      * @return array|bool
      */
