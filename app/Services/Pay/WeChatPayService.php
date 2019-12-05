@@ -390,16 +390,20 @@ class WeChatPayService extends BaseService
             $status = [1 => '交易成功', 2 => '交易失败'];
             MemberTradesLogRepository::addLog($trade['id'],$trade['amount'],'添加交易记录',
                 '交易号【'.$trade['trade_no'].'】，交易结果：'.$status[$order_upd['status']].',付款方：【'.$trade['pay_user_id'].'】，收款方：【'.$trade['payee_user_id'].'】,时间'.date('Y-m-d H:m:s').'交易金额：'.$trade['amount']);
+            DB::commit();
             $this->setMessage('交易成功！');
             return true;
         } catch (InvalidArgumentException $e) {
             $this->setError('查询失败！：'.$e->getMessage());
+            DB::rollBack();
             return false;
         } catch (InvalidConfigException $e) {
             $this->setError('查询失败！：'.$e->getMessage());
+            DB::rollBack();
             return false;
         } catch(\Exception $e){
             $this->setError('查询失败！：'.$e->getMessage());
+            DB::rollBack();
             return false;
         }
     }
