@@ -372,13 +372,20 @@ class WeChatPayService extends BaseService
                 'end_at'            => time(), // 更新支付时间为当前时间
             ];
         }
+        DB::beginTransaction();
         //更新订单信息
-        if (!MemberOrdersRepository::getUpdId(['id' => $order['order_id']],$order_upd)){
+        if (!MemberOrdersRepository::getUpdId(['id' => $order['id']],$order_upd)){
             Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新订单信息失败！');
+            $this->setError('订单状态更新失败！');
+            DB::rollBack();
+            return false;
         }
         //更新交易信息
         if (!MemberTradesRepository::getUpdId(['trade_no' => $trade['trade_no']],$trade_upd)){
             Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新交易信息失败！交易状态：'.$trade_upd['status'].'，第三方交易号：'.$res['transaction_id']);
+            $this->setError('交易状态更新失败！');
+            DB::rollBack();
+            return false;
         }
         //添加交易日志
         $status = [1 => '交易成功', 2 => '交易失败'];
