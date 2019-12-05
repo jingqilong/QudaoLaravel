@@ -343,11 +343,11 @@ class GoodsService extends BaseService
         }
         $comments = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $goods_detail = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several']);
-        $goods_detail['sales']  = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]) ?? 0;
+        $goods_detail['sales']  = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]);
         $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price']  = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2)) ?? 0;
-        $goods_detail['stock']   = is_null(ShopGoodsSpecRelateRepository::getStock($goods_detail['id'])['stock']) ?? 0;
+        $goods_detail['stock']   = $goods_detail['stock'] ?? 0;
         $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
         $goods_detail['comment'] = $comments;
         $goods_detail['recommend'] = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids']);
