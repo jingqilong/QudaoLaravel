@@ -260,7 +260,7 @@ class WeChatPayService extends BaseService
             });
             $response->send(); // return $response;
             return true;
-        } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {dd($e);
+        } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {
             Loggy::write('payment',json_encode($e));
             return false;
         }
