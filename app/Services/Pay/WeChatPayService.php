@@ -314,8 +314,6 @@ class WeChatPayService extends BaseService
      * 微信支付查询支付结果
      * @param $order_no
      * @return bool
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
      */
     public function selectPayStatus($order_no)
     {
@@ -334,7 +332,15 @@ class WeChatPayService extends BaseService
         $config             = $this->we_chat_pay_config;
         $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app                = Factory::payment($config);
-        $res                = $app->order->queryByOutTradeNumber($trade['trade_no']);
+        try {
+            $res = $app->order->queryByOutTradeNumber($trade['trade_no']);
+        } catch (InvalidArgumentException $e) {
+            $this->setError('查询失败！：'.$e->getMessage());
+            return false;
+        } catch (InvalidConfigException $e) {
+            $this->setError('查询失败！：'.$e->getMessage());
+            return false;
+        }
         /*
              * 【订单查询】返回值示例：
              * [
