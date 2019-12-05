@@ -14,6 +14,7 @@ use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesLogRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Services\Activity\RegisterService;
+use App\Services\BaseService;
 use App\Services\Shop\OrderRelateService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
@@ -36,6 +37,7 @@ class UmsPayDbService extends BaseService
     }
 
     /**
+     * 支付成功后更新订单（微信、银联共用）
      * @param $requestData
      * @return mixed
      * @throws OrderNotExistException
@@ -44,7 +46,7 @@ class UmsPayDbService extends BaseService
      * @throws \Exception
      * @desc 有问题一定要抛出异常，才能让回调了解并返回
      */
-    public function updateOrder($requestData){
+    public function updateOrder($requestData,$paymenth = 'umspay'){
         //支付所用字段：
         //"queryId"：查询ID,
         //"orderno":订单号,
@@ -61,19 +63,19 @@ class UmsPayDbService extends BaseService
             //"dsname"
 
         if (!$order = MemberOrdersRepository::getOne(['order_no' => $requestData['orderno']])){
-            Loggy::write('umspay','订单支付完成回调，订单不存在！订单号：'.$requestData['orderno'],$requestData);
+            Loggy::write($paymenth,'订单支付完成回调，订单不存在！订单号：'.$requestData['orderno'],$requestData);
             Throw new OrderNotExistException();
         }
         DB::beginTransaction();
         //更新订单状态
-        if (!MemberOrdersRepository::getUpdId(['order_no' => $requestData['orderno']],['status' => OrderEnum::STATUSSUCCESS])){
-            Loggy::write('umspay','订单支付完成回调，订单状态更新失败！订单号：'.$requestData['orderno'],$requestData);
+        if (!MemberOrdersRepository::getUpdId(['order_no' => $requestData['orderno']],['status' => OrderEnum::STATUSSUCCESS,'updated_at' => time()])){
+            Loggy::write($paymenth,'订单支付完成回调，订单状态更新失败！订单号：'.$requestData['orderno'],$requestData);
             DB::rollBack();
             Throw new OrderUpdateFailedException();
         }
         //更新交易状态
-        if (!MemberTradesRepository::getUpdId(['id' => $order['trade_id']],['status' => TradeEnum::STATUSSUCCESS])){
-            Loggy::write('umspay','订单支付完成回调，订单状态更新失败！订单号：'.$requestData['orderno'],$requestData);
+        if (!MemberTradesRepository::getUpdId(['id' => $order['trade_id']],['status' => TradeEnum::STATUSSUCCESS,'end_at' => time(),'transaction_no' => $requestData['transaction_no'] ?? null])){
+            Loggy::write($paymenth,'订单支付完成回调，订单状态更新失败！订单号：'.$requestData['orderno'],$requestData);
             DB::rollBack();
             Throw new TradeUpdateFailedException();
         }
