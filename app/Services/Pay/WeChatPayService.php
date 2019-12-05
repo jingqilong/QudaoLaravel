@@ -334,7 +334,7 @@ class WeChatPayService extends BaseService
         $config             = $this->we_chat_pay_config;
         $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app                = Factory::payment($config);
-        $res                = $app->order->queryByOutTradeNumber($trade['trade_no']);dd($res);
+        $res                = $app->order->queryByOutTradeNumber($trade['trade_no']);
         /*
              * 【订单查询】返回值示例：
              * [
@@ -359,7 +359,7 @@ class WeChatPayService extends BaseService
         if ($res['return_code'] == 'SUCCESS' && $res['result_code'] == 'SUCCESS') {
             $order_upd = ['status' => OrderEnum::STATUSSUCCESS, 'updated_at' => time()];
             $trade_upd = [
-                'transaction_no'    => $message['transaction_id'],
+                'transaction_no'    => $res['transaction_id'],
                 'status'            => TradeEnum::STATUSSUCCESS,
                 'end_at'            => time(), // 更新支付时间为当前时间
             ];
@@ -367,7 +367,7 @@ class WeChatPayService extends BaseService
         }else{//用户支付失败
             $order_upd = ['status' => OrderEnum::STATUSFAIL, 'updated_at' => time()];
             $trade_upd = [
-                'transaction_no'    => $message['transaction_id'],
+                'transaction_no'    => $res['transaction_id'],
                 'status'            => TradeEnum::STATUSFAIL,
                 'end_at'            => time(), // 更新支付时间为当前时间
             ];
@@ -378,7 +378,7 @@ class WeChatPayService extends BaseService
         }
         //更新交易信息
         if (!MemberTradesRepository::getUpdId(['trade_no' => $trade['trade_no']],$trade_upd)){
-            Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新交易信息失败！交易状态：'.$trade_upd['status'].'，第三方交易号：'.$message['transaction_id']);
+            Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新交易信息失败！交易状态：'.$trade_upd['status'].'，第三方交易号：'.$res['transaction_id']);
         }
         //添加交易日志
         $status = [1 => '交易成功', 2 => '交易失败'];
