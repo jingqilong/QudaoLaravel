@@ -135,7 +135,7 @@ class WeChatPayService extends BaseService
                         'nonceStr'  => $this->getSignCode(),
                         'package'   => 'prepay_id='.$prepay_id,
                         'signType'  => 'MD5',
-                        'timestamp' => time()
+                        'timeStamp' => time()
                     ];
                     ksort($return_data);
                     $str = '';
