@@ -18,6 +18,7 @@ use App\Repositories\{CommonCommentsRepository,
     MemberOrdersRepository,
     MemberBaseRepository,
     MemberTradesRepository,
+    ShopCartRepository,
     ShopGoodsRepository,
     ShopGoodsSpecRelateRepository,
     ShopGoodsSpecRepository,
@@ -177,7 +178,7 @@ class OrderRelateService extends BaseService
         #创建交易记录
         $TradesService = new TradesService();
         $trade_amount = $payment_price;
-        if ($payment_price === 0){
+        if ($payment_price === 0){//如果支付金额为0，则交易金额为积分金额
             $trade_amount = $trade_score;
         }
         $trade_method = 0;
@@ -232,6 +233,11 @@ class OrderRelateService extends BaseService
             $this->setError($goodsSpecRelateService->error);
             DB::rollBack();
             return false;
+        }
+        //如果是购物车下单，下单完成后删除购物车记录
+        $car_ids = $request['car_ids'] ?? null;
+        if (!is_null($car_ids)){
+            ShopCartRepository::delete(['id' => ['in',explode(',',$car_ids)]]);
         }
         DB::commit();
         Cache::put($request['token'],$request['token'],5);

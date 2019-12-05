@@ -126,7 +126,7 @@ class CartService extends BaseService
         $page_num     = $request['page_num'] ?? 20;
         $where        = ['member_id' => $member_id];
         $column       = ['id','goods_id','spec_relate_id','number'];
-        if (!$list = ShopCartRepository::getList($where,$column,null,null,$page,$page_num)){
+        if (!$list = ShopCartRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }

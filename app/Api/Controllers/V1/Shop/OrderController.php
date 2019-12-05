@@ -165,6 +165,15 @@ class OrderController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="car_ids",
+     *         in="query",
+     *         description="购物车ID串",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="下单失败",
