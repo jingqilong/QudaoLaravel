@@ -370,7 +370,7 @@ class OrderRelateService extends BaseService
         if (!is_null($status)){
             $where['status']    = $status;
         }
-        $column = ['id','status','payment_amount','income_score','express_number','express_company_id'];
+        $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no'];
         if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -380,14 +380,8 @@ class OrderRelateService extends BaseService
             $this->setMessage('您还没有订单，快去购买吧！');
             return $order_list;
         }
-//        $order_relate_ids      = array_column($order_list['data'],'id');
         $express_company_ids   = array_column($order_list['data'],'express_company_id');
         $express_company_list  = CommonExpressRepository::getList(['id' => ['in',$express_company_ids]]);
-        /*$order_goods_list      = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
-        $goods_list            = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
-        $goods_ids             = array_column($goods_list,'goods_id');
-        $comments              = CommonCommentsRepository::getList(['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => ['in',$goods_ids]]);
-        */
         $order_relate_ids   = array_column($order_list['data'],'id');
         $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
