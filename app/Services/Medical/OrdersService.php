@@ -264,8 +264,9 @@ class OrdersService extends BaseService
      */
     public function doctorsOrderList()
     {
-        $memberInfo = $this->auth->user();
-        if (!$list = MedicalOrdersViewRepository::getList(['member_id' => $memberInfo['m_id'], 'deleted_at' => 0])) {
+        $member    = $this->auth->user();
+        $where     = ['member_id' => $member->id, 'deleted_at' => 0];
+        if (!$list = MedicalOrdersViewRepository::getList($where,['*'],'id','desc')) {
             $this->setMessage('暂时没有预约订单');
             return [];
         }

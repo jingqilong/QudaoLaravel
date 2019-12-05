@@ -614,7 +614,7 @@ class DoctorOrderController extends ApiController
      * @OA\Get(
      *     path="/api/v1/medical/doctors_order_list",
      *     tags={"医疗医院前端"},
-     *     summary="获取成员自己预约列表状态",
+     *     summary="获取成员自己预约列表",
      *     description="jing",
      *     operationId="doctors_order_list",
      *     @OA\Parameter(

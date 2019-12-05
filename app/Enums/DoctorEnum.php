@@ -17,7 +17,7 @@ class DoctorEnum extends BaseEnum
         'SURGERY'             => '手术',
         'INHOSPATIL'          => '住院',
         'MAN'                 => '男',
-        'WOMANTIL'            => '女',
+        'WOMAN'               => '女',
         'PUBLICS'             => '公立',
         'PRIVATES'            => '私立',
         'SYNTHESIS'           => '综合',
