@@ -549,7 +549,7 @@ class RegisterService extends BaseService
 
     public function getActivityDetailOver($request)
     {
-        $where  = ['id' => $request['id'],'end_time' => ['<',time()],'deleted_at' => 0,'is_recommend' => ['<>',0]];
+        $where  = ['id' => $request['id'],'deleted_at' => 0];
         $column = ['id','name','detail'];
         if (!$list = ActivityDetailRepository::getList($where,$column)){
             $this->setError('获取失败!');

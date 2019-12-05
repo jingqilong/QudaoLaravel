@@ -7,6 +7,7 @@ use App\Enums\EnterEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\EnterpriseOrderRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
@@ -35,8 +36,8 @@ class OrderService extends BaseService
      */
     public function getEnterpriseList()
     {
-        $memberInfo = $this->auth->user();
-        $where  = ['deleted_at' => 0,'user_id' => $memberInfo['m_id']];
+        $member = $this->auth->user();
+        $where  = ['deleted_at' => 0,'user_id' => $member->id];
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
         if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc')){
             $this->setMessage('没有数据！');
@@ -140,19 +141,19 @@ class OrderService extends BaseService
      */
     public function addEnterprise(array $data)
     {
-        $memberInfo = $this->auth->user();
-        $status                 = EnterEnum::SUBMIT;
+        $member   = $this->auth->user();
+        $remark   = $data['remark'] ?? null;
+        $status   = EnterEnum::SUBMIT;
         $add_arr = [
-            'user_id'           => $memberInfo['m_id'],
+            'user_id'           => $member->id,
             'name'              => $data['name'],
             'mobile'            => $data['mobile'],
             'enterprise_name'   => $data['enterprise_name'],
             'service_type'      => $data['service_type'],
-            'remark'            => $data['remark'],
+            'remark'            => $remark,
             'status'            => $status,
             'reservation_at'    => strtotime($data['reservation_at']),
         ];
-
         if (EnterpriseOrderRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
@@ -244,9 +245,9 @@ class OrderService extends BaseService
         }
         #通知用户
         $status = $upd_arr['status'];
-        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 EnterEnum::PASS   =>
                     MessageEnum::getTemplate(
@@ -262,9 +263,9 @@ class OrderService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
             $title = '企业咨询预约通知';
             #发送站内信

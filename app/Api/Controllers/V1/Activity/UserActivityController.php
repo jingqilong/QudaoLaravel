@@ -510,11 +510,11 @@ class UserActivityController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/activity/get_activity_detail_Over",
+     *     path="/api/v1/activity/get_activity_detail_over",
      *     tags={"精选活动"},
      *     summary="往期活动",
      *     description="jing" ,
-     *     operationId="get_activity_detail_Over",
+     *     operationId="get_activity_detail_over",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
