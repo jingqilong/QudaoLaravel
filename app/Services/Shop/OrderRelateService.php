@@ -744,8 +744,7 @@ class OrderRelateService extends BaseService
         }
         if ($status == ShopOrderEnum::SHIP){
             $scoreService = new RecordService();
-            if (!$scoreService->increaseScore(2,$order_relate['income_score'],$order_relate['member_id'],'购买商品','活动消费积分')){
-                DB::rollBack();
+            if (!$scoreService->increaseScore(2,$order_relate['income_score'],$order_relate['member_id'],'购买商品','活动消费积分',false)){
                 Loggy::write('error','积分赠送失败！消费积分：'.$order_relate['income_score'].' ,会员ID：'.$order_relate['member_id']);
             }
         }

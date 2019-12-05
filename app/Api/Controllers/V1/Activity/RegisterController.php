@@ -575,4 +575,64 @@ class RegisterController extends ApiController
         }
         return ['code' => 200, 'message' => $this->registerService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_share_qr_code",
+     *     tags={"精选活动"},
+     *     summary="获取活动分享二维码",
+     *     description="sang" ,
+     *     operationId="get_share_qr_code",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="审核失败",
+     *     ),
+     * )
+     *
+     */
+    public function getShareQrCode(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+        ];
+        $messages = [
+            'activity_id.required'      => '活动ID不能为空',
+            'activity_id.integer'       => '活动ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getShareQrCode($this->request['activity_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message,'data' => $res];
+    }
 }

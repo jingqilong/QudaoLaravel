@@ -262,6 +262,7 @@ $api->version('v1',function ($api){
 
                 $api->post('activity_register','RegisterController@activityRegister')->name('活动报名');
                 $api->get('get_admission_ticket','RegisterController@getAdmissionTicket')->name('获取入场券');
+                $api->get('get_share_qr_code','RegisterController@getShareQrCode')->name('获取活动分享二维码');
                 $api->post('sign_in','RegisterController@signIn')->name('活动签到');
                 $api->get('sign_in_list','RegisterController@signList')->name('获取活动签到列表');
             });
@@ -631,6 +632,7 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'payments', 'namespace' => 'Pay'], function ($api){
             $api->post('we_chat_pay', 'WeChatPayController@weChatPay')->name('微信小程序微信支付下单接口');
             $api->get('get_jsapi_ticket', 'WeChatPayController@getJsapiTicket')->name('微信微信获取授权签名');
+            $api->get('select_pay_status', 'WeChatPayController@selectPayStatus')->name('微信支付结果查询');
         });
     });
 });

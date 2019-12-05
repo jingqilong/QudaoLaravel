@@ -179,4 +179,66 @@ class WeChatPayController extends ApiController
         $weChatPayService = new WeChatPayService();
         $weChatPayService->payCallBack();
     }
+
+    /**
+     * 微信小程序微信支付接口
+     *
+     * @OA\Get(
+     *     path="/api/v1/payments/select_pay_status",
+     *     tags={"支付模块"},
+     *     summary="微信支付结果查询",
+     *     description="sang",
+     *     operationId="select_pay_status",
+     *     @OA\Parameter(
+     *     in="query",
+     *     name="sign",
+     *     @OA\Schema(
+     *             type="string",
+     *         ),
+     *          description="签名",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="token",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="用户token",
+     *          required=true,
+     *     ),
+     *     @OA\Parameter(
+     *          in="query",
+     *          name="order_no",
+     *          @OA\Schema(
+     *                  type="string",
+     *              ),
+     *          description="订单号",
+     *          required=true,
+     *     ),
+     *     @OA\Response(
+     *          response="default",
+     *          description="操作成功",
+     *      )
+     * )
+     * )
+     */
+    public function selectPayStatus(){
+        $rules = [
+            'order_no'     => 'required|regex:/\d+$/',
+        ];
+        $message = [
+            'order_no.required'     => '订单号不能为空',
+            'order_no.regex'        => '订单号必须为纯数字',
+        ];
+        $Validate = $this->ApiValidate($rules, $message);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $result = $this->weChatPayService->selectPayStatus($this->request['order_no']);
+        if($result == false) {
+            return ['code' => 100, 'message' => $this->weChatPayService->error];
+        }
+        return ['code' => 200, 'message' => $this->weChatPayService->message];
+    }
 }
