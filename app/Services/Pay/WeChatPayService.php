@@ -189,8 +189,6 @@ class WeChatPayService extends BaseService
         $config             = $this->we_chat_pay_config;
         $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app                = Factory::payment($config);
-        $res = $app->order->queryByOutTradeNumber('157552747797821151');
-        dd($res);
         try {
             $response = $app->handlePaidNotify(function ($message, $fail)use ($config) {
                 // 使用通知里的 "微信支付订单号" 或者 "商户交易订单号" 去自己的数据库找到订单，此处使用商户交易订单号查询
