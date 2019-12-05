@@ -4,18 +4,18 @@
 namespace App\Repositories;
 
 
-use App\Models\ActivityOverModel;
+use App\Models\ActivityPastModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class ActivityOverRepository extends ApiRepository
+class ActivityPastRepository extends ApiRepository
 {
     use RepositoryTrait;
 
     /**
-     * ActivityOverModel constructor.
+     * ActivityPastModel constructor.
      * @param $model
      */
-    public function __construct(ActivityOverModel $model)
+    public function __construct(ActivityPastModel $model)
     {
         $this->model = $model;
     }

@@ -7,7 +7,7 @@ use App\Enums\ActivityRegisterEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
-use App\Repositories\ActivityOverRepository;
+use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
@@ -553,18 +553,18 @@ class RegisterService extends BaseService
      * @param $request
      * @return array|bool|null
      */
-    public function getActivityDetailOver($request)
+    public function getActivityPast($request)
     {
-        if (!$activity_info = ActivityOverRepository::getOne(['activity_id' => $request['id']])){
-            $this->setError('获取失败!');
+        if (!$activity_info = ActivityPastRepository::getOne(['activity_id' => $request['id']])){
+            $this->setError('活动不存在!');
             return false;
         }
-        $activity_info = ImagesService::getOneImagesConcise($activity_info,['banner_video_id' => 'single']);
-        $activity_info = ImagesService::getListImagesConcise($activity_info,['img_ids' => 'several']);
+        $activity_info = ImagesService::getOneImagesConcise($activity_info,['video_id' => 'single']);
+        $activity_info = ImagesService::getOneImagesConcise($activity_info,['img_ids' => 'several']);
+        unset($activity_info['video_id'],$activity_info['img_ids']);
         $this->setMessage('获取成功!');
         return $activity_info;
     }
-
     /**
      * 获取活动分享二维码
      * @param $activity_id
