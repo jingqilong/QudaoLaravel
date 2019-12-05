@@ -536,7 +536,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="活动id",
+     *         description="往期活动id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",

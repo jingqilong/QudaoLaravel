@@ -7,6 +7,7 @@ use App\Enums\ActivityRegisterEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
+use App\Repositories\ActivityOverRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
@@ -547,14 +548,21 @@ class RegisterService extends BaseService
         return url('admission_ticket'.DIRECTORY_SEPARATOR.$data['sign_in_code'].'.png');
     }
 
+    /**
+     * 往期活动
+     * @param $request
+     * @return array|bool|null
+     */
     public function getActivityDetailOver($request)
     {
-        $where  = ['id' => $request['id'],'deleted_at' => 0];
-        $column = ['id','name','detail'];
-        if (!$list = ActivityDetailRepository::getList($where,$column)){
+        if (!$activity_info = ActivityOverRepository::getOne(['activity_id' => $request['id']])){
             $this->setError('获取失败!');
             return false;
         }
+        $activity_info = ImagesService::getOneImagesConcise($activity_info,['banner_video_id' => 'single']);
+        $activity_info = ImagesService::getListImagesConcise($activity_info,['img_ids' => 'several']);
+        $this->setMessage('获取成功!');
+        return $activity_info;
     }
 
     /**
