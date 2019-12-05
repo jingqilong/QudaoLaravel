@@ -340,6 +340,9 @@ class WeChatPayService extends BaseService
         } catch (InvalidConfigException $e) {
             $this->setError('查询失败！：'.$e->getMessage());
             return false;
+        } catch(\Exception $e){
+            $this->setError('查询失败！：'.$e->getMessage());
+            return false;
         }
         /*
              * 【订单查询】返回值示例：
