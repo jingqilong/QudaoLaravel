@@ -312,7 +312,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="收藏列表类别，1活动，2商品，3房产，4餐饮，5健身..",
+     *         description="收藏列表类别，1活动，2商品，3房产，4餐饮",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -345,7 +345,7 @@ class CommonController extends ApiController
      */
     public function collectList(){
         $rules = [
-            'type'          => 'required|in:1,2,3,4,5',
+            'type'          => 'required|in:1,2,3,4',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];

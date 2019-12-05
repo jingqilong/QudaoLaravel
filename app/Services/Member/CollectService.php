@@ -161,9 +161,6 @@ class CollectService extends BaseService
             case CollectTypeEnum::PRIME:
                 $collect_list['data'] = PrimeMerchantRepository::getCollectList($request);
                 break;
-            case CollectTypeEnum::FITNESS:
-                $collect_list['data'] = PrimeMerchantRepository::getCollectListFitness($request);
-                break;
             default:
                 $this->setError('暂无此收藏类别！');
                 return false;
