@@ -62,8 +62,8 @@ class LoanController extends ApiController
             'type'              => 'required|between:1,2',
         ];
         $messages = [
-            'type.required'             => '请输入操作类型',
-            'type.between'              => '操作类型不正确',
+            'type.required'     => '请输入操作类型',
+            'type.between'      => '操作类型不正确',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常

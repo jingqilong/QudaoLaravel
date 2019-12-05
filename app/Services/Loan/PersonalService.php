@@ -37,7 +37,7 @@ class PersonalService extends BaseService
     {
         $memberInfo = $this->auth->user();
         $type       = $data['type'];
-        $where      = ['user_id' => $memberInfo['m_id'],'type' => $type,'deleted_at' => 0];
+        $where      = ['user_id' => $memberInfo->id,'type' => $type,'deleted_at' => 0];
         if (!$list  = LoanPersonalRepository::getList($where)){
             $this->setMessage('没有数据！');
             return [];
@@ -117,7 +117,7 @@ class PersonalService extends BaseService
     public function getLoanInfo(string $id)
     {
         $memberInfo = $this->auth->user();
-        if (!$orderInfo= LoanPersonalRepository::getOne(['id' => $id,'user_id' => $memberInfo['m_id']])){
+        if (!$orderInfo= LoanPersonalRepository::getOne(['id' => $id,'user_id' => $memberInfo->id])){
             $this->setError('预约信息不存在!');
             return false;
         }
