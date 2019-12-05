@@ -38,6 +38,7 @@ class PublicService extends BaseService
         $url        = config('url.'.env('APP_ENV').'_url').'?referral_code='.$referral_code;
         $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png');
         $res = [
+            'url'           => $url,
             'referral_code' => $referral_code,
             'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png')
         ];

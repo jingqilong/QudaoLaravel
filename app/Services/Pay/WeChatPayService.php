@@ -333,7 +333,7 @@ class WeChatPayService extends BaseService
         $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
         $app                = Factory::payment($config);
         try {
-            $res = $app->order->queryByOutTradeNumber($trade['trade_no']);
+            $res = $app->order->queryByOutTradeNumber($trade['trade_no']);dd($res);
             /*
              * 【订单查询】返回值示例：
              * [
