@@ -378,7 +378,7 @@ class WeChatPayService extends BaseService
                 $this->setError('订单状态更新失败！');
                 DB::rollBack();
                 return false;
-            }dd($res);
+            }
             //更新交易信息
             if (!MemberTradesRepository::getUpdId(['trade_no' => $trade['trade_no']],$trade_upd)){
                 Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新交易信息失败！交易状态：'.$trade_upd['status'].'，第三方交易号：'.$res['transaction_id']);
