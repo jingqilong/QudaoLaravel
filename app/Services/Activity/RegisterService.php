@@ -556,5 +556,36 @@ class RegisterService extends BaseService
             return false;
         }
     }
+
+    /**
+     * 获取活动分享二维码
+     * @param $activity_id
+     * @return array|bool
+     */
+    public function getShareQrCode($activity_id)
+    {
+        $url        = config('url.'.env('APP_ENV').'_url').'#'."/pages/activity/activitingDetail?listId=".$activity_id;
+        $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png');
+        $res = [
+            'url'           => $url,
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png')
+        ];
+        if (file_exists($image_path)){
+            $this->setMessage('获取成功！');
+            return $res;
+        }
+        $qr_code = new BaconQrCodeGenerator();
+        $qr_code->format('png')
+            ->size(300)
+            ->margin(1)
+            ->errorCorrection('M')
+            ->generate($url, $image_path);
+        $this->setMessage('获取成功！');
+        if (!file_exists($image_path)){
+            $this->setError('生成失败！');
+            return false;
+        }
+        return $res;
+    }
 }
             
