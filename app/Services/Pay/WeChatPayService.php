@@ -186,9 +186,11 @@ class WeChatPayService extends BaseService
          * 'time_end'    => '20141030133525'                      //支付完成时间，格式为yyyyMMddHHmmss，如2014年10月30日13点35分25秒
          * ];
          */
-        $app = Factory::payment($this->we_chat_pay_config);
+        $config             = $this->we_chat_pay_config;
+        $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
+        $app                = Factory::payment($config);
         try {
-            $response = $app->handlePaidNotify(function ($message, $fail) {
+            $response = $app->handlePaidNotify(function ($message, $fail)use ($config) {
                 // 使用通知里的 "微信支付订单号" 或者 "商户交易订单号" 去自己的数据库找到订单，此处使用商户交易订单号查询
                 $trade_info = MemberTradesRepository::getOne(['trade_no' => $message['out_trade_no']]);
 
@@ -196,7 +198,7 @@ class WeChatPayService extends BaseService
                     return true; // 告诉微信，我已经处理完了，订单没找到，别再通知我了
                 }
                 ///////////// <- 在这里调用微信的【订单查询】接口查一下该笔订单的情况，确认是已经支付 /////////////
-                $check_app = Factory::payment($this->we_chat_pay_config);
+                $check_app = Factory::payment($config);
                 $res = $check_app->order->queryByOutTradeNumber($message['out_trade_no']);
                 /*
                      * 【订单查询】返回值示例：
@@ -258,7 +260,7 @@ class WeChatPayService extends BaseService
             });
             $response->send(); // return $response;
             return true;
-        } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {
+        } catch (\EasyWeChat\Kernel\Exceptions\Exception $e) {dd($e);
             Loggy::write('payment',json_encode($e));
             return false;
         }
