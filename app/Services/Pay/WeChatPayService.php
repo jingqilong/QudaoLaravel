@@ -309,4 +309,82 @@ class WeChatPayService extends BaseService
             return false;
         }
     }
+
+    /**
+     * 微信支付查询支付结果
+     * @param $order_no
+     * @return bool
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    public function selectPayStatus($order_no)
+    {
+        if (!$order = MemberOrdersRepository::getOne(['order_no' => $order_no])){
+            $this->setError('订单信息不存在！');
+            return false;
+        }
+        if (!$trade = MemberTradesRepository::getOne(['order_id' => $order['id']])){
+            $this->setError('交易信息不存在！');
+            return false;
+        }
+        if ($trade['status'] == TradeEnum::STATUSSUCCESS){
+            $this->setMessage('交易已完成！');
+            return true;
+        }
+        $config             = $this->we_chat_pay_config;
+        $config['app_id']   = env('WECHAT_OFFICIAL_ACCOUNT_APPID');
+        $app                = Factory::payment($config);
+        $res                = $app->order->queryByOutTradeNumber($trade['trade_no']);
+        /*
+             * 【订单查询】返回值示例：
+             * [
+             * 'return_code' => 'SUCCESS',                            //此字段是通信标识，非交易标识，交易是否成功需要查看result_code来判断
+             * 'return_msg'  => 'OK',                                 //返回信息，如非空，为错误原因:签名失败、参数格式校验错误
+             * 以下字段在return_code为SUCCESS的时候有返回
+             * 'appid'       => 'wx8888888888888888',                 //调用接口提交的小程序ID
+             * 'mch_id'      => '10000100',                           //调用接口提交的商户号
+             * 'nonce_str'   => 'IITRi8Iabbblz1J',                    //微信返回的随机字符串
+             * 'sign'        => '7921E432F65EB8ED0CE9755F0E86D72F2',  //微信返回的签名值
+             * 'result_code  => 'SUCCESS',                            //SUCCESS/FAIL 下单结果
+             * 以下字段在return_code 、result_code、trade_state都为SUCCESS时有返回 ，如trade_state不为 SUCCESS，则只返回out_trade_no（必传）和attach（选传）。
+             * 'trade_state' => 'SUCCESS'                             //交易状态，SUCCESS—支付成功、REFUND—转入退款、NOTPAY—未支付、CLOSED—已关闭、USERPAYING--用户支付中
+             *                                                        //PAYERROR--支付失败(其他原因，如银行返回失败)
+             * ];
+             */
+        if ($res['return_code'] !== 'SUCCESS') { // return_code 表示通信状态，不代表支付状态
+            $this->setError('网络错误');
+            return false;
+        }
+        // 用户是否支付成功
+        if ($res['return_code'] == 'SUCCESS' && $res['result_code'] == 'SUCCESS') {
+            $order_upd = ['status' => OrderEnum::STATUSSUCCESS, 'updated_at' => time()];
+            $trade_upd = [
+                'transaction_no'    => $message['transaction_id'],
+                'status'            => TradeEnum::STATUSSUCCESS,
+                'end_at'            => time(), // 更新支付时间为当前时间
+            ];
+
+        }else{//用户支付失败
+            $order_upd = ['status' => OrderEnum::STATUSFAIL, 'updated_at' => time()];
+            $trade_upd = [
+                'transaction_no'    => $message['transaction_id'],
+                'status'            => TradeEnum::STATUSFAIL,
+                'end_at'            => time(), // 更新支付时间为当前时间
+            ];
+        }
+        //更新订单信息
+        if (!MemberOrdersRepository::getUpdId(['id' => $order['order_id']],$order_upd)){
+            Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新订单信息失败！');
+        }
+        //更新交易信息
+        if (!MemberTradesRepository::getUpdId(['trade_no' => $trade['trade_no']],$trade_upd)){
+            Loggy::write('payment','【微信支付回调】交易号【'.$trade['trade_no'].'】更新交易信息失败！交易状态：'.$trade_upd['status'].'，第三方交易号：'.$message['transaction_id']);
+        }
+        //添加交易日志
+        $status = [1 => '交易成功', 2 => '交易失败'];
+        MemberTradesLogRepository::addLog($trade['id'],$trade['amount'],'添加交易记录',
+            '交易号【'.$trade['trade_no'].'】，交易结果：'.$status[$order_upd['status']].',付款方：【'.$trade['pay_user_id'].'】，收款方：【'.$trade['payee_user_id'].'】,时间'.date('Y-m-d H:m:s').'交易金额：'.$trade['amount']);
+        $this->setMessage('交易成功！');
+        return true;
+    }
 }
