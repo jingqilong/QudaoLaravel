@@ -613,6 +613,7 @@ $api->version('v1',function ($api){
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
             $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');
             $api->get('home', 'CommonController@home')->name('获取首页');
+            $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');

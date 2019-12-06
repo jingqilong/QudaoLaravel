@@ -726,4 +726,43 @@ class CommonController extends ApiController
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/common/get_contact",
+     *     tags={"公共"},
+     *     summary="获取管家联系方式",
+     *     description="sang" ,
+     *     operationId="get_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="获取成功",
+     *         @OA\JsonContent(ref=""),
+     *         @OA\MediaType(
+     *             mediaType="application/xml",
+     *             @OA\Schema(required={"code", "message"})
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response="100",
+     *         description="获取失败",
+     *         @OA\JsonContent(ref=""),
+     *     )
+     * )
+     *
+     */
+    public function getContact(){
+        if (!$contact = config('common.contact')){
+            return ['code' => 100,'message' => '获取失败！'];
+        }
+        return ['code' => 200,'message' => '获取成功！','data' => $contact];
+    }
 }

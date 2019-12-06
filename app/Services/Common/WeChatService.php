@@ -94,7 +94,7 @@ class WeChatService extends BaseService
             return false;
         }
         $cacheData = Cache::get("officialAccountLogin$request[code]");
-        return $this->bindMobile($mobile,$request['referral_code'],$cacheData);
+        return $this->bindMobile($mobile,$request['referral_code'] ?? '',$cacheData);
     }
 
     /**
@@ -180,7 +180,7 @@ class WeChatService extends BaseService
                 return false;
             }
         }else{#如果手机号未注册，进行注册，必须要推荐码，创建推荐关系
-            if (!isset($request['referral_code'])){
+            if (empty($referral_code)){
                 $this->setError('该手机号未注册，需要使用推荐码！');
                 DB::rollBack();
                 return false;
