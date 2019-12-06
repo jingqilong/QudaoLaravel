@@ -556,8 +556,26 @@ class RegisterService extends BaseService
      */
     public function getActivityPast($request)
     {
+        #顶部视频
+        $res['banner'] = $this->activityPastVideo($request);
+        #视频列表
+        $res['video_list'] = $this->activityPastVideoText($request);
+        #图文列表
+        $res['images_list'] = $this->activityPastImgText($request);
+        $this->setMessage('获取成功!');
+        return $res;
+    }
+
+    /**
+     * 视频列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    private function activityPastVideo($request)
+    {
+        $where = ['activity_id' => $request['id'],'top' => 1,'hidden' => 0];
         $column = ['id','activity_id','resource_ids','top','presentation','created_at'];
-        if (!$list = ActivityPastRepository::getList(['activity_id' => $request['id'],'hidden' => 0],$column)){
+        if (!$list = ActivityPastRepository::getList($where,$column)){
             $this->setError('活动不存在!');
             return false;
         }
@@ -566,7 +584,47 @@ class RegisterService extends BaseService
         foreach ($list as &$value){
             unset($value['resource_ids']);
         };
-        $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * 获取是视频文本
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    private function activityPastVideoText($request)
+    {
+        $where = ['activity_id' => $request['id'],'top' => 0,'hidden' => 0];
+        $column = ['id','activity_id','resource_ids','top','presentation','created_at'];
+        if (!$list = ActivityPastRepository::getList($where,$column)){
+            $this->setError('活动不存在!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
+        foreach ($list as &$value){
+            unset($value['resource_ids']);
+        };
+        return $list;
+    }
+    /**
+     * 获取是图片文本
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    private function activityPastImgText($request)
+    {
+        $where = ['activity_id' => $request['id'],'top' => 0,'hidden' => 0];
+        $column = ['id','activity_id','resource_ids','top','presentation','created_at'];
+        if (!$list = ActivityPastRepository::getList($where,$column)){
+            $this->setError('活动不存在!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
+        foreach ($list as &$value){
+            unset($value['resource_ids']);
+        };
         return $list;
     }
     /**
@@ -706,5 +764,6 @@ class RegisterService extends BaseService
         $list['data'] = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         dd($list);
     }
+
 }
             
