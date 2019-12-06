@@ -138,13 +138,11 @@ class GoodsController extends ApiController
     public function getGoodsList(){
         $rules = [
             'category'          => 'integer',
-            'status'            => 'integer',
             'page'              => 'integer',
             'page_num'          => 'integer',
         ];
         $messages = [
             'category.integer'      => '商品类别必须为整数',
-            'status.integer'        => '上下架必须为整数',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];

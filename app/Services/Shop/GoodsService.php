@@ -370,9 +370,13 @@ class GoodsService extends BaseService
         $page = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $keywords = $request['keywords'] ?? null;
+        $category = $request['category'] ?? null;
         $order      = 'id';
         $asc_desc   = 'desc';
         $where = ['deleted_at' => 0,'status' => ShopGoodsEnum::PUTAWAY];
+        if (!is_null($category)){
+            $where['category'] = $category;
+        }
         $column = ['id','name','price','banner_ids','labels'];
         if (!empty($keywords)){
             if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
