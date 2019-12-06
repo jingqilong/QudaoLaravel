@@ -1010,7 +1010,7 @@ class MemberService extends BaseService
         $res = [
             'title'         => $str_time,
             'get_score'     => 1,
-            'total_score'   => MemberSignRepository::sum(['member_id' => $member->id],'sign_score'),
+            'total_score'   => MemberSignRepository::sum(['member_id' => $member->id],'sign_score') ?? 0,
             'is_sign'       => MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))]) ? 1 : 0
         ];
         $this->setMessage('获取成功！');
