@@ -74,7 +74,6 @@ class MemberService extends BaseService
         }
         $user           = $this->auth->user();
         $user           = $user->toArray();
-        $user['m_id']   = $user['id'];
         $user['sex']    = MemberEnum::getSex($user['sex']);
         $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
@@ -657,6 +656,9 @@ class MemberService extends BaseService
         }
         $token      = MemberBaseRepository::getToken($user['id']);
         $this->setMessage('登录成功!');
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         $results    = ['token' => $token, 'user' => $user];
         return $results;
     }
