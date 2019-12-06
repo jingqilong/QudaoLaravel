@@ -2,6 +2,7 @@
 namespace App\Services\Member;
 
 
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\QiNiuService;
@@ -32,8 +33,11 @@ class PublicService extends BaseService
         $user = $this->auth->user();
         $referral_code = $user->referral_code;
         if (empty($referral_code)){
-            $this->setError('您还没有邀请码！');
-            return false;
+            $referral_code = MemberBaseRepository::getReferralCode();
+            if (!MemberBaseRepository::getUpdId(['id' => $user->id],['referral_code' => $referral_code])){
+                $this->setError('您还没有邀请码！');
+                return false;
+            }
         }
         $url        = config('url.'.env('APP_ENV').'_url').'?referral_code='.$referral_code;
         $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png');
