@@ -207,7 +207,7 @@ class QiNiuService extends BaseService
             return ['code' => 0, 'message' => '单次上传不能超过20个'];
         }
         //对传入的文件进行预检
-        foreach ($files as $info){
+        foreach ($files as $info){dd($info);
             $file_name = $info->getClientOriginalName();
             $file_type = $info->getMimeType();
             $temp = explode('/',$file_type);
