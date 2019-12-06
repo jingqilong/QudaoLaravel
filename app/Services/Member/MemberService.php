@@ -778,7 +778,7 @@ class MemberService extends BaseService
         ];
         $info_arr = [
             'member_id'      => $member['id'],
-            'birthday'       => $request['m_birthday'],
+            'birthday'       => $request['birthday'],
             'id_card'        => is_null($request['numcard']) ?? '' ,
             'address'        => is_null($request['address']) ?? '' ,
             'info_provider'  => is_null($request['referrername']) ?? '',

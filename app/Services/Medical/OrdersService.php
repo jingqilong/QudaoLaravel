@@ -10,6 +10,7 @@ use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MedicalOrdersViewRepository;
 use App\Repositories\MediclaHospitalsRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
@@ -227,9 +228,9 @@ class OrdersService extends BaseService
         }
         #通知用户
         $status = $upd_arr['status'];
-        if ($member = MemberRepository::getOne(['m_id' => $orderInfo['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 DoctorEnum::PASS   =>
                     MessageEnum::getTemplate(
@@ -245,9 +246,9 @@ class OrdersService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
             $title = '医疗预约通知';
             #发送站内信
