@@ -309,7 +309,7 @@ class DetailsService extends BaseService
         if (!empty($rent_range)){
             $range = explode('-',$rent_range);
             if (empty(end($range))){
-                $where['rent'] = ['>',end($range)];
+                $where['rent'] = ['>',reset($range)];
             }else{
                 $where['rent'] = ['range',[reset($range),end($range)]];
             }
