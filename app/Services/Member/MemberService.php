@@ -299,7 +299,7 @@ class MemberService extends BaseService
      * Get user info.
      * @return mixed
      */
-    public function getUserInfo(){
+    public function getMemberInfoByUser(){
         $user = $this->auth->user();
         $member_id = $user->id;
         $info_column            = ['grade','employer','title','industry','brands','category','position','profile','birthday','address'];

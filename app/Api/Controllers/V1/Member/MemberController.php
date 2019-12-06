@@ -506,10 +506,10 @@ class MemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_user_info",
+     *     path="/api/v1/member/get_member_by_user",
      *     tags={"会员"},
      *     summary="获取成员自己的信息",
-     *     operationId="get_user_info",
+     *     operationId="get_member_by_user",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -541,7 +541,7 @@ class MemberController extends ApiController
      */
     public function getUserInfo()
     {
-        if ($user = $this->memberService->getUserInfo()){
+        if ($user = $this->memberService->getMemberInfoByUser()){
             return ['code' => 200, 'message' => '成员信息获取成功！', 'data' => ['user' => $user]];
         }
         return ['code' => 100, 'message' => '成员信息获取失败！'];
