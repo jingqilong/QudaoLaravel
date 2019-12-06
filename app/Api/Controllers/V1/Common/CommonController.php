@@ -158,7 +158,7 @@ class CommonController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $this->memberService->message];
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
 
     /**

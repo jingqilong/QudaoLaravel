@@ -748,10 +748,11 @@ class MemberService extends BaseService
     public function mobileExists($mobile)
     {
         if (MemberBaseRepository::exists(['mobile' => $mobile])){
-            $this->setError('已被注册!');
+            $this->setMessage('已被注册!');
+            return ['is_register' => 1];
         }
         $this->setMessage('未被注册！');
-        return true;
+        return ['is_register' => 0];
     }
 
 
