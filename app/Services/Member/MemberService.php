@@ -219,8 +219,8 @@ class MemberService extends BaseService
             return $list;
         }
         foreach ($list['data'] as $key => &$value){
-            $value['grade']      =  is_null($value['grade']) ? '' : MemberEnum::getGrade($value['grade']);
-            $value['category']   =  is_null($value['category']) ? '' : MemberEnum::getGrade($value['category']);
+            $value['grade']      =   MemberEnum::getGrade($value['grade'],$value['grade']);
+            $value['category']   =   MemberEnum::getGrade($value['category'],$value['category']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -307,7 +307,7 @@ class MemberService extends BaseService
         $member_info            = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column);
         $member_base            = MemberBaseRepository::getOne(['id' => $member_id],$base_column);
         $member                 = array_merge($member_base,$member_info);
-        $member['sex']          = MemberEnum::getSex($member['sex'],$member['sex']);
+        $member['sex_name']     = MemberEnum::getSex($member['sex'],$member['sex']);
         $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
         $member['category']     = MemberEnum::getCategory($member['category'],$member['category']);

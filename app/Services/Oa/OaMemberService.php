@@ -59,11 +59,11 @@ class OaMemberService extends BaseService
             $this->setMessage('没有成员!');
         }
         foreach ($member_list['data'] as &$value){
-            $value['group_name']        = empty($value['m_groupname']) ? '' : MemberEnum::getGrade($value['m_groupname']);
-            $value['category_name']     = empty($value['m_category']) ? '' : MemberEnum::getCategory($value['m_category']);
-            $value['starte_name']       = empty($value['m_starte']) ? '' : MemberEnum::getStatus($value['m_starte']);
-            $value['sex_name']          = empty($value['m_sex']) ? '' : MemberEnum::getSex($value['m_sex']);
-            $value['identity_name']     = empty($value['m_identity']) ? '' : MemberEnum::getIdentity($value['m_identity']);
+            $value['group_name']        = MemberEnum::getGrade($value['m_groupname'],$value['group_name']);
+            $value['category_name']     = MemberEnum::getCategory($value['m_category'],$value['m_category']);
+            $value['starte_name']       = MemberEnum::getStatus($value['m_starte'],$value['m_starte']);
+            $value['sex_name']          = MemberEnum::getSex($value['m_sex'],$value['m_sex']);
+            $value['identity_name']     = MemberEnum::getIdentity($value['m_identity'],$value['m_identity']);
         }
         $this->setMessage('获取成功！');
         return $member_list;
@@ -76,10 +76,6 @@ class OaMemberService extends BaseService
      */
     public function getMemberInfo(string $id)
     {
-        if (empty($id)){
-            $this->setError('会员ID为空！');
-            return false;
-        }
         if (!$member = OaMemberRepository::exists(['m_id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
@@ -95,10 +91,10 @@ class OaMemberService extends BaseService
         if (empty($memberInfo)) {
             $this->setMessage('没有查找到此成员信息!');
         }
-        $memberInfo['group_name']        = empty($memberInfo['m_groupname']) ? '' : MemberEnum::getGrade($memberInfo['m_groupname']);
-        $memberInfo['category_name']     = empty($memberInfo['m_category']) ? '' : MemberEnum::getCategory($memberInfo['m_category']);
-        $memberInfo['starte']            = empty($memberInfo['m_starte']) ? '' : MemberEnum::getStatus($memberInfo['m_starte']);
-        $memberInfo['sex']               = empty($memberInfo['m_sex']) ? '' : MemberEnum::getSex($memberInfo['m_sex']);
+        $memberInfo['group_name']        = MemberEnum::getGrade($memberInfo['m_groupname'],$memberInfo['m_groupname']);
+        $memberInfo['category_name']     = MemberEnum::getCategory($memberInfo['m_category'],$memberInfo['m_category']);
+        $memberInfo['starte']            = MemberEnum::getStatus($memberInfo['m_starte'],$memberInfo['m_starte']);
+        $memberInfo['sex']               = MemberEnum::getSex($memberInfo['m_sex'],$memberInfo['m_sex']);
 
         $this->setMessage('获取用户信息成功');
         return $memberInfo;
