@@ -40,7 +40,6 @@ class SignVerify {
         $osKey = base64_encode(config('api.module_api.signKey'));
         $para_filter = array();
         //去除签名 空格
-        ksort($info);
         foreach($info as $key => $val)
         {
             if($key == "sign")continue;
@@ -49,6 +48,7 @@ class SignVerify {
 
         $arg  = "";
         //组装参数
+        ksort($para_filter);
         foreach($para_filter as $key => $val)
         {
             $arg.=$val;
@@ -58,14 +58,14 @@ class SignVerify {
         if((!isset($info['sign'])) || ($md5Sign != $info['sign'])){
             Loggy::write('error','Message:"Signature validation is not passed." URL: '.
                 $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  RawSign:' .  $info['sign']);
-            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过']));
+            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
 //            return ['code' => 402, 'message' => '签名验证不通过'];
         }else if($md5Sign == $info['sign']){
             return $next($request);
         }
         Loggy::write('error','Message:"Signature validation is not passed." URL: '.
             $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  ' .  $info['sign']);
-        return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过']));
+        return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
 //        return ['code' => 402, 'message' => '签名验证不通过'];
     }
 
