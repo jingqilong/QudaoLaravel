@@ -31,22 +31,36 @@ class CartService extends BaseService
     {
         $memberInfo     = $this->auth->user();
         $member_id      = $memberInfo->id;
-        if (!ShopGoodsRepository::exists(['id' => $request['goods_id'],'deleted_at' => 0])){
+        $spec_relate_id = $request['spec_relate_id'] ?? null;
+        if (!$goods =  ShopGoodsRepository::getOne(['id' => $request['goods_id'],'deleted_at' => 0])){
             $this->setError('无效的商品!');
             return false;
         }
-        if (!ShopGoodsSpecRelateRepository::exists(['id' => $request['spec_relate_id'],'deleted_at' => 0])){
-            $this->setError('无效的商品规格!');
-            return false;
+        $total_stock = $goods['stock'];#剩余总库存
+        if (!empty($spec_relate_id)){
+            if (!$spec_relate_info = ShopGoodsSpecRelateRepository::getOne(['id' => $request['spec_relate_id'],'deleted_at' => 0])){
+                $this->setError('无效的商品规格!');
+                return false;
+            }
+            $total_stock = $spec_relate_info['stock'];
         }
         $add_arr = [
             'member_id'         => $member_id,
             'goods_id'          => $request['goods_id'],
-            'spec_relate_id'    => $request['spec_relate_id'],
+            'spec_relate_id'    => $spec_relate_id,
         ];
-        if (ShopCartRepository::exists($add_arr)){
-            $this->setError('商品已添加至购物车!');
-            return false;
+        if ($cart = ShopCartRepository::getOne($add_arr)){
+            $cart_number = $cart['number'] + $request['number'];
+            if ($total_stock < $cart_number){
+                $this->setError('库存不足!');
+                return false;
+            }
+            if (!ShopCartRepository::increment(['id' => $cart['id']],'number',$request['number'])){
+                $this->setError('商品已添加至购物车!');
+                return false;
+            }
+            $this->setMessage('添加成功!');
+            return true;
         }
         $add_arr['number']     = $request['number'];
         $add_arr['created_at'] = $add_arr['updated_at'] =time();

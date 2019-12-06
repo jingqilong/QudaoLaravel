@@ -73,7 +73,7 @@ class ShopCarController extends ApiController
      *         name="number",
      *         in="query",
      *         description="数量",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -89,13 +89,12 @@ class ShopCarController extends ApiController
     {
         $rules = [
             'goods_id'            => 'required|integer',
-            'spec_relate_id'      => 'required|integer',
+            'spec_relate_id'      => 'integer',
             'number'              => 'required|integer',
         ];
         $messages = [
             'goods_id.required'             => '商品id不能为空',
             'goods_id.integer'              => '商品id不是整数',
-            'spec_relate_id.required'       => '商品规格关联ID不能为空',
             'spec_relate_id.integer'        => '商品规格关联ID不是整数',
             'number.required'               => '数量不能为空',
             'number.integer'                => '数量不是整数',

@@ -28,7 +28,7 @@ class ActivityPastViewModel extends Model
 
 
 
-    protected $fillable = ['id','activity_id','name','top','is_recommend','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
+    protected $fillable = ['id','activity_id','name','top','type','file_type','img_url','is_recommend','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
 
     /**
      * The attributes that should be cast to native types.
