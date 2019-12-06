@@ -207,6 +207,7 @@ class WeChatService extends BaseService
                 Loggy::write('error','微信绑定手机号，新用户创建失败！手机号：'.$mobile);
                 return false;
             }
+            $member = MemberBaseRepository::find($user_id);
             $relation_data = [
                 'member_id'     => $user_id,
                 'parent_id'     => $referral_user['id'],
