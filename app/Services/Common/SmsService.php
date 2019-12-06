@@ -5,6 +5,7 @@ namespace App\Services\Common;
 use App\Enums\SMSEnum;
 use App\Library\YiKaYi\YiKaYiSms;
 use App\Repositories\CommonSmsRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaMemberRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\PrimeMerchantRepository;
@@ -74,7 +75,7 @@ class SmsService extends BaseService
         $res = false;
         switch ($module){
             case 'member':
-                $res = OaMemberRepository::exists(['m_phone' => $mobile]);
+                $res = MemberBaseRepository::exists(['mobile' => $mobile]);
                 break;
             case 'prime':
                 $res = PrimeMerchantRepository::exists(['mobile' => $mobile]);
