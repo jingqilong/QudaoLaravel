@@ -927,7 +927,7 @@ class MemberService extends BaseService
             if(!empty($grade['end_at']) && $grade['end_at'] < time()){
                 $res['member_grade'] = '普通成员';
             }else{
-                $res['member_grade'] = MemberEnum::getGrade($grade['grade'],$grade['grade']);
+                $res['member_grade'] = MemberEnum::getGrade($grade['grade'],'普通成员');
             }
         }
         if ($sign = MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){

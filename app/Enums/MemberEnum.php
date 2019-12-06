@@ -174,7 +174,8 @@ class MemberEnum extends BaseEnum
      * @param string $default
      * @return mixed|string
      */
-    public static function getGrade(int $value,$default = ''){
+    public static function getGrade($value,$default = ''){
+        if (empty($value)) return $default;
         return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : $default;
     }
 
