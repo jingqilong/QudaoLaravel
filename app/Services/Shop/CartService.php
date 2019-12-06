@@ -31,7 +31,7 @@ class CartService extends BaseService
     {
         $memberInfo     = $this->auth->user();
         $member_id      = $memberInfo->id;
-        $spec_relate_id     = $request['spec_relate_id'] ?? null;
+        $spec_relate_id = $request['spec_relate_id'] ?? null;
         if (!$goods =  ShopGoodsRepository::getOne(['id' => $request['goods_id'],'deleted_at' => 0])){
             $this->setError('无效的商品!');
             return false;
@@ -47,7 +47,7 @@ class CartService extends BaseService
         $add_arr = [
             'member_id'         => $member_id,
             'goods_id'          => $request['goods_id'],
-            'spec_relate_id'    => $request['spec_relate_id'],
+            'spec_relate_id'    => $spec_relate_id,
         ];
         if ($cart = ShopCartRepository::getOne($add_arr)){
             $cart_number = $cart['number'] + $request['number'];
