@@ -241,6 +241,11 @@ $api->version('v1',function ($api){
                 $api->get('get_sign_list','RegisterController@getSignList')->name('获取活动签到列表');
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
 
+                $api->post('add_activity_past','UserActivityController@addActivityPast')->name('添加往期活动');
+                $api->post('edit_activity_past','UserActivityController@editActivityPast')->name('修改往期活动');
+                $api->get('get_activity_past_list','UserActivityController@getActivityPastList')->name('获取往期活动列表');
+                $api->delete('del_activity_past','UserActivityController@delActivityPast')->name('删除往期活动');
+
                 $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
                 $api->post('audit_comment','CommentController@auditComment')->name('审核活动评论');
             });
