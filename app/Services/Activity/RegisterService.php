@@ -594,7 +594,7 @@ class RegisterService extends BaseService
      */
     private function activityPastVideoText($request)
     {
-        $where = ['activity_id' => $request['id'],'top' => 0,'hidden' => 0];
+        $where  = ['activity_id' => $request['id'],'top' => 0,'hidden' => 0];
         $column = ['id','activity_id','resource_ids','top','presentation','created_at'];
         if (!$list = ActivityPastRepository::getList($where,$column)){
             $this->setError('活动不存在!');
@@ -603,6 +603,10 @@ class RegisterService extends BaseService
         $list = $this->removePagingField($list);
         $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
         foreach ($list as &$value){
+            $file_type = reset($value['resource_urls'])['file_type'];
+            if ($file_type != 2){
+                return [];
+            }
             unset($value['resource_ids']);
         };
         return $list;
@@ -623,6 +627,10 @@ class RegisterService extends BaseService
         $list = $this->removePagingField($list);
         $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
         foreach ($list as &$value){
+            $file_type = reset($value['resource_urls'])['file_type'];
+            if ($file_type != 1){
+                return [];
+            }
             unset($value['resource_ids']);
         };
         return $list;
