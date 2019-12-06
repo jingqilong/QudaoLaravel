@@ -102,6 +102,8 @@ class SmsService extends BaseService
             if (!$module = SMSEnum::getModule($type)){
                 return ['code' => 0, 'message' => '此短信类型未设置模块！'];
             }
+
+            if ($type != SMSEnum::BINDMOBILE)
             if (!$this->loginCheckUser($mobile, $module)){
                 return ['code' => 0, 'message' => '手机号未注册，不能发送短信！'];
             }
