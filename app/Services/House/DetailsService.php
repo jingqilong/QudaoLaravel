@@ -334,7 +334,7 @@ class DetailsService extends BaseService
             }
 
         }
-        $column = ['id','title','area_code','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
+        $column = ['id','title','area_code','area','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['title','leasing', 'unit', 'toward']];
             if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
