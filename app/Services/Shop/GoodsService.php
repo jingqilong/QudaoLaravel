@@ -343,20 +343,19 @@ class GoodsService extends BaseService
             $this->setError('商品不存在!');
             return false;
         }
-        $comments = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several']);
-        $goods_detail['sales']  = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]);
-        $goods_detail['labels'] = explode(',', trim($goods_detail['labels'], ','));
-        $goods_detail['price']  = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
-        $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2)) ?? 0;
-        $goods_detail['stock']   = $goods_detail['stock'] ?? 0;
-        $goods_detail['collect'] = MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0]) == false  ? '0' : '1';
-        $goods_detail['comment'] = $comments;
-        $goods_detail['recommend'] = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids']);
-        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single']);
-        unset($goods_detail['banner_ids'], $goods_detail['image_ids'],
-            $goods_detail['score_categories']
-        );
+        $goods_detail                   = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several'],true);
+        $goods_detail['sales']          = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]);
+        $goods_detail['labels']         = empty($goods_detail['labels']) ? [] : explode(',', trim($goods_detail['labels'], ','));
+        $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
+        $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['collect']        = MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0]) == false  ? '0' : '1';
+        $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
+        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        foreach ($goods_detail['recommend'] as &$value){
+            $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
         $this->setMessage('获取成功!');
         return $goods_detail;
     }

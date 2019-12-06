@@ -107,11 +107,12 @@ class ImagesService extends BaseService
     /**
      * 前端使用
      * 查询数据列表是，帮助获取数据列表中的图片数据
-     * @param array $list       数据列表
-     * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param array $list 数据列表
+     * @param array $column 需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param bool $delete_column 是否删除相关图片ID串
      * @return array
      */
-    protected function getListImagesConcise(array $list, array $column){
+    protected function getListImagesConcise(array $list, array $column,$delete_column = false){
         if (empty($list) || empty($column)){
             $this->setError('数据列表或查询列为空！');
             return $list;
@@ -150,6 +151,9 @@ class ImagesService extends BaseService
                         }
                         $item[$images_column] = $urls;
                     }
+                    if ($delete_column){
+                        unset($item[$k]);
+                    }
                 }
             }
         }
@@ -160,11 +164,12 @@ class ImagesService extends BaseService
 
     /**
      * 查询数据列表是，帮助获取数据列表中的图片数据
-     * @param array $info       一条数据
-     * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param array $info 一条数据
+     * @param array $column 需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param bool $delete_column 是否删除相关图片ID串
      * @return array
      */
-    protected function getOneImagesConcise(array $info, array $column){
+    protected function getOneImagesConcise(array $info, array $column,$delete_column = false){
         $all_str = '';
         foreach ($column as $key=>$v){
             $image_str = $info[$key];
@@ -192,6 +197,9 @@ class ImagesService extends BaseService
                         }
                     }
                     $info[$images_column] = $urls;
+                }
+                if ($delete_column){
+                    unset($info[$k]);
                 }
             }
         }
