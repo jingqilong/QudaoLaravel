@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityOverModel extends Model
+class ActivityPastModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityOverModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_over_details';
+    protected $table = 'activity_past';
 
      /**
      * 表明模型是否应该被打上时间戳
