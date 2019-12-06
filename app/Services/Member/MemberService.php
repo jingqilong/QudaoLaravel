@@ -848,12 +848,12 @@ class MemberService extends BaseService
         ];
         $info_arr = [
             'member_id'  => $member_id,
-            'birthday'   => $request['m_birthday'],
-            'employer'   => empty($request['m_workunits']) ? null : $request['m_workunits'],
-            'industry'   => empty($request['m_industry']) ? null : $request['m_industry'],
-            'address'    => empty($request['m_address']) ? null : $request['m_address'],
-            'title'      => empty($request['m_socialposition']) ? null : $request['m_socialposition'],
-            'profile'    => empty($request['m_introduce']) ? null : $request['m_introduce']
+            'birthday'   => $request['m_birthday'] ?? null,
+            'employer'   => $request['m_workunits'] ?? null,
+            'industry'   => $request['m_industry'] ?? null,
+            'address'    => $request['m_address'] ?? null,
+            'title'      => $request['m_socialposition'] ?? null,
+            'profile'    => $request['m_introduce'] ?? null
         ];
         if (MemberBaseRepository::exists($base_arr)){
             $this->setError('成员已存在!');
