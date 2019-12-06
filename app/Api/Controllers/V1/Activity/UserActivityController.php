@@ -569,7 +569,7 @@ class UserActivityController extends ApiController
      * @OA\Post(
      *     path="/api/v1/activity/add_activity_past",
      *     tags={"精选活动后台"},
-     *     summary="往期活动",
+     *     summary="添加往期活动",
      *     description="jing" ,
      *     operationId="add_activity_past",
      *     @OA\Parameter(
@@ -600,63 +600,150 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="video_id",
+     *         name="resource_ids",
      *         in="query",
-     *         description="活动视频id",
+     *         description="资源ids[视频id,图片id]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="presentation",
+     *         in="query",
+     *         description="介绍",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="hidden",
+     *         in="query",
+     *         description="状态【0显示 1隐藏】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function addActivityPast(){
+        $rules = [
+            'activity_id'           => 'required|integer',
+            'resource_ids'          => 'required',
+            'hidden'                => 'required|in:0,1',
+            'presentation'          => 'required',
+        ];
+        $messages = [
+            'activity_id.required'     => '活动ID不能为空',
+            'activity_id.integer'      => '活动ID不是整数',
+            'resource_ids.required'    => '资源不能为空',
+            'hidden.required'          => '状态值不能为空',
+            'hidden.in'                => '状态值不存在',
+            'presentation.required'    => '介绍不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->addActivityPast($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/edit_activity_past",
+     *     tags={"精选活动后台"},
+     *     summary="修改往期活动",
+     *     description="jing" ,
+     *     operationId="edit_activity_past",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="img_ids",
+     *         name="activity_id",
      *         in="query",
-     *         description="往期活动ids[12,13,14,15]",
+     *         description="往期活动id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="resource_ids",
+     *         in="query",
+     *         description="资源ids[视频id,图片id]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="presentation_1",
+     *         name="presentation",
      *         in="query",
-     *         description="图片文字1",
+     *         description="介绍",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="presentation_2",
+     *         name="hidden",
      *         in="query",
-     *         description="图片文字2",
+     *         description="状态【0显示 1隐藏】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="presentation",
+     *         in="query",
+     *         description="介绍",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="presentation_3",
+     *         name="hidden",
      *         in="query",
-     *         description="图片文字3",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="presentation_4",
-     *         in="query",
-     *         description="图片文字4",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="presentation_5",
-     *         in="query",
-     *         description="图片文字5",
+     *         description="状态【0显示 1隐藏】",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -669,36 +756,171 @@ class UserActivityController extends ApiController
      * )
      *
      */
-    /*public function addActivityPast(){
+    public function editActivityPast(){
         $rules = [
+            'id'               => 'required|integer',
             'activity_id'           => 'required|integer',
-            'video_id'              => 'required|integer',
-            'img_ids'               => 'required',
-            'presentation_1'        => 'required',
-            'presentation_2'        => 'required',
-            'presentation_3'        => 'required',
-            'presentation_4'        => 'required',
-            'presentation_5'        => 'required',
+            'resource_ids'          => 'required',
+            'hidden'                => 'required|in:0,1',
+            'presentation'          => 'required',
         ];
         $messages = [
+            'id.required'              => 'ID不能为空',
+            'id.integer'               => 'ID不是整数',
             'activity_id.required'     => '活动ID不能为空',
             'activity_id.integer'      => '活动ID不是整数',
-            'video_id.required'        => '活动ID不能为空',
-            'img_ids.required'         => '活动ID不能为空',
-            'presentation_1.required'  => '图片文字1不能为空',
-            'presentation_2.required'  => '图片文字2能为空',
-            'presentation_3.required'  => '图片文字3不能为空',
-            'presentation_4.required'  => '图片文字4不能为空',
-            'presentation_5.required'  => '图片文字5不能为空',
+            'resource_ids.required'    => '资源不能为空',
+            'hidden.required'          => '状态值不能为空',
+            'hidden.in'                => '状态值不存在',
+            'presentation.required'    => '介绍不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->registerService->getActivityPast($this->request);
+        $res = $this->registerService->editActivityPast($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
         return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
-    }*/
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/activity/del_activity_past",
+     *     tags={"精选活动后台"},
+     *     summary="删除往期活动",
+     *     description="jing" ,
+     *     operationId="del_activity_past",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function delActivityPast(){
+        $rules = [
+            'id'           => 'required|integer',
+        ];
+        $messages = [
+            'id.required'  => 'ID不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->delActivityPast($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/activity/get_activity_past_list",
+     *     tags={"精选活动后台"},
+     *     summary="oa 获取往期活动列表",
+     *     description="jing" ,
+     *     operationId="get_activity_past_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索【活动名字 活动地址】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败！",
+     *     ),
+     * )
+     *
+     */
+    public function getActivityPastList(){
+        $rules = [
+            'page'             => 'integer',
+            'page_num'         => 'integer',
+        ];
+        $messages = [
+            'page.integer'     => '页码必须为整数',
+            'page_num.integer' => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getActivityPastList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message];
+    }
 }

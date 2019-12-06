@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityPastModel extends Model
+class ActivityPastViewModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityPastModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_past';
+    protected $table = 'activity_past_view)';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -28,7 +28,7 @@ class ActivityPastModel extends Model
 
 
 
-    protected $fillable = ['id','activity_id','resource_ids','presentation','hidden','created_at','updated_at'];
+    protected $fillable = ['id','activity_id','name','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
 
     /**
      * The attributes that should be cast to native types.
@@ -38,7 +38,8 @@ class ActivityPastModel extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time'   => 'datetime',
     ];
 }
 
