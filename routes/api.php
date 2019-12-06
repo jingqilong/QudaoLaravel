@@ -309,7 +309,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
                 $api->post('refresh','MemberController@refresh')->name('刷新token');
-                $api->get('getMemberInfoByUser','MemberController@getMemberInfoByUser')->name('获取自己成员信息');
+                $api->get('get_member_info_by_user','MemberController@getMemberInfoByUser')->name('获取自己成员信息');
                 $api->get('get_member_list','MemberController@getMemberList')->name('获取成员列表');
                 $api->get('get_member_info','MemberController@getMemberInfo')->name('获取成员信息');
                 $api->post('edit_member_info','MemberController@editMemberInfo')->name('成员编辑个人信息');
