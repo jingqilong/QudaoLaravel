@@ -50,8 +50,9 @@ class ImagesService extends BaseService
     /**
      * 后台使用
      * 查询数据列表是，帮助获取数据列表中的图片数据
-     * @param array $list       数据列表
-     * @param array $column     需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param array $list 数据列表
+     * @param array $column 需要查询图片的列，single表示单列图片，several表示图片ID串，格式，['列1' => 'single','列2' => 'several']
+     * @param bool $merge
      * @return array
      */
     protected function getListImages(array $list, array $column,$merge = false){
