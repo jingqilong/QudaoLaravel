@@ -302,8 +302,8 @@ class MemberService extends BaseService
     public function getUserInfo(){
         $user = $this->auth->user();
         $member_id = $user->id;
-        $info_column            = ['grade','employer','title','industry','brands','category','profile','birthday','address'];
-        $base_column            = ['ch_name','mobile','email','sex','avatar_id'];
+        $info_column            = ['grade','employer','title','industry','brands','category','position','profile','birthday','address'];
+        $base_column            = ['card_no','ch_name','mobile','email','sex','avatar_id'];
         $member_info            = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column);
         $member_base            = MemberBaseRepository::getOne(['id' => $member_id],$base_column);
         $member                 = array_merge($member_base,$member_info);
