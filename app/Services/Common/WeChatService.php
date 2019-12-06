@@ -4,6 +4,7 @@ namespace App\Services\Common;
 
 use App\Enums\CommonImagesEnum;
 use App\Enums\MemberBindEnum;
+use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberRelationRepository;
@@ -117,6 +118,9 @@ class WeChatService extends BaseService
             if (!empty($bind['user_id'])){
                 if ($member = MemberBaseRepository::getOne(['id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
+                    $member['sex']    = MemberEnum::getSex($member['sex']);
+                    $member           = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+                    unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
                     return [
                         'code'  => 1,
                         'data'  => [
@@ -231,6 +235,10 @@ class WeChatService extends BaseService
         }
         $this->setMessage('绑定成功！');
         DB::commit();
+
+        $member['sex']    = MemberEnum::getSex($member['sex']);
+        $member           = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+        unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
         return [
             'code'  => 1,
             'data'  => [
