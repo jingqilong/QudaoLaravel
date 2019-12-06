@@ -168,7 +168,48 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 修改贷款订单信息
+     * 用户 修改贷款订单信息
+     * @param array $data
+     * @return mixed
+     */
+    public function editLoan(array $data)
+    {
+        $id = $data['id'];
+        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+            $this->setError('该订单不存在!');
+        }
+        if ($data['status'] != LoanEnum::SUBMIT){
+            $this->setError('预约已审核，请联系客服更改!');
+            return false;
+        }
+        if (!LoanEnum::isset($data['price'])){
+            $this->setError('没有此价格的贷款!');
+            return false;
+        }
+        $add_arr  = [
+            'name'            =>  $data['name'],
+            'mobile'          =>  $data['mobile'],
+            'price'           =>  $data['price'],
+            'ent_name'        =>  $data['ent_name'],
+            'ent_title'       =>  $data['ent_title'],
+            'address'         =>  $data['address'],
+            'type'            =>  $data['type'],
+            'remark'          =>  $data['remark'],
+            'status'          =>  $data['status'],
+            'updated_at'      =>  time(),
+            'reservation_at'  =>  strtotime($data['reservation_at']),
+        ];
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],$add_arr)){
+            $this->setError('修改失败,请重试！');
+            return false;
+        }
+        $this->setMessage('恭喜你，修改成功');
+        return true;
+    }
+
+
+    /**
+     * OA 修改贷款订单信息
      * @param array $data
      * @return mixed
      */
@@ -177,10 +218,6 @@ class PersonalService extends BaseService
         $id = $data['id'];
         if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在!');
-        }
-        if (!LoanEnum::isset($data['status'])){
-            $this->setError('没有此状态!');
-            return false;
         }
         if (!LoanEnum::isset($data['price'])){
             $this->setError('没有此价格的贷款!');
