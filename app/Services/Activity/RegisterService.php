@@ -555,13 +555,14 @@ class RegisterService extends BaseService
      */
     public function getActivityPast($request)
     {
-        if (!$activity_info = ActivityPastRepository::getOne(['activity_id' => $request['id']])){
+        $column = ['id','activity_id','video_id','img_ids','presentation_1','presentation_2','presentation_3','presentation_4','presentation_5','created_at'];
+        if (!$activity_info = ActivityPastRepository::getOne(['activity_id' => $request['id'],'hidden' => 0],$column)){
             $this->setError('活动不存在!');
             return false;
         }
         $activity_info = ImagesService::getOneImagesConcise($activity_info,['video_id' => 'single']);
         $activity_info = ImagesService::getOneImagesConcise($activity_info,['img_ids' => 'several']);
-        unset($activity_info['video_id'],$activity_info['img_ids']);
+        unset($activity_info['video_id'],$activity_info['img_ids'],$activity_info['hidden']);
         $this->setMessage('获取成功!');
         return $activity_info;
     }

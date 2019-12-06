@@ -28,9 +28,18 @@ class ActivityPastModel extends Model
 
 
 
-    protected $fillable = ['id','activity_id','banner_video_id','img_ids','presentation_1','presentation_2','presentation_3','presentation_4','presentation_5','created_at'];
+    protected $fillable = ['id','activity_id','video_id','img_ids','presentation_1','presentation_2','presentation_3','presentation_4','presentation_5','hidden','created_at','updated_at'];
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
 
  

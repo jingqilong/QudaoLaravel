@@ -477,6 +477,7 @@ $api->version('v1',function ($api){
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_loan', 'LoanController@addLoan')->name('添加贷款订单');
+                $api->post('edit_loan', 'LoanController@editLoan')->name('用户修改贷款订单');
                 $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
                 $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取成员本人贷款订单列表');
             });
