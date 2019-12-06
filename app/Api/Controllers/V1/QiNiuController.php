@@ -42,7 +42,6 @@ class QiNiuController extends ApiController
      *     description="sang" ,
      *     operationId="upload_images",
      *     @OA\Parameter(
-     *     @OA\Parameter(
      *         name="storage_space",
      *         in="query",
      *         description="存储空间类别【1、精彩活动，2、医疗特约，3、企业咨询，4、房产-租赁，

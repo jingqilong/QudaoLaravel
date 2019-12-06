@@ -230,7 +230,7 @@ class OrderService extends BaseService
             $this->setError('无此订单!');
             return false;
         }
-        if ($orderInfo['status'] !== EnterEnum::SUBMIT){
+        if ($orderInfo['status'] > EnterEnum::SUBMIT){
             $this->setError('状态不能进行二次审核!');
             return false;
         }
@@ -245,7 +245,7 @@ class OrderService extends BaseService
         }
         #通知用户
         $status = $upd_arr['status'];
-        if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['user_id']])){
             $member_name = $orderInfo['name'];
             $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
@@ -269,7 +269,7 @@ class OrderService extends BaseService
             }
             $title = '企业咨询预约通知';
             #发送站内信
-            SendService::sendMessage($orderInfo['member_id'],MessageEnum::CONSULTRESERVE,$title,$sms_template[$status],$request['id']);
+            SendService::sendMessage($orderInfo['user_id'],MessageEnum::CONSULTRESERVE,$title,$sms_template[$status],$request['id']);
         }
         $this->setMessage('审核成功！');
         return true;

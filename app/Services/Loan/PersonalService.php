@@ -6,6 +6,7 @@ use App\Enums\LoanEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\LoanPersonalRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
@@ -310,9 +311,9 @@ class PersonalService extends BaseService
             return false;
         }
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $comment['user_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $comment['user_id']])){
             $member_name = $comment['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 LoanEnum::PASS   => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditPass', ['member_name' => $member_name]),
                 LoanEnum::NOPASS => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditNoPass', ['member_name' => $member_name]),
