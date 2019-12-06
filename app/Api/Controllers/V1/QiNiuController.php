@@ -42,14 +42,6 @@ class QiNiuController extends ApiController
      *     description="sang" ,
      *     operationId="upload_images",
      *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
      *     @OA\Parameter(
      *         name="storage_space",
      *         in="query",
