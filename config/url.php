@@ -8,5 +8,5 @@ return [
     //测试服
     'test_url'  => 'https://wx.test.qudaoplus.cn/',
     //生产服
-    'formal_url'=> 'http://wx.qudaoplus.cn/',
+    'production_url'=> 'http://wx.qudaoplus.cn/',
 ];
