@@ -777,7 +777,16 @@ class HouseController extends ApiController
      *     @OA\Parameter(
      *         name="rent_order",
      *         in="query",
-     *         description="租金排序，1顺序，2倒叙",
+     *         description="租金排序，1从低到高，2从高到低",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="area_order",
+     *         in="query",
+     *         description="面积排序，1从小到大，2从大到小",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -814,6 +823,7 @@ class HouseController extends ApiController
             'category'      => 'integer',
             'rent_range'    => 'regex:/^\d+[-][\d]*$/',
             'rent_order'    => 'in:1,2',
+            'area_order'    => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -822,6 +832,7 @@ class HouseController extends ApiController
             'category.integer'          => '类别必须为整数',
             'rent_range.regex'          => '租金范围格式有误',
             'rent_order.in'             => '租金排序取值不在范围内',
+            'area_order.in'             => '面积排序取值不在范围内',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
         ];

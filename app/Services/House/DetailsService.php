@@ -294,6 +294,7 @@ class DetailsService extends BaseService
         $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
         $rent_order = $request['rent_order'] ?? '';
+        $area_order = $request['area_order'] ?? '';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
@@ -307,11 +308,19 @@ class DetailsService extends BaseService
         }
         if (!empty($rent_range)){
             $range = explode('-',$rent_range);
-            $where['rent'] = ['range',[reset($range),end($range)]];
+            if (empty(end($range))){
+                $where['rent'] = ['>',end($range)];
+            }else{
+                $where['rent'] = ['range',[reset($range),end($range)]];
+            }
         }
         if (!empty($rent_order)){
             $order      = 'rent';
             $desc_asc   = $rent_order == 1 ? 'asc' : 'desc';
+        }
+        if (!empty($area_order)){
+            $order      = 'area';
+            $desc_asc   = $area_order == 1 ? 'asc' : 'desc';
         }
         $column = ['id','title','area_code','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
