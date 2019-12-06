@@ -933,7 +933,7 @@ class MemberService extends BaseService
         if ($sign = MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){
             $res['is_sign'] = 1;
         }
-        $res['total_score'] = ScoreRecordRepository::sum(['member_id' => $member->id,'latest' => ScoreEnum::LATEST],'remnant_score');
+        $res['total_score'] = ScoreRecordRepository::sum(['member_id' => $member->id,'latest' => ScoreEnum::LATEST],'remnant_score') ?? 0;
         //待付款
         $res['trading']     = ShopOrderRelateRepository::exists(['member_id' => $member->id,'status' => ShopOrderEnum::PAYMENT]) ? 1 : 0;
         //待发货
