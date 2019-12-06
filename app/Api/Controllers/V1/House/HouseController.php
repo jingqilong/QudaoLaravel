@@ -777,7 +777,7 @@ class HouseController extends ApiController
      *     @OA\Parameter(
      *         name="order",
      *         in="query",
-     *         description="排序，1租金从低到高，2租金从高到低，3从小到大，4从大到小",
+     *         description="排序，1租金从低到高，2租金从高到低，3面积从小到大，4面积从大到小",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
