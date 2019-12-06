@@ -27,7 +27,7 @@ class CommonImagesModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','type','img_url','create_at'];
+    protected $fillable = ['id','type','img_url','file_type','create_at'];
 
 
 

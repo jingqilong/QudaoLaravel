@@ -556,15 +556,18 @@ class RegisterService extends BaseService
      */
     public function getActivityPast($request)
     {
-        $column = ['id','activity_id','resource_ids','presentation','created_at'];
-        if (!$activity_info = ActivityPastRepository::getOne(['activity_id' => $request['id'],'hidden' => 0],$column)){
+        $column = ['id','activity_id','resource_ids','top','presentation','created_at'];
+        if (!$list = ActivityPastRepository::getList(['activity_id' => $request['id'],'hidden' => 0],$column)){
             $this->setError('活动不存在!');
             return false;
         }
-        $activity_info = ImagesService::getOneImagesConcise($activity_info,['resource_ids' => 'several']);
-        unset($activity_info['resource_ids']);
+        $list = $this->removePagingField($list);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
+        foreach ($list as &$value){
+            unset($value['resource_ids']);
+        };
         $this->setMessage('获取成功!');
-        return $activity_info;
+        return $list;
     }
     /**
      * 获取活动分享二维码
