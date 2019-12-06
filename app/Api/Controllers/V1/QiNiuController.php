@@ -126,6 +126,15 @@ class QiNiuController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="file_type",
+     *         in="query",
+     *         description="文件类别【1图片 2视频】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="url",
      *         in="query",
      *         description="资源url",
@@ -150,12 +159,15 @@ class QiNiuController extends ApiController
         $rules = [
             'storage_space' => 'required|integer',
             'url'           => 'required|url',
+            'file_type'     => 'required|in:1,2',
         ];
         $messages = [
             'storage_space.required' => '请输入存储空间类别',
             'storage_space.integer'  => '存储空间类别必须为整数',
             'url.required'           => '请输入资源url',
             'url.url'                => '资源url不是一个合法的链接',
+            'file_type.required'     => '文件类别不能为空',
+            'file_type.in'           => '文件类别不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
