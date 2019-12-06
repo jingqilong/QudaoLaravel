@@ -5,6 +5,7 @@ namespace App\Services\Shop;
 use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
+use App\Models\MemberGradeViewModel;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
@@ -17,6 +18,7 @@ use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Encore\Admin\Grid\Model;
 use Illuminate\Support\Facades\DB;
 
 class GoodsService extends BaseService
@@ -348,7 +350,7 @@ class GoodsService extends BaseService
         $goods_detail['price']  = $goods_detail['price'] = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price'] = $goods_detail['express_price'] = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2)) ?? 0;
         $goods_detail['stock']   = $goods_detail['stock'] ?? 0;
-        $goods_detail['collect'] = is_null(MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0])) ? '0' : '1';
+        $goods_detail['collect'] = MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment'] = $comments;
         $goods_detail['recommend'] = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids']);
         $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single']);
