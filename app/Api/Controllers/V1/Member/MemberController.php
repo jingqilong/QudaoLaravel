@@ -506,7 +506,7 @@ class MemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_member_by_user",
+     *     path="/api/v1/member/get_member_by_userget_member_by_user",
      *     tags={"会员"},
      *     summary="获取成员自己的信息",
      *     operationId="get_member_by_user",
