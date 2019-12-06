@@ -41,6 +41,7 @@ class ActivityService extends BaseService
         }
         $activity_goods = ImagesService::getListImages($activity_goods,['banner_ids' => 'single']);
         foreach ($activity_goods as &$goods){
+            $goods['price']  = empty($goods['price']) ? 0 : round($goods['price'] / 100,2);
             $goods['labels'] = empty($goods['labels']) ? [] : explode(',',trim($goods['labels'],','));
         }
 //        self::setMessage('获取成功！');
