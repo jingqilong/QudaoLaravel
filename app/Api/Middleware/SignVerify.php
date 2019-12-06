@@ -33,7 +33,6 @@ class SignVerify {
         }
 
         //未设置，一律走验签。
-        unset($info['s']);
         if(!isset($info['sign']) || empty($info['sign'])){
             return new Response(json_encode(['code' => 100, 'message' => '签名不能为空']));
 //            return ['code' => 100, 'message' => '签名不能为空'];
@@ -41,6 +40,7 @@ class SignVerify {
         $osKey = base64_encode(config('api.module_api.signKey'));
         $para_filter = array();
         //去除签名 空格
+        ksort($info);
         foreach($info as $key => $val)
         {
             if($key == "sign")continue;
