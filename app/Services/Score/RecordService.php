@@ -440,7 +440,7 @@ class RecordService extends BaseService
     /**
      * 获取我的积分
      * @param $member_id
-     * @return array
+     * @return mixed
      */
     public function getMyScore($member_id)
     {
@@ -448,11 +448,23 @@ class RecordService extends BaseService
             'total_score'    => 0,
             'score_list'     => []
         ];
-        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST];
-        if (!$score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc')){
-            $this->setMessage('暂无积分');
-            return $res;
+        if (!$score_categories = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
+            $this->setMessage('暂无积分类别');
+            return false;
         }
+        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST];
+        $score_list = [];
+        foreach ($score_categories as $category){
+            if ($score = ScoreRecordViewRepository::getOne(array_merge($where,['score_type' => $category['id']]),['score_type','score_name','remnant_score'])){
+                $score_list[] = $score;continue;
+            }
+            $score_list[] = [
+                'score_type'    => $category['id'],
+                'score_name'    => $category['name'],
+                'remnant_score' => 0
+            ];
+        }
+
         foreach ($score_list as $v){
             $res['total_score'] += $v['remnant_score'];
         }
