@@ -837,12 +837,11 @@ class MemberService extends BaseService
     {
         $member    = $this->auth->user();
         $member_id = $member->id;
-        if (!MemberGradeViewRepository::getOne(['id' => $member_id,'deleted_at' => 0])){
+        if (!MemberBaseRepository::getOne(['id' => $member_id,'deleted_at' => 0])){
             $this->setError('成员不存在!');
             return false;
         }
         $base_arr = [
-            'id'         => $member_id,
             'mobile'     => $request['m_phone'],
             'sex'        => $request['m_sex'],
             'email'      => $request['m_email'],
