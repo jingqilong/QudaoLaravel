@@ -209,12 +209,12 @@ class QiNiuService extends BaseService
         //对传入的文件进行预检
         foreach ($files as $info){
             $file_name = $info->getClientOriginalName();
-            $file_type = $info->getMimeType();
-            $temp = explode('/',$file_type);
-            $file_format = reset($temp);
-            if ($file_format !== 'image'){
-                return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
-            }
+//            $file_type = $info->getMimeType();
+//            $temp = explode('/',$file_type);
+//            $file_format = reset($temp);
+//            if ($file_format !== 'image'){
+//                return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
+//            }
             if (!$info->isValid()){
                 return ['code' => 0, 'message' => '文件['.$file_name.']上传过程出错！'];
             }
