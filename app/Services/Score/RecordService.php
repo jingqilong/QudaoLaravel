@@ -343,19 +343,21 @@ class RecordService extends BaseService
         #商品可兑换积分
         $goods_scores       = [];
         foreach ($goods_param as $value){
-            if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
-                $goods = reset($goods);
-                if (isset($goods['score_categories'])){
-                    #当前商品可兑换积分种类
-                    $score_categories = explode(',',trim($goods['score_categories'],','));
-                    foreach ($score_categories as $category){
-                        if (isset($goods_scores[$category])){
-                            $goods_scores[$category]['total_score'] += $goods['score_deduction'] * $value['number'];
-                        }else{
-                            $goods_scores[$category]['score_type']  = $category;
-                            $goods_scores[$category]['total_score'] = $goods['score_deduction'] * $value['number'];
-                        }
-                    }
+            if (!$goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
+                continue;
+            }
+            $goods = reset($goods);
+            if (!isset($goods['score_categories'])){
+                continue;
+            }
+            #当前商品可兑换积分种类
+            $score_categories = explode(',',trim($goods['score_categories'],','));
+            foreach ($score_categories as $category){
+                if (isset($goods_scores[$category])){
+                    $goods_scores[$category]['total_score'] += $goods['score_deduction'] * $value['number'];
+                }else{
+                    $goods_scores[$category]['score_type']  = $category;
+                    $goods_scores[$category]['total_score'] = $goods['score_deduction'] * $value['number'];
                 }
             }
         }
@@ -407,8 +409,8 @@ class RecordService extends BaseService
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
             $res['总消费']['day'][] = $date_time;
-            $start_time             = $today['start'] - ($i * 86400);
-            $end_time               = $today['end'] - ($i * 86400);
+            $start_time             = $today['start'] - ($i * 86400);#前一天开始时间
+            $end_time               = $today['end'] - ($i * 86400);#前一天结束时间
             if ($records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
                 $res['总消费']['count'][]    = $this->arrayFieldSum($records,'action_score');
             }else{
@@ -416,18 +418,17 @@ class RecordService extends BaseService
             }
         }
         foreach ($score_types as $type){
-            $type_name  = ScoreCategoryRepository::getField(['id' => $type],'name');
+            $type_name  = $type['name'];
             for ($i = $day;$i >= 0;$i--){
                 $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
                 $res[$type_name]['day'][]   = $date_time;
-                if ($type_record = $this->searchArray($list,'score_type',$type['id'])){
-                    $start_time  = $today['start'] - ($i * 86400);
-                    $end_time    = $today['end'] - ($i * 86400);
-                    if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
-                        $res[$type_name]['count'][]    = $this->arrayFieldSum($records,'action_score');
-                    }else{
-                        $res[$type_name]['count'][]    = 0;
-                    }
+                if (!$type_record = $this->searchArray($list,'score_type',$type['id'])){
+                    $res[$type_name]['count'][]    = 0;continue;
+                }
+                $start_time  = $today['start'] - ($i * 86400);
+                $end_time    = $today['end'] - ($i * 86400);
+                if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
+                    $res[$type_name]['count'][]    = $this->arrayFieldSum($records,'action_score');
                 }else{
                     $res[$type_name]['count'][]    = 0;
                 }
@@ -452,7 +453,7 @@ class RecordService extends BaseService
             $this->setMessage('暂无积分类别');
             return false;
         }
-        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'score_type' => ['in',array_column($score_categories,'id')]];
+        $where      = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'score_type' => ['in',array_column($score_categories,'id')]];
         $score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc');
         foreach ($score_categories as $category){
             if (empty($score_list) || !$this->existsArray($score_list,'score_type',$category['id'])){
@@ -463,14 +464,6 @@ class RecordService extends BaseService
                 ];
                 continue;
             }
-//            if ($score = ScoreRecordViewRepository::getOne(array_merge($where,['score_type' => $category['id']]),['score_type','score_name','remnant_score'])){
-//                $score_list[] = $score;continue;
-//            }
-//            $score_list[] = [
-//                'score_type'    => $category['id'],
-//                'score_name'    => $category['name'],
-//                'remnant_score' => 0
-//            ];
         }
 
         foreach ($score_list as $v){
