@@ -650,22 +650,23 @@ class RegisterService extends BaseService
      */
     public function addActivityPast($request)
     {
-        if (!ActivityDetailRepository::exists(['id' => $request['id']])){
+        if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
             $this->setError('活动不存在!');
             return false;
         }
         $add_arr =[
-            'activity_id'       => $request['id'],
-            'resource_ids'      => $request['resource_ids'],
+            'activity_id'       => $request['activity_id'],
             'presentation'      => $request['presentation'],
         ];
         if (ActivityPastRepository::exists($add_arr)){
-            $this->setError('往期活动已存在!');
+            $this->setError('图文(视频)信息已存在!');
             return false;
         }
-        $add_arr['created_at'] =time();
-        $add_arr['updated_at'] =time();
-        $add_arr['hidden']     =$request['hidden'];
+        $add_arr['top']          = $request['top'];
+        $add_arr['hidden']       = $request['hidden'];
+        $add_arr['resource_ids'] = $request['resource_ids'];
+        $add_arr['created_at']   = time();
+        $add_arr['updated_at']   = time();
         if (!ActivityPastRepository::getAddId($add_arr)){
             $this->setError('添加失败!');
             return false;
@@ -681,11 +682,11 @@ class RegisterService extends BaseService
      */
     public function delActivityPast($request)
     {
-        if (ActivityPastRepository::exists(['id' => $request['id']])){
+        if (!ActivityPastRepository::exists(['activity_id' => $request['activity_id']])){
             $this->setError('活动不存在!');
             return false;
         }
-        if (ActivityPastRepository::delete(['id' => $request['id']])){
+        if (!ActivityPastRepository::delete(['activity_id' => $request['activity_id']])){
             $this->setError('删除失败!');
             return false;
         }
@@ -700,12 +701,12 @@ class RegisterService extends BaseService
      */
     public function editActivityPast($request)
     {
-        if (ActivityPastRepository::exists(['id' => $request['id']])){
+        if (!ActivityPastRepository::exists(['id' => $request['id']])){
             $this->setError('没有该往期活动!');
             return false;
         }
         $upd_arr =[
-            'activity_id'       => $request['id'],
+            'id'                => $request['id'],
             'resource_ids'      => $request['resource_ids'],
             'presentation'      => $request['presentation'],
         ];
@@ -722,13 +723,18 @@ class RegisterService extends BaseService
         return true;
     }
 
+    /**
+     * OA 获取往期活动列表
+     * @param $request
+     * @return bool|mixed|null
+     */
     public function getActivityPastList($request)
-    {dd(ActivityPastViewRepository::getAll());
+    {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $where      = ['hidden' => 0];
-        $column     = ['id','activity_id','name','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
+        $column     = ['id','activity_id','name','top','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
         if (!empty($keywords)){
             $keyword    = [$keywords => ['name','address']];
             if ($list = ActivityPastViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
@@ -745,9 +751,9 @@ class RegisterService extends BaseService
         if (empty($list['data'])){
             return $list;
         }
-        $list['data'] = ImagesService::getListImagesConcise($list['data'],['video_id' => 'single']);
-        $list['data'] = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
-        dd($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['resource_ids' => 'several']);
+        $this->setMessage('获取成功');
+        return $list;
     }
 
 }

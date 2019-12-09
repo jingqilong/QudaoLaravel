@@ -150,7 +150,7 @@ class MemberController extends ApiController
         $rules = [
             'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
             'code'              => 'required|min:4|max:4',
-            'referral_code'   => 'string',
+            'referral_code'     => 'string',
         ];
         $messages = [
             'mobile.required'           => '请输入手机号',
@@ -158,7 +158,7 @@ class MemberController extends ApiController
             'code.required'             => '请输入验证码',
             'code.min'                  => '验证码不能少于4位',
             'code.max'                  => '验证码不能多于4位',
-            'referral_code.string'    => '邀请码格式错误',
+            'referral_code.string'      => '邀请码格式错误',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
