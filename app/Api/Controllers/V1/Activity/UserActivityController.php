@@ -609,6 +609,15 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="top",
+     *         in="query",
+     *         description="是否置顶[0不置顶,1置顶 默认0]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="presentation",
      *         in="query",
      *         description="介绍",
@@ -638,6 +647,7 @@ class UserActivityController extends ApiController
             'activity_id'           => 'required|integer',
             'resource_ids'          => 'required',
             'hidden'                => 'required|in:0,1',
+            'top'                   => 'required|in:0,1',
             'presentation'          => 'required',
         ];
         $messages = [
@@ -646,6 +656,8 @@ class UserActivityController extends ApiController
             'resource_ids.required'    => '资源不能为空',
             'hidden.required'          => '状态值不能为空',
             'hidden.in'                => '状态值不存在',
+            'top.required'             => '置顶状态不能为空',
+            'top.in'                   => '置顶状态不存在',
             'presentation.required'    => '介绍不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -656,7 +668,7 @@ class UserActivityController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
-        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->registerService->message];
     }
 
 
@@ -758,7 +770,7 @@ class UserActivityController extends ApiController
      */
     public function editActivityPast(){
         $rules = [
-            'id'               => 'required|integer',
+            'id'                    => 'required|integer',
             'activity_id'           => 'required|integer',
             'resource_ids'          => 'required',
             'hidden'                => 'required|in:0,1',
@@ -811,9 +823,9 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="id",
+     *         name="activity_id",
      *         in="query",
-     *         description="id",
+     *         description="activity_id(活动ID)",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -828,10 +840,10 @@ class UserActivityController extends ApiController
      */
     public function delActivityPast(){
         $rules = [
-            'id'           => 'required|integer',
+            'activity_id'           => 'required|integer',
         ];
         $messages = [
-            'id.required'  => 'ID不能为空',
+            'activity_id.required'  => 'ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -921,6 +933,6 @@ class UserActivityController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
-        return ['code' => 200, 'message' => $this->registerService->message];
+        return ['code' => 200, 'message' => $this->registerService->message,'data' => $res];
     }
 }

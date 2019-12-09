@@ -82,7 +82,7 @@ class MemberService extends BaseService
 
 
     /**
-     * 手机号注册
+     * 手机号注册 (拆表后  已修改)
      * @param $data
      * @return mixed
      */
@@ -659,8 +659,7 @@ class MemberService extends BaseService
         $user['sex']    = MemberEnum::getSex($user['sex']);
         $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
-        $results    = ['token' => $token, 'user' => $user];
-        return $results;
+        return ['token' => $token, 'user' => $user];
     }
 
     /**
@@ -721,6 +720,7 @@ class MemberService extends BaseService
     }
 
     /**
+     * 获取推荐关系
      * @param $type
      * @return array|bool|null
      */
