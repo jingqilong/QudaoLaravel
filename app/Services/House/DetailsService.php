@@ -547,7 +547,7 @@ class DetailsService extends BaseService
             $value['rent_tenancy']  = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
             $value['decoration']    = HouseEnum::getDecoration($value['decoration']);
             $value['category']      = HouseEnum::getCategory($value['category']);
-            $value['status']        = HouseEnum::getStatus($value['status']);
+            $value['status_title']  = HouseEnum::getStatus($value['status']);
             unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
         }
         $this->setMessage('获取成功！');
