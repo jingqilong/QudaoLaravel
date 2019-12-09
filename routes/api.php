@@ -308,7 +308,6 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
-                $api->post('refresh','MemberController@refresh')->name('刷新token');
                 $api->get('get_member_by_user','MemberController@getMemberInfoByUser')->name('获取自己成员信息');
                 $api->get('get_member_list','MemberController@getMemberList')->name('获取成员列表');
                 $api->get('get_member_info','MemberController@getMemberInfo')->name('获取成员信息');
@@ -356,6 +355,7 @@ $api->version('v1',function ($api){
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
             $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
+            $api->post('refresh','MemberController@refresh')->name('刷新token');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
             $api->post('mini_login','Member\WeChatController@miniLogin')->name('微信小程序登录');
             $api->post('mini_bind_mobile','Member\WeChatController@miniBindMobile')->name('微信小程序绑定手机号');
