@@ -553,5 +553,29 @@ class DetailsService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * 获取我的房源状态
+     * @param $id
+     * @return bool|null
+     */
+    public function getMyHouseStatus($id)
+    {
+        $member = Auth::guard('member_api')->user();
+        $member_id =  $member->id;
+        if (!$house = HouseDetailsRepository::getOne(['id' => $id,'publisher_id' => $member_id,'publisher' => HouseEnum::PERSON],['id','title','area','decoration','category','area_code','condo_name','status'])){
+            $this->setError('房源不存在！');
+            return false;
+        }
+        list($area_address,$lng,$lat) = $this->makeAddress($house['area_code'],'',3);
+        $house['decoration']    = HouseEnum::getDecoration($house['decoration']);
+        $house['category']      = HouseEnum::getCategory($house['category']);
+        $house['area_address']  = $area_address;
+        $house['status_title']  = HouseEnum::getStatus($house['status']);
+        $house['mobile']        = $member->mobile;
+        unset($house['area_code'],$house['area_code']);
+        $this->setMessage('获取成功！');
+        return $house;
+    }
 }
             

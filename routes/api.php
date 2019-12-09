@@ -431,6 +431,7 @@ $api->version('v1',function ($api){
                 $api->get('get_home_list', 'HouseController@getHomeList')->name('获取房产首页列表');
                 $api->get('get_house_home_list', 'HouseController@getHouseHomeList')->name('获取房产首页列表  只有数据');
                 $api->get('get_code_list', 'HouseController@getCodeList')->name('地域选房列表');
+                $api->get('get_my_house_status', 'HouseController@getMyHouseStatus')->name('获取我的房源状态');
                 #预约
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
