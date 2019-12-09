@@ -53,8 +53,10 @@ class GoodsSpecService extends BaseService
                 }
                 $spec_where = ['goods_id'  => $goods_id, 'spec_name' => $item['spec_name'], 'spec_value'=> $item['spec_value'],];
                 $add_arr    = ['created_at'=> $time, 'updated_at'=> $time];
+                $upd_spec   = ['deleted_at' => 0];
                 if (isset($item['image_id']) && !empty($item['image_id'])){
                     $add_arr['image_id'] = $item['image_id'];
+                    $upd_spec['image_id'] = $item['image_id'];
                 }
                 $add_arr = array_merge($add_arr,$spec_where);
                 if (!$spec = ShopGoodsSpecRepository::firstOrCreate($spec_where,$add_arr)){
@@ -62,7 +64,7 @@ class GoodsSpecService extends BaseService
                     $this->setError('规格添加失败！');
                     return false;
                 }
-                if (!ShopGoodsSpecRepository::getUpdId(['id' => $spec['id']],['image_id'  => $item['image_id'] ?? 0,'deleted_at' => 0])){
+                if (!ShopGoodsSpecRepository::getUpdId(['id' => $spec['id']],$upd_spec)){
                     DB::rollBack();
                     $this->setError('规格添加失败！');
                     return false;
