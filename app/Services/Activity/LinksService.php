@@ -32,7 +32,7 @@ class LinksService extends BaseService
                 $this->setError('链接不能为空！');
                 return false;
             }
-            if (!empty($value['image_id']) && !is_integer($value['image_id'])){
+            if (!empty($value['image_id']) && !is_numeric($value['image_id'])){
                 $this->setError('链接图ID必须为整数！');
                 return false;
             }

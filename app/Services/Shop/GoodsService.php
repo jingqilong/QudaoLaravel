@@ -267,7 +267,7 @@ class GoodsService extends BaseService
         $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',$goods['labels']);
         $goods['category_title']    = $category['name'] ?? '';
         $goods['category_icon']     = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
-        $goods['price']             = empty($value['price']) ? 0.00 : round($value['price'] / 100,2);
+        $goods['price']             = empty($goods['price']) ? 0 : round($goods['price'] / 100,2);
         $goods['banner_list']       = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
         $goods['image_list']        = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
         $goods['express_price']     = empty($value['express_price']) ? 0 : round($value['express_price'] / 100,2);
