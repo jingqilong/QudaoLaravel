@@ -174,10 +174,17 @@ class MemberService extends BaseService
      * @return mixed
      */
     public function refresh($token){
-        if ($token = MemberRepository::refresh($token)){
-            return $token;
+        try {
+            if ($token = MemberRepository::refresh($token)){
+                $this->setMessage('刷新成功！');
+                return $token;
+            }
+            $this->setError('刷新失败！');
+            return false;
+        }catch (\Exception $e){
+            $this->setError($e->getMessage());
+            return false;
         }
-        return false;
     }
 
     /**

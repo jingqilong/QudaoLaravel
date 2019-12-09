@@ -960,4 +960,64 @@ class HouseController extends ApiController
         }
         return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/house/get_my_house_status",
+     *     tags={"房产租赁"},
+     *     summary="获取我的房源状态",
+     *     description="sang" ,
+     *     operationId="get_my_house_status",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="房产ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMyHouseStatus(){
+        $rules = [
+            'id'        => 'required|integer',
+        ];
+        $messages = [
+            'id.required'           => '房源ID不能为空',
+            'id.integer'            => '房源ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->detailService->getMyHouseStatus($this->request['id']);
+        if ($res){
+            return ['code' => 200, 'message' => $this->detailService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->detailService->error];
+    }
 }

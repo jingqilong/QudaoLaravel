@@ -262,9 +262,9 @@ class MemberController extends ApiController
     public function refresh()
     {
         if ($token = $this->memberService->refresh($this->request['token'])){
-            return ['code' => 200, 'message' => '刷新成功！', 'data' => ['token' => $token]];
+            return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['token' => $token]];
         }
-        return ['code' => 100, 'message' => '刷新失败！'];
+        return ['code' => 100, 'message' => $this->memberService->error];
     }
 
 

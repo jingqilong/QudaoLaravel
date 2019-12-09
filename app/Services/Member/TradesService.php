@@ -76,7 +76,7 @@ class TradesService extends BaseService
             $start_time                 = $today['start'] - ($i * 86400);
             $end_time                   = $today['end'] - ($i * 86400);
             if ($records = $this->searchRangeArray($list,'create_at',[$start_time, $end_time])){
-                $amount  = $this->arrayFieldSum($records,'amount');dd(money_format('%2f',$amount));
+                $amount  = $this->arrayFieldSum($records,'amount');
                 $res['amount']['total'][]    = round($amount/100,2).'';
             }else{
                 $res['amount']['total'][]    = 0;
