@@ -162,7 +162,7 @@ class GoodsService extends BaseService
             'category'          => $request['category'],
             'price'             => $request['price'] * 100,
             'details'           => $request['details'] ?? '',
-            'labels'            => isset($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
