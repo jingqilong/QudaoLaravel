@@ -263,7 +263,8 @@ class GoodsService extends BaseService
             return false;
         }
         $category = ShopGoodsCategoryRepository::getOne(['id' => $goods['category']]);
-        $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',trim($goods['labels'],','));
+        $goods['labels']            = trim($goods['labels'],',');
+        $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',$goods['labels']);
         $goods['category_title']    = $category['name'] ?? '';
         $goods['category_icon']     = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
         $goods['price']             = empty($value['price']) ? 0.00 : round($value['price'] / 100,2);
