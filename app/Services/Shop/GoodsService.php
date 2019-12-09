@@ -33,18 +33,18 @@ class GoodsService extends BaseService
     public function addGoods($request)
     {
         #商品规格模板
-                $spec = [
-            ['stock' => 58,'price' => 680,
-                'spec' => [
-                    ['spec_name' => '规格','spec_value' => '智启 0.5g*6片','image_id' => '131'],
-                ]
-            ],
-            ['stock' => 58,'price' => 2680,
-                'spec' => [
-                    ['spec_name' => '规格','spec_value' => '智创 0.5g*24片','image_id' => '131'],
-                ]
-            ],
-        ];
+//                $spec = [
+//            ['stock' => 58,'price' => 680,
+//                'spec' => [
+//                    ['spec_name' => '规格','spec_value' => '智启 0.5g*6片','image_id' => '131'],
+//                ]
+//            ],
+//            ['stock' => 58,'price' => 2680,
+//                'spec' => [
+//                    ['spec_name' => '规格','spec_value' => '智创 0.5g*24片','image_id' => '131'],
+//                ]
+//            ],
+//        ];
         if (!$category = ShopGoodsCategoryRepository::getOne(['id' => $request['category']])){
             $this->setError('商品分类不存在！');
             return false;
@@ -82,7 +82,7 @@ class GoodsService extends BaseService
             return false;
         }
         #处理规格
-        if (isset($request['spec_json'])){
+        if (isset($request['spec_json']) && !empty($request['spec_json'])){
             $goodsSpecService = new GoodsSpecService();
             if (!$goodsSpecService->addJsonSpec($goods_id,$request['spec_json'],$add_arr['keywords'])){
                 DB::rollBack();
