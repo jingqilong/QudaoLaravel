@@ -960,4 +960,6 @@ class HouseController extends ApiController
         }
         return ['code' => 200, 'message' => $this->detailService->message, 'data' => $res];
     }
+
+    public function getMyHouseStatus(){}
 }
