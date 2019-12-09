@@ -393,7 +393,7 @@ class RecordService extends BaseService
             $this->setError('查看天数不能低于1天');
             return false;
         }
-        if (!$score_types = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN])){
+        if (!$score_types = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
             $this->setError('没有积分类别可查看');
             return false;
         }
@@ -408,29 +408,27 @@ class RecordService extends BaseService
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
-            $res['总消费']['day'][] = $date_time;
+            $res['day'][]           = $date_time;
             $start_time             = $today['start'] - ($i * 86400);#前一天开始时间
             $end_time               = $today['end'] - ($i * 86400);#前一天结束时间
             if ($records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
-                $res['总消费']['count'][]    = $this->arrayFieldSum($records,'action_score');
+                $res['count'][0][]    = $this->arrayFieldSum($records,'action_score');
             }else{
-                $res['总消费']['count'][]    = 0;
+                $res['count'][0][]    = 0;
             }
         }
         foreach ($score_types as $type){
-            $type_name  = $type['name'];
+            $type_name  = $type['id'];
             for ($i = $day;$i >= 0;$i--){
-                $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
-                $res[$type_name]['day'][]   = $date_time;
                 if (!$type_record = $this->searchArray($list,'score_type',$type['id'])){
-                    $res[$type_name]['count'][]    = 0;continue;
+                    $res['count'][$type_name][]    = 0;continue;
                 }
                 $start_time  = $today['start'] - ($i * 86400);
                 $end_time    = $today['end'] - ($i * 86400);
                 if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
-                    $res[$type_name]['count'][]    = $this->arrayFieldSum($records,'action_score');
+                    $res['count'][$type_name][]    = $this->arrayFieldSum($records,'action_score');
                 }else{
-                    $res[$type_name]['count'][]    = 0;
+                    $res['count'][$type_name][]    = 0;
                 }
             }
         }
@@ -462,10 +460,8 @@ class RecordService extends BaseService
                     'score_name'    => $category['name'],
                     'remnant_score' => 0
                 ];
-                continue;
             }
         }
-
         foreach ($score_list as $v){
             $res['total_score'] += $v['remnant_score'];
         }
