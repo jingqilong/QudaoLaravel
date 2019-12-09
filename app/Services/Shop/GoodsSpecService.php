@@ -52,8 +52,10 @@ class GoodsSpecService extends BaseService
                     return false;
                 }
                 $spec_where = ['goods_id'  => $goods_id, 'spec_name' => $item['spec_name'], 'spec_value'=> $item['spec_value'],];
-                $add_arr    = ['image_id'  => $item['image_id'] ?? 0, 'created_at'=> $time, 'updated_at'=> $time,
-                ];
+                $add_arr    = ['created_at'=> $time, 'updated_at'=> $time];
+                if (isset($item['image_id']) && !empty($item['image_id'])){
+                    $add_arr['image_id'] = $item['image_id'];
+                }
                 $add_arr = array_merge($add_arr,$spec_where);
                 if (!$spec = ShopGoodsSpecRepository::firstOrCreate($spec_where,$add_arr)){
                     DB::rollBack();
