@@ -37,7 +37,9 @@ class SignVerify {
             return new Response(json_encode(['code' => 100, 'message' => '签名不能为空']));
 //            return ['code' => 100, 'message' => '签名不能为空'];
         }
+        $debug_info = [];
         $osKey = base64_encode(config('api.module_api.signKey'));
+        $debug_info['osKey'] = $osKey;
         $para_filter = array();
         //去除签名 空格
         foreach($info as $key => $val)
@@ -49,23 +51,35 @@ class SignVerify {
         $arg  = "";
         //组装参数
         ksort($para_filter);
+        $keys = implode(",",array_keys($para_filter));
+        $debug_info['keys'] = $keys;
         foreach($para_filter as $key => $val)
         {
             $arg.=$val;
         }
+        $debug_info['arg'] = $arg;
         //如果存在转义字符，那么去掉转义
         $md5Sign = md5($arg.$osKey);
+        $debug_info['md5Sign'] = $md5Sign;
         if((!isset($info['sign'])) || ($md5Sign != $info['sign'])){
             Loggy::write('error','Message:"Signature validation is not passed." URL: '.
                 $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  RawSign:' .  $info['sign']);
-            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
+            if('production' == $env){
+                return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
+            }else{
+                return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['debug_info' => $debug_info]]));
+            }
 //            return ['code' => 402, 'message' => '签名验证不通过'];
         }else if($md5Sign == $info['sign']){
             return $next($request);
         }
         Loggy::write('error','Message:"Signature validation is not passed." URL: '.
             $request->url().'  md5Sign: '.$arg . $osKey . ' sign: '.$md5Sign  . '  ' .  $info['sign']);
-        return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
+        if('production' == $env){
+            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['sign' => $md5Sign]]));
+        }else{
+            return new Response(json_encode(['code' => 402, 'message' => '签名验证不通过','data' => ['debug_info' => $debug_info]]));
+        }
 //        return ['code' => 402, 'message' => '签名验证不通过'];
     }
 
