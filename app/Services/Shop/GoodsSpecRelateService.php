@@ -170,6 +170,7 @@ class GoodsSpecRelateService extends BaseService
         $spec_list  = ShopGoodsSpecRepository::getAssignList($spec_ids,['id','image_id','spec_name','spec_value']);
         $spec_list  = ImagesService::getListImages($spec_list,['image_id' => 'single']);
         foreach ($spec_related as &$value){
+            $value['price']= round($value['price'] / 100,2);
             $value['spec'] = [];
             $value_spec_ids = explode(',',$value['spec_ids']);
             foreach ($value_spec_ids as $value_spec_id){
