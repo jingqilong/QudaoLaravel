@@ -452,17 +452,25 @@ class RecordService extends BaseService
             $this->setMessage('暂无积分类别');
             return false;
         }
-        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST];
-        $score_list = [];
+        $where = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'score_type' => ['in',array_column($score_categories,'id')]];
+        $score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc');
         foreach ($score_categories as $category){
-            if ($score = ScoreRecordViewRepository::getOne(array_merge($where,['score_type' => $category['id']]),['score_type','score_name','remnant_score'])){
-                $score_list[] = $score;continue;
+            if (empty($score_list) || !$this->existsArray($score_list,'score_type',$category['id'])){
+                $score_list[] = [
+                    'score_type'    => $category['id'],
+                    'score_name'    => $category['name'],
+                    'remnant_score' => 0
+                ];
+                continue;
             }
-            $score_list[] = [
-                'score_type'    => $category['id'],
-                'score_name'    => $category['name'],
-                'remnant_score' => 0
-            ];
+//            if ($score = ScoreRecordViewRepository::getOne(array_merge($where,['score_type' => $category['id']]),['score_type','score_name','remnant_score'])){
+//                $score_list[] = $score;continue;
+//            }
+//            $score_list[] = [
+//                'score_type'    => $category['id'],
+//                'score_name'    => $category['name'],
+//                'remnant_score' => 0
+//            ];
         }
 
         foreach ($score_list as $v){
