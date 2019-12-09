@@ -705,12 +705,11 @@ class MemberController extends ApiController
     public function updateUserPassword()
     {
         $rules = [
-            'password'    => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
+            'password'    => 'required|min:6|max:30',
             'repwd'       => 'required|min:6|max:30|regex:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/',
         ];
         $messages = [
             'password.required'   => '请输入原始密码',
-            'password.regex'      => '密码格式不正确',
             'password.min'        => '密码最少6位数',
             'password.max'        => '密码最多30位数',
             'repwd.required'      => '请输入新密码',
@@ -829,7 +828,7 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         //短信验证
-        $check_sms = $this->smsService->checkCode($this->request['phone'],SMSEnum::CHANGEPASSWORD, $this->request['code']);
+        $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::CHANGEPASSWORD, $this->request['code']);
         if (is_string($check_sms)){
             return ['code' => 100, 'message' => $check_sms];
         }

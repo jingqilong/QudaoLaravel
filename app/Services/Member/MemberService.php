@@ -670,17 +670,18 @@ class MemberService extends BaseService
      */
     public function changePassword(array $data)
     {
-        $member     = $this->auth->user();
-        $member_id  = $member->id;
-        if (!$old_password = MemberBaseRepository::getField(['id' => $member_id,'deleted_at' => 0],'password')){
-            $this->setError('获取信息失败!');
+        $member        = $this->auth->user();
+        $member_id     = $member->id;
+        $old_password  = $member->password;
+        if (!MemberBaseRepository::exists(['id' => $member_id,'deleted_at' => 0])){
+            $this->setError('没有该成员信息!');
             return false;
         }
         $upd_arr = [
-            'password'      => Hash::make($data['m_password']),
+            'password'      => Hash::make($data['repwd']),
             'updated_at'    => time(),
         ];
-        if (!$old_password != Hash::make($data['password'])){
+        if (!Hash::check($data['password'],$old_password)){
             $this->setError('密码错误哦!');
             return false;
         }
@@ -699,12 +700,12 @@ class MemberService extends BaseService
      */
     public function smsChangePassword(array $request)
     {
-        if ($request['password'] === $request['repwd']){
+        if (!$request['password'] == $request['repwd']){
             $this->setError('密码不一致!');
             return false;
         }
         if (!$member = MemberBaseRepository::getOne(['mobile' => $request['mobile']])){
-            $this->setError('未找到您的个人信息!');
+            $this->setError('获取失败!');
         }
         $upd_arr = [
             'password'      => Hash::make($request['password']),
