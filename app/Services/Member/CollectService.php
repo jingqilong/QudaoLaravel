@@ -139,6 +139,11 @@ class CollectService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
+        $collect_list = $this->removePagingField($collect_list);
+        if (empty($collect_list['data'])){
+            $this->setMessage('暂无数据');
+            return $collect_list;
+        }
         $collect_ids = array_column($collect_list['data'],'target_id');
         $request['collect_ids'] = $collect_ids;
         $request = [
@@ -147,7 +152,6 @@ class CollectService extends BaseService
             'page_num'      => $page_num,
             'type'          => $request['type'],
         ];
-        $collect_list = $this->removePagingField($collect_list);
         switch ($request['type']){
             case CollectTypeEnum::ACTIVITY:
                 $collect_list['data'] = ActivityDetailRepository::getCollectList($request);
@@ -167,7 +171,7 @@ class CollectService extends BaseService
                 break;
         }
         $this->setMessage('获取成功!');
-        return $collect_list['data'];
+        return $collect_list;
     }
 
     /**
