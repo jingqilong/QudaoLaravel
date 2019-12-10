@@ -923,7 +923,7 @@ class ActivityController extends ApiController
             'activity_id.required'  => '活动ID不能为空',
             'activity_id.integer'   => '活动ID必须为整数',
             'parameters.required'   => '参数不能为空',
-            'parameters.in'         => '参数必须为json字符串',
+            'parameters.json'       => '参数必须为json字符串',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

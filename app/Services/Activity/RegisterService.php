@@ -651,14 +651,14 @@ class RegisterService extends BaseService
     public function addActivityPast($request)
     {
         $activity_id = $request['activity_id'];
-        if (!ActivityDetailRepository::exists(['id' => $activity_id])){
+        if (!ActivityDetailRepository::getOne(['id' => $activity_id])){
             $this->setError('活动不存在!');
             return false;
         }
         $parameter   = json_decode($request['parameters'],true);
         $add_arr =[];
         foreach ($parameter as $value){
-            if (!isset($value['image_ids'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -670,7 +670,7 @@ class RegisterService extends BaseService
                 $this->setError('链接图ID必须为整数！');
                 return false;
             }
-            $add_arr = [
+            $add_arr[] = [
                 'activity_id'  => $activity_id,
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
@@ -680,8 +680,8 @@ class RegisterService extends BaseService
             ];
         }
         DB::beginTransaction();
-        ActivityPastRepository::delete(['id' => $activity_id]);
-        if (ActivityPastRepository::exists($add_arr)){
+        ActivityPastRepository::delete(['activity_id' => $activity_id]);
+        if (ActivityPastRepository::exists(['activity_id' => $request['activity_id']])){
             $this->setError('图文(视频)信息已存在!');
             DB::rollBack();
             return false;
@@ -707,7 +707,7 @@ class RegisterService extends BaseService
             $this->setError('活动不存在!');
             return false;
         }
-        if (!ActivityPastRepository::delete(['activity_id' => $request['activity_id']])){
+        if (!ActivityPastRepository::delete(['id' => $request['id']])){
             $this->setError('删除失败!');
             return false;
         }
@@ -730,7 +730,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $add_arr =[];
         foreach ($parameter as $value){
-            if (!isset($value['image_ids'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -782,7 +782,7 @@ class RegisterService extends BaseService
         $column     = ['id','activity_id','name','top','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
         if (!empty($keywords)){
             $keyword    = [$keywords => ['name','address']];
-            if ($list = ActivityPastViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = ActivityPastViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setError('获取失败');
                 return false;
             }

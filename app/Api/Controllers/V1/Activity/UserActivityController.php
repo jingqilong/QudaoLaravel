@@ -602,7 +602,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="parameters",
      *         in="query",
-     *         description="参数，['image_ids','presentation介绍','hidden是否显示','top是否置顶']，例子：[{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':1},{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':0}]",
+     *         description="参数，例子：[{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'1'},{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'0'}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -676,7 +676,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="parameters",
      *         in="query",
-     *         description="参数，['image_ids','presentation介绍','hidden是否显示','top是否置顶']，例子：[{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':1},{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':0}]",
+     *         description="参数 例子：[{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'1'},{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'0'}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -737,9 +737,9 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="activity_id",
+     *         name="id",
      *         in="query",
-     *         description="activity_id(活动ID)",
+     *         description="ID",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -754,10 +754,10 @@ class UserActivityController extends ApiController
      */
     public function delActivityPast(){
         $rules = [
-            'activity_id'           => 'required|integer',
+            'id'           => 'required|integer',
         ];
         $messages = [
-            'activity_id.required'  => 'ID不能为空',
+            'id.required'  => 'ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
