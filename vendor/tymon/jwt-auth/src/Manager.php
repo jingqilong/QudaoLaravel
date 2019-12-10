@@ -99,7 +99,7 @@ class Manager
      */
     public function decode(Token $token, $checkBlacklist = true)
     {
-        $payloadArray = $this->provider->decode($token->get());dd($payloadArray);
+        $payloadArray = $this->provider->decode($token->get());
 
         $payload = $this->payloadFactory
                         ->setRefreshFlow($this->refreshFlow)
