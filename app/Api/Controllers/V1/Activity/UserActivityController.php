@@ -600,39 +600,12 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="resource_ids",
+     *         name="parameters",
      *         in="query",
-     *         description="资源ids[视频id,图片id]",
+     *         description="参数，['image_ids','presentation介绍','hidden是否显示','top是否置顶']，例子：[{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':1},{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':0}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="top",
-     *         in="query",
-     *         description="是否置顶[0不置顶,1置顶 默认0]",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="presentation",
-     *         in="query",
-     *         description="介绍",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="hidden",
-     *         in="query",
-     *         description="状态【0显示 1隐藏】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -645,20 +618,13 @@ class UserActivityController extends ApiController
     public function addActivityPast(){
         $rules = [
             'activity_id'           => 'required|integer',
-            'resource_ids'          => 'required',
-            'hidden'                => 'required|in:0,1',
-            'top'                   => 'required|in:0,1',
-            'presentation'          => 'required',
+            'parameters'            => 'required|json',
         ];
         $messages = [
             'activity_id.required'     => '活动ID不能为空',
             'activity_id.integer'      => '活动ID不是整数',
-            'resource_ids.required'    => '资源不能为空',
-            'hidden.required'          => '状态值不能为空',
-            'hidden.in'                => '状态值不存在',
-            'top.required'             => '置顶状态不能为空',
-            'top.in'                   => '置顶状态不存在',
-            'presentation.required'    => '介绍不能为空',
+            'parameters.required'      => '参数不能为空',
+            'parameters.json'          => '参数不是json格式',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -699,15 +665,6 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="id",
-     *         in="query",
-     *         description="id",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="activity_id",
      *         in="query",
      *         description="往期活动id",
@@ -717,45 +674,9 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="resource_ids",
+     *         name="parameters",
      *         in="query",
-     *         description="资源ids[视频id,图片id]",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="presentation",
-     *         in="query",
-     *         description="介绍",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="hidden",
-     *         in="query",
-     *         description="状态【0显示 1隐藏】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="presentation",
-     *         in="query",
-     *         description="介绍",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="hidden",
-     *         in="query",
-     *         description="状态【0显示 1隐藏】",
+     *         description="参数，['image_ids','presentation介绍','hidden是否显示','top是否置顶']，例子：[{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':1},{'image_ids':'1185','presentation介绍':'非常好','hidden':0,'top':0}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -770,21 +691,14 @@ class UserActivityController extends ApiController
      */
     public function editActivityPast(){
         $rules = [
-            'id'                    => 'required|integer',
             'activity_id'           => 'required|integer',
-            'resource_ids'          => 'required',
-            'hidden'                => 'required|in:0,1',
-            'presentation'          => 'required',
+            'parameters'            => 'required|json',
         ];
         $messages = [
-            'id.required'              => 'ID不能为空',
-            'id.integer'               => 'ID不是整数',
             'activity_id.required'     => '活动ID不能为空',
             'activity_id.integer'      => '活动ID不是整数',
-            'resource_ids.required'    => '资源不能为空',
-            'hidden.required'          => '状态值不能为空',
-            'hidden.in'                => '状态值不存在',
-            'presentation.required'    => '介绍不能为空',
+            'parameters.required'      => '参数不能为空',
+            'parameters.json'          => '参数不是json格式',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

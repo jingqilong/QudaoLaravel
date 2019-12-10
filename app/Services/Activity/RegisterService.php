@@ -650,27 +650,48 @@ class RegisterService extends BaseService
      */
     public function addActivityPast($request)
     {
-        if (!ActivityDetailRepository::exists(['id' => $request['activity_id']])){
+        $activity_id = $request['activity_id'];
+        if (!ActivityDetailRepository::exists(['id' => $activity_id])){
             $this->setError('活动不存在!');
             return false;
         }
-        $add_arr =[
-            'activity_id'       => $request['activity_id'],
-            'presentation'      => $request['presentation'],
-        ];
+        $parameter   = json_decode($request['parameters'],true);
+        $add_arr =[];
+        foreach ($parameter as $value){
+            if (!isset($value['image_ids'])){
+                $this->setError('资源图片(视频)不能为空!');
+                return false;
+            }
+            if (!isset($value['presentation'])){
+                $this->setError('文字描述不能为空！');
+                return false;
+            }
+            if (!empty($value['image_ids']) && !is_numeric($value['image_ids'])){
+                $this->setError('链接图ID必须为整数！');
+                return false;
+            }
+            $add_arr = [
+                'activity_id'  => $activity_id,
+                'top'          => $value['top'],
+                'hidden'       => $value['hidden'],
+                'resource_ids' => $value['resource_ids'],
+                'created_at'   => time(),
+                'updated_at'   => time(),
+            ];
+        }
+        DB::beginTransaction();
+        ActivityPastRepository::delete(['id' => $activity_id]);
         if (ActivityPastRepository::exists($add_arr)){
             $this->setError('图文(视频)信息已存在!');
+            DB::rollBack();
             return false;
         }
-        $add_arr['top']          = $request['top'];
-        $add_arr['hidden']       = $request['hidden'];
-        $add_arr['resource_ids'] = $request['resource_ids'];
-        $add_arr['created_at']   = time();
-        $add_arr['updated_at']   = time();
-        if (!ActivityPastRepository::getAddId($add_arr)){
+        if (!ActivityPastRepository::create($add_arr)){
             $this->setError('添加失败!');
+            DB::rollBack();
             return false;
         }
+        DB::commit();
         $this->setMessage('添加成功!');
         return true;
     }
@@ -701,24 +722,48 @@ class RegisterService extends BaseService
      */
     public function editActivityPast($request)
     {
-        if (!ActivityPastRepository::exists(['id' => $request['id']])){
-            $this->setError('没有该往期活动!');
+        $activity_id = $request['activity_id'];
+        if (!ActivityDetailRepository::exists(['id' => $activity_id])){
+            $this->setError('活动不存在!');
             return false;
         }
-        $upd_arr =[
-            'id'                => $request['id'],
-            'resource_ids'      => $request['resource_ids'],
-            'presentation'      => $request['presentation'],
-        ];
-        if (ActivityPastRepository::exists($upd_arr)){
-            $this->setError('往期活动已存在!');
-            return false;
+        $parameter   = json_decode($request['parameters'],true);
+        $add_arr =[];
+        foreach ($parameter as $value){
+            if (!isset($value['image_ids'])){
+                $this->setError('资源图片(视频)不能为空!');
+                return false;
+            }
+            if (!isset($value['presentation'])){
+                $this->setError('文字描述不能为空！');
+                return false;
+            }
+            if (!empty($value['image_ids']) && !is_numeric($value['image_ids'])){
+                $this->setError('链接图ID必须为整数！');
+                return false;
+            }
+            $add_arr = [
+                'activity_id'  => $activity_id,
+                'top'          => $value['top'],
+                'hidden'       => $value['hidden'],
+                'resource_ids' => $value['resource_ids'],
+                'created_at'   => time(),
+                'updated_at'   => time(),
+            ];
         }
-        $add_arr['updated_at'] =time();
-        if (!ActivityPastRepository::getUpdId(['id' => $request['id']],$add_arr)){
+        DB::beginTransaction();
+        ActivityPastRepository::delete(['id' => $activity_id]);
+        if (ActivityPastRepository::exists($add_arr)){
             $this->setError('修改失败!');
+            DB::rollBack();
             return false;
         }
+        if (!ActivityPastRepository::create($add_arr)){
+            $this->setError('修改失败!');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('修改成功!');
         return true;
     }
