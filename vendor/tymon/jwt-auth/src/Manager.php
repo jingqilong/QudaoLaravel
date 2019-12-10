@@ -82,7 +82,6 @@ class Manager
     public function encode(Payload $payload)
     {
         $data = $payload->get();
-//        $data['exp'] = time() + 20;
         $token = $this->provider->encode($data);
 
         return new Token($token);
@@ -100,7 +99,7 @@ class Manager
      */
     public function decode(Token $token, $checkBlacklist = true)
     {
-        $payloadArray = $this->provider->decode($token->get());
+        $payloadArray = $this->provider->decode($token->get());dd($payloadArray);
 
         $payload = $this->payloadFactory
                         ->setRefreshFlow($this->refreshFlow)
