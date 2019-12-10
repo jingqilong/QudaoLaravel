@@ -82,7 +82,7 @@ class Manager
     public function encode(Payload $payload)
     {
         $data = $payload->get();
-        $data['exp'] = time() + 20;
+//        $data['exp'] = time() + 20;
         $token = $this->provider->encode($data);
 
         return new Token($token);
