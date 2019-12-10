@@ -31,6 +31,10 @@ class GoodsSpecService extends BaseService
             ShopGoodsSpecRelateRepository::getUpdId(['goods_id' => $goods_id],['deleted_at' => $time]);
         }
         $decode_spec = json_decode($json_spec,true);
+        if (!is_array($decode_spec)){
+            $this->setError('商品规格格式有误！');
+            return false;
+        }
         DB::beginTransaction();
         foreach ($decode_spec as $value){
             if (!isset($value['stock']) || !isset($value['price']) || !isset($value['spec'])){
