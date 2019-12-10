@@ -153,7 +153,7 @@ class GoodsService extends BaseService
             $this->setError('商品分类不存在！');
             return false;
         }
-        if (isset($request['score_deduction']) && !isset($request['score_categories'])){
+        if (isset($request['score_deduction']) && !empty($request['score_deduction']) && !isset($request['score_categories'])){
             $this->setError('可抵扣积分类型不能为空！');
             return false;
         }

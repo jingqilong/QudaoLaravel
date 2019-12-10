@@ -209,12 +209,15 @@ class QiNiuService extends BaseService
         //对传入的文件进行预检
         foreach ($files as $info){
             $file_name = $info->getClientOriginalName();
-//            $file_type = $info->getMimeType();
-//            $temp = explode('/',$file_type);
-//            $file_format = reset($temp);
-//            if ($file_format !== 'image'){
-//                return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
-//            }
+            if (preg_match("/[()（）?]/",$file_name)){
+                return ['code' => 0, 'message' => '图片名字中不能包含特殊字符【中英文括号、问号】'];
+            }
+            $file_type = $info->getMimeType();
+            $temp = explode('/',$file_type);
+            $file_format = reset($temp);
+            if ($file_format !== 'image'){
+                return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
+            }
             if (!$info->isValid()){
                 return ['code' => 0, 'message' => '文件['.$file_name.']上传过程出错！'];
             }
@@ -231,8 +234,15 @@ class QiNiuService extends BaseService
         foreach ($files as $info){
             $name = $info->getClientOriginalName();
             $path = $info->getRealPath();
-            $file_name = $config['bucket'].'/'.md5($name.$path.rand());
+            $file_name = $config['bucket'].'/'.$name;
             $result[$name]['name'] = $file_name;
+            if ($disk->exists($file_name)){//如果图片已经上传
+                $url = (string)$disk->downloadUrl($file_name);
+                $img_info = CommonImagesRepository::getOne(['img_url' => $url]);
+                $result[$name]['id'] = $img_info['id'];
+                $result[$name]['url'] = $url;
+                continue;
+            }
             $res = $disk->put($file_name, file_get_contents($path));
             $url = '';
             if (!$res){
