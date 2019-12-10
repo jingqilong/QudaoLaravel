@@ -81,8 +81,7 @@ class Manager
      */
     public function encode(Payload $payload)
     {
-        $data = $payload->get();
-        $token = $this->provider->encode($data);
+        $token = $this->provider->encode($payload->get());
 
         return new Token($token);
     }
