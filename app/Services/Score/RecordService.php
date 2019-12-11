@@ -411,7 +411,7 @@ class RecordService extends BaseService
             $res['day'][]           = $date_time;
             $start_time             = $today['start'] - ($i * 86400);#前一天开始时间
             $end_time               = $today['end'] - ($i * 86400);#前一天结束时间
-            if ($records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
+            if (!empty($list) && $records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
                 $res['count']['总消费积分'][]    = $this->arrayFieldSum($records,'action_score');
             }else{
                 $res['count']['总消费积分'][]    = 0;
@@ -420,7 +420,7 @@ class RecordService extends BaseService
         foreach ($score_types as $type){
             $type_name  = $type['name'];
             for ($i = $day;$i >= 0;$i--){
-                if (!$type_record = $this->searchArray($list,'score_type',$type['id'])){
+                if (empty($list) || !$type_record = $this->searchArray($list,'score_type',$type['id'])){
                     $res['count'][$type_name][]    = 0;continue;
                 }
                 $start_time  = $today['start'] - ($i * 86400);
