@@ -557,7 +557,7 @@ class RegisterService extends BaseService
      * @param $request
      * @return array|bool|null
      */
-    public function getActivityPast($request)
+   /* public function getActivityPast($request)
     {
         $where  = ['activity_id' => $request['id'],'hidden' => 0];
         $column = ['id','resource_ids','top','presentation'];
@@ -579,20 +579,20 @@ class RegisterService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $res;
-    }
-
-    /**
-     * 视频列表
-     * @param $request
-     * @return array|bool|mixed|null
-     */
-    private function activityPastVideo($request)
+    }*/
+    public function getActivityPast($request)
     {
-        $where = ['activity_id' => $request['id'],'top' => 1,'hidden' => 0];
-        $column = ['id','activity_id','resource_ids','file_type','img_url','top','presentation','created_at'];
-        if (!$list = ActivityPastViewRepository::getList($where,$column)){
-            $this->setError('活动不存在!');
-            return [];
+        $where  = ['activity_id' => $request['id'],'hidden' => 0];
+        $column = ['id','resource_ids','top','presentation'];
+        $auth = Auth::guard('member_api');
+        $member = $auth->user();
+        $res['is_collect'] = 0;
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $request['id'],'member_id' => $member->id,'deleted_at' => 0])){
+            $activity['is_collect'] = 1;
+        }
+        if (!ActivityPastRepository::exists(['activity_id' => $request['id']])) {
+            $this->setError('没有此活动!');
+            return false;
         }
         $res['banner']      = [];
         $res['video_list']  = [];
@@ -620,7 +620,6 @@ class RegisterService extends BaseService
         $this->setMessage('获取成功!');
         return $res;
     }
-
     /**
      * 获取活动分享二维码
      * @param $activity_id
