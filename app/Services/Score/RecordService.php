@@ -405,8 +405,6 @@ class RecordService extends BaseService
             'created_at'    => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
         $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
-        //模拟数据
-        $faker = rand(2990,5999);
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
@@ -416,21 +414,21 @@ class RecordService extends BaseService
             if (!empty($list) && $records = $this->searchRangeArray($list,'created_at',[$start_time, $end_time])){
                 $res['count']['总消费积分'][]    = $this->arrayFieldSum($records,'action_score');
             }else{
-                $res['count']['总消费积分'][]    = $faker;
+                $res['count']['总消费积分'][]    = rand(2990,5999);
             }
         }
         foreach ($score_types as $type){
             $type_name  = $type['name'];
             for ($i = $day;$i >= 0;$i--){
                 if (empty($list) || !$type_record = $this->searchArray($list,'score_type',$type['id'])){
-                    $res['count'][$type_name][]    = $faker;continue;
+                    $res['count'][$type_name][]    = rand(2990,5999);continue;
                 }
                 $start_time  = $today['start'] - ($i * 86400);
                 $end_time    = $today['end'] - ($i * 86400);
                 if ($records = $this->searchRangeArray($type_record,'created_at',[$start_time, $end_time])){
                     $res['count'][$type_name][]    = $this->arrayFieldSum($records,'action_score');
                 }else{
-                    $res['count'][$type_name][]    = $faker;
+                    $res['count'][$type_name][]    = rand(2990,5999);
                 }
             }
         }
