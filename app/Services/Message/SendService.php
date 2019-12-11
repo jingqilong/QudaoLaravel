@@ -271,7 +271,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            $value['read_at'] = date('Y.m.d',strtotime($value['read_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -305,7 +305,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            $value['read_at'] = date('Y.m.d',strtotime($value['read_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -339,7 +339,7 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            $value['read_at'] = date('Y.m.d',strtotime($value['read_at']));
         }
         $this->setMessage('获取成功！');
         return $list;
