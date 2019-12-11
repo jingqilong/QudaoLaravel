@@ -70,7 +70,7 @@ class TradesService extends BaseService
         ];
         $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
         //模拟数据
-        $faker = rand(299,999);
+        $faker = rand(2990,5999);
         #总收入
         for ($i = $day;$i >= 0;$i--){
             $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));

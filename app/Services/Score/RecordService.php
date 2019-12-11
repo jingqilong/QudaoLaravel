@@ -406,7 +406,7 @@ class RecordService extends BaseService
         ];
         $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
         //模拟数据
-        $faker = rand(299,999);
+        $faker = rand(2990,5999);
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
