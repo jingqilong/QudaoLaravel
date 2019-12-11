@@ -96,6 +96,11 @@ class MemberEnum extends BaseEnum
         1 => 'HIDDEN',
     ];
 
+    //状态
+    public static $sort = [
+        3 => 'RECOMMEND',
+    ];
+
     // 成员等级
     const DEFAULT          = 0;    //默认
 
@@ -156,6 +161,9 @@ class MemberEnum extends BaseEnum
     const ACTIVITE          = 1;    //显示
 
     const HIDDEN            = 2;    //隐藏
+
+    //排序
+    const RECOMMEND         = 3;    //隐藏
 
 
     /**

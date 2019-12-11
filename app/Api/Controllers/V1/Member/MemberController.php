@@ -313,10 +313,10 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="asc",
      *         in="query",
-     *         description="排序方式[1 最早加入 2 最新加入 默认1]",
+     *         description="排序方式[1 加入时间从远到近 2 加入时间从近到远 3推荐排序 默认1]",
      *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -348,13 +348,15 @@ class MemberController extends ApiController
     {
         $rules = [
             'keywords'      => 'string',
+            'asc'           => 'in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'keywords.string'           => '关键字类型不正确',
-            'page.integer'              => '页码不是整数',
-            'page_num.integer'          => '每页显示条数不是整数',
+            'keywords.string'   => '关键字类型不正确',
+            'asc.in'            => '排序方式不存在',
+            'page.integer'      => '页码不是整数',
+            'page_num.integer'  => '每页显示条数不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
