@@ -57,6 +57,7 @@ $api->version('v1',function ($api){
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
             $api->post('upload_images', 'QiNiuController@uploadImages')->name('上传图片至七牛云');
+            $api->get('get_upload_token', 'QiNiuController@getUploadToken')->name('获取七牛云上传token');
         });
     });
     //需要验签的接口

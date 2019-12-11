@@ -378,4 +378,28 @@ class QiNiuService extends BaseService
         }
         return ['id' => $id, 'url' => $url];
     }
+
+    /**
+     * 获取七牛云上传token
+     * @param $storage_space
+     * @return array
+     */
+    public function getUploadToken($storage_space)
+    {
+        if (!QiNiuEnum::exists($storage_space)){
+            return ['code' => 0, 'message' => '存储空间类别不存在'];
+        }
+        //上传图片至七牛云
+        $config = $this->upload_config[QiNiuEnum::$module[$storage_space]];
+        config([
+            'filesystems.disks.qiniu.bucket' => $config['bucket'],
+            'filesystems.disks.qiniu.domains' => $config['domains']
+        ]);
+        $disk = QiniuStorage::disk('qiniu');
+        if (!$token = $disk->uploadToken()){
+            $this->setError('获取失败！');
+        }
+        $this->setMessage('获取成功！');
+        return ['upload_token' => $token];
+    }
 }
