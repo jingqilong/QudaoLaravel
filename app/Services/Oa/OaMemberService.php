@@ -5,6 +5,7 @@ namespace App\Services\Oa;
 
 
 use App\Enums\MemberEnum;
+use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -38,32 +39,30 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['deleted_at','m_id','m_num','m_cname','m_ename','m_groupname','m_starte','m_workunits','m_time','m_phone','m_address','m_category','m_sex','m_identity'];
+        $column         = ['id','card_no','ch_name','en_name','sex','mobile','grade','img_url','title','category','status','hidden','created_at','deleted_at'];
         $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
-            $keyword        = [$keywords => ['m_cname','m_ename','m_category','m_num','m_phone','m_groupname']];
-            if(!$member_list = OaMemberRepository::search($keyword,$where,$column,$page,$page_num,'m_time',$asc)){
+            $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
+            if(!$member_list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
                 $this->setMessage('暂无成员信息！');
                 return [];
             }
         }else {
-            if(!$member_list = OaMemberRepository::getList($where,$column,'m_time',$asc,$page,$page_num)){
+            if(!$member_list = MemberGradeViewRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
                 $this->setMessage('没有查到该成员！');
                 return [];
             }
         }
-
         $this->removePagingField($member_list);
-
         if (empty($member_list['data'])) {
             $this->setMessage('没有成员!');
         }
         foreach ($member_list['data'] as &$value){
-            $value['group_name']        = MemberEnum::getGrade($value['m_groupname'],$value['group_name']);
-            $value['category_name']     = MemberEnum::getCategory($value['m_category'],$value['m_category']);
-            $value['starte_name']       = MemberEnum::getStatus($value['m_starte'],$value['m_starte']);
-            $value['sex_name']          = MemberEnum::getSex($value['m_sex'],$value['m_sex']);
-            $value['identity_name']     = MemberEnum::getIdentity($value['m_identity'],$value['m_identity']);
+            $value['grade']      = MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category']   = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']   = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status']     = MemberEnum::getStatus($value['status'],'成员');
+            $value['hidden']     = MemberEnum::getHidden($value['hidden'],'显示');
         }
         $this->setMessage('获取成功！');
         return $member_list;

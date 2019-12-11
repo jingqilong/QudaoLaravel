@@ -4,6 +4,7 @@ namespace App\Services\Activity;
 
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
+use App\Enums\CollectTypeEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
@@ -12,6 +13,7 @@ use App\Repositories\ActivityPastViewRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityThemeRepository;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\MemberCollectRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOrdersRepository;
@@ -556,12 +558,18 @@ class RegisterService extends BaseService
      */
     public function getActivityPast($request)
     {
+        $auth = Auth::guard('member_api');
+        $member = $auth->user();
         #顶部视频
         $res['banner'] = $this->activityPastVideo($request);
         #视频列表
         $res['video_list'] = $this->activityPastVideoText($request);
         #图文列表
         $res['images_list'] = $this->activityPastImgText($request);
+        $res['is_collect'] = 0;
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $request['id'],'member_id' => $member->id,'deleted_at' => 0])){
+            $activity['is_collect'] = 1;
+        }
         $this->setMessage('获取成功!');
         return $res;
     }
