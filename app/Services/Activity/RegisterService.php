@@ -4,6 +4,7 @@ namespace App\Services\Activity;
 
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
+use App\Enums\CommonImagesEnum;
 use App\Enums\CollectTypeEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
@@ -556,8 +557,14 @@ class RegisterService extends BaseService
      * @param $request
      * @return array|bool|null
      */
-    public function getActivityPast($request)
+   /* public function getActivityPast($request)
     {
+        $where  = ['activity_id' => $request['id'],'hidden' => 0];
+        $column = ['id','resource_ids','top','presentation'];
+        if (!ActivityPastRepository::exists(['activity_id' => $request['id']])) {
+            $this->setError('没有此活动!');
+            return false;
+        }
         $auth = Auth::guard('member_api');
         $member = $auth->user();
         #顶部视频
@@ -572,53 +579,46 @@ class RegisterService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $res;
-    }
-
-    /**
-     * 视频列表
-     * @param $request
-     * @return array|bool|mixed|null
-     */
-    private function activityPastVideo($request)
+    }*/
+    public function getActivityPast($request)
     {
-        $where = ['activity_id' => $request['id'],'top' => 1,'hidden' => 0];
-        $column = ['id','activity_id','resource_ids','file_type','img_url','top','presentation','created_at'];
-        if (!$list = ActivityPastViewRepository::getList($where,$column)){
-            $this->setError('活动不存在!');
-            return [];
+        $where  = ['activity_id' => $request['id'],'hidden' => 0];
+        $column = ['id','resource_ids','top','presentation'];
+        $auth = Auth::guard('member_api');
+        $member = $auth->user();
+        $res['is_collect'] = 0;
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $request['id'],'member_id' => $member->id,'deleted_at' => 0])){
+            $activity['is_collect'] = 1;
         }
-        return $list;
-    }
-
-    /**
-     * 获取是视频文本
-     * @param $request
-     * @return array|bool|mixed|null
-     */
-    private function activityPastVideoText($request)
-    {
-        $where  = ['activity_id' => $request['id'],'file_type' => 2,'top' => 0,'hidden' => 0];
-        $column = ['id','activity_id','resource_ids','file_type','img_url','top','presentation','created_at'];
-        if (!$list = ActivityPastViewRepository::getList($where,$column)){
-            $this->setError('活动不存在!');
-            return [];
+        if (!ActivityPastRepository::exists(['activity_id' => $request['id']])) {
+            $this->setError('没有此活动!');
+            return false;
         }
-        return $list;
-    }
-    /**
-     * 获取是图片文本
-     * @param $request
-     * @return array|bool|mixed|null
-     */
-    private function activityPastImgText($request)
-    {
-        $where = ['activity_id' => $request['id'],'file_type' => 1,'top' => 0,'hidden' => 0];
-        $column = ['id','activity_id','resource_ids','file_type','img_url','top','presentation','created_at'];
-        if (!$list = ActivityPastViewRepository::getList($where,$column)){
-            $this->setError('活动不存在!');
-            return [];
+        $res['banner']      = [];
+        $res['video_list']  = [];
+        $res['images_list'] = [];
+        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+            $this->setError('获取失败');
+            return false;
         }
-        return $list;
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
+        foreach ($list as $value){
+            if ($value['top'] == 1){
+                $res['banner'][] = $value;
+                continue;
+            }
+            foreach ($value['resource_urls'] as $item){
+                if ($item['file_type'] == CommonImagesEnum::VIDEO){
+                    $res['video_list'][] = $value;break;
+                }
+                if ($item['file_type'] == CommonImagesEnum::IMAGE){
+                    $res['images_list'][] = $value;break;
+                }
+            }
+            unset($value['resource_ids'],$value['top']);
+        }
+        $this->setMessage('获取成功!');
+        return $res;
     }
     /**
      * 获取活动分享二维码

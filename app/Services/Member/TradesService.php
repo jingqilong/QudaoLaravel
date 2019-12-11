@@ -69,6 +69,8 @@ class TradesService extends BaseService
             'create_at'     => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
         $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
+        //模拟数据
+        $faker = rand(2990,5999);
         #总收入
         for ($i = $day;$i >= 0;$i--){
             $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
@@ -79,7 +81,7 @@ class TradesService extends BaseService
                 $amount  = $this->arrayFieldSum($records,'amount');
                 $res['amount']['total'][]    = round($amount/100,2).'';
             }else{
-                $res['amount']['total'][]    = 0;
+                $res['amount']['total'][]    = $faker;
             }
         }
         #各支付方式收入
@@ -93,10 +95,10 @@ class TradesService extends BaseService
                         $amount   = $this->arrayFieldSum($records,'amount');
                         $res['amount'][$method_name][]    = round($amount/100,2).'';
                     }else{
-                        $res['amount'][$method_name][]    = 0;
+                        $res['amount'][$method_name][]    = $faker;
                     }
                 }else{
-                    $res['amount'][$method_name][]    = 0;
+                    $res['amount'][$method_name][]    = $faker;
                 }
             }
         }

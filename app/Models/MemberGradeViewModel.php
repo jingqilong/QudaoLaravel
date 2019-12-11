@@ -27,7 +27,7 @@ class MemberGradeViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','card_no','en_name','sex','ch_name','mobile','grade','img_url','title','category','status','hidden','created_at','deleted_at'];
+    protected $fillable = ['id','card_no','en_name','sex','ch_name','mobile','position','address','employer','grade','img_url','title','category','status','hidden','created_at','deleted_at'];
 
 
 

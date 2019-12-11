@@ -24,7 +24,7 @@ class UmsPayController extends ApiController
      * @OA\Post(
      *     path="/api/v1/payments/ums_create_order",
      *     tags={"支付模块"},
-     *     summary="createOrder",
+     *     summary="银联支付下单",
      *     description="sang" ,
      *     operationId="ums_create_order",
      *     @OA\Parameter(
@@ -52,15 +52,6 @@ class UmsPayController extends ApiController
      *                  type="string",
      *              ),
      *          description="订单号",
-     *          required=true,
-     *     ),
-     *     @OA\Parameter(
-     *          in="query",
-     *          name="amount",
-     *          @OA\Schema(
-     *                  type="string",
-     *              ),
-     *          description="金额",
      *          required=true,
      *     ),
      *     @OA\Response(

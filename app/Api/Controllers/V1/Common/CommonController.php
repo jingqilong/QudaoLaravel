@@ -239,7 +239,7 @@ class CommonController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="收藏类别，1活动，2商品，3房产，4餐饮，5健身..",
+     *         description="收藏类别，1活动，2商品，3房产，4精选生活..",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -263,7 +263,7 @@ class CommonController extends ApiController
      */
     public function isCollect(){
         $rules = [
-            'type'          => 'required|in:1,2,3,4,5',
+            'type'          => 'required|in:1,2,3,4',
             'target_id'     => 'required|integer',
         ];
         $messages = [
