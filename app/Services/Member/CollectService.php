@@ -139,27 +139,30 @@ class CollectService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
+        $collect_list = $this->removePagingField($collect_list);
+        if (empty($collect_list['data'])){
+            $this->setMessage('暂无数据');
+            return $collect_list;
+        }
         $collect_ids = array_column($collect_list['data'],'target_id');
-        $request['collect_ids'] = $collect_ids;
         $request = [
             'collect_ids'   => $collect_ids,
             'page'          => $page,
             'page_num'      => $page_num,
             'type'          => $request['type'],
         ];
-        $collect_list = $this->removePagingField($collect_list);
         switch ($request['type']){
             case CollectTypeEnum::ACTIVITY:
-                $collect_list['data'] = ActivityDetailRepository::getCollectList($request);
+                $result = ActivityDetailRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::SHOP:
-                $collect_list['data'] = ShopGoodsRepository::getCollectList($request);
+                $result = ShopGoodsRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::HOUSE:
-                $collect_list['data'] = HouseDetailsRepository::getCollectList($request);
+                $result = HouseDetailsRepository::getCollectList($request);
                 break;
             case CollectTypeEnum::PRIME:
-                $collect_list['data'] = PrimeMerchantRepository::getCollectList($request);
+                $result = PrimeMerchantRepository::getCollectList($request);
                 break;
             default:
                 $this->setError('暂无此收藏类别！');
@@ -167,7 +170,7 @@ class CollectService extends BaseService
                 break;
         }
         $this->setMessage('获取成功!');
-        return $collect_list['data'];
+        return $result;
     }
 
     /**
