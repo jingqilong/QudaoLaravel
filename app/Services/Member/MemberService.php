@@ -194,7 +194,8 @@ class MemberService extends BaseService
      */
     public function getMemberList($data)
     {
-        if (empty($data['asc'])){
+        $temporary = $data['asc'];
+        if ($data['asc'] == MemberEnum::RECOMMEND){
             $data['asc']  = 1;
         }
         $member       =   $this->auth->user();
@@ -205,6 +206,11 @@ class MemberService extends BaseService
         $page_num     =   $data['page_num'] ?? 20;
         $asc          =   $data['asc'] == 1 ? 'asc' : 'desc';
         $where        =   ['deleted_at' => 0 ,'hidden' => 0];
+        if(MemberEnum::RECOMMEND  == $temporary){
+            $sort = 'is_recommend';
+        }else{
+            $sort = 'created_at';
+        }
         if (MemberEnum::TEMPORARY == $member_info['grade']){
             $where['status'] =  MemberEnum::MEMBER;
         }
@@ -214,12 +220,12 @@ class MemberService extends BaseService
         $column = ['id','ch_name','img_url','grade','title','category','status','created_at'];
         if (!empty($keywords)){
             $keyword  = [$keywords => ['ch_name','category','mobile']];
-            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
+            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
         }else {
-            if (!$list = MemberGradeViewRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
+            if (!$list = MemberGradeViewRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -778,7 +784,7 @@ class MemberService extends BaseService
      */
     public function perfectMemberInfo($request)
     {
-        if (!$member = MemberBaseRepository::getOne(['mobile' => $request['m_phone']])){
+        if (!$member = MemberBaseRepository::getOne(['mobile' => $request['phone']])){
             $this->setError('手机号码不一致呦！');
             return false;
         }
