@@ -39,7 +39,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','sex','mobile','grade','img_url','title','category','status','hidden','created_at','deleted_at'];
+        $column         = ['id','card_no','ch_name','en_name','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
         $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
@@ -58,11 +58,12 @@ class OaMemberService extends BaseService
             $this->setMessage('没有成员!');
         }
         foreach ($member_list['data'] as &$value){
-            $value['grade']      = MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['category']   = MemberEnum::getCategory($value['category'],'普通成员');
-            $value['sex_name']   = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status']     = MemberEnum::getStatus($value['status'],'成员');
-            $value['hidden']     = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['grade']       = MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category']    = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']    = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status_name'] = MemberEnum::getStatus($value['status'],'成员');
+            $value['hidden']      = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['created_at']  = date('Y-m-d H:i:s',$value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $member_list;
