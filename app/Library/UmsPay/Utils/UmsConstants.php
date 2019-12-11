@@ -43,5 +43,12 @@ class UmsConstants
     /**
      * 商户ID
      */
-    const STATIC_MER_ID="a2e1173cf833483fb69a19ad4df33652";////联系大华捷通项目组获取
+    const STATIC_MER_ID="f672e52f01b04676ad7339095aa60d5f";////联系大华捷通项目组获取
+    /// OP_狮子歌歌:
+    //@祁宏 祁总，商户号898319973110223
+    //
+    //OP_狮子歌歌:
+    //终端02230003
+    /// transMid=898319973110223，transTid=02230003
+    ///
 }
