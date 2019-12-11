@@ -2,6 +2,7 @@
 namespace App\Services\House;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonAreaRepository;
@@ -9,6 +10,7 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseFacilitiesRepository;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\MemberCollectRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\AreaService;
@@ -86,6 +88,8 @@ class DetailsService extends BaseService
      */
     public function getHouseDetail($id)
     {
+        $auth = Auth::guard('member_api');
+        $member = $auth->user();
         if (!HouseDetailsRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('房产信息不存在！');
             return false;
@@ -113,6 +117,11 @@ class DetailsService extends BaseService
         $house['category']      = HouseEnum::getCategory($house['category']);
         $house['publisher']     = HouseEnum::getPublisher($house['publisher']);
         $house['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']));
+        #是否收藏
+        $activity['is_collect'] = 0;
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::HOUSE,'target_id' => $house['id'],'member_id' => $member->id,'deleted_at' => 0])){
+            $activity['is_collect'] = 1;
+        }
         unset($house['area_code'],$house['tenancy'],$house['image_ids'],
             $house['facilities_ids'],$house['recommend']);
         $this->setMessage('获取成功！');
