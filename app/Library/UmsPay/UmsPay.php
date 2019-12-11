@@ -45,8 +45,8 @@ class UmsPay
 
     /**
      * @desc 支付接口
-     * @param $order_no 支付单号
-     * @param $cod 金额
+     * @param string $order_no 支付单号
+     * @param string $cod 金额
      * @param string $busi_order_no 商户业务订单号 选填：业务订单号，支付通知会回传
      * @param string $memo 备注  100  非必填
      * @param string $order_desc  订单信息  100  非必填，为空时支付完成后展示的商户
