@@ -102,6 +102,10 @@ class DetailsService extends BaseService
         }
         #处理地址
         list($area_address,$lng,$lat) = $this->makeAddress($house['area_code'],$house['address']);
+        
+        list($district_name) = $this->makeAddress($house['area_code'],'',3);
+        $house['district']  = $district_name;
+        
         $house['area_address']  = $area_address;
         $house['lng']           = $lng;
         $house['lat']           = $lat;
