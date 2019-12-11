@@ -278,7 +278,7 @@ class CommonController extends ApiController
         }
         $res = $this->collectService->isCollect($this->request['type'],$this->request['target_id']);
         if ($res){
-            return ['code' => 200, 'message' => $this->collectService->message];
+            return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }

@@ -33,9 +33,12 @@ class UmsPayService extends BaseService
     public function createOrder($request){
         $user = Auth::guard('member_api')->user();
         $order_no = $request['order_no'];
-        $amount = $request['amount'];
         if (!$order = MemberOrdersRepository::getOne(['order_no' => $order_no])){
             $this->setError('订单信息不存在！');
+            return false;
+        }
+        if (empty($order['payment_amount'])){
+            $this->setError('实际支付金额为0，不能下单！');
             return false;
         }
         switch ($order['status']){
@@ -55,7 +58,7 @@ class UmsPayService extends BaseService
                 'order_id'      => $order['id'],
                 'pay_user_id'   => $user->id,
                 'payee_user_id' => 0,
-                'amount'        => $amount * 100,
+                'amount'        => $order['payment_amount'],
                 'pay_method'    => PayMethodEnum::UMSPAY
             ];
             if (!$trade_id = MemberTradesRepository::addTrade($trade_add)){
@@ -72,6 +75,7 @@ class UmsPayService extends BaseService
                 return false;
             }
         }
+        $amount = $order['payment_amount']/100;//金额由分转为元
         $response = $this->umsPay->createOrder($order_no,$amount);
         DB::commit();
         $this->setMessage('下单成功！');
