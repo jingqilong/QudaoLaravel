@@ -14,28 +14,28 @@ class UmsConstants
     /**
      * 支付URL 测试
      */
-    const TEST_PAY_URL ="https://dhjt-test.chinaums.com/queryService/UmsWebPayPlugins?";
+    const TEST_PAY_URL ="https://dhjt-test.chinaums.com/queryService/UmsWebPayPlugins";
     /**
      * 查询URL 测试
      */
-    const TEST_QUERY_URL ="https://dhjt-test.chinaums.com/queryService/UmsWebPayQuery?";
+    const TEST_QUERY_URL ="https://dhjt-test.chinaums.com/queryService/UmsWebPayQuery";
     /**
      * 退款URL 测试
      */
-    const TEST_REFUND_URL="https://dhjt-test.chinaums.com/queryService/UmsWebPayRefund?";
+    const TEST_REFUND_URL="https://dhjt-test.chinaums.com/queryService/UmsWebPayRefund";
 
     /**
      * 支付URL 生产
      */
-    const PAY_URL ="https://dhjt.chinaums.com/queryService/UmsWebPayPlugins?";
+    const PAY_URL ="https://dhjt.chinaums.com/queryService/UmsWebPayPlugins";
     /**
      * 查询URL 生产
      */
-    const QUERY_URL ="https://dhjt.chinaums.com/queryService/UmsWebPayQuery?";
+    const QUERY_URL ="https://dhjt.chinaums.com/queryService/UmsWebPayQuery";
     /**
      * 退款URL 生产
      */
-    const REFUND_URL="https://dhjt.chinaums.com/queryService/UmsWebPayRefund?";
+    const REFUND_URL="https://dhjt.chinaums.com/queryService/UmsWebPayRefund";
     /**
      * 校验字符串
      */
