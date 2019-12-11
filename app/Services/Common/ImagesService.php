@@ -127,7 +127,7 @@ class ImagesService extends BaseService
             $all_str .= rtrim($part_str,',') . ',';
         }
         $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
-        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url']);
+        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
 
         foreach ($list as &$item){
             foreach ($column as $k=>$v){
@@ -176,7 +176,7 @@ class ImagesService extends BaseService
             $all_str .= trim($image_str,',') . ',';
         }
         $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
-        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url']);
+        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
         foreach ($column as $k=>$v){
             if (array_key_exists($k, $info)){
                 if ($v == 'single'){

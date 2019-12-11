@@ -21,6 +21,9 @@ class CommonImagesEnum extends BaseEnum
         'SPECIALS'      => '精选生活',
         'SHOP'          => '商城模块',
         'SPACE'         => '私享空间',
+
+        'IMAGE'         => '图片文件',
+        'VIDEO'         => '视频文件',
     ];
 
     //图片类别
@@ -37,6 +40,14 @@ class CommonImagesEnum extends BaseEnum
         9 => 'SHOP',
         10=> 'SPACE',
     ];
+
+    //图片类别
+    public static $file_type = [
+        1 => 'IMAGE',
+        2 => 'VIDEO',
+    ];
+
+
     // banner类别
     const COMMON        = 0;    //公共
 
@@ -60,7 +71,13 @@ class CommonImagesEnum extends BaseEnum
 
     const SPACE         = 10;    //私享空间
 
-    /**1
+
+
+    const IMAGE         = 1;    //图片文件
+
+    const VIDEO         = 2;    //视频文件
+
+    /**
      * 获取图片类别标签
      * @param $type
      * @return mixed|string
@@ -68,6 +85,16 @@ class CommonImagesEnum extends BaseEnum
     public static function getImageType($type)
     {
         return isset(self::$image_type[$type]) ? self::$labels[self::$image_type[$type]] : '';
+    }
+
+    /**
+     * 获取文件类别
+     * @param $type
+     * @return mixed|string
+     */
+    public static function getFileType($type)
+    {
+        return isset(self::$file_type[$type]) ? self::$labels[self::$file_type[$type]] : '';
     }
 
 }
