@@ -284,6 +284,15 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="token",
      *         in="query",
      *         description="用户 TOKEN",
@@ -419,6 +428,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_member_category_list",
      *     tags={"会员"},
+     *     deprecated=true,
      *     description="jing" ,
      *     summary="根据成员分类查找会员列表",
      *     operationId="get_member_category_list",

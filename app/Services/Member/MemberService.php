@@ -200,12 +200,16 @@ class MemberService extends BaseService
         $member       =   $this->auth->user();
         $member_info  =   MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
         $keywords     =   $data['keywords'] ?? null;
+        $category     =   $data['category'] ?? null;
         $page         =   $data['page'] ?? 1;
         $page_num     =   $data['page_num'] ?? 20;
         $asc          =   $data['asc'] == 1 ? 'asc' : 'desc';
         $where        =   ['deleted_at' => 0 ,'hidden' => 0];
         if (MemberEnum::TEMPORARY == $member_info['grade']){
             $where['status'] =  MemberEnum::MEMBER;
+        }
+        if (!empty($category)){
+            $where['category'] = $category;
         }
         $column = ['id','ch_name','img_url','grade','title','category','status','created_at'];
         if (!empty($keywords)){
@@ -226,8 +230,8 @@ class MemberService extends BaseService
             return $list;
         }
         foreach ($list['data'] as $key => &$value){
-            $value['grade']      =   MemberEnum::getGrade($value['grade'],$value['grade']);
-            $value['category']   =   MemberEnum::getGrade($value['category'],$value['category']);
+            $value['grade']      =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category']   =   MemberEnum::getCategory($value['category'],'普通成员');
         }
         $this->setMessage('获取成功！');
         return $list;
