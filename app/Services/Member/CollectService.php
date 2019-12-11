@@ -80,7 +80,7 @@ class CollectService extends BaseService
      * 公共收藏
      * @param $type
      * @param $target_id
-     * @return bool
+     * @return mixed
      */
     public function isCollect($type, $target_id)
     {
@@ -100,7 +100,7 @@ class CollectService extends BaseService
                 return false;
             }
             $this->setMessage('取消成功！');
-            return true;
+            return ['is_collect' => 0];
         }
         if ($id = MemberCollectRepository::getField(array_merge($add_arr,['deleted_at' => ['>', 0]]),'id')){
             $add_arr['deleted_at'] = 0;
@@ -109,7 +109,7 @@ class CollectService extends BaseService
                 return false;
             }
             $this->setMessage('收藏成功！');
-            return true;
+            return ['is_collect' => 1];
         }
         $add_arr['created_at'] = time();
         if (!MemberCollectRepository::getAddId($add_arr)){
@@ -117,7 +117,7 @@ class CollectService extends BaseService
             return false;
         }
         $this->setMessage('收藏成功！');
-        return true;
+        return ['is_collect' => 1];
     }
 
     /**
