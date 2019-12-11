@@ -212,12 +212,14 @@ class QiNiuService extends BaseService
             if (preg_match("/[()（）?]/",$file_name)){
                 return ['code' => 0, 'message' => '图片名字中不能包含特殊字符【中英文括号、问号】'];
             }
-            $file_type = $info->getMimeType();
-            $temp = explode('/',$file_type);
-            $file_format = reset($temp);
-            if ($file_format !== 'image'){
-                return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
-            }
+            try {
+                $file_type = $info->getMimeType();
+                $temp = explode('/',$file_type);
+                $file_format = reset($temp);
+                if ($file_format !== 'image'){
+                    return ['code' => 0, 'message' => '文件['.$file_name.']不是图片，无法上传！'];
+                }
+            }catch (\Exception $e){}
             if (!$info->isValid()){
                 return ['code' => 0, 'message' => '文件['.$file_name.']上传过程出错！'];
             }
