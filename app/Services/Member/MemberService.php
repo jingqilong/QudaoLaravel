@@ -194,6 +194,9 @@ class MemberService extends BaseService
      */
     public function getMemberList($data)
     {
+        if (empty($data['sort'])){
+            $data['sort']  = 1;
+        }
         $temporary = $data['sort'];
         if ($data['sort'] == MemberEnum::RECOMMEND){
             $data['sort']  = 1;
@@ -818,13 +821,18 @@ class MemberService extends BaseService
             return false;
         }
         if (!MemberPersonalServiceRepository::getAddId($service_arr)){
+
+            $this->setError('信息完善失败，请重试！');
+            return false;
+        }
+        if (!$member_info = MemberGradeViewRepository::getOne(['id' => $member['id']])){
             DB::rollBack();
             $this->setError('信息完善失败，请重试！');
             return false;
         }
         DB::commit();
         $this->setMessage('信息完善成功!');
-        return true;
+        return $member_info;
     }
 
     /**
