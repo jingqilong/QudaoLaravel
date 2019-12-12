@@ -311,7 +311,7 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="asc",
+     *         name="sort",
      *         in="query",
      *         description="排序方式[1 加入时间从远到近 2 加入时间从近到远 3推荐排序 默认1]",
      *         required=false,
@@ -348,7 +348,7 @@ class MemberController extends ApiController
     {
         $rules = [
             'keywords'      => 'string',
-            'asc'           => 'in:1,2,3',
+            'sort'          => 'in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -936,7 +936,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(name="address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="wechattext",in="query",description="微信推广[1需要 2 不需要]",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="wechattext",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
      *     @OA\Response(
      *         response=100,
@@ -954,6 +954,7 @@ class MemberController extends ApiController
             'email'                    => 'email',
             'birthday'                 => 'required',
             'address'                  => 'required',
+            'wechattext'               => 'required|in:0,1',
         ];
         $messages = [
             'phone.required'           => '请填写手机号码',
@@ -964,7 +965,8 @@ class MemberController extends ApiController
             'cname.required'           => '请填写中文姓名',
             'email.email'              => '邮箱格式不正确',
             'birthday.required'        => '生日未填写',
-            'address.required'         => '请填写您的地址',
+            'wechattext.required'      => '微信推广服务不能为空',
+            'wechattext.in'            => '微信推广类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

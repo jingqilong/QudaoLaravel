@@ -194,9 +194,9 @@ class MemberService extends BaseService
      */
     public function getMemberList($data)
     {
-        $temporary = $data['asc'];
-        if ($data['asc'] == MemberEnum::RECOMMEND){
-            $data['asc']  = 1;
+        $temporary = $data['sort'];
+        if ($data['sort'] == MemberEnum::RECOMMEND){
+            $data['sort']  = 1;
         }
         $member       =   $this->auth->user();
         $member_info  =   MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
@@ -204,7 +204,7 @@ class MemberService extends BaseService
         $category     =   $data['category'] ?? null;
         $page         =   $data['page'] ?? 1;
         $page_num     =   $data['page_num'] ?? 20;
-        $asc          =   $data['asc'] == 1 ? 'asc' : 'desc';
+        $asc          =   $data['sort'] == 1 ? 'asc' : 'desc';
         $where        =   ['deleted_at' => 0 ,'hidden' => 0];
         if(MemberEnum::RECOMMEND  == $temporary){
             $sort = 'is_recommend';
@@ -792,18 +792,19 @@ class MemberService extends BaseService
             'id'         => $member['id'],
             'ch_name'    => $request['cname'],
             'sex'        => $request['sex'],
-            'email'      => $request['email'],
+            'email'      => $request['email'] ?? '',
         ];
         $info_arr = [
             'member_id'      => $member['id'],
-            'birthday'       => $request['birthday'],
-            'id_card'        => is_null($request['numcard']) ?? '' ,
-            'address'        => is_null($request['address']) ?? '' ,
-            'info_provider'  => is_null($request['referrername']) ?? '',
+            'birthday'       => $request['birthday'] ?? '',
+            'id_card'        => $request['numcard'] ?? '' ,
+            'address'        => $request['address'] ?? '' ,
+            'info_provider'  => $request['referrername'] ?? '',
         ];
         $service_arr = [
-            'publicity'     =>  is_null($request['wechattext']) ?? '',
-            'services'      =>   is_null($request['services']) ?? '',
+            'member_id'     => $member['id'],
+            'publicity'     => $request['wechattext'],
+            'other_server'  => $request['services'] ?? '',
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $member['id']],$base_arr)){
@@ -811,12 +812,12 @@ class MemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::getUpdId(['member_id' => $member['id']],$info_arr)){
+        if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $member['id']],$service_arr)){
+        if (!MemberPersonalServiceRepository::getAddId($service_arr)){
             DB::rollBack();
             $this->setError('信息完善失败，请重试！');
             return false;
