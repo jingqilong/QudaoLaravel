@@ -937,7 +937,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="wechattext",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="services",in="query",description="其他服务",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="services",in="query",description="其他服务[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -955,6 +955,7 @@ class MemberController extends ApiController
             'birthday'                 => 'required',
             'address'                  => 'required',
             'wechattext'               => 'required|in:0,1',
+            'services'               => 'required|in:0,1',
         ];
         $messages = [
             'phone.required'           => '请填写手机号码',
@@ -967,6 +968,8 @@ class MemberController extends ApiController
             'birthday.required'        => '生日未填写',
             'wechattext.required'      => '微信推广服务不能为空',
             'wechattext.in'            => '微信推广类型不存在',
+            'services.required'        => '其他服务不能为空',
+            'services.in'              => '其他服务类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -976,7 +979,7 @@ class MemberController extends ApiController
         if (!$member){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['memberId' => $member]];
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => $member];
     }
 
 
