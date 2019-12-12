@@ -288,15 +288,6 @@ class ServiceController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="parent_id",
-     *         in="query",
-     *         description="父级服务ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="name",
      *         in="query",
      *         description="服务名称",
@@ -330,15 +321,12 @@ class ServiceController extends ApiController
     {
         $rules = [
             'service_id'=> 'required|integer',
-            'parent_id' => 'required|integer',
             'name'      => 'required|string',
             'desc'      => 'required|string',
         ];
         $messages = [
             'service_id.required'   => '服务ID不能为空',
             'service_id.integer'    => '服务ID必须为整数',
-            'parent_id.required'    => '服务ID不能为空',
-            'parent_id.integer'     => '父级服务ID必须为整数',
             'name.required'         => '请输入服务名称',
             'name.string'           => '服务名称只能是字符串',
             'desc.required'         => '请输入服务说明',
