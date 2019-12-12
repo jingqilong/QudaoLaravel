@@ -7,6 +7,7 @@ namespace App\Api\Controllers\V1\Member;
 use App\Api\Controllers\ApiController;
 use App\Enums\MemberEnum;
 use App\Services\Member\GradeServiceService;
+use App\Services\Member\ServiceConsumeService;
 use App\Services\Member\ServiceService;
 use Illuminate\Http\JsonResponse;
 
@@ -14,17 +15,22 @@ class ServiceController extends ApiController
 {
     protected $serviceService;
     protected $gradeServiceService;
+    protected $serviceConsumeService;
 
     /**
      * TestApiController constructor.
      * @param ServiceService $serviceService
      * @param GradeServiceService $gradeServiceService
+     * @param ServiceConsumeService $serviceConsumeService
      */
-    public function __construct(ServiceService $serviceService, GradeServiceService $gradeServiceService)
+    public function __construct(ServiceService $serviceService,
+                                GradeServiceService $gradeServiceService,
+                                ServiceConsumeService $serviceConsumeService)
     {
         parent::__construct();
-        $this->serviceService = $serviceService;
-        $this->gradeServiceService = $gradeServiceService;
+        $this->serviceService           = $serviceService;
+        $this->gradeServiceService      = $gradeServiceService;
+        $this->serviceConsumeService    = $serviceConsumeService;
     }
 
     /**
@@ -1101,5 +1107,102 @@ class ServiceController extends ApiController
             return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }
         return ['code' => 200, 'message' => $this->gradeServiceService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/add_service_record",
+     *     tags={"会员权限"},
+     *     summary="添加会员服务消费记录",
+     *     description="sang",
+     *     operationId="add_service_record",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="member_id",
+     *         in="query",
+     *         description="会员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_id",
+     *         in="query",
+     *         description="服务ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="number",
+     *         in="query",
+     *         description="消费数量",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="remark",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    public function addServiceRecord(){
+        $rules = [
+            'member_id'     => 'required|integer',
+            'service_id'    => 'required|integer',
+            'number'        => 'required|integer',
+            'remark'        => 'max:500',
+        ];
+        $messages = [
+            'member_id.required'    => '会员ID不能为空',
+            'member_id.integer'     => '会员ID必须为整数',
+            'service_id.required'   => '服务ID不能为空',
+            'service_id.integer'    => '服务ID必须为整数',
+            'number.required'       => '服务次数不能为空',
+            'number.string'         => '服务次数必须为整数',
+            'remark.required'       => '备注字数不能超过500字',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->serviceConsumeService->addServiceRecord($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->serviceConsumeService->error];
+        }
+        return ['code' => 200, 'message' => $this->serviceConsumeService->message];
     }
 }
