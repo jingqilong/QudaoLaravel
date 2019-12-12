@@ -172,7 +172,7 @@ class GoodsService extends BaseService
             'gift_score'        => $request['gift_score'] ?? 0,
             'status'            => $request['status'],
         ];
-        if (ShopGoodsRepository::exists($upd_arr)){
+        if (ShopGoodsRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该商品已添加！');
             return false;
         }
