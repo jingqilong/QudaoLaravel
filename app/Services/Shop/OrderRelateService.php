@@ -447,11 +447,13 @@ class OrderRelateService extends BaseService
         $order['trade_no']          = '';
         $order['transaction_no']    = '';
         $order['trade_method']      = '';
+        $order['pay_at']            = '';
         if (!empty($order['trade_id'])){
             if ($trade = MemberTradesRepository::getOne(['id' => $order['trade_id']])){
                 $order['trade_no']          = $trade['trade_no'];
                 $order['transaction_no']    = $trade['transaction_no'];
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
+                $order['pay_at']            = empty($trade['end_at']) ? '' : date('Y-m-d H:i:s',$trade['end_at']);
             }
         }
         $order['express_company_code'] = '';
