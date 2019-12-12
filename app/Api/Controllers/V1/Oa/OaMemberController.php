@@ -348,7 +348,7 @@ class OaMemberController extends ApiController
         if (!$res){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['res' => $res]];
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
     }
 
     /**
@@ -368,29 +368,28 @@ class OaMemberController extends ApiController
      *     ),
      *     @OA\Parameter(name="token",in="query", description="OA TOKEN",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="id",in="query", description="用户ID",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_num",in="query",description="会员卡号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_cname",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_ename",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_sex",in="query",description="性别",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_groupname",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_workunits",in="query",description="工作单位名称",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_position",in="query",description="职务",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_socialposition",in="query",description="社会职务",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_category",in="query",description="成员类别",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_img",in="query",description="照片",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_birthday",in="query",description="生日",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_indate",in="query",description="有效期",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_referrerid",in="query",description="推荐人卡号",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_pamanager",in="query",description="服务经理",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_zipaddress",in="query",description="杂志寄送地址",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_starte",in="query",description="状态",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_opened_people",in="query",description="开卡人",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="card_no",in="query",description="会员卡号",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="ch_name",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="en_name",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="sex",in="query",description="性别",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="grade",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="employer",in="query",description="工作单位名称",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="position",in="query",description="职务",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="title",in="query",description="社会职务",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="industry",in="query",description="从事行业",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="category",in="query",description="成员类别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="profile",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="avatar_id",in="query",description="会员头像",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="mobile",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="birthday",in="query",description="生日",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="end_at",in="query",description="有效期[1一年 2两年 3三年 4五年 5永久有效]",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="info_provider",in="query",description="会员信息提供者",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="status",in="query",description="状态(身份)，默认0成员、1官员",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="hidden",in="query",description="是否隐藏，默认0显示、1隐藏",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="other_server",in="query",description="其他服务 [0需要 默认1不需要]",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="is_recommend",in="query",description="是否推荐，默认0不推荐、1推荐",required=false,@OA\Schema(type="integer",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -401,37 +400,39 @@ class OaMemberController extends ApiController
     public function updMember()
     {
         $rules = [
-            'id'                                => 'required|integer',
-            'm_num'                             => 'required|integer',
-            'm_sex'                             => 'required|integer',
-            'm_cname'                           => 'required|string',
-            'm_ename'                           => 'string',
-            'm_groupname'                       => 'required',
-            'm_category'                        => 'required',
-            'm_email'                           => 'email',
+            'id'                 => 'required|integer',
+            'card_no'            => 'required',
+            'sex'                => 'required|integer',
+            'ch_name'            => 'required|string',
+            'en_name'            => 'string',
+            'grade'              => 'required',
+            'category'           => 'required',
+            'email'              => 'email',
+            'end_at'             => 'required|in:1,2,3,4,5',
+            'status'             => 'required|in:0,1',
+            'hidden'             => 'required|in:0,1',
         ];
         $messages = [
-            'id.integer'                 => '会员ID格式不正确',
-            'id.required'                => '请填写会员ID',
-            'm_num.integer'              => '会员卡号格式不正确',
-            'm_num.required'             => '请填写会员卡号',
-            'm_sex.required'             => '请填写性别',
-            'm_sex.integer'              => '请正确填写性别',
-            'm_cname.string'             => '请正确填写姓名',
-            'm_ename.string'             => '请正确填写英文名',
-            'm_cname.required'           => '请填写中文姓名',
-            'm_email.email'              => '邮箱格式不正确',
-            'm_category.required'        => '请填写成员分类',
-            'm_groupname.required'       => '请填写成员级别',
+            'id.integer'         => '会员ID格式不正确',
+            'id.required'        => '请填写会员ID',
+            'card_no.required'   => '请填写会员卡号',
+            'sex.required'       => '请填写性别',
+            'sex.integer'        => '请正确填写性别',
+            'end_at.required'    => '请填写有效期',
+            'end_at.integer'     => '请正确填写有效期类型',
+            'ch_name.required'   => '中文名不能为空',
+            'email.email'        => '邮箱格式不正确',
+            'category.required'  => '请填写成员分类',
+            'grade.required'     => '请填写成员级别',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $memberId = $this->OaMemberService->updMemberInfo($this->request);
-        if (!$memberId){
+        $res = $this->OaMemberService->updMemberInfo($this->request);
+        if ($res === false){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-       return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberId' => $memberId]];
+       return ['code' => 200, 'message' => $this->OaMemberService->message];
     }
 }

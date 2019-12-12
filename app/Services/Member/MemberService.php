@@ -908,10 +908,18 @@ class MemberService extends BaseService
             $this->setError('修改失败!');
             return false;
         }
-        if (!MemberInfoRepository::getUpdId(['member_id' => $member_id],$info_arr)){
-            DB::rollBack();
-            $this->setError('修改失败!');
-            return false;
+        if (!MemberInfoRepository::exists(['member_id' => $member_id])){
+            if (!MemberInfoRepository::getAddId($info_arr)){
+                DB::rollBack();
+                $this->setError('修改失败!');
+                return false;
+            }
+        }else{
+            if (!MemberInfoRepository::getUpdId(['member_id' => $member_id],$info_arr)){
+                DB::rollBack();
+                $this->setError('修改失败!');
+                return false;
+            }
         }
         DB::commit();
         $this->setMessage('修改成功!');
