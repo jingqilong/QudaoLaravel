@@ -444,10 +444,10 @@ class OrderRelateService extends BaseService
         $order['payment_amount']= sprintf('%.2f',round($order['payment_amount'] / 100,2));
         $order['shipment_at']   = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
         $order['receive_at']    = empty($order['receive_at']) ? 0 : date('Y-m-d H:i:s',$order['receive_at']);
-        $order['trade_no']          = '';
-        $order['transaction_no']    = '';
-        $order['trade_method']      = '';
-        $order['pay_at']            = '';
+        $order['trade_no']          = '';//交易号
+        $order['transaction_no']    = '';//第三方交易号
+        $order['trade_method']      = '';//交易方式
+        $order['pay_at']            = '';//支付时间
         if (!empty($order['trade_id'])){
             if ($trade = MemberTradesRepository::getOne(['id' => $order['trade_id']])){
                 $order['trade_no']          = $trade['trade_no'];
