@@ -348,12 +348,13 @@ class MemberController extends ApiController
     {
         $rules = [
             'keywords'      => 'string',
-            'sort'          => 'in:1,2,3',
+            'sort'          => 'required|in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'keywords.string'   => '关键字类型不正确',
+            'asc.required'      => '排序方式不能为空',
             'asc.in'            => '排序方式不存在',
             'page.integer'      => '页码不是整数',
             'page_num.integer'  => '每页显示条数不是整数',
