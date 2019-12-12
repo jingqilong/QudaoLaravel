@@ -5,11 +5,16 @@ namespace App\Services\Oa;
 
 
 use App\Enums\MemberEnum;
+use App\Repositories\MemberBaseRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
+use App\Repositories\MemberInfoRepository;
+use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OaMemberService extends BaseService
 {
@@ -224,39 +229,95 @@ class OaMemberService extends BaseService
 
 
     /**
-     * 更新完善成员信息
-     * @param $data
+     * 更新完善成员信息 (拆表后  已修改)
+     * @param $request
      * @return bool|null
      */
-    public function updMemberInfo($data)
+    public function updMemberInfo($request)
     {
-        unset($data['sign'],$data['token']);
-        if (empty($data)){
-            $this->setError('没有数据，请编辑修改数据');
+        if (!MemberBaseRepository::getOne(['id' => $request['id']])){
+            $this->setError('用户不存在!');
             return false;
         }
-
-        if (!$old_member = OaMemberRepository::getOne(['m_id' => $data['id']])){
-            $this->setError('查找不到该会员,请重试！');
+        $base_arr = [
+            'id'         => $request['id'],
+            'ch_name'    => $request['ch_name'],
+            'en_name'    => $request['en_name'] ?? '',
+            'avatar_id'  => $request['avatar_id'] ?? 1226,
+            'sex'        => $request['sex'] ?? 0,
+            'email'      => $request['email'] ?? '',
+            'status'     => $request['status'] ?? MemberEnum::MEMBER,
+            'hidden'     => $request['hidden'] ?? MemberEnum::ACTIVITE,
+        ];
+        $info_arr = [
+            'member_id'      => $request['id'],
+            'birthday'       => $request['birthday'] ?? '',
+            'address'        => $request['address'] ?? '' ,
+            'info_provider'  => $request['info_provider'] ?? '',
+            'employer'       => $request['employer'] ?? '',
+            'grade'          => $request['grade'] ?? 0,
+            'category'       => $request['category'] ?? 0,
+            'title'          => $request['title'] ?? '',
+            'industry'       => $request['industry'] ?? '',
+            'position'       => $request['position'] ?? '',
+        ];
+        $service_arr = [
+            'member_id'      => $request['id'],
+            'other_server'   => $request['other_server'] ?? 1,
+        ];
+        $grade_arr = [
+            'grade'          => $info_arr['grade'],
+            'created_at'     => time(),
+            'end_at'         => strtotime('+' . $request['end_at'] . 'year'),
+        ];
+        DB::beginTransaction();
+        if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
             return false;
         }
-
-        $table_fields = OaMemberRepository::getFields();
-        $upd_data = [];
-        foreach($table_fields as $v){
-            if (isset($data[$v]) && $old_member[$v] !== $data[$v]){
-                $upd_data[$v] = $data[$v];
+        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
+            if (!MemberInfoRepository::getAddId($info_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }else{
+            if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],$info_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
             }
         }
-
-        if (!$updMemberInfo = OaMemberRepository::getUpdId(['m_id' => $data['id']],$upd_data)){
-            $this->setError('更新失败！请重试');
-            return false;
+        if (!MemberPersonalServiceRepository::exists(['member_id' => $request['id']])){
+            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }else{
+            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['id']],$service_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
         }
-        $this->setMessage('更新成功');
-        return $updMemberInfo;
-
-
+        if (!MemberGradeRepository::exists(['user_id' => $request['id']])){
+            if (!MemberGradeRepository::getAddId($grade_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }else{
+            if (!MemberGradeRepository::getUpdId(['user_id' => $request['id']],$grade_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }
+        DB::commit();
+        $this->setMessage('添加成功!');
+        return true;
     }
 
 }
