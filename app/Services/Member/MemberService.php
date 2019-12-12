@@ -194,6 +194,9 @@ class MemberService extends BaseService
      */
     public function getMemberList($data)
     {
+        if (empty($data['sort'])){
+            $data['sort']  = 1;
+        }
         $temporary = $data['sort'];
         if ($data['sort'] == MemberEnum::RECOMMEND){
             $data['sort']  = 1;
@@ -780,7 +783,7 @@ class MemberService extends BaseService
     /**
      * 手机号码注册完善用户信息  (拆表后  已修改)
      * @param array $request
-     * @return bool|null
+     * @return array|bool
      */
     public function perfectMemberInfo($request)
     {
@@ -803,8 +806,8 @@ class MemberService extends BaseService
         ];
         $service_arr = [
             'member_id'     => $member['id'],
-            'publicity'     => $request['wechattext'],
-            'other_server'  => $request['services'] ?? '',
+            'publicity'     => $request['wechattext'] ?? 0,
+            'other_server'  => $request['services'] ?? 1,
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $member['id']],$base_arr)){
@@ -812,19 +815,40 @@ class MemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::getAddId($info_arr)){
-            DB::rollBack();
-            $this->setError('信息完善失败，请重试！');
-            return false;
+        if (!MemberInfoRepository::exists(['member_id' => $member['id']])){
+            if (!MemberInfoRepository::getAddId($info_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }else{
+            if (!MemberInfoRepository::getUpdId(['member_id' => $member['id']],$info_arr)){
+                DB::rollBack();
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
         }
-        if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-            DB::rollBack();
-            $this->setError('信息完善失败，请重试！');
-            return false;
+        if (!MemberPersonalServiceRepository::exists(['member_id' => $member['id']])){
+            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
+        }else{
+            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $member['id']],$service_arr)){
+                $this->setError('信息完善失败，请重试！');
+                return false;
+            }
         }
+        $member_base    = MemberBaseRepository::getOne(['id' => $member['id']],['id','mobile','ch_name','sex','avatar_id','status','referral_code']);
+        $member_info    = MemberInfoRepository::getOne(['member_id' => $member['id']],['grade','employer','title','category','profile']);
+        $member_view    = array_merge($member_base,$member_info);
+        $member_view    = ImagesService::getOneImagesConcise($member_view,['avatar_id' => 'single']);
+        $member_view['grade']    = MemberEnum::getGrade($member_view['grade'],'普通成员');
+        $member_view['category'] = MemberEnum::getGrade($member_view['category'],'普通成员');
+        $member_view['sex']      = MemberEnum::getSex($member_view['sex'],'未设置');
         DB::commit();
         $this->setMessage('信息完善成功!');
-        return true;
+        return $member_view;
     }
 
     /**
