@@ -348,6 +348,12 @@ $api->version('v1',function ($api){
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
                 $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
+                #会员等级
+                $api->post('add_grade','GradeController@addGrade')->name('添加等级');
+                $api->delete('delete_grade','GradeController@deleteGrade')->name('删除等级');
+                $api->post('edit_grade','GradeController@editGrade')->name('编辑等级');
+                $api->get('get_grade_list','GradeController@getGradeList')->name('获取等级列表');
+
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
 
