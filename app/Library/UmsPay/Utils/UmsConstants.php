@@ -30,7 +30,11 @@ class UmsConstants
     /**
      * 文档中没有，微信群中说，这是返回的URL。（）
      */
-    const TEST_RETURN_URL ="wx.test.qudaoplus.cn";
+    const TEST_RETURN_URL ="https://wx.test.qudaoplus.cn";
+    /**
+     * 文档中没有，微信群中说，这是返回的URL。（）
+     */
+    const TEST_NOTIFY_URL ="https://api.test.qudaoplus.cn/api/v1/payments/ums_pay_call_back";
 
     /**
      * 支付URL 生产
@@ -55,7 +59,11 @@ class UmsConstants
     /**
      * 文档中没有，微信群中说，这是返回的URL。（）
      */
-    const RETURN_URL ="wx.qudaoplus.cn";
+    const RETURN_URL ="https://wx.qudaoplus.cn";
+    /**
+     * 文档中没有，微信群中说，这是返回的URL。（）
+     */
+    const NOTIFY_URL ="https://api.qudaoplus.cn/api/v1/payments/ums_pay_call_back";
     /// OP_狮子歌歌:
     //@祁宏 祁总，商户号898319973110223
     //
