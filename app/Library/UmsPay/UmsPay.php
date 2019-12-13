@@ -65,10 +65,15 @@ class UmsPay
         //queryId  N  查询流水号
         //cod  N  订单金额
         //mac  N  签名，code=02 时 mac 为空
+        //returnURL  文档中没有，微信群中说，这是返回的URL。（）
         $order_map = [];
         $order_map['mer_id'] = UmsConstants::STATIC_MER_ID;
         $order_map['order_no'] = $order_no;
-        $order_map['cod'] = $cod;
+        if('test' == UmsConstants::PAY_ENV){  //测试时只支付0.01元
+            $order_map['cod'] = 0.01;
+        }else{
+            $order_map['cod'] = $cod;
+        }
         $order_map['qrtype'] =  UmsQrType::QR_TYPE_H5;
         $order_map['payway'] =  $this->pay_way;
 
@@ -81,6 +86,13 @@ class UmsPay
         if(!empty($order_desc)){
             $order_map['orderDesc']  = $order_desc;
         }
+
+        $query_pamrams = [
+            'order_no' => $order_no,
+            'cod' => $cod,
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
+
 
         $order_map = $this->signData($order_map);
         if('test' == UmsConstants::PAY_ENV)
@@ -114,6 +126,12 @@ class UmsPay
         if(!empty($order_desc)){
             $order_map['orderDesc']  = $order_desc;
         }
+        $query_pamrams = [
+            'order_no' => $order_no,
+            'queryId' => $query_id,
+            'busi_order_no' => $busi_order_no,
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
 
         $order_map = $this->signData($order_map);
         if('test' == UmsConstants::PAY_ENV)
@@ -160,6 +178,12 @@ class UmsPay
         if(!empty($refund_desc)){
             $order_map['refund_desc']  = $refund_desc;
         }
+        $query_pamrams = [
+            'queryId' => $query_id,
+            'refund_no' => $refund_no,
+            'refund_amt' => $refund_amount,
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
         $refund_map = $this->signData($refund_map);
         if('test' == UmsConstants::PAY_ENV)
             $refund_url =UmsConstants::TEST_REFUND_URL;
@@ -220,7 +244,10 @@ class UmsPay
         $query_map['mer_id'] = UmsConstants::STATIC_MER_ID;
         $query_map['qrtype'] =  UmsQrType::QR_TYPE_H5;
         $query_map['queryId'] = $query_id;
-
+        $query_pamrams = [
+            'queryId' => $query_id,
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
         $query_map = $this->signData($query_map);
         if('test' == UmsConstants::PAY_ENV)
             $query_url =UmsConstants::TEST_QUERY_URL;
@@ -256,7 +283,11 @@ class UmsPay
         $query_map['qrtype'] =  UmsQrType::QR_TYPE_H5;
         $query_map['waybillno'] = $way_bill_no;
         $query_map['transDate'] = $trans_date;
-
+        $query_pamrams = [
+            'waybillno' => $way_bill_no,
+            'transDate'=> $trans_date
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
         $query_map = $this->signData($query_map);
         if('test' == UmsConstants::PAY_ENV)
             $query_url =UmsConstants::TEST_QUERY_URL;
@@ -292,7 +323,11 @@ class UmsPay
         $query_map['qrtype'] =  UmsQrType::QR_TYPE_CLOSE;
         $query_map['waybillno'] = $order_no;
         $query_map['date'] = $clear_date;
-
+        $query_pamrams = [
+            'waybillno' => $order_no,
+            'date'=> $clear_date
+        ];
+        $order_map['returnURL'] = $this->getReturnUrl($query_pamrams);
         $query_map = $this->signData($query_map);
         if('test' == UmsConstants::PAY_ENV)
             $query_url =UmsConstants::TEST_QUERY_URL;
@@ -314,6 +349,24 @@ class UmsPay
             Loggy::write('umspay','查询发生错误',$content);
         }
         return $content;
+    }
+
+    /**
+     * @desc 拼装需要返回的URL。支付后返回系统的页面中
+     * @param $params
+     * @return string
+     */
+    private function getReturnUrl($params){
+        //可以传回的参数
+        //"code","msg","orderId","status","memo","mer_id",
+        //"refId","queryId","payway","tracetime","cod","mac"
+        if('test' == UmsConstants::PAY_ENV){
+            $url = UmsConstants::TEST_RETURN_URL;
+        }else{
+            $url = UmsConstants::RETURN_URL;
+        }
+        $return_url = $url .'?'. http_build_query($params) . UmsConstants::RETURN_URL_HASH; ;
+        return urlencode($return_url);
     }
 
 
