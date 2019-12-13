@@ -149,12 +149,15 @@ class DetailService extends BaseService
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = '报名中';
+                $value['status_title'] = 1;
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = '进行中';
+                $value['status_title'] = 2;
             }
             if ($value['end_time'] < time()){
                 $value['status'] = '已结束';
+                $value['status_title'] = 3;
             }
             $start_time    = date('Y年m/d',$value['start_time']);
             $end_time      = date('m/d',$value['end_time']);

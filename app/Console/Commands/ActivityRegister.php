@@ -70,7 +70,7 @@ class ActivityRegister extends Command
                 if (isset($register['mobile']))
                     $SmsService->sendContent($register['mobile'],$sms_content);
                 //站内信通知
-                $MessageService->sendMessage($register['member_id'],MessageEnum::ACTIVITYCHECK,$title,$mes_content,$register['id'],null,$register['sign_in_code']);
+                $MessageService->sendMessage($register['member_id'],MessageEnum::ACTIVITYCHECK,$title,$mes_content,$activity['id'],null,$register['sign_in_code']);
             }
         }
         return true;

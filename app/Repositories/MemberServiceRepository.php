@@ -72,6 +72,7 @@ class MemberServiceRepository extends ApiRepository
 
 
     /**
+     * 获取服务详情
      * @param array $where
      * @return array|null
      */

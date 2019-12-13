@@ -9,12 +9,13 @@ use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use function Sodium\add;
 
 class GradeServiceService extends BaseService
 {
-
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -109,6 +110,7 @@ class GradeServiceService extends BaseService
     }
 
     /**
+     * 等级下服务详情列表
      * @param $grade
      * @return array|bool
      */
@@ -118,15 +120,22 @@ class GradeServiceService extends BaseService
             return [];
         }
         $service_ids = array_column($grade_list,'service_id');
-        $serviceService = new ServiceService();
-        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]])){
+        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]],['id','name','path','level','parent_id'])){
             $this->setError('获取失败！');
             return false;
         }
         $result = [];
-        foreach ($service_list as $value){
-
-        }
+        foreach ($service_list as $key => &$value){
+            if ($sub_list = $this->searchArray($service_list,'parent_id',$value['id'])){
+                foreach ($sub_list as &$v){
+                    $v['name'] = $value['name'] . '-' . $v['name'];
+                    $result[] = $v;
+                }
+                unset($service_list[$key]);
+            }else{
+                $result[] = $value;
+            }
+        }dd($result);
         $this->setMessage('获取成功！');
         return $service_list;
     }

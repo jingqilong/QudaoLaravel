@@ -61,6 +61,7 @@ class ServiceService extends BaseService
     }
 
     /**
+     * 获取服务详情
      * @param $service_id
      * @return mixed
      */
