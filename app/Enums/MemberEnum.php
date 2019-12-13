@@ -26,11 +26,6 @@ class MemberEnum extends BaseEnum
         'QIYEJINGYING'        => '企业精英',
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
-        //成员或官员状态
-        'ACTIVITEMEMBER'      => '成员激活中',
-        'DISABLEMEMBER'       => '成员禁用中',
-        'ACTIVITEOFFICER'     => '官员激活中',
-        'DISABLEOFFICER'      => '官员禁用中',
         //成员性别
         'NOSET'               => '未设置',
         'MAN'                 => '先生',
@@ -76,8 +71,6 @@ class MemberEnum extends BaseEnum
     public static $status = [
         0 => 'ACTIVITEMEMBER',
         1 => 'DISABLEMEMBER',
-        2 => 'ACTIVITEOFFICER',
-        3 => 'DISABLEOFFICER',
     ];
 
     //成员性别
