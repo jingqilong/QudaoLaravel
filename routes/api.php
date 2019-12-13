@@ -53,6 +53,8 @@ $api->version('v1',function ($api){
             $api->any('ums_query_by_system_code', 'UmsPayController@queryBySystemCode')->name('银联支付根据查询流水号查询订单支付情况');
             $api->any('ums_refund', 'UmsPayController@refund')->name('银联支付退款接口');
             $api->any('ums_pay_call_back', 'UmsPayController@umsPayCallBack')->name('银联支付回调接口');
+            $api->any('ums_query_order_status', 'UmsPayController@umsQueryOrderStatus')->name('银联支付回调接口');
+
         });
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
