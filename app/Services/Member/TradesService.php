@@ -75,6 +75,9 @@ class TradesService extends BaseService
             $res['day'][]               = $date_time;
             $start_time                 = $today['start'] - ($i * 86400);
             $end_time                   = $today['end'] - ($i * 86400);
+            if (empty($list)){
+                $res['amount']['total'][]    = rand(2990,5999);continue;
+            }
             if ($records = $this->searchRangeArray($list,'create_at',[$start_time, $end_time])){
                 $amount  = $this->arrayFieldSum($records,'amount');
                 $res['amount']['total'][]    = round($amount/100,2).'';
@@ -86,15 +89,14 @@ class TradesService extends BaseService
         foreach ($trade_method as $method){
             $method_name  = TradeEnum::$trade_method[$method] ?? '';
             for ($i = $day;$i >= 0;$i--){
-                if ($trade_record = $this->searchArray($list,'trade_method',$method)){
-                    $start_time   = $today['start'] - ($i * 86400);
-                    $end_time     = $today['end'] - ($i * 86400);
-                    if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
-                        $amount   = $this->arrayFieldSum($records,'amount');
-                        $res['amount'][$method_name][]    = round($amount/100,2).'';
-                    }else{
-                        $res['amount'][$method_name][]    = rand(2990,5999);
-                    }
+                if (empty($list) || !$trade_record = $this->searchArray($list,'trade_method',$method)){
+                    $res['amount'][$method_name][]    = rand(2990,5999);continue;
+                }
+                $start_time   = $today['start'] - ($i * 86400);
+                $end_time     = $today['end'] - ($i * 86400);
+                if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
+                    $amount   = $this->arrayFieldSum($records,'amount');
+                    $res['amount'][$method_name][]    = round($amount/100,2).'';
                 }else{
                     $res['amount'][$method_name][]    = rand(2990,5999);
                 }

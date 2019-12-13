@@ -122,15 +122,6 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="height",
-     *         in="query",
-     *         description="楼层高度，单位：米",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="area",
      *         in="query",
      *         description="总面积，单位：平米㎡",
@@ -218,7 +209,6 @@ class HouseController extends ApiController
             'tenancy'           => 'required|in:1,2,3,4,5',
             'leasing'           => 'required',
             'decoration'        => 'required|in:1,2,3',
-            'height'            => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'area'              => 'required|integer',
             'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
             'storey'            => [
@@ -241,8 +231,6 @@ class HouseController extends ApiController
             'leasing.required'      => '租赁方式不能为空',
             'decoration.required'   => '装修类型不能为空',
             'decoration.in'         => '装修类型不存在',
-            'height.required'       => '楼层高度不能为空',
-            'height.regex'          => '楼层高度格式有误',
             'area.required'         => '总面积不能为空',
             'area.integer'          => '总面积必须为整数',
             'image_ids.required'    => '房产详情图不能为空',
@@ -566,15 +554,6 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="height",
-     *         in="query",
-     *         description="楼层高度，单位：米",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="area",
      *         in="query",
      *         description="总面积，单位：平米㎡",
@@ -663,7 +642,6 @@ class HouseController extends ApiController
             'tenancy'           => 'required|in:1,2,3,4,5',
             'leasing'           => 'required',
             'decoration'        => 'required|in:1,2,3',
-            'height'            => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'area'              => 'required|integer',
             'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
             'storey'            => [
@@ -688,8 +666,6 @@ class HouseController extends ApiController
             'leasing.required'      => '租赁方式不能为空',
             'decoration.required'   => '装修类型不能为空',
             'decoration.in'         => '装修类型不存在',
-            'height.required'       => '楼层高度不能为空',
-            'height.regex'          => '楼层高度格式有误',
             'area.required'         => '总面积不能为空',
             'area.integer'          => '总面积必须为整数',
             'image_ids.required'    => '房产详情图不能为空',

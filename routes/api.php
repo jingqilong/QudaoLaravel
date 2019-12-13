@@ -347,6 +347,7 @@ $api->version('v1',function ($api){
                 $api->post('add_grade_view','ServiceController@addGradeView')->name('添加等级可查看成员');
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
+                $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
 

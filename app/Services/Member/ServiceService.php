@@ -30,7 +30,7 @@ class ServiceService extends BaseService
             'level'         => 1,
             'parent_id'     => 0,
             'created_at'    => time(),
-            'updated_id'    => time(),
+            'updated_at'    => time(),
         ])){
             $this->setError('服务添加失败！');
             DB::rollBack();
@@ -84,8 +84,12 @@ class ServiceService extends BaseService
      */
     public function deleteService($service_id)
     {
-        if (!MemberServiceRepository::exists(['id' => $service_id])){
+        if (!$service = MemberServiceRepository::getOne(['id' => $service_id])){
             $this->setError('服务不存在！');
+            return false;
+        }
+        if (MemberServiceRepository::exists(['path' => ['like',$service['path'].',%']])){
+            $this->setError('该服务下存在子服务，无法直接删除！');
             return false;
         }
         if (!MemberServiceRepository::delete(['id' => $service_id])){
@@ -103,39 +107,19 @@ class ServiceService extends BaseService
      */
     public function editService($request)
     {
-        if (!$service = MemberServiceRepository::getOne(['id' => $request['service_id']])){
+        if (!MemberServiceRepository::exists(['id' => $request['service_id']])){
             $this->setError('服务不存在!');
             return false;
         }
-        if (!$parent = MemberServiceRepository::getOne(['id' => $request['parent_id']])){
-            $this->setError('父级服务不存在!');
+        if (!$service_id = MemberServiceRepository::getUpdId(
+            ['id' => $request['service_id']],
+            [
+                'name'          => $request['name'],
+                'desc'          => $request['desc'],
+                'updated_at'    => time(),
+            ])){
+            $this->setError('服务修改失败！');
             return false;
-        }
-        if ($service['parent_id'] == $request['parent_id']){
-            if (!$service_id = MemberServiceRepository::getUpdId(
-                ['id' => $request['service_id']],
-                [
-                    'name'          => $request['name'],
-                    'desc'          => $request['desc'],
-                    'updated_id'    => time(),
-                ])){
-                $this->setError('服务修改失败！');
-                return false;
-            }
-        }else{
-            if (!$service_id = MemberServiceRepository::getUpdId(
-                ['id' => $request['service_id']],
-                [
-                    'name'          => $request['name'],
-                    'desc'          => $request['desc'],
-                    'path'          => $parent['path'].','.$request['service_id'],
-                    'level'         => $parent['level'] + 1,
-                    'parent_id'     => $request['parent_id'],
-                    'updated_id'    => time(),
-                ])){
-                $this->setError('服务修改失败！');
-                return false;
-            }
         }
         $this->setMessage('服务修改成功！');
         return $service_id;
