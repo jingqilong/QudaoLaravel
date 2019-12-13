@@ -68,7 +68,11 @@ class UmsPay
         $order_map = [];
         $order_map['mer_id'] = UmsConstants::STATIC_MER_ID;
         $order_map['order_no'] = $order_no;
-        $order_map['cod'] = $cod;
+        if('test' == UmsConstants::PAY_ENV){  //测试时只支付0.01元
+            $order_map['cod'] = 0.01;
+        }else{
+            $order_map['cod'] = $cod;
+        }
         $order_map['qrtype'] =  UmsQrType::QR_TYPE_H5;
         $order_map['payway'] =  $this->pay_way;
 
