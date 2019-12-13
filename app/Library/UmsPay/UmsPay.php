@@ -96,7 +96,10 @@ class UmsPay
         else
             $pay_url = UmsConstants::PAY_URL;
         //返回前端页面，用于跳转
-        return  $pay_url .'?'. http_build_query($order_map);
+        Loggy::write('umspay',http_build_query($order_map));
+        $url = $pay_url .'?'. http_build_query($order_map);
+        Loggy::write('umspay',$url);
+        return  $url;
     }
 
     /**
