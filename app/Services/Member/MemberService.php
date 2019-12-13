@@ -220,7 +220,7 @@ class MemberService extends BaseService
         if (!empty($category)){
             $where['category'] = $category;
         }
-        $column = ['id','ch_name','img_url','grade','title','category','status','created_at'];
+        $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
         if (!empty($keywords)){
             $keyword  = [$keywords => ['ch_name','category','mobile']];
             if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
