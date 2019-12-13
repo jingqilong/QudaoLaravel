@@ -96,7 +96,10 @@ class UmsPay
         else
             $pay_url = UmsConstants::PAY_URL;
         //返回前端页面，用于跳转
-        return  $pay_url .'?'. http_build_query($order_map);
+        Loggy::write('umspay',http_build_query($order_map));
+        $url = $pay_url .'?'. http_build_query($order_map);
+        Loggy::write('umspay',$url);
+        return  $url;
     }
 
     /**
@@ -345,7 +348,8 @@ class UmsPay
             $url = UmsConstants::RETURN_URL;
         }
         $return_url = $url . UmsConstants::RETURN_URL_HASH; ;
-        return urlencode($return_url);
+        //return urlencode($return_url);
+        return $return_url;
     }
 
     /**
@@ -358,7 +362,8 @@ class UmsPay
         }else{
             $url = UmsConstants::NOTIFY_URL;
         }
-        return urlencode($url);
+        //return urlencode($url);
+        return $url;
     }
 
 
