@@ -82,19 +82,12 @@ class OaMemberService extends BaseService
      */
     public function getMemberInfo(string $id)
     {
-        if (!$member = MemberGradeViewRepository::getOne(['id' => $id])){
-            $this->setError('用户信息不存在!');
+        if (!$member = MemberGradeViewRepository::getOne(['id' => $id,'deleted_at' => 0])){
+            $this->setError('用户不存在!');
             return false;
         }
-        if (!$member['deleted_at'] != 0){
-            $this->setError('用户已被删除，有需求请联系超级管理员!');
-            return false;
-        }
-        if (empty($member)) {
-            $this->setMessage('没有查找到此成员信息!');
-        }
-        $member['grade']        = MemberEnum::getGrade($member['grade'],'普通成员');
-        $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
+        $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
+        $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
         $member['is_recommend']  = $member['is_recommend'] == 0 ? 0 : 1;
         $member['sex_name']      = MemberEnum::getSex($member['sex'],'未设置');
         $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
