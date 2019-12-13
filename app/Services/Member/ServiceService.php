@@ -116,7 +116,7 @@ class ServiceService extends BaseService
             [
                 'name'          => $request['name'],
                 'desc'          => $request['desc'],
-                'updated_id'    => time(),
+                'updated_at'    => time(),
             ])){
             $this->setError('服务修改失败！');
             return false;
