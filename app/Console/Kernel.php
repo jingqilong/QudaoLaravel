@@ -60,14 +60,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('reserve:project')
             ->dailyAt('20:00');//每天20点运行
 
-        //生日祝福
-        $schedule->command('blessing:birthday')
-            ->dailyAt('10:00')
-            ->weekdays();//工作日10点
-        //生日祝福
-        $schedule->command('blessing:birthday')
-            ->dailyAt('11:00')
-            ->saturdays();//周末11点
+//        //生日祝福
+//        $schedule->command('blessing:birthday')
+//            ->dailyAt('10:00')
+//            ->weekdays();//工作日10点
+//        //生日祝福
+//        $schedule->command('blessing:birthday')
+//            ->dailyAt('11:00')
+//            ->saturdays();//周末11点
 
         //访问量存储
         $schedule->command('record:pv')

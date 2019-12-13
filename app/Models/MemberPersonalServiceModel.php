@@ -27,7 +27,7 @@ class MemberPersonalServiceModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','publicity','protocol','nameplate','attendant','member_attendant','gift','created_at','update_at'];
+    protected $fillable = ['id','member_id','publicity','other_server','protocol','nameplate','attendant','member_attendant','gift','created_at','update_at'];
 
 
 

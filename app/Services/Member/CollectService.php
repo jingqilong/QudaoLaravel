@@ -261,7 +261,12 @@ class CollectService extends BaseService
         $related_id = $request['related_id'];
         switch ($request['type']){
             case CommentsEnum::SHOP:
-                $order_relate_id = reset(explode(',',$related_id));
+                if (!preg_match('/^[\d+]+[,]+[\d+]*/',$related_id)){
+                    $this->setError('评论ID格式有误');
+                    return false;
+                }
+                $related_arr = explode(',',$related_id);
+                $order_relate_id = reset($related_arr);
                 if (!$order = ShopOrderRelateRepository::getOne(['id' => $order_relate_id])){
                     $this->setError('订单信息不存在！');
                     return false;

@@ -3,6 +3,7 @@ namespace App\Services\Message;
 
 
 use App\Enums\MessageEnum;
+use App\Library\Time\Time;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MessageReadRepository;
 use App\Repositories\MessageSendRepository;
@@ -271,7 +272,17 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            //处理时间
+            $cr_time    = strtotime($value['created_at']);
+            $today      = Time::getStartStopTime('today');
+            $yesterday  = Time::getStartStopTime('yesterday');
+            if ($cr_time > $today['start'] && $cr_time < $today['end']){
+                $value['created_at'] = date('今天 H:i',$cr_time);
+            }else if ($cr_time > $yesterday['start'] && $cr_time < $yesterday['end']){
+                $value['created_at'] = date('昨天 H:i',$cr_time);
+            }else{
+                $value['created_at'] = date('Y.m.d',$cr_time);
+            }
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -322,7 +333,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content'];
+        $column             = ['id','message_id','message_category','title','content','created_at'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;

@@ -557,29 +557,6 @@ class RegisterService extends BaseService
      * @param $request
      * @return array|bool|null
      */
-   /* public function getActivityPast($request)
-    {
-        $where  = ['activity_id' => $request['id'],'hidden' => 0];
-        $column = ['id','resource_ids','top','presentation'];
-        if (!ActivityPastRepository::exists(['activity_id' => $request['id']])) {
-            $this->setError('没有此活动!');
-            return false;
-        }
-        $auth = Auth::guard('member_api');
-        $member = $auth->user();
-        #顶部视频
-        $res['banner'] = $this->activityPastVideo($request);
-        #视频列表
-        $res['video_list'] = $this->activityPastVideoText($request);
-        #图文列表
-        $res['images_list'] = $this->activityPastImgText($request);
-        $res['is_collect'] = 0;
-        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $request['id'],'member_id' => $member->id,'deleted_at' => 0])){
-            $activity['is_collect'] = 1;
-        }
-        $this->setMessage('获取成功!');
-        return $res;
-    }*/
     public function getActivityPast($request)
     {
         $where  = ['activity_id' => $request['id'],'hidden' => 0];
@@ -658,6 +635,13 @@ class RegisterService extends BaseService
      */
     public function addActivityPast($request)
     {
+        //模板
+        /*
+         * resource_ids:[1,2,...]
+         * resource_urls:[image_url1,image_url2,...]
+         * top:'0' 0不置顶 1置顶
+         * hidden:'0' 0隐藏 1显示
+        */
         $activity_id = $request['activity_id'];
         if (!ActivityDetailRepository::getOne(['id' => $activity_id])){
             $this->setError('活动不存在!');
@@ -666,7 +650,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $add_arr =[];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids'])){
+            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -674,15 +658,12 @@ class RegisterService extends BaseService
                 $this->setError('文字描述不能为空！');
                 return false;
             }
-            if (!empty($value['image_ids']) && !is_numeric($value['image_ids'])){
-                $this->setError('链接图ID必须为整数！');
-                return false;
-            }
             $add_arr[] = [
                 'activity_id'  => $activity_id,
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
-                'resource_ids' => $value['resource_ids'],
+                'resource_ids' => implode(',',$value['resource_ids']),
+                'resource_urls'=> implode(',',$value['resource_urls']),
                 'created_at'   => time(),
                 'updated_at'   => time(),
             ];
@@ -731,14 +712,14 @@ class RegisterService extends BaseService
     public function editActivityPast($request)
     {
         $activity_id = $request['activity_id'];
-        if (!ActivityDetailRepository::exists(['id' => $activity_id])){
-            $this->setError('活动不存在!');
+        if (!ActivityPastRepository::exists(['activity_id' => $activity_id])){
+            $this->setError('往期活动不存在!');
             return false;
         }
         $parameter   = json_decode($request['parameters'],true);
-        $add_arr =[];
+        $upd_arr = [];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids'])){
+            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -746,27 +727,23 @@ class RegisterService extends BaseService
                 $this->setError('文字描述不能为空！');
                 return false;
             }
-            if (!empty($value['image_ids']) && !is_numeric($value['image_ids'])){
-                $this->setError('链接图ID必须为整数！');
-                return false;
-            }
-            $add_arr = [
+            $upd_arr = [
                 'activity_id'  => $activity_id,
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
-                'resource_ids' => $value['resource_ids'],
-                'created_at'   => time(),
+                'resource_ids' => implode(',',$value['resource_ids']),
+                'resource_urls'=> implode(',',$value['resource_urls']),
                 'updated_at'   => time(),
             ];
         }
         DB::beginTransaction();
-        ActivityPastRepository::delete(['id' => $activity_id]);
-        if (ActivityPastRepository::exists($add_arr)){
+        ActivityPastRepository::delete(['activity_id' => $activity_id]);
+        if (ActivityPastRepository::exists($upd_arr)){
             $this->setError('修改失败!');
             DB::rollBack();
             return false;
         }
-        if (!ActivityPastRepository::create($add_arr)){
+        if (!ActivityPastRepository::create($upd_arr)){
             $this->setError('修改失败!');
             DB::rollBack();
             return false;
@@ -777,36 +754,24 @@ class RegisterService extends BaseService
     }
 
     /**
-     * OA 获取往期活动列表
+     * OA 获取往期活动详情
      * @param $request
      * @return bool|mixed|null
      */
     public function getActivityPastList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        $keywords   = $request['keywords'] ?? null;
-        $where      = ['hidden' => 0];
-        $column     = ['id','activity_id','name','top','address','start_time','end_time','resource_ids','presentation','hidden','created_at','updated_at'];
-        if (!empty($keywords)){
-            $keyword    = [$keywords => ['name','address']];
-            if (!$list = ActivityPastViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
-                $this->setError('获取失败');
-                return false;
-            }
-        }else{
-            if (!$list = ActivityPastViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
-                $this->setError('获取失败');
-                return false;
-            }
+        $where      = ['activity_id' => $request['activity_id']];
+        $column     = ['resource_ids','resource_urls','presentation','hidden','top'];
+        if (!$list = ActivityPastRepository::getList($where,$column)){
+            $this->setMessage('获取成功');
+            return json_encode($list);
         }
-        $list = $this->removePagingField($list);
-        if (empty($list['data'])){
-            return $list;
-        }
-        $list['data'] = ImagesService::getListImagesConcise($list['data'],['resource_ids' => 'several']);
+        $list = ImagesService::getListImagesConcise($list,['resource_ids' => 'several']);
         $this->setMessage('获取成功');
-        return $list;
+        foreach ($list as &$value){
+            $value['resource_ids']  = explode(',',$value['resource_ids']);
+        }
+        return json_encode($list);
     }
 
 }

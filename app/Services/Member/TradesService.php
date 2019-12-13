@@ -69,36 +69,36 @@ class TradesService extends BaseService
             'create_at'     => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
         $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
-        //模拟数据
-        $faker = rand(2990,5999);
         #总收入
         for ($i = $day;$i >= 0;$i--){
             $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
             $res['day'][]               = $date_time;
             $start_time                 = $today['start'] - ($i * 86400);
             $end_time                   = $today['end'] - ($i * 86400);
+            if (empty($list)){
+                $res['amount']['total'][]    = rand(2990,5999);continue;
+            }
             if ($records = $this->searchRangeArray($list,'create_at',[$start_time, $end_time])){
                 $amount  = $this->arrayFieldSum($records,'amount');
                 $res['amount']['total'][]    = round($amount/100,2).'';
             }else{
-                $res['amount']['total'][]    = $faker;
+                $res['amount']['total'][]    = rand(2990,5999);
             }
         }
         #各支付方式收入
         foreach ($trade_method as $method){
             $method_name  = TradeEnum::$trade_method[$method] ?? '';
             for ($i = $day;$i >= 0;$i--){
-                if ($trade_record = $this->searchArray($list,'trade_method',$method)){
-                    $start_time   = $today['start'] - ($i * 86400);
-                    $end_time     = $today['end'] - ($i * 86400);
-                    if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
-                        $amount   = $this->arrayFieldSum($records,'amount');
-                        $res['amount'][$method_name][]    = round($amount/100,2).'';
-                    }else{
-                        $res['amount'][$method_name][]    = $faker;
-                    }
+                if (empty($list) || !$trade_record = $this->searchArray($list,'trade_method',$method)){
+                    $res['amount'][$method_name][]    = rand(2990,5999);continue;
+                }
+                $start_time   = $today['start'] - ($i * 86400);
+                $end_time     = $today['end'] - ($i * 86400);
+                if ($records  = $this->searchRangeArray($trade_record,'create_at',[$start_time, $end_time])){
+                    $amount   = $this->arrayFieldSum($records,'amount');
+                    $res['amount'][$method_name][]    = round($amount/100,2).'';
                 }else{
-                    $res['amount'][$method_name][]    = $faker;
+                    $res['amount'][$method_name][]    = rand(2990,5999);
                 }
             }
         }

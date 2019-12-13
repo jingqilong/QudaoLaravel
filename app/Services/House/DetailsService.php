@@ -54,7 +54,6 @@ class DetailsService extends BaseService
             'tenancy'       => $request['tenancy'],
             'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
-            'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
@@ -94,7 +93,7 @@ class DetailsService extends BaseService
             $this->setError('房产信息不存在！');
             return false;
         }
-        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','height','area'
+        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','area'
             ,'image_ids','storey','unit','condo_name','toward','category','publisher','facilities_ids'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $id],$column)){
             $this->setError('获取失败！');
@@ -113,7 +112,6 @@ class DetailsService extends BaseService
         $house['rent']          = '¥'. $house['rent'] .'/'. HouseEnum::getTenancy($house['tenancy']);
 
         $house['decoration'] = HouseEnum::getDecoration($house['decoration']);
-        $house['height']        = $house['height'] .'m';
         $house['area']          = $house['area'] .'㎡'   ;
         $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]]);
         $house['images']        = array_column($image_list,'img_url');
@@ -202,7 +200,6 @@ class DetailsService extends BaseService
             'tenancy'       => $request['tenancy'],
             'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
-            'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
