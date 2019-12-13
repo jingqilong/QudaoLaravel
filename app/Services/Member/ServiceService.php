@@ -30,7 +30,7 @@ class ServiceService extends BaseService
             'level'         => 1,
             'parent_id'     => 0,
             'created_at'    => time(),
-            'updated_id'    => time(),
+            'updated_at'    => time(),
         ])){
             $this->setError('服务添加失败！');
             DB::rollBack();
