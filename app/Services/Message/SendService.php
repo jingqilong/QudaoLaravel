@@ -365,7 +365,7 @@ class SendService extends BaseService
      * @return mixed
      */
     public function getMessageDetail($user_id, $user_type, $send_id){
-        $column = ['id','message_category','user_id','category_id','title','content','relate_id','image_ids','url','created_at'];
+        $column = ['id','message_category','user_id','category_id','title','content','relate_id','image_ids','url','created_at','dump_view'];
         if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type],$column)){
             $this->setError('消息不存在！');
             return false;

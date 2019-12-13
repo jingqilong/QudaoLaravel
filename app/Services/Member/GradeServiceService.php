@@ -95,7 +95,6 @@ class GradeServiceService extends BaseService
         if (!MemberGradeServiceRepository::getUpdId(
             ['id'           => $request['id']],
             [
-            'grade'         => $request['grade'],
             'service_id'    => $request['service_id'],
             'status'        => $request['status'],
             'number'        => $request['number'],
@@ -120,9 +119,13 @@ class GradeServiceService extends BaseService
         }
         $service_ids = array_column($grade_list,'service_id');
         $serviceService = new ServiceService();
-        if (!$service_list = $serviceService->serviceList(['id' => ['in',$service_ids]])){
+        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]])){
             $this->setError('获取失败！');
             return false;
+        }
+        $result = [];
+        foreach ($service_list as $value){
+
         }
         $this->setMessage('获取成功！');
         return $service_list;

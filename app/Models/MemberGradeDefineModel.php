@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class MessageCategoryModel extends Model
+class MemberGradeDefineModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class MessageCategoryModel extends Model
      *
      * @var string
      */
-    protected $table = 'message_category';
+    protected $table = 'member_grade_define';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class MessageCategoryModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','title','explain','status','view','created_at','updated_at'];
+    protected $fillable = ['id','iden','title','description','status','minimum_time','amount','is_buy','created_at','updated_at'];
 
 
 

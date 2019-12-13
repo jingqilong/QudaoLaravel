@@ -12,6 +12,10 @@ class UmsConstants
      */
     const PAY_ENV = 'test';
     /**
+     * 支付返回的URL 中的HASH(路由部分)
+     */
+    const RETURN_URL_HASH = '/#/pages/shop/pay/payResultH5';
+    /**
      * 支付URL 测试
      */
     const TEST_PAY_URL ="https://dhjt-test.chinaums.com/queryService/UmsWebPayPlugins";
@@ -23,6 +27,10 @@ class UmsConstants
      * 退款URL 测试
      */
     const TEST_REFUND_URL="https://dhjt-test.chinaums.com/queryService/UmsWebPayRefund";
+    /**
+     * 文档中没有，微信群中说，这是返回的URL。（）
+     */
+    const TEST_RETURN_URL ="wx.test.qudaoplus.cn";
 
     /**
      * 支付URL 生产
@@ -44,6 +52,10 @@ class UmsConstants
      * 商户ID
      */
     const STATIC_MER_ID="f672e52f01b04676ad7339095aa60d5f";////联系大华捷通项目组获取
+    /**
+     * 文档中没有，微信群中说，这是返回的URL。（）
+     */
+    const RETURN_URL ="wx.qudaoplus.cn";
     /// OP_狮子歌歌:
     //@祁宏 祁总，商户号898319973110223
     //

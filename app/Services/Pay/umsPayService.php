@@ -133,4 +133,20 @@ class UmsPayService extends BaseService
         $response = $jsonNotify->doPost($request);
         return $response;
     }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function umsQueryOrderStatus($request){
+        $order_no = $request['order_no'];
+        if (!$order = MemberOrdersRepository::getOne(['order_no' => $order_no])){
+            $this->setError('订单信息不存在！');
+            return false;
+        }
+        if(0 == $order['trade_id']){
+            return -1;
+        }
+        return $order['status'];
+    }
 }

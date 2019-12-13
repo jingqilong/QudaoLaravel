@@ -591,7 +591,7 @@ class ServiceController extends ApiController
      * @OA\Post(
      *     path="/api/v1/member/grade_edit_service",
      *     tags={"会员权限"},
-     *     summary="修改等级与服务对应关系",
+     *     summary="修改等级服务",
      *     description="修改等级对应服务记录",
      *     operationId="grade_edit_service",
      *     @OA\Parameter(
@@ -616,15 +616,6 @@ class ServiceController extends ApiController
      *         name="id",
      *         in="query",
      *         description="记录ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="grade",
-     *         in="query",
-     *         description="等级,1、亦享成员，2、至享成员，3、悦享成员，4、真享成员，5、君享成员，6、尊享成员，7、测试成员",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -682,7 +673,6 @@ class ServiceController extends ApiController
     {
         $rules = [
             'id'            => 'required|integer',
-            'grade'         => 'required|in:1,2,3,4,5,6,7',
             'service_id'    => 'required|integer',
             'status'        => 'required|in:1,2',
             'number'        => ['required','regex:/^([0-9]+|["*"])$/'],
@@ -691,8 +681,6 @@ class ServiceController extends ApiController
         $messages = [
             'id.required'           => '请输入记录ID',
             'id.integer'            => '记录ID必须为整数',
-            'grade.required'        => '请输入等级',
-            'grade.in'              => '等级不存在',
             'service_id.required'   => '请输入服务ID',
             'service_id.integer'    => '服务ID必须为整数',
             'status.required'       => '请输入状态',

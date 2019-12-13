@@ -53,6 +53,8 @@ $api->version('v1',function ($api){
             $api->any('ums_query_by_system_code', 'UmsPayController@queryBySystemCode')->name('银联支付根据查询流水号查询订单支付情况');
             $api->any('ums_refund', 'UmsPayController@refund')->name('银联支付退款接口');
             $api->any('ums_pay_call_back', 'UmsPayController@umsPayCallBack')->name('银联支付回调接口');
+            $api->any('ums_query_order_status', 'UmsPayController@umsQueryOrderStatus')->name('银联支付回调接口');
+
         });
         //七牛云
         $api->group(['prefix' => 'qiniu'], function ($api){
@@ -348,6 +350,12 @@ $api->version('v1',function ($api){
                 $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
                 $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
                 $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
+                #会员等级
+                $api->post('add_grade','GradeController@addGrade')->name('添加等级');
+                $api->delete('delete_grade','GradeController@deleteGrade')->name('删除等级');
+                $api->post('edit_grade','GradeController@editGrade')->name('编辑等级');
+                $api->get('get_grade_list','GradeController@getGradeList')->name('获取等级列表');
+
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
 

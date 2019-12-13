@@ -61,6 +61,15 @@ class MessageCategoryController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="view",
+     *         in="query",
+     *         description="跳转页面",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="explain",
      *         in="query",
      *         description="类型说明",
@@ -204,6 +213,15 @@ class MessageCategoryController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="view",
+     *         in="query",
+     *         description="跳转页面",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
