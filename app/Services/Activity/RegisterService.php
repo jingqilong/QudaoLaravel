@@ -664,6 +664,7 @@ class RegisterService extends BaseService
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
                 'resource_urls'=> implode(',',$value['resource_urls']),
+                'presentation' => $value['presentation'],
                 'created_at'   => time(),
                 'updated_at'   => time(),
             ];
@@ -733,6 +734,7 @@ class RegisterService extends BaseService
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
                 'resource_urls'=> implode(',',$value['resource_urls']),
+                'presentation' => $value['presentation'],
                 'updated_at'   => time(),
             ];
         }
