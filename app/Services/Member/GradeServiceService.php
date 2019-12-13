@@ -95,7 +95,6 @@ class GradeServiceService extends BaseService
         if (!MemberGradeServiceRepository::getUpdId(
             ['id'           => $request['id']],
             [
-            'grade'         => $request['grade'],
             'service_id'    => $request['service_id'],
             'status'        => $request['status'],
             'number'        => $request['number'],
