@@ -64,8 +64,8 @@ class OaMemberService extends BaseService
         }
         foreach ($member_list['data'] as &$value){
             $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
-            $value['grade']         = MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['category']      = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
             $value['status_name']   = MemberEnum::getIdentity($value['status'],'成员');
             $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
