@@ -27,7 +27,7 @@ class MessageSendViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','user_id','user_type','message_id','message_category','category_id','title','content','relate_id','image_ids','url','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','user_id','user_type','message_id','message_category','category_id','title','content','relate_id','image_ids','url','created_at','updated_at','deleted_at','dump_view'];
 
 
 

@@ -22,7 +22,7 @@ class MemberServiceRepository extends ApiRepository
 
 
     /**
-     * 获取服务列表
+     * 获取服务树列表
      * @param array $where
      * @param array $column
      * @return array

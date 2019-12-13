@@ -27,7 +27,7 @@ class MessageCategoryModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','title','explain','status','created_at','updated_at'];
+    protected $fillable = ['id','title','explain','status','view','created_at','updated_at'];
 
 
 
