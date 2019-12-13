@@ -44,7 +44,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
+        $column         = ['id','card_no','ch_name','en_name','is_recommend','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
         $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
