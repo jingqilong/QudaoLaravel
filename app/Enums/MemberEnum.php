@@ -41,6 +41,9 @@ class MemberEnum extends BaseEnum
         //状态
         'HIDDEN'              => '隐藏',
         'ACTIVITE'            => '显示',
+        //通过
+        'NOPASS'              => '未审核',
+        'PASS'                => '通过',
     ];
 
 
@@ -96,9 +99,15 @@ class MemberEnum extends BaseEnum
         1 => 'HIDDEN',
     ];
 
-    //状态
+    //排序
     public static $sort = [
         3 => 'RECOMMEND',
+    ];
+
+    //pass
+    public static $pass = [
+        0 => 'PASS',
+        1 => 'NOPASS',
     ];
 
     // 成员等级
@@ -163,7 +172,11 @@ class MemberEnum extends BaseEnum
     const HIDDEN            = 2;    //隐藏
 
     //排序
-    const RECOMMEND         = 3;    //隐藏
+    const RECOMMEND         = 3;    //推荐排序
+
+    //通过
+    const NOPASS            = 0;    //通过
+    const PASS              = 1;    //未通过
 
 
     /**

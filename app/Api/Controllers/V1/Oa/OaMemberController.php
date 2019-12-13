@@ -213,11 +213,12 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $id = $this->request['id'];
-        if ($member = $this->OaMemberService->delMember($id)){
-            return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['member' => $member]];
+        $res = $this->OaMemberService->delMember($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 100, 'message' => $this->OaMemberService->error];
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
+
     }
 
     /**
@@ -253,6 +254,15 @@ class OaMemberController extends ApiController
      *             type="integer",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="hidden",
+     *         in="query",
+     *         description="显示or隐藏【0显示、1隐藏】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -263,20 +273,24 @@ class OaMemberController extends ApiController
     public function setMemberStatus()
     {
         $rules = [
-            'id'          => 'integer',
+            'id'              => 'required|integer',
+            'hidden'          => 'required|in:1,0',
         ];
         $messages = [
-            'page.integer'              => 'ID格式不正确',
+            'id.required'     => '成员ID不能为空',
+            'id.integer'      => '成员ID不是整数',
+            'hidden.required' => '状态属性不能为空',
+            'hidden.in'       => '状态属性不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $id = $this->request['id'];
-        if ($member = $this->OaMemberService->setMemberStatus($id)){
-            return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['member' => $member]];
+        $res = $this->OaMemberService->setMemberStatus($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 100, 'message' => $this->OaMemberService->error];
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
     }
 
     /**
@@ -295,22 +309,25 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(name="token",in="query", description="OA TOKEN",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_num",in="query",description="会员卡号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_cname",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_ename",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_category",in="query",description="成员类别",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_groupname",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_workunits",in="query",description="工作单位名称",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_position",in="query",description="职务",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_notes",in="query",description="备注",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_indate",in="query",description="有效期",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
-
+     *     @OA\Parameter(name="card_no",in="query",description="会员卡号",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="ch_name",in="query",description="中文名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="avatar_id",in="query",description="会员头像",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="en_name",in="query",description="英文名",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="sex",in="query",description="性别[0未设置1男2女]",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="mobile",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="category",in="query",description="成员类别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="grade",in="query",description="会员级别",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="employer",in="query",description="工作单位名称",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="position",in="query",description="职务",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="industry",in="query",description="从事行业",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="address",in="query",description="地址",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="end_at",in="query",description="有效期[1一年 2两年 3三年 4五年 5永久有效]",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="profile",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="status",in="query",description="状态(身份)，默认0成员、1官员",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="hidden",in="query",description="是否隐藏，默认0显示、1隐藏",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="other_server",in="query",description="其他服务 [0需要 默认1不需要]",required=false,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="is_recommend",in="query",description="是否推荐，默认0不推荐、1推荐",required=false,@OA\Schema(type="integer",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -321,24 +338,30 @@ class OaMemberController extends ApiController
     public function addMember()
     {
         $rules = [
-            'm_num'                      => 'required|integer',
-            'm_sex'                      => 'required|integer',
-            'm_cname'                    => 'required|string',
-            'm_groupname'                => 'required',
-            'm_category'                 => 'required',
-            'm_email'                    => 'email',
+            'card_no'            => 'required',
+            'sex'                => 'required|in:0,1,2',
+            'ch_name'            => 'required|string',
+            'en_name'            => 'string',
+            'grade'              => 'required',
+            'category'           => 'required',
+            'mobile'             => 'required|regex:/^1[3456789][0-9]{9}$/',
+            'email'              => 'email',
+            'end_at'             => 'required|in:1,2,3,4,5',
+            'status'             => 'required|in:0,1',
+            'hidden'             => 'required|in:0,1',
         ];
         $messages = [
-            'm_num.integer'              => '会员卡号格式不正确',
-            'm_num.required'             => '请填写会员卡号',
-            'm_sex.required'             => '请填写性别',
-            'm_sex.integer'              => '请正确填写性别',
-            'm_cname.string'             => '请正确填写姓名',
-            'm_ename.string'             => '请正确填写姓名格',
-            'm_cname.required'           => '请填写中文姓名',
-            'm_email.email'              => '邮箱格式不正确',
-            'm_category.required'        => '请填写成员分类',
-            'm_groupname.required'       => '请填写成员级别',
+            'card_no.required'   => '请填写会员卡号',
+            'sex.required'       => '请填写性别',
+            'sex.in'             => '请正确填写性别',
+            'end_at.required'    => '请填写有效期',
+            'end_at.integer'     => '请正确填写有效期类型',
+            'mobile.required'    => '请填写手机号码',
+            'mobile.regex'       => '手机号码格式不正确',
+            'ch_name.required'   => '中文名不能为空',
+            'email.email'        => '邮箱格式不正确',
+            'category.required'  => '请填写成员分类',
+            'grade.required'     => '请填写成员级别',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
