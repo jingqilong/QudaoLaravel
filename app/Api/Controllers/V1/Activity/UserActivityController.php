@@ -602,7 +602,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="parameters",
      *         in="query",
-     *         description="参数，例子：[{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'1'},{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'0'}]",
+     *         description="参数，例子：[{'resource_ids':['1185'],'resource_urls':['http://fanyi.youdao.com'],'presentation':'一阵蛋疼，首先你说你只有一个分区，那么你就是在OS X里面装的虚拟机了？ 一个分区是不能装两个系统的少女。 重装系统又不难。。。 其实这种情况我觉得是硬件问题-w- 建议苹果客服咨询。 软件问题应该是系统运行中出现错误而不是开机启动问题。','hidden':'0','top':'1'},{'resource_ids':['888,999'],'resource_urls':['http://fanyi.youdao.com','http://fanyi.youdao.com'],'presentation':'一阵蛋疼，首先你说你只有一个分区，那么你就是在OS X里面装的虚拟机了？ 一个分区是不能装两个系统的少女。 重装系统又不难。。。','hidden':'0','top':'0'}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -676,7 +676,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="parameters",
      *         in="query",
-     *         description="参数 例子：[{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'1'},{'resource_ids':'1185','presentation':'非常好','hidden':'0','top':'0'}]",
+     *         description="参数，例子：[{'resource_ids':['1185'],'resource_urls':['http://fanyi.youdao.com'],'presentation':'一阵蛋疼，首先你说你只有一个分区，那么你就是在OS X里面装的虚拟机了？ 一个分区是不能装两个系统的少女。 重装系统又不难。。。 其实这种情况我觉得是硬件问题-w- 建议苹果客服咨询。 软件问题应该是系统运行中出现错误而不是开机启动问题。','hidden':'0','top':'1'},{'resource_ids':['888,999'],'resource_urls':['http://fanyi.youdao.com','http://fanyi.youdao.com'],'presentation':'一阵蛋疼，首先你说你只有一个分区，那么你就是在OS X里面装的虚拟机了？ 一个分区是不能装两个系统的少女。 重装系统又不难。。。','hidden':'0','top':'0'}]",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -695,10 +695,10 @@ class UserActivityController extends ApiController
             'parameters'            => 'required|json',
         ];
         $messages = [
-            'activity_id.required'     => '活动ID不能为空',
-            'activity_id.integer'      => '活动ID不是整数',
-            'parameters.required'      => '参数不能为空',
-            'parameters.json'          => '参数不是json格式',
+            'activity_id.required'  => '活动ID不能为空',
+            'activity_id.integer'   => '活动ID不是整数',
+            'parameters.required'   => '参数不能为空',
+            'parameters.json'       => '参数不是json格式',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -797,30 +797,12 @@ class UserActivityController extends ApiController
      *         )
      *     ),
      *      @OA\Parameter(
-     *         name="keywords",
+     *         name="activity_id",
      *         in="query",
-     *         description="搜索【活动名字 活动地址】",
-     *         required=false,
+     *         description="活动id",
+     *         required=true,
      *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *      @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="页码",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page_num",
-     *         in="query",
-     *         description="每页显示条数",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -832,12 +814,11 @@ class UserActivityController extends ApiController
      */
     public function getActivityPastList(){
         $rules = [
-            'page'             => 'integer',
-            'page_num'         => 'integer',
+            'activity_id'     => 'required|integer',
         ];
         $messages = [
-            'page.integer'     => '页码必须为整数',
-            'page_num.integer' => '每页显示条数必须为整数',
+            'activity_id.required'   => '活动ID不能为空',
+            'activity_id.integer'    => '活动ID必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
