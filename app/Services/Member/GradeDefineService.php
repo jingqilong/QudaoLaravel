@@ -57,7 +57,7 @@ class GradeDefineService extends BaseService
             return false;
         }
         if (MemberGradeDefineRepository::delete(['id' => $id])){
-            $this->setError('删除成功！');
+            $this->setMessage('删除成功！');
             return true;
         }
 
