@@ -9,12 +9,12 @@ use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
-use function Sodium\add;
 
 class GradeServiceService extends BaseService
 {
-
+    use HelpTrait;
     protected $auth;
 
     /**
@@ -47,7 +47,7 @@ class GradeServiceService extends BaseService
             'service_id'    => $request['service_id'],
             'status'        => $request['status'],
             'number'        => $request['number'],
-            'cycle'         => $request['cycle'] * 86400,
+            'cycle'         => $request['cycle'],
             'created_at'    => time(),
             'updated_at'    => time(),
         ])){
@@ -109,26 +109,27 @@ class GradeServiceService extends BaseService
     }
 
     /**
+     * 等级下服务详情列表
      * @param $grade
      * @return array|bool
      */
     public function gradeServiceDetail($grade){
-        if (!$grade_list = MemberGradeServiceRepository::getList(['grade' => $grade])){
+        if (!$grade_list = MemberGradeServiceRepository::getList(['grade' => $grade],['id','grade','service_id','status','number','cycle'])){
             $this->setMessage('该等级下暂无服务');
             return [];
         }
         $service_ids = array_column($grade_list,'service_id');
-        $serviceService = new ServiceService();
-        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]])){
+        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]],['id','name'])){
             $this->setError('获取失败！');
             return false;
         }
-        $result = [];
-        foreach ($service_list as $value){
-
+        foreach ($grade_list as &$value){
+            if ($service = $this->searchArray($service_list,'id',$value['service_id'])){
+                $value['service_name'] = reset($service)['name'];
+            }
         }
         $this->setMessage('获取成功！');
-        return $service_list;
+        return $grade_list;
     }
 
 

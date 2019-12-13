@@ -4,6 +4,7 @@ namespace App\Services\Message;
 
 use App\Enums\MessageEnum;
 use App\Library\Time\Time;
+use App\Repositories\ActivityDetailRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MessageReadRepository;
 use App\Repositories\MessageSendRepository;
@@ -373,6 +374,20 @@ class SendService extends BaseService
         if ($send['user_id'] !== 0 && $send['user_id'] !== $user_id){
             $this->setError('消息不存在！');
             return false;
+        }
+        if (strpos($send['dump_view'],'activity')){#活动相关的需要获取活动状态
+            $send['status'] = 0;
+            if ($activity = ActivityDetailRepository::getOne(['id' => $send['relate_id']])){
+                if ($activity['start_time'] > time()){
+                    $send['status'] = 1;
+                }
+                if ($activity['start_time'] < time() && $activity['end_time'] > time()){
+                    $send['status'] = 2;
+                }
+                if ($activity['end_time'] < time()){
+                    $send['status'] = 3;
+                }
+            }
         }
         $send = ImagesService::getOneImagesConcise($send,['image_ids' => 'several']);
         unset($send['user_id'],$send['image_ids']);

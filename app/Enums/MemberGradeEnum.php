@@ -13,8 +13,8 @@ class MemberGradeEnum extends BaseEnum
         'ENABLE'            => '启用',
         'CLOSE'             => '关闭',
         //是否可购买
-        'CANBUY'            => '可以购买',
         'CANNOTBUY'         => '非购买',
+        'CANBUY'            => '可以购买',
     ];
 
     //状态
@@ -25,8 +25,8 @@ class MemberGradeEnum extends BaseEnum
 
     //是否可购买
     public static $is_buy = [
-        0 => 'CANBUY',
-        1 => 'CANNOTBUY',
+        0 => 'CANNOTBUY',
+        1 => 'CANBUY',
     ];
 
     // 状态
@@ -35,9 +35,9 @@ class MemberGradeEnum extends BaseEnum
     const CLOSE             = 1;    //关闭
 
     //是否可购买
-    const ACTIVITE          = 0;    //可以购买
-
     const HIDDEN            = 1;    //非购买
+
+    const ACTIVITE          = 0;    //可以购买
 
 
     /**
