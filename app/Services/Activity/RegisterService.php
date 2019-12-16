@@ -407,13 +407,16 @@ class RegisterService extends BaseService
             $value['theme_icon']    = $icons ? reset($icon)['img_url'] : '';
             $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status'] = 1;
+                $value['status_title'] = '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
-                $value['status'] = '进行中';
+                $value['status'] = 2;
+                $value['status_title'] = '进行中';
             }
             if ($value['end_time'] < time()){
-                $value['status'] = '已结束';
+                $value['status'] = 3;
+                $value['status_title'] = '已结束';
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);

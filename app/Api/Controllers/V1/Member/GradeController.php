@@ -6,19 +6,24 @@ namespace App\Api\Controllers\V1\Member;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Member\GradeDefineService;
+use App\Services\Member\GradeServiceService;
+use Illuminate\Http\JsonResponse;
 
 class GradeController extends ApiController
 {
     public $gradeDefineService;
+    protected $gradeServiceService;
 
     /**
      * GradeController constructor.
-     * @param $gradeDefineService
+     * @param GradeDefineService $gradeDefineService
+     * @param GradeServiceService $gradeServiceService
      */
-    public function __construct(GradeDefineService $gradeDefineService)
+    public function __construct(GradeDefineService $gradeDefineService, GradeServiceService $gradeServiceService)
     {
         parent::__construct();
         $this->gradeDefineService = $gradeDefineService;
+        $this->gradeServiceService = $gradeServiceService;
     }
 
     /**
@@ -427,5 +432,428 @@ class GradeController extends ApiController
             return ['code' => 100, 'message' => $this->gradeDefineService->error];
         }
         return ['code' => 200, 'message' => $this->gradeDefineService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/grade_add_service",
+     *     tags={"会员权限"},
+     *     summary="给等级添加服务",
+     *     description="给等级添加服务,sang",
+     *     operationId="grade_add_service",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_id",
+     *         in="query",
+     *         description="服务ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态，1、关闭，2、启用",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="number",
+     *         in="query",
+     *         description="数量，填写服务的服务次数或数量，如没有数量限制，使用*",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="cycle",
+     *         in="query",
+     *         description="服务周期，单位：天，【表示至少多少天才能享用一次服务】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="添加失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return array|JsonResponse|string
+     */
+    public function gradeAddService()
+    {
+        $rules = [
+            'grade'         => 'required',
+            'service_id'    => 'required|integer',
+            'status'        => 'required|in:1,2',
+            'number'        => ['required','regex:/^([0-9]+|["*"])$/'],
+            'cycle'         => 'required|integer|min:0',
+        ];
+        $messages = [
+            'grade.required'        => '请输入等级',
+            'service_id.required'   => '请输入服务ID',
+            'service_id.integer'    => '服务ID必须为整数',
+            'status.required'       => '请输入状态',
+            'status.in'             => '状态为1或2',
+            'number.required'       => '请输入数量',
+            'number.regex'          => '数量格式有误',
+            'cycle.required'        => '请输入服务周期',
+            'cycle.integer'         => '服务周期只能是整数',
+            'cycle.min'             => '服务周期不能低于0天',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->gradeAddService($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message];
+    }
+
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/member/grade_delete_service",
+     *     tags={"会员权限"},
+     *     summary="删除等级中的服务",
+     *     description="删除等级中的服务,sang",
+     *     operationId="grade_delete_service",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="记录ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return array|JsonResponse|string
+     */
+    public function gradeDeleteService()
+    {
+        $rules = [
+            'id'    => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '请输入记录ID',
+            'id.integer'    => '记录ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->gradeDeleteService($this->request['id']);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/grade_edit_service",
+     *     tags={"会员权限"},
+     *     summary="修改等级服务",
+     *     description="修改等级对应服务记录，sang",
+     *     operationId="grade_edit_service",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="记录ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_id",
+     *         in="query",
+     *         description="服务ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态，1、关闭，2、启用",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="number",
+     *         in="query",
+     *         description="数量，填写服务的服务次数或数量，如没有数量限制，使用*",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="cycle",
+     *         in="query",
+     *         description="服务周期，单位：天，【表示至少多少天才能享用一次服务】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return array|JsonResponse|string
+     */
+    public function gradeEditService()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+            'service_id'    => 'required|integer',
+            'status'        => 'required|in:1,2',
+            'number'        => ['required','regex:/^([0-9]+|["*"])$/'],
+            'cycle'         => 'required|integer|min:0',
+        ];
+        $messages = [
+            'id.required'           => '请输入记录ID',
+            'id.integer'            => '记录ID必须为整数',
+            'service_id.required'   => '请输入服务ID',
+            'service_id.integer'    => '服务ID必须为整数',
+            'status.required'       => '请输入状态',
+            'status.in'             => '状态为1或2',
+            'number.required'       => '请输入数量',
+            'number.regex'          => '数量格式有误',
+            'cycle.required'        => '请输入服务周期',
+            'cycle.integer'         => '服务周期只能是整数',
+            'cycle.min'             => '服务周期不能低于0天',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->gradeEditService($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/grade_service_detail",
+     *     tags={"会员权限"},
+     *     summary="获取等级下的服务详情",
+     *     description="sang",
+     *     operationId="grade_service_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function gradeServiceDetail()
+    {
+        $rules = [
+            'grade'         => 'required',
+        ];
+        $messages = [
+            'grade.required'        => '等级不能为空',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->gradeServiceDetail($this->request['grade']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_grade_service",
+     *     tags={"会员"},
+     *     summary="获取等级下的服务详情",
+     *     description="sang",
+     *     operationId="get_grade_service",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGradeService(){
+        $rules = [
+            'grade'         => 'required',
+        ];
+        $messages = [
+            'grade.required'        => '等级不能为空',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->getGradeService($this->request['grade']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
     }
 }
