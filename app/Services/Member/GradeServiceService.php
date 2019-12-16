@@ -157,7 +157,7 @@ class GradeServiceService extends BaseService
             return false;
         }
         $where = ['grade' => $grade,'status' => GradeServiceEnum::USABLE];
-        if (!$grade_list = MemberGradeServiceViewRepository::getList($where,['id','grade','service_id','service_name','service_desc','status','number','cycle'])){
+        if (!$grade_list = MemberGradeServiceViewRepository::getList($where,['service_name','service_desc','number','cycle'])){
             $this->setMessage('该等级下暂无服务');
             return [];
         }

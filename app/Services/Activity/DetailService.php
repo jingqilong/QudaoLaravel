@@ -273,7 +273,7 @@ class DetailService extends BaseService
             $where['end_time']      = ['<',strtotime($end_time)];
         }
         if ($is_recommend != null){
-            $where['is_recommend']  = $is_recommend;
+            $where['is_recommend']  = $is_recommend == 0 ? 0 : ['<>',0];
         }
         if (!empty($status)){
             $where['status']  = $status;
