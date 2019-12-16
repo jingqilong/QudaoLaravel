@@ -108,7 +108,7 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!MemberGradeViewRepository::exists(['m_id' => $id])){
+        if (!MemberGradeViewRepository::exists(['id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
@@ -155,8 +155,8 @@ class OaMemberService extends BaseService
      */
     public function addMember($request)
     {
-        if (MemberBaseRepository::exists(['ch_name' => $request['ch_name'],'mobile' => $request['mobile']])){
-            $this->setError('用户已存在!');
+        if (MemberBaseRepository::exists(['card_no' => $request['card_no']])){
+            $this->setError('会员卡号已存在!');
             return false;
         }
         $base_arr = [
@@ -268,44 +268,20 @@ class OaMemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
-            if (!MemberInfoRepository::getAddId($info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],$info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberInfoRepository::firstOrCreate(['member_id' => $request['id']],$info_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberPersonalServiceRepository::exists(['member_id' => $request['id']])){
-            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['id']],$service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberPersonalServiceRepository::firstOrCreate(['member_id' => $request['id']],$service_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberGradeRepository::exists(['user_id' => $request['id']])){
-            if (!MemberGradeRepository::getAddId($grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberGradeRepository::getUpdId(['user_id' => $request['id']],$grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberGradeRepository::firstOrCreate(['user_id' => $request['id']],$grade_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
         DB::commit();
         $this->setMessage('添加成功!');
