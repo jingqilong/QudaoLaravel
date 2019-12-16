@@ -214,7 +214,7 @@ class RegisterService extends BaseService
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterEnum::getStatus($value['status']);
-            $value['audited_by']    = reset($audit)['real_name'];
+            $value['audited_by']    = $audit ? reset($audit)['real_name'] : '';
             $value['audited_at']    = $value['audited_at'] != 0 ? date('Y-m-d H:m:i',$value['audited_at']) : '';
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
