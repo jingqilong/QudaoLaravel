@@ -14,6 +14,7 @@ use App\Repositories\ActivityPastViewRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityRegisterViewRepository;
 use App\Repositories\ActivityThemeRepository;
+use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\MemberGradeRepository;
@@ -629,12 +630,18 @@ class RegisterService extends BaseService
      */
     public function getShareQrCode($activity_id)
     {
+        $member = $this->auth->user;
         $url        = config('url.'.env('APP_ENV').'_url').'#'."/pages/activity/activitingDetail?listId=".$activity_id;
         $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png');
         $res = [
             'url'           => $url,
-            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png')
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png'),
+            'is_winning'    => 0
         ];
+        //检查是否已抽奖
+        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
+            $res['is_winning'] = 1;
+        }
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
             return $res;
