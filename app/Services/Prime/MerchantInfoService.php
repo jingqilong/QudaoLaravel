@@ -64,8 +64,10 @@ class MerchantInfoService extends BaseService
         #最低消费
         $merchant['expect_spend'] = empty($merchant['expect_spend']) ? '' : round($merchant['expect_spend'] / 100,2).'元';
         #详细地址
-        list($area_address) = $this->makeAddress($merchant['area_code'],$merchant['address']);
-        $merchant['area_address'] = $area_address;
+        list($area_address,$lng,$lat) = $this->makeAddress($merchant['area_code'],$merchant['address']);
+        $merchant['area_address']   = $area_address;
+        $merchant['lng']            = $lng;
+        $merchant['lat']            = $lat;
         #是否收藏
         $collect_where = ['type' => CollectTypeEnum::PRIME,'target_id' => $merchant['id'],'member_id' => $member->id,'deleted_at' => 0];
         $merchant['is_collect'] = MemberCollectRepository::exists($collect_where) ? 1 : 0;
