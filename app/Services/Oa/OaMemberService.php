@@ -231,6 +231,11 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在!');
             return false;
         }
+        if ($request['end_at'] == MemberEnum::REALLYENJOY){
+            $end_at = 0;
+        }else{
+            $end_at = strtotime('+' . $request['end_at'] . 'year');
+        }
         $base_arr = [
             'id'         => $request['id'],
             'ch_name'    => $request['ch_name'],
@@ -260,7 +265,7 @@ class OaMemberService extends BaseService
         $grade_arr = [
             'grade'          => $info_arr['grade'],
             'created_at'     => time(),
-            'end_at'         => strtotime('+' . $request['end_at'] . 'year'),
+            'end_at'         => $end_at,
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_arr)){
