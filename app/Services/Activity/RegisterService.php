@@ -19,6 +19,7 @@ use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
@@ -49,7 +50,7 @@ class RegisterService extends BaseService
     /**
      * 活动报名
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function register($request)
     {
@@ -57,11 +58,11 @@ class RegisterService extends BaseService
             $this->setError('活动不存在！');
             return false;
         }
-        $member = $this->auth->user();
-        $member_price = $activity['price'];
+        $member         = $this->auth->user();
+        $member_price   = $activity['price'];
         if ($activity['is_member'] == ActivityEnum::NOTALLOW){
-            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member])){
-                $this->setError('本次活动仅限会员参加！');
+            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member->id,'grade' => ['in',[1,2,3,4,5,6,7,8,9]]])){
+                $this->setError('本次活动仅限渠道PLUS成员参加，请升级为渠道PLUS成员！');
                 return false;
             }
             //计算会员价格
@@ -76,10 +77,7 @@ class RegisterService extends BaseService
             $this->setError('活动已经结束了，下次再来吧！');
             return false;
         }
-        if (ActivityRegisterRepository::exists([
-            'activity_id' => $request['activity_id'],
-            'member_id' => $member->id,
-            'status' => ['<',5]])){
+        if (ActivityRegisterRepository::exists(['activity_id' => $request['activity_id'], 'member_id' => $member->id, 'status' => ['<',ActivityRegisterEnum::NOPASS]])){
             $this->setError('您已经报过名了，请勿重复报名！');
             return false;
         }
@@ -90,25 +88,69 @@ class RegisterService extends BaseService
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
             'member_price'  => $member_price,
-            'status'        => ActivityRegisterEnum::PENDING,
+            'status'        => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? ActivityRegisterEnum::PENDING : ActivityRegisterEnum::SUBMIT,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
+        if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            //如果活动需要审核，设置报名状态为待审核
+            $add_arr['status'] = ActivityRegisterEnum::PENDING;
+        }else if($activity['need_audit'] == ActivityEnum::NONEEDAUDIT && $activity['price'] == 0){
+            //如果活动不需要审核并且活动为免费活动，设置报名状态为已支付（待评论）
+            $add_arr['status'] = ActivityRegisterEnum::EVALUATION;
+        }else{
+            //如果活动不需要审核并且活动不是免费活动，设置报名状态为待支付
+            $add_arr['status'] = ActivityRegisterEnum::SUBMIT;
+        }
+        DB::beginTransaction();
         if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
             $this->setError('报名失败！');
+            Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，添加报名信息失败，导致报名失败！报名信息：'.json_encode($add_arr));
             return false;
         }
-        $title   = '活动报名成功';
-        $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
-        #发送短信
-        if (!empty($member->m_phone)){
-            $sms = new SmsService();
-            $sms->sendContent($member->m_phone,$content);
+        //如果是收费活动，创建订单
+        $order_no = '';
+        if ($add_arr['member_price'] > 0){
+            if (!$order_id = MemberOrdersRepository::addOrder($add_arr['member_price'],$add_arr['member_price'],$member->id,2)){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，创建订单失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
+            if (!$order_no = MemberOrdersRepository::getField(['id' => $order_id],'order_no')){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，获取订单号失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
+            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order_no])){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，更新报名信息失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
         }
-        #发送站内信
-        SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        //如果需要审核，通知用户等待审核结果审核
+        if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            $title   = '活动报名成功';
+            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
+            #发送短信
+            if (!empty($member->m_phone)){
+                $sms = new SmsService();
+                $sms->sendContent($member->m_phone,$content);
+            }
+            #发送站内信
+            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        }
+        DB::commit();
         $this->setMessage('报名成功！');
-        return true;
+        $res = [
+            'register_id'       => $register_id,
+            'register_status'   => $add_arr['status'],
+            'order_no'          => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? '' : $order_no,
+            'price'             => round($add_arr['member_price'] / 100,2)
+        ];
+        return $res;
     }
 
 
@@ -157,18 +199,23 @@ class RegisterService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $audited_by     = array_column($list['data'],'audited_by');
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
         $activities     = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
         $members        = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $audits         = OaEmployeeRepository::getList(['id' => ['in',$audited_by]],['id','real_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $member   = $this->searchArray($members,'id',$value['member_id']);
+            $audit    = $this->searchArray($audits,'id',$value['audited_by']);
             $value['theme_name']    = reset($activity)['name'];
             $value['member_name']   = reset($member)['ch_name'];
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterEnum::getStatus($value['status']);
+            $value['audited_by']    = $audit ? reset($audit)['real_name'] : '';
+            $value['audited_at']    = $value['audited_at'] != 0 ? date('Y-m-d H:m:i',$value['audited_at']) : '';
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
         }
@@ -184,6 +231,7 @@ class RegisterService extends BaseService
      */
     public function auditRegister($register_id, $audit)
     {
+        $employees = Auth::guard('oa_api')->user();
         if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
             $this->setError('报名信息不存在！');
             return false;
@@ -207,30 +255,14 @@ class RegisterService extends BaseService
         $upd_register = [
             'status'        => $status,
             'sign_in_code'  => ActivityRegisterRepository::getSignCode(),
-            'updated_at'    => time()
+            'audited_by'    => $employees->id,
+            'updated_at'    => time(),
+            'audited_at'    => time(),
         ];
         if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],$upd_register)){
             $this->setError('审核失败！');
             DB::rollBack();
             return false;
-        }
-        //创建订单
-        if ($register['member_price'] > 0 && $status == ActivityRegisterEnum::SUBMIT){
-            if (!$order_id = MemberOrdersRepository::addOrder($register['member_price'],$register['member_price'],$register['member_id'],2)){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!$order = MemberOrdersRepository::getOne(['id' => $order_id])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order['order_no']])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
         }
         //通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
@@ -407,13 +439,16 @@ class RegisterService extends BaseService
             $value['theme_icon']    = $icons ? reset($icon)['img_url'] : '';
             $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status'] = 1;
+                $value['status_title'] = '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
-                $value['status'] = '进行中';
+                $value['status'] = 2;
+                $value['status_title'] = '进行中';
             }
             if ($value['end_time'] < time()){
-                $value['status'] = '已结束';
+                $value['status'] = 3;
+                $value['status_title'] = '已结束';
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);

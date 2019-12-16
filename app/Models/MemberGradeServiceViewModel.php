@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ActivityDetailModel extends Model
+class MemberGradeServiceViewModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class ActivityDetailModel extends Model
      *
      * @var string
      */
-    protected $table = 'activity_detail';
+    protected $table = 'member_grade_service_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class ActivityDetailModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','area_code','address','price','theme_id','signin','start_time','end_time','site_id','supplies_ids','is_recommend','links','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','grade','service_id','service_name','service_desc','status','number','cycle','created_at','updated_at'];
 
 
 
