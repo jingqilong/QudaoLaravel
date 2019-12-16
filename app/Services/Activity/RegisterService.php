@@ -421,6 +421,7 @@ class RegisterService extends BaseService
             return $register_list;
         }
         foreach ($register_list['data'] as &$value){
+            $value['register_id']   = $value['id'];
             $value['id']            = $value['activity_id'];
             #处理地址
             list($area_address)     = $this->makeAddress($value['area_code'],'',3);
