@@ -2,6 +2,8 @@
 namespace App\Services\Member;
 
 
+use App\Enums\MemberGradeEnum;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeServiceRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\OaGradeViewRepository;
@@ -32,6 +34,10 @@ class GradeServiceService extends BaseService
      */
     public function gradeAddService($request)
     {
+        if (!MemberGradeDefineRepository::exists(['iden' => $request['grade'],'status' => MemberGradeEnum::ENABLE])){
+            $this->setError('会员等级不存在!');
+            return false;
+        }
         if (!$service = MemberServiceRepository::getOne(['id' => $request['service_id']])){
             $this->setError('服务不存在!');
             return false;

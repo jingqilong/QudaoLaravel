@@ -430,8 +430,8 @@ class ServiceController extends ApiController
      *     @OA\Parameter(
      *         name="grade",
      *         in="query",
-     *         description="等级,1、亦享成员，2、至享成员，3、悦享成员，4、真享成员，5、君享成员，6、尊享成员，7、测试成员",
-     *         required=false,
+     *         description="等级",
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -487,7 +487,7 @@ class ServiceController extends ApiController
     public function gradeAddService()
     {
         $rules = [
-            'grade'         => 'required|in:1,2,3,4,5,6,7',
+            'grade'         => 'required',
             'service_id'    => 'required|integer',
             'status'        => 'required|in:1,2',
             'number'        => ['required','regex:/^([0-9]+|["*"])$/'],
@@ -495,7 +495,6 @@ class ServiceController extends ApiController
         ];
         $messages = [
             'grade.required'        => '请输入等级',
-            'grade.in'              => '等级不存在',
             'service_id.required'   => '请输入服务ID',
             'service_id.integer'    => '服务ID必须为整数',
             'status.required'       => '请输入状态',
