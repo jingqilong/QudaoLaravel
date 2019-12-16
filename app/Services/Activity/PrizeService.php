@@ -209,11 +209,13 @@ class PrizeService extends BaseService
             $this->setError('奖品已经被抽完了，下次再来吧！');
             return false;
         }
+        $prize_arr = [];
         foreach ($prize_all as $key => $value){
             $arr[$value['id']] = $value['odds'];
+            $prize_arr[$value['id']] = $value;
         }
         $rid = $this->get_rand($arr);
-        $winning = $prize_all[$rid - 1];
+        $winning = $prize_arr[$rid];
         $add_winning = [
             'member_id'     => $member->id,
             'activity_id'   => $activity_id,

@@ -12,7 +12,9 @@ use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPastViewRepository;
 use App\Repositories\ActivityRegisterRepository;
+use App\Repositories\ActivityRegisterViewRepository;
 use App\Repositories\ActivityThemeRepository;
+use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\MemberGradeRepository;
@@ -96,10 +98,12 @@ class RegisterService extends BaseService
             //如果活动需要审核，设置报名状态为待审核
             $add_arr['status'] = ActivityRegisterEnum::PENDING;
         }else if($activity['need_audit'] == ActivityEnum::NONEEDAUDIT && $activity['price'] == 0){
+            $add_arr['sign_in_code']  = ActivityRegisterRepository::getSignCode();
             //如果活动不需要审核并且活动为免费活动，设置报名状态为已支付（待评论）
             $add_arr['status'] = ActivityRegisterEnum::EVALUATION;
         }else{
             //如果活动不需要审核并且活动不是免费活动，设置报名状态为待支付
+            $add_arr['sign_in_code']  = ActivityRegisterRepository::getSignCode();
             $add_arr['status'] = ActivityRegisterEnum::SUBMIT;
         }
         DB::beginTransaction();
@@ -388,55 +392,41 @@ class RegisterService extends BaseService
      * @return array|bool|mixed|null
      */
     public function getMyActivityList($request){
-        $member = $this->auth->user();
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
-        $status = $request['status'] ?? null;
-        $where  = ['member_id' => $member->id];
-        if (!$register_list = ActivityRegisterRepository::getList($where,['id','activity_id','sign_in_code','status'])){
-            $this->setMessage('暂无活动！');
-            return [];
-        }
-        $activity_ids = array_column($register_list,'activity_id');
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
-        $activity_where = ['id' => ['in',$activity_ids]];
+        $member     = $this->auth->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $status     = $request['status'] ?? null;
+        $where      = ['member_id' => $member->id];
         switch ($status){
             case 1://未开始
-                $activity_where['start_time'] = ['>',time()];
+                $where['start_time'] = ['>',time()];
                 break;
             case 2://进行中
-                $activity_where['start_time'] = ['<',time()];
-                $activity_where['end_time'] = ['>',time()];
+                $where['start_time'] = ['<',time()];
+                $where['end_time'] = ['>',time()];
                 break;
             case 3://已结束
-                $activity_where['end_time'] = ['<',time()];
+                $where['end_time'] = ['<',time()];
                 break;
             default:
                 break;
         }
-        if (!$activity_list = ActivityDetailRepository::getList($activity_where,$activity_column,'id','desc',$page,$page_num)){
+        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code'];
+        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-        $activity_list = $this->removePagingField($activity_list);
-        if (empty($activity_list['data'])){
-            $this->setMessage('暂无活动！');
-            return $activity_list;
+        $register_list = $this->removePagingField($register_list);
+        if (empty($register_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $register_list;
         }
-        $theme_ids  = array_column($activity_list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
-        $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
-        $activity_list['data'] = ImagesService::getListImagesConcise($activity_list['data'],['cover_id' => 'single']);
-        foreach ($activity_list['data'] as &$value){
-            $theme = $this->searchArray($themes,'id',$value['theme_id']);
-            if ($theme)
-                $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
+        foreach ($register_list['data'] as &$value){
+            $value['register_id']   = $value['id'];
+            $value['id']            = $value['activity_id'];
             #处理地址
             list($area_address)     = $this->makeAddress($value['area_code'],'',3);
             $value['address']       = $area_address;
-            $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
-            $value['theme_icon']    = $icons ? reset($icon)['img_url'] : '';
             $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = 1;
@@ -450,15 +440,16 @@ class RegisterService extends BaseService
                 $value['status'] = 3;
                 $value['status_title'] = '已结束';
             }
+            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
+                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
+            }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
-            $sign_code_list         = $this->searchArray($register_list,'activity_id',$value['id']);
-            $value['sign_in_code']  = reset($sign_code_list)['sign_in_code'];
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
+            unset($value['start_time'],$value['end_time'],$value['area_code'],$value['activity_id']);
         }
         $this->setMessage('获取成功！');
-        return $activity_list;
+        return $register_list;
     }
 
     /**
@@ -639,12 +630,18 @@ class RegisterService extends BaseService
      */
     public function getShareQrCode($activity_id)
     {
+        $member = $this->auth->user;
         $url        = config('url.'.env('APP_ENV').'_url').'#'."/pages/activity/activitingDetail?listId=".$activity_id;
         $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png');
         $res = [
             'url'           => $url,
-            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png')
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png'),
+            'is_winning'    => 0
         ];
+        //检查是否已抽奖
+        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
+            $res['is_winning'] = 1;
+        }
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
             return $res;

@@ -106,7 +106,7 @@ class GradeServiceService extends BaseService
             'service_id'    => $request['service_id'],
             'status'        => $request['status'],
             'number'        => $request['number'],
-            'cycle'         => $request['cycle'] * 86400,
+            'cycle'         => $request['cycle'],
             'updated_at'    => time(),
         ])){
             $this->setError('修改失败!');
