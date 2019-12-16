@@ -269,22 +269,22 @@ class DetailService extends BaseService
         $need_audit     = $request['need_audit'] ?? null;
         $keywords       = $request['keywords'] ?? null;
         $where          = ['id' => ['>',0],'deleted_at' => 0];
-        if (!empty($start_time)){
+        if (!is_null($start_time)){
             $where['start_time']    = ['>',strtotime($start_time)];
         }
-        if (!empty($end_time)){
+        if (!is_null($end_time)){
             $where['end_time']      = ['<',strtotime($end_time)];
         }
         if ($is_recommend != null){
             $where['is_recommend']  = $is_recommend == 0 ? 0 : ['<>',0];
         }
-        if (!empty($status)){
+        if (!is_null($status)){
             $where['status']  = $status;
         }
-        if (!empty($is_member)){
+        if (!is_null($is_member)){
             $where['is_member']  = $is_member;
         }
-        if (!empty($need_audit)){
+        if (!is_null($need_audit)){
             $where['need_audit']  = $need_audit;
         }
         $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','need_audit','created_at','updated_at','deleted_at'];

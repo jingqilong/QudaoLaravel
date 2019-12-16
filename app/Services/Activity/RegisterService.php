@@ -90,7 +90,7 @@ class RegisterService extends BaseService
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
             'member_price'  => $member_price,
-            'status'        => ActivityRegisterEnum::PENDING,
+            'status'        => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? ActivityRegisterEnum::PENDING : ActivityRegisterEnum::SUBMIT,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -98,15 +98,20 @@ class RegisterService extends BaseService
             $this->setError('报名失败！');
             return false;
         }
-        $title   = '活动报名成功';
-        $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
-        #发送短信
-        if (!empty($member->m_phone)){
-            $sms = new SmsService();
-            $sms->sendContent($member->m_phone,$content);
+        //如果是收费活动，创建订单
+        //如果需要审核，通知用户等待审核结果审核
+        if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            $title   = '活动报名成功';
+            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
+            #发送短信
+            if (!empty($member->m_phone)){
+                $sms = new SmsService();
+                $sms->sendContent($member->m_phone,$content);
+            }
+            #发送站内信
+            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
         }
-        #发送站内信
-        SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+
         $this->setMessage('报名成功！');
         return true;
     }
