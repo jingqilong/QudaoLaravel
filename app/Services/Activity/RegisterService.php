@@ -94,11 +94,29 @@ class RegisterService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
+        DB::beginTransaction();
         if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
             $this->setError('报名失败！');
             return false;
         }
         //如果是收费活动，创建订单
+        if ($add_arr['member_price'] > 0){
+            if (!$order_id = MemberOrdersRepository::addOrder($add_arr['member_price'],$add_arr['member_price'],$member->id,2)){
+                $this->setError('报名失败！');
+                DB::rollBack();
+                return false;
+            }
+            if (!$order = MemberOrdersRepository::getOne(['id' => $order_id])){
+                $this->setError('报名失败！');
+                DB::rollBack();
+                return false;
+            }
+            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order['order_no']])){
+                $this->setError('报名失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
         //如果需要审核，通知用户等待审核结果审核
         if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
             $title   = '活动报名成功';
@@ -111,7 +129,7 @@ class RegisterService extends BaseService
             #发送站内信
             SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
         }
-
+        DB::commit();
         $this->setMessage('报名成功！');
         return true;
     }
@@ -218,24 +236,6 @@ class RegisterService extends BaseService
             $this->setError('审核失败！');
             DB::rollBack();
             return false;
-        }
-        //创建订单
-        if ($register['member_price'] > 0 && $status == ActivityRegisterEnum::SUBMIT){
-            if (!$order_id = MemberOrdersRepository::addOrder($register['member_price'],$register['member_price'],$register['member_id'],2)){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!$order = MemberOrdersRepository::getOne(['id' => $order_id])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order['order_no']])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
         }
         //通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
