@@ -415,6 +415,11 @@ class RegisterService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
+        $register_list = $this->removePagingField($register_list);
+        if (empty($register_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $register_list;
+        }
         foreach ($register_list['data'] as &$value){
             $value['id']            = $value['activity_id'];
             #处理地址
@@ -432,6 +437,9 @@ class RegisterService extends BaseService
             if ($value['end_time'] < time()){
                 $value['status'] = 3;
                 $value['status_title'] = '已结束';
+            }
+            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
+                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
