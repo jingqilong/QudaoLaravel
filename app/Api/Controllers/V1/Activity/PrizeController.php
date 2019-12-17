@@ -95,7 +95,7 @@ class PrizeController extends ApiController
      *         name="image_ids",
      *         in="query",
      *         description="奖品图片ID组",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -132,8 +132,8 @@ class PrizeController extends ApiController
             'title'         => 'required',
             'number'        => 'required|integer',
             'odds'          => 'required|integer',
-            'image_ids'     => 'required:regex:/^(\d+[,])*\d+$/',
-            'worth'         => 'required:regex:/^\-?\d+(\.\d{1,2})?$/',
+            'image_ids'     => 'regex:/^(\d+[,])*\d+$/',
+            'worth'         => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'link'          => 'url',
         ];
         $messages = [
@@ -145,7 +145,6 @@ class PrizeController extends ApiController
             'number.integer'            => '奖品数量必须为整数',
             'odds.required'             => '奖品中奖率不能为空',
             'odds.integer'              => '奖品中奖率必须为整数',
-            'image_ids.required'        => '奖品图片不能为空',
             'image_ids.regex'           => '奖品图片ID组格式有误',
             'worth.required'            => '奖品价值不能为空',
             'worth.regex'               => '奖品价值格式有误',
@@ -154,6 +153,11 @@ class PrizeController extends ApiController
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
+        }
+        if ($this->request['worth'] != 0){
+            if (isset($this->request['image_ids']) || empty($this->request['image_ids'])){
+                return ['code' => 100, 'message' => '请至少上传一张奖品图片'];
+            }
         }
         $res = $this->activityPrizeService->addPrize($this->request);
         if ($res){

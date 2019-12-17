@@ -10,6 +10,7 @@ use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -183,7 +184,7 @@ class PrizeService extends BaseService
         }
         $member = $this->auth->user();
         if (!ActivityPrizeRepository::exists(['activity_id' => $activity_id])){
-            $this->setError('该活动没有抽奖活动！');
+            $this->setError('很抱歉，该活动没有抽奖活动！');
             return false;
         }
         if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
@@ -198,7 +199,8 @@ class PrizeService extends BaseService
             $this->setError('您的报名还没有完成，不能参与抽奖！');
             return false;
         }
-        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','title','number','odds','image_ids','worth']);
+        //获取当前活动所有奖品列表
+        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','number','odds','image_ids','worth']);
         foreach ($prize_all as $key => &$prize){
             if ($prize['number'] !== 0 && ($prize['number'] <= ActivityWinningRepository::count(['prize_id' => $prize['id']]))){
                 unset($prize_all[$key]);
@@ -222,19 +224,14 @@ class PrizeService extends BaseService
             'prize_id'      => $winning['id'],
             'created_at'    => time()
         ];
-        $winning['images']     = [];
-        if (!empty($winning['images_ids'])){
-            $image_ids = explode(',',$winning['images_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
-                $image_list     = array_column($image_list,'img_url');
-                $winning['images']= $image_list;
-            }
-        }
-        unset($winning['odds'],$winning['images_ids']);
-        if (!ActivityWinningRepository::getAddId($add_winning)){
-            $this->setMessage('抽奖失败！');
-            return $winning;
-        }
+        $winning = ImagesService::getOneImagesConcise($winning,['image_ids' => 'single'],true);
+        unset($winning['odds']);
+        $winning['name'] = '价值' . $winning['worth'] . '元的' . $winning['name'];
+        dd($winning);
+//        if (!ActivityWinningRepository::getAddId($add_winning)){
+//            $this->setMessage('抽奖失败！');
+//            return $winning;
+//        }
         //TODO 此处添加抽奖成功后的事务
         $this->setMessage('恭喜你中奖啦！');
         return '恭喜您抽中了'.$winning['title'].',奖品将在活动现场发放给您！';
