@@ -11,6 +11,7 @@ use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPastViewRepository;
+use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityRegisterViewRepository;
 use App\Repositories\ActivityThemeRepository;
@@ -411,7 +412,7 @@ class RegisterService extends BaseService
             default:
                 break;
         }
-        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code'];
+        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code','order_no'];
         if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -436,12 +437,12 @@ class RegisterService extends BaseService
                 $value['status'] = 2;
                 $value['status_title'] = '进行中';
             }
+            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
+                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
+            }
             if ($value['end_time'] < time()){
                 $value['status'] = 3;
                 $value['status_title'] = '已结束';
-            }
-            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
-                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
@@ -455,7 +456,7 @@ class RegisterService extends BaseService
     /**
      * 生成入场券
      * @param $register_id
-     * @return bool|void
+     * @return mixed
      */
     public function getAdmissionTicket($register_id)
     {
@@ -492,7 +493,25 @@ class RegisterService extends BaseService
             'sign_in_code'      => $register['sign_in_code']
         ]);
         $this->setMessage('生成成功！');
-        return $image_url;
+        $res = [
+            'image_url'     => $image_url,
+            'is_lottery'    => 0,
+            'is_win'        => 0,
+            'prize'         => []
+        ];
+        //检查是否已抽奖
+        if ($winning = ActivityWinningRepository::getOne(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
+            $res['is_lottery'] = 1;
+            if ($prize = ActivityPrizeRepository::getOne(['id' => $winning['prize_id']],['id','name','odds','image_ids','worth'])){
+                $prize          = ImagesService::getOneImagesConcise($prize,['image_ids' => 'single'],true);
+                $res['is_win']  = $prize['worth'] == 0 ? 0 : 1;
+                $prize['name']  = '价值' . $prize['worth'] . '元的' . $prize['name'];
+                unset($prize['odds'],$prize['id'],$prize['worth']);
+                $res['prize']   = $res['is_win'] == 0 ? [] : $prize;
+            }
+        }
+        //获取抽奖奖品
+        return $res;
     }
 
     /**
@@ -636,12 +655,7 @@ class RegisterService extends BaseService
         $res = [
             'url'           => $url,
             'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png'),
-            'is_winning'    => 0
         ];
-        //检查是否已抽奖
-        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
-            $res['is_winning'] = 1;
-        }
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
             return $res;
@@ -800,12 +814,13 @@ class RegisterService extends BaseService
             $this->setMessage('获取成功');
             return json_encode($list);
         }
-        $list = ImagesService::getListImagesConcise($list,['resource_ids' => 'several']);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several']);
         $this->setMessage('获取成功');
         foreach ($list as &$value){
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
-        return json_encode($list);
+        //return json_encode($list);
+        return $list;
     }
 
 }

@@ -67,7 +67,7 @@ class OaMemberService extends BaseService
             $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getIdentity($value['status'],'成员');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
             $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
             $value['created_at']    = date('Y-m-d H:i:s',$value['created_at']);
         }
@@ -93,6 +93,12 @@ class OaMemberService extends BaseService
         $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
         $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
         $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
+        if (empty($member['birthday'])) $member['birthday'] = '';
+        if (0 == $member['end_at']){
+            $member['end_at']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
+        }else{
+            $member['end_at']    = date('Y-m-d H:i:s',$member['end_at']);
+        }
         $this->setMessage('获取用户信息成功');
         return $member;
     }
@@ -131,10 +137,6 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!MemberEnum::isset($request['hidden'])){
-            $this->setError('状态属性不存在!');
-            return false;
-        }
         if (!MemberGradeViewRepository::exists(['id' =>$request['id']])){
             $this->setError('用户不存在!');
             return false;
@@ -169,6 +171,7 @@ class OaMemberService extends BaseService
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
             'hidden'     => $request['hidden'] ?? MemberEnum::ACTIVITE,
+            'created_at' => time(),
         ];
         DB::beginTransaction();
         if (!$member_id = MemberBaseRepository::getAddId($base_arr)){
@@ -186,6 +189,8 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
+            'created_at'     => time(),
         ];
         if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
@@ -195,6 +200,7 @@ class OaMemberService extends BaseService
         $service_arr = [
             'member_id'      => $member_id,
             'other_server'   => $request['other_server'] ?? 1,
+            'created_at'     => time(),
         ];
         if (!MemberPersonalServiceRepository::getAddId($service_arr)){
             DB::rollBack();
@@ -231,7 +237,7 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在!');
             return false;
         }
-        if ($request['end_at'] == MemberEnum::REALLYENJOY){
+        if ($request['end_at'] == MemberEnum::PERMANENT){
             $end_at = 0;
         }else{
             $end_at = strtotime('+' . $request['end_at'] . 'year');
@@ -248,7 +254,7 @@ class OaMemberService extends BaseService
         ];
         $info_arr = [
             'member_id'      => $request['id'],
-            'birthday'       => $request['birthday'] ?? '',
+            'birthday'       => $request['birthday'] ?? 0,
             'address'        => $request['address'] ?? '' ,
             'info_provider'  => $request['info_provider'] ?? '',
             'employer'       => $request['employer'] ?? '',
@@ -257,6 +263,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         $service_arr = [
             'member_id'      => $request['id'],

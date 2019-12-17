@@ -3,6 +3,7 @@ namespace App\Services\Common;
 
 
 use App\Enums\CommonHomeEnum;
+use App\Repositories\ActivityDetailRepository;
 use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Services\BaseService;
@@ -25,18 +26,32 @@ class HomeBannersService extends BaseService
             return [];
         }
         $banners = $banners['data'];
-//        if (CommonHomeBannersRepository::exists($where)){
-//            $banners = CommonHomeBannersRepository::getList($where,$column);
-//        }else{
-//            if (!$recently_banner = CommonHomeBannersRepository::getOrderOne(['show_time' => ['<',strtotime("today")],'module' => $module],'show_time','desc')){
-//                return [];
-//            }
-//            $banners = CommonHomeBannersRepository::getList(['show_time' => $recently_banner['show_time'],'module' => $module],$column);
-//        }dd($banners);
+        $banners = ImagesService::getListImagesConcise($banners,['image_id' => 'single'],true);
+        $activity_list = [];
+        if ($activity_banner_list = self::searchArrays($banners,'type',CommonHomeEnum::ACTIVITY)){
+            $activity_ids  = array_column($activity_banner_list,'related_id');
+            $activity_list = ActivityDetailRepository::getAssignList($activity_ids,['id','start_time','end_time']);
+        }
         foreach ($banners as &$banner){
-            $banner['image'] = CommonImagesRepository::getField(['id' => $banner['image_id']],'img_url');
-            $banner['type_name'] = CommonHomeEnum::getBannerType($banner['type']);
-            unset($banner['image_id']);
+            $banner['status']       = 0;
+            $banner['status_title'] = '无状态';
+            if ($banner['type'] == CommonHomeEnum::ACTIVITY && !empty($activity_list) &&
+                $activity = self::searchArrays($activity_list,'id',$banner['related_id'])
+            ){
+                $activity = reset($activity);
+                if ($activity['start_time'] > time()){
+                    $banner['status'] = 1;
+                    $banner['status_title'] = '未开始';
+                }
+                if ($activity['start_time'] < time() && $activity['end_time'] > time()){
+                    $banner['status'] = 2;
+                    $banner['status_title'] = '进行中';
+                }
+                if ($activity['end_time'] < time()){
+                    $banner['status'] = 3;
+                    $banner['status_title'] = '已结束';
+                }
+            }
         }
         return $banners;
     }

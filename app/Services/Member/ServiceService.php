@@ -132,7 +132,10 @@ class ServiceService extends BaseService
      */
     public function serviceList($where = ['id' => ['<>',0]])
     {
-        $list = MemberServiceRepository::getServiceList($where);
+        if (!$list = MemberServiceRepository::getServiceList($where)){
+            $this->setMessage('暂无数据！');
+            return [];
+        }
         $this->setMessage('列表获取成功！');
         return $list;
     }
