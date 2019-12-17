@@ -222,7 +222,7 @@ class OaMemberController extends ApiController
     }
 
     /**
-     * @OA\Get(
+     * @OA\Post(
      *     path="/api/v1/oa/set_member_status",
      *     tags={"OA成员管理"},
      *     summary="禁用or激活成员and官员",
@@ -274,7 +274,7 @@ class OaMemberController extends ApiController
     {
         $rules = [
             'id'              => 'required|integer',
-            'hidden'          => 'required|in:1,0',
+            'hidden'          => 'required|in:0,1',
         ];
         $messages = [
             'id.required'     => '成员ID不能为空',

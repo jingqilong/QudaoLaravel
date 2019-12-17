@@ -131,10 +131,6 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!MemberEnum::isset($request['hidden'])){
-            $this->setError('状态属性不存在!');
-            return false;
-        }
         if (!MemberGradeViewRepository::exists(['id' =>$request['id']])){
             $this->setError('用户不存在!');
             return false;
