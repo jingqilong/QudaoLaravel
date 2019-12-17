@@ -705,7 +705,7 @@ class GradeController extends ApiController
             'id'            => 'required|integer',
             'service_id'    => 'required|integer',
             'status'        => 'required|in:1,2',
-            'number'        => ['required','regex:/^([0-9]+|["*"])$/'],
+            'number'        => ['required'],
             'cycle'         => 'required|integer|min:0',
         ];
         $messages = [
@@ -716,7 +716,6 @@ class GradeController extends ApiController
             'status.required'       => '请输入状态',
             'status.in'             => '状态为1或2',
             'number.required'       => '请输入数量',
-            'number.regex'          => '数量格式有误',
             'cycle.required'        => '请输入服务周期',
             'cycle.integer'         => '服务周期只能是整数',
             'cycle.min'             => '服务周期不能低于0天',
