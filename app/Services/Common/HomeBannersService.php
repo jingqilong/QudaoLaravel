@@ -39,7 +39,7 @@ class HomeBannersService extends BaseService
                 $activity = reset($activity);
                 if ($activity['start_time'] > time()){
                     $banner['status'] = 1;
-                    $banner['status_title'] = '报名中';
+                    $banner['status_title'] = '未开始';
                 }
                 if ($activity['start_time'] < time() && $activity['end_time'] > time()){
                     $banner['status'] = 2;
