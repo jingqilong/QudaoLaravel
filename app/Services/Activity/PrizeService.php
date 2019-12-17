@@ -288,5 +288,10 @@ class PrizeService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    public function receiveWining($id)
+    {
+//        if ()
+    }
 }
             
