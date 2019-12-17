@@ -93,6 +93,11 @@ class OaMemberService extends BaseService
         $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
         $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
         $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
+        if (0 == $member['end_at']){
+            $member['end_at']        = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
+        }else{
+            $member['end_at']        = date('Y-m-d H:i:s',$member['end_at']);
+        }
         $this->setMessage('获取用户信息成功');
         return $member;
     }
@@ -182,6 +187,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
@@ -253,6 +259,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         $service_arr = [
             'member_id'      => $request['id'],
