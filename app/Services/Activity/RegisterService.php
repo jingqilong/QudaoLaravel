@@ -814,12 +814,13 @@ class RegisterService extends BaseService
             $this->setMessage('获取成功');
             return json_encode($list);
         }
-        $list = ImagesService::getListImagesConcise($list,['resource_ids' => 'several']);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several']);
         $this->setMessage('获取成功');
         foreach ($list as &$value){
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
-        return json_encode($list);
+        //return json_encode($list);
+        return $list;
     }
 
 }
