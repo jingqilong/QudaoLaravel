@@ -330,7 +330,7 @@ class MemberService extends BaseService
         $member['sex_name']     = MemberEnum::getSex($member['sex'],$member['sex']);
         $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
-        $member['category']     = MemberEnum::getCategory($member['category'],$member['category']);
+        $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
         $member['profile']      = strip_tags($member['profile']);
         $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
         foreach ($member as &$value){

@@ -458,4 +458,87 @@ class OaMemberController extends ApiController
         }
        return ['code' => 200, 'message' => $this->OaMemberService->message];
     }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/add_member_service_view",
+     *     tags={"OA成员管理"},
+     *     summary="添加成员可查看会员记录",
+     *     operationId="add_member_service_view",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型 1等级 2成员身份",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="成员 等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="value",
+     *         in="query",
+     *         description="可查看成员等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function addMemberServiceView()
+    {
+        $rules = [
+            'type'            => 'required|in:1,2',
+            'grade'           => 'required|integer',
+            'value'           => 'required|integer',
+        ];
+        $messages = [
+            'type.required'   => '类型不能为空',
+            'type.in'         => '该类型不存在',
+            'grade.required'  => '等级不能为空',
+            'grade.integer'   => '等级不是整数',
+            'value.required'  => '查看值不能为空',
+            'value.integer'   => '查看值不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->addMemberServiceView($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
+    }
 }

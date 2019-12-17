@@ -300,4 +300,20 @@ class OaMemberService extends BaseService
         return true;
     }
 
+    public function addMemberServiceView($request)
+    {
+        if (!MemberEnum::isset($request['grade']) && !MemberEnum::isset($request['value'])){
+            $this->setError('等级或可查看值不存在');
+            return false;
+        }
+        $where = ['grade' => $request['grade'],'value' => $request['value'],'deleted_at' => 0];
+        if (!MemberGradeRepository::exists($where)){
+            $this->setError('查看服务已存在');
+            return false;
+        }#TODO
+//        if (!MemberGradeRepository::getAddId()){
+//
+//        }
+    }
+
 }
