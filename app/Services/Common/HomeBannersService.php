@@ -27,13 +27,15 @@ class HomeBannersService extends BaseService
         }
         $banners = $banners['data'];
         $banners = ImagesService::getListImagesConcise($banners,['image_id' => 'single'],true);
-        $activity_banner_list = self::searchArrays($banners,'type',CommonHomeEnum::ACTIVITY);
-        $activity_ids  = array_column($activity_banner_list,'related_id');
-        $activity_list = ActivityDetailRepository::getAssignList($activity_ids,['id','start_time','end_time']);
+        $activity_list = [];
+        if ($activity_banner_list = self::searchArrays($banners,'type',CommonHomeEnum::ACTIVITY)){
+            $activity_ids  = array_column($activity_banner_list,'related_id');
+            $activity_list = ActivityDetailRepository::getAssignList($activity_ids,['id','start_time','end_time']);
+        }
         foreach ($banners as &$banner){
             $banner['status']       = 0;
             $banner['status_title'] = '无状态';
-            if ($banner['type'] == CommonHomeEnum::ACTIVITY &&
+            if ($banner['type'] == CommonHomeEnum::ACTIVITY && !empty($activity_list) &&
                 $activity = self::searchArrays($activity_list,'id',$banner['related_id'])
             ){
                 $activity = reset($activity);

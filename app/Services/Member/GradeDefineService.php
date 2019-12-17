@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\MemberGradeEnum;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 
 class GradeDefineService extends BaseService
@@ -34,6 +35,7 @@ class GradeDefineService extends BaseService
             'minimum_time'  => $request['minimum_time'],
             'amount'        => $request['amount'],
             'is_buy'        => $request['is_buy'],
+            'image_id'      => $request['image_id'] ?? 0,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -93,6 +95,7 @@ class GradeDefineService extends BaseService
         if (isset($request['minimum_time']))$upd_arr['minimum_time']= $request['minimum_time'];
         if (isset($request['amount']))      $upd_arr['amount']      = $request['amount'];
         if (isset($request['is_buy']))      $upd_arr['is_buy']      = $request['is_buy'];
+        if (isset($request['image_id']))    $upd_arr['image_id']    = $request['image_id'];
 
 
         if (MemberGradeDefineRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -123,6 +126,7 @@ class GradeDefineService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $list['data'] = ImagesService::getListImages($list['data'],['image_id' => 'single']);
         foreach ($list['data'] as &$value){
             $value['status_title'] = MemberGradeEnum::getStatus($value['status']);
             $value['is_buy_title'] = MemberGradeEnum::getIsBuy($value['is_buy']);
