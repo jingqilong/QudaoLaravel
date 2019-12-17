@@ -375,8 +375,8 @@ class SendService extends BaseService
             $this->setError('消息不存在！');
             return false;
         }
-        if (strpos($send['dump_view'],'activity')){#活动相关的需要获取活动状态
-            $send['status'] = 0;
+        $send['status'] = 0;
+        if (strpos($send['dump_view'],'activity') !== false){#活动相关的需要获取活动状态
             if ($activity = ActivityDetailRepository::getOne(['id' => $send['relate_id']])){
                 if ($activity['start_time'] > time()){
                     $send['status'] = 1;

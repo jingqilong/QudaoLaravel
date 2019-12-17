@@ -243,6 +243,7 @@ class OrderRelateService extends BaseService
         Cache::put($request['token'],$request['token'],5);
         $this->setMessage('下单成功！');
         return [
+            'order_relate_id' => $order_relate_id,
             'status'    => ( $order_add_arr == OrderEnum::STATUSSUCCESS ? 1 : 2),#此状态1表示不需要支付，2表示需要支付
             'order_no'  => MemberOrdersRepository::getField(['id' => $order_id],'order_no')
         ];

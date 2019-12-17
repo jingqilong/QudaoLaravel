@@ -332,6 +332,8 @@ $api->version('v1',function ($api){
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
 
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
+                #会员等级
+                $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
@@ -341,15 +343,18 @@ $api->version('v1',function ($api){
                 $api->post('edit_service','ServiceController@editService')->name('修改服务');
                 $api->delete('delete_service','ServiceController@deleteService')->name('删除服务');
                 $api->get('service_list','ServiceController@serviceList')->name('获取服务列表');
-                $api->post('grade_add_service','ServiceController@gradeAddService')->name('给等级添加服务');
-                $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
-                $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
-                $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
-                $api->post('add_view_member','ServiceController@addViewMember')->name('添加成员可查看成员');
-                $api->post('add_grade_view','ServiceController@addGradeView')->name('添加等级可查看成员');
-                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
-                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
                 $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
+                #会员等级服务
+                $api->post('grade_add_service','GradeController@gradeAddService')->name('给等级添加服务');
+                $api->delete('grade_delete_service','GradeController@gradeDeleteService')->name('删除等级中的服务');
+                $api->post('grade_edit_service','GradeController@gradeEditService')->name('修改等级与服务对应关系');
+                $api->get('grade_service_detail','GradeController@gradeServiceDetail')->name('获取等级下的服务详情');
+                #会员产看权限
+                $api->post('add_view_member','ViewController@addViewMember')->name('添加成员可查看成员');
+                $api->post('add_grade_view','ViewController@addGradeView')->name('添加等级可查看成员');
+                $api->delete('delete_view_member','ViewController@deleteViewMember')->name('软删除成员可查看成员');
+                $api->post('restore_view_member','ViewController@restoreViewMember')->name('恢复成员可查看成员');
+
                 #会员等级
                 $api->post('add_grade','GradeController@addGrade')->name('添加等级');
                 $api->delete('delete_grade','GradeController@deleteGrade')->name('删除等级');

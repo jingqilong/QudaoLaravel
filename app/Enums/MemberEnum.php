@@ -26,11 +26,6 @@ class MemberEnum extends BaseEnum
         'QIYEJINGYING'        => '企业精英',
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
-        //成员或官员状态
-        'ACTIVITEMEMBER'      => '成员激活中',
-        'DISABLEMEMBER'       => '成员禁用中',
-        'ACTIVITEOFFICER'     => '官员激活中',
-        'DISABLEOFFICER'      => '官员禁用中',
         //成员性别
         'NOSET'               => '未设置',
         'MAN'                 => '先生',
@@ -41,6 +36,9 @@ class MemberEnum extends BaseEnum
         //状态
         'HIDDEN'              => '隐藏',
         'ACTIVITE'            => '显示',
+        //通过
+        'NOPASS'              => '未审核',
+        'PASS'                => '通过',
     ];
 
 
@@ -73,8 +71,6 @@ class MemberEnum extends BaseEnum
     public static $status = [
         0 => 'ACTIVITEMEMBER',
         1 => 'DISABLEMEMBER',
-        2 => 'ACTIVITEOFFICER',
-        3 => 'DISABLEOFFICER',
     ];
 
     //成员性别
@@ -96,9 +92,15 @@ class MemberEnum extends BaseEnum
         1 => 'HIDDEN',
     ];
 
-    //状态
+    //排序
     public static $sort = [
         3 => 'RECOMMEND',
+    ];
+
+    //pass
+    public static $pass = [
+        0 => 'PASS',
+        1 => 'NOPASS',
     ];
 
     // 成员等级
@@ -163,7 +165,11 @@ class MemberEnum extends BaseEnum
     const HIDDEN            = 2;    //隐藏
 
     //排序
-    const RECOMMEND         = 3;    //隐藏
+    const RECOMMEND         = 3;    //推荐排序
+
+    //通过
+    const NOPASS            = 0;    //通过
+    const PASS              = 1;    //未通过
 
 
     /**

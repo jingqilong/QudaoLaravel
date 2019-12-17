@@ -11,7 +11,7 @@ class ActivityRegisterEnum extends BaseEnum
     public static $labels = [
         'PENDING'       => '待审核',
         'SUBMIT'        => '待支付',
-        'EVALUATION'    => '待评价',
+        'EVALUATION'    => '已支付',
         'COMPLETED'     => '已完成',
         'NOPASS'        => '未通过',
         'CANCELED'      => '已取消',

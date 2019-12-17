@@ -31,7 +31,7 @@ class OaMemberService extends BaseService
 
 
     /**
-     * 获取成员列表
+     * 获取成员列表 (拆表后 已修改)
      * @param array $data
      * @return mixed
      */
@@ -44,7 +44,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
+        $column         = ['id','card_no','ch_name','en_name','is_recommend','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
         $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
@@ -63,50 +63,42 @@ class OaMemberService extends BaseService
             $this->setMessage('没有成员!');
         }
         foreach ($member_list['data'] as &$value){
-            $value['grade']       = MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['category']    = MemberEnum::getCategory($value['category'],'普通成员');
-            $value['sex_name']    = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name'] = MemberEnum::getStatus($value['status'],'成员');
-            $value['hidden']      = MemberEnum::getHidden($value['hidden'],'显示');
-            $value['created_at']  = date('Y-m-d H:i:s',$value['created_at']);
+            $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
+            $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status_name']   = MemberEnum::getIdentity($value['status'],'成员');
+            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['created_at']    = date('Y-m-d H:i:s',$value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $member_list;
     }
 
     /**
-     * 获取成员信息
+     * 获取成员信息 (拆表后 已修改)
      * @param string $id
      * @return bool|null
      */
     public function getMemberInfo(string $id)
     {
-        if (!$member = OaMemberRepository::exists(['m_id' => $id])){
-            $this->setError('用户信息不存在!');
+        if (!$member = MemberGradeViewRepository::getOne(['id' => $id,'deleted_at' => 0])){
+            $this->setError('用户不存在!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
-            $this->setError('用户信息获取失败!');
-            return false;
-        }
-        if (!$memberInfo['deleted_at']  != 0){
-            $this->setError('用户已被删除，有需求请联系超级管理员!');
-            return false;
-        }
-        if (empty($memberInfo)) {
-            $this->setMessage('没有查找到此成员信息!');
-        }
-        $memberInfo['group_name']        = MemberEnum::getGrade($memberInfo['m_groupname'],$memberInfo['m_groupname']);
-        $memberInfo['category_name']     = MemberEnum::getCategory($memberInfo['m_category'],$memberInfo['m_category']);
-        $memberInfo['starte']            = MemberEnum::getStatus($memberInfo['m_starte'],$memberInfo['m_starte']);
-        $memberInfo['sex']               = MemberEnum::getSex($memberInfo['m_sex'],$memberInfo['m_sex']);
-
+        $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
+        $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
+        $member['is_recommend']  = $member['is_recommend'] == 0 ? 0 : 1;
+        $member['sex_name']      = MemberEnum::getSex($member['sex'],'未设置');
+        $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
+        $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
+        $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
         $this->setMessage('获取用户信息成功');
-        return $memberInfo;
+        return $member;
     }
 
     /**
-     * 成员软删除
+     * 成员软删除 (拆表后 已修改)
      * @param string $id
      * @return bool|null
      */
@@ -116,115 +108,115 @@ class OaMemberService extends BaseService
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!OaMemberRepository::exists(['m_id' => $id])){
+        if (!MemberGradeViewRepository::exists(['id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
-            $this->setError('没有该成员!');
-            return false;
-        }
-        if ($memberInfo['deleted_at']  != 0){
-            $this->setError('用户已被删除!');
-            return false;
-        }
-        if (!$memberInfo = OaMemberRepository::getUpdId(['m_id' => $id],['deleted_at' => time()])){
+        if (!MemberBaseRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除成员失败!');
             return false;
         }
         $this->setMessage('删除成员成功');
-        return $memberInfo;
+        return true;
     }
 
     /**
-     * 成员禁用or激活
-     * @param string $id
+     * 成员禁用or激活 (拆表后 已修改)
+     * @param $request
      * @return bool|null
      */
-    public function setMemberStatus(string $id)
+    public function setMemberStatus($request)
     {
-        if (empty($id)){
+        if (empty($request['id'])){
             $this->setError('会员ID为空！');
             return false;
         }
-        if (!$memberID = OaMemberRepository::exists(['m_id' => $id])){
-            $this->setError('用户信息不存在!');
+        if (!MemberEnum::isset($request['hidden'])){
+            $this->setError('状态属性不存在!');
             return false;
         }
-        if (!$memberInfo = OaMemberRepository::getOne(['m_id' => $id])){
-            $this->setError('用户信息获取失败!');
+        if (!MemberGradeViewRepository::exists(['id' =>$request['id']])){
+            $this->setError('用户不存在!');
             return false;
         }
-
-        switch ($memberInfo['m_starte'])
-        {
-            case '0':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DISABLEMEMBER])){
-                    $this->setError('禁用成员失败!');
-                    return false;
-                }
-                $this->setMessage('禁用会员成功!');
-                return $memberStatus;
-                break;
-            case '1':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::ACTIVITEMEMBER])){
-                    $this->setError('激活会员失败!');
-                    return false;
-                }
-                $this->setMessage('激活会员成功!');
-                return $memberStatus;
-                break;
-            case '2':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::DISABLEOFFICER])){
-                    $this->setError('禁用官员失败!');
-                    return false;
-                }
-                $this->setMessage('禁用官员成功!');
-                return $memberStatus;
-                break;
-            case '3':
-                if (!$memberStatus = OaMemberRepository::getUpdId(['m_id' => $id],['m_starte' => MemberEnum::ACTIVITEOFFICER])){
-                    $this->setError('激活官员失败!');
-                    return false;
-                }
-                $this->setMessage('激活官员成功!');
-                return $memberStatus;
-                break;
-                default;
+        if (!MemberBaseRepository::getUpdId(['id' => $request['id']],['hidden' => $request['hidden']])){
+            $this->setError('设置失败!');
+            return false;
         }
+        $this->setMessage('设置成功!');
+        return true;
     }
 
 
     /**
-     * 添加成员
-     * @param $data
+     * 添加成员 (拆表后 已修改)
+     * @param $request
      * @return bool|null
      */
-    public function addMember($data)
+    public function addMember($request)
     {
-        unset($data['sign'],$data['token']);
-        if (empty($data)){
-            $this->setError('没有数据，请添加数据');
+        if (MemberBaseRepository::exists(['card_no' => $request['card_no']])){
+            $this->setError('会员卡号已存在!');
             return false;
         }
-
-        if (empty($data['m_starte'])){
-            $data['m_starte'] = MemberEnum::DISABLEMEMBER;
-        }
-
-        if ($old_member = OaMemberRepository::exists(['m_cname' => $data['m_cname'],'m_phone' =>$data['m_phone'],'m_ename' =>$data['m_ename'],'m_email' => $data['m_email']])){
-            $this->setError('会员已存在，请不要重新添加');
+        $base_arr = [
+            'ch_name'    => $request['ch_name'],
+            'mobile'     => $request['mobile'],
+            'card_no'    => $request['card_no'],
+            'en_name'    => $request['en_name'] ?? '',
+            'avatar_id'  => $request['avatar_id'] ?? 1226,
+            'sex'        => $request['sex'] ?? 0,
+            'email'      => $request['email'] ?? '',
+            'status'     => $request['status'] ?? MemberEnum::MEMBER,
+            'hidden'     => $request['hidden'] ?? MemberEnum::ACTIVITE,
+        ];
+        DB::beginTransaction();
+        if (!$member_id = MemberBaseRepository::getAddId($base_arr)){
+            DB::rollBack();
+            $this->setError('添加失败，请重试！');
             return false;
         }
-
-        if (!$memberInfo = OaMemberRepository::getAddId($data)){
-            $this->setError('添加失败，请重新添加！');
+        $info_arr = [
+            'member_id'      => $member_id,
+            'address'        => $request['address'] ?? '' ,
+            'info_provider'  => $request['info_provider'] ?? '',
+            'employer'       => $request['employer'] ?? '',
+            'grade'          => $request['grade'] ?? 0,
+            'category'       => $request['category'] ?? 0,
+            'title'          => $request['title'] ?? '',
+            'industry'       => $request['industry'] ?? '',
+            'position'       => $request['position'] ?? '',
+        ];
+        if (!MemberInfoRepository::getAddId($info_arr)){
+            DB::rollBack();
+            $this->setError('添加失败，请重试！');
             return false;
         }
-
-        $this->setMessage('添加成功');
-        return $memberInfo;
-
+        $service_arr = [
+            'member_id'      => $member_id,
+            'other_server'   => $request['other_server'] ?? 1,
+        ];
+        if (!MemberPersonalServiceRepository::getAddId($service_arr)){
+            DB::rollBack();
+            $this->setError('添加失败，请重试！');
+            return false;
+        }
+        $grade_arr = [
+            'user_id'        => $member_id,
+            'grade'          => $info_arr['grade'],
+            'created_at'     => time(),
+            'update_at'      => time(),
+            'status'         => MemberEnum::NOPASS,
+            'end_at'         => strtotime('+' . $request['end_at'] . 'year'),
+        ];
+        if (!MemberGradeRepository::create([$grade_arr])){
+            DB::rollBack();
+            $this->setError('添加失败，请重试！');
+            return false;
+        }
+        DB::commit();
+        $this->setMessage('添加成功!');
+        return true;
     }
 
 
@@ -238,6 +230,11 @@ class OaMemberService extends BaseService
         if (!MemberBaseRepository::getOne(['id' => $request['id']])){
             $this->setError('用户不存在!');
             return false;
+        }
+        if ($request['end_at'] == MemberEnum::REALLYENJOY){
+            $end_at = 0;
+        }else{
+            $end_at = strtotime('+' . $request['end_at'] . 'year');
         }
         $base_arr = [
             'id'         => $request['id'],
@@ -268,7 +265,7 @@ class OaMemberService extends BaseService
         $grade_arr = [
             'grade'          => $info_arr['grade'],
             'created_at'     => time(),
-            'end_at'         => strtotime('+' . $request['end_at'] . 'year'),
+            'end_at'         => $end_at,
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_arr)){
@@ -276,44 +273,20 @@ class OaMemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
-            if (!MemberInfoRepository::getAddId($info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],$info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberInfoRepository::firstOrCreate(['member_id' => $request['id']],$info_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberPersonalServiceRepository::exists(['member_id' => $request['id']])){
-            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['id']],$service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberPersonalServiceRepository::firstOrCreate(['member_id' => $request['id']],$service_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberGradeRepository::exists(['user_id' => $request['id']])){
-            if (!MemberGradeRepository::getAddId($grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberGradeRepository::getUpdId(['user_id' => $request['id']],$grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberGradeRepository::firstOrCreate(['user_id' => $request['id']],$grade_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
         DB::commit();
         $this->setMessage('添加成功!');
