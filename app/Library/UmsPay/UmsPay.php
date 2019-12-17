@@ -349,6 +349,7 @@ class UmsPay
         }
         $return_url = $url . UmsConstants::RETURN_URL_HASH; ;
         //return urlencode($return_url);
+        //这里urlencode以后，http_build_query还会再encode一次。就会出问题了
         return $return_url;
     }
 
@@ -363,6 +364,7 @@ class UmsPay
             $url = UmsConstants::NOTIFY_URL;
         }
         //return urlencode($url);
+        //这里urlencode以后，http_build_query还会再encode一次。就会出问题了
         return $url;
     }
 

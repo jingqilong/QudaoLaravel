@@ -144,9 +144,13 @@ class UmsPayService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
+        $data = [];
+        $data['order_id'] = $order['id'];
+        $data['order_type'] = $order['order_type'];
+        $data['status'] = $order['status'];
         if(0 == $order['trade_id']){
-            return -1;
+            $data['status'] = -1;
         }
-        return $order['status'];
+        return $data;
     }
 }

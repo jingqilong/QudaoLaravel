@@ -411,7 +411,7 @@ class RegisterService extends BaseService
             default:
                 break;
         }
-        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code'];
+        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code','order_no'];
         if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
