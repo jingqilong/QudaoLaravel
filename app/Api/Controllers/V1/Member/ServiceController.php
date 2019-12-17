@@ -389,7 +389,7 @@ class ServiceController extends ApiController
     public function serviceList()
     {
         $res = $this->serviceService->serviceList();
-        if (!$res){
+        if ($res === false){
             return ['code' => 100, 'message' => $this->serviceService->error];
         }
         return ['code' => 200, 'message' => $this->serviceService->message, 'data' => $res];
