@@ -420,7 +420,7 @@ class UmsPayController extends ApiController
             return ['code' => 200, 'message' => '订单信息不存在！请返回重新下单！', 'data' => $response];
         }
         $response['status'] += 1;
-        if(0 === response['status']){
+        if(0 === $response['status']){
             return ['code' => 200, 'message' => '等待支付，请在浏览器中支付！', 'data' => $response];
         }
         return ['code' => 200, 'message' => '查询成功', 'data' => $response];
