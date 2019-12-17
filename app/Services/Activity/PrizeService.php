@@ -224,17 +224,17 @@ class PrizeService extends BaseService
             'prize_id'      => $winning['id'],
             'created_at'    => time()
         ];
-        $winning = ImagesService::getOneImagesConcise($winning,['image_ids' => 'single'],true);
-        unset($winning['odds']);
-        $winning['name'] = '价值' . $winning['worth'] . '元的' . $winning['name'];
-        dd($winning);
-//        if (!ActivityWinningRepository::getAddId($add_winning)){
-//            $this->setMessage('抽奖失败！');
-//            return $winning;
-//        }
-        //TODO 此处添加抽奖成功后的事务
-        $this->setMessage('恭喜你中奖啦！');
-        return '恭喜您抽中了'.$winning['title'].',奖品将在活动现场发放给您！';
+        if (!ActivityWinningRepository::getAddId($add_winning)){
+            $this->setError('抽奖失败！');
+            return false;
+        }
+        $res['is_win']      = $winning['worth'] == 0 ? 0 : 1;
+        $winning            = ImagesService::getOneImagesConcise($winning,['image_ids' => 'single'],true);
+        $winning['name']    = '价值' . $winning['worth'] . '元的' . $winning['name'];
+        unset($winning['odds'],$winning['id'],$winning['worth']);
+        $res['prize']       = $res['is_win'] == 0 ? [] : $winning;
+        $this->setMessage('抽奖成功！');
+        return $res;
     }
 
     /**
