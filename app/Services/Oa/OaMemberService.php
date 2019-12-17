@@ -259,6 +259,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         $service_arr = [
             'member_id'      => $request['id'],
