@@ -11,6 +11,7 @@ use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPastViewRepository;
+use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityRegisterViewRepository;
 use App\Repositories\ActivityThemeRepository;
@@ -494,12 +495,22 @@ class RegisterService extends BaseService
         $this->setMessage('生成成功！');
         $res = [
             'image_url'     => $image_url,
-            'is_winning'    => 0
+            'is_lottery'    => 0,
+            'is_win'        => 0,
+            'prize'         => []
         ];
         //检查是否已抽奖
-        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
-            $res['is_winning'] = 1;
+        if ($winning = ActivityWinningRepository::getOne(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
+            $res['is_lottery'] = 1;
+            if ($prize = ActivityPrizeRepository::getOne(['id' => $winning['prize_id']],['id','name','odds','image_ids','worth'])){
+                $prize          = ImagesService::getOneImagesConcise($prize,['image_ids' => 'single'],true);
+                $res['is_win']  = $prize['worth'] == 0 ? 0 : 1;
+                $prize['name']  = '价值' . $prize['worth'] . '元的' . $prize['name'];
+                unset($prize['odds'],$prize['id'],$prize['worth']);
+                $res['prize']   = $res['is_win'] == 0 ? [] : $prize;
+            }
         }
+        //获取抽奖奖品
         return $res;
     }
 
