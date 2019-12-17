@@ -170,6 +170,7 @@ class OaMemberService extends BaseService
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
             'hidden'     => $request['hidden'] ?? MemberEnum::ACTIVITE,
+            'created_at' => time(),
         ];
         DB::beginTransaction();
         if (!$member_id = MemberBaseRepository::getAddId($base_arr)){
@@ -188,6 +189,7 @@ class OaMemberService extends BaseService
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
             'profile'        => $request['profile'] ?? '',
+            'created_at'     => time(),
         ];
         if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
@@ -197,6 +199,7 @@ class OaMemberService extends BaseService
         $service_arr = [
             'member_id'      => $member_id,
             'other_server'   => $request['other_server'] ?? 1,
+            'created_at'     => time(),
         ];
         if (!MemberPersonalServiceRepository::getAddId($service_arr)){
             DB::rollBack();
