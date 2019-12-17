@@ -67,7 +67,7 @@ class OaMemberService extends BaseService
             $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getIdentity($value['status'],'成员');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
             $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
             $value['created_at']    = date('Y-m-d H:i:s',$value['created_at']);
         }
@@ -227,7 +227,7 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在!');
             return false;
         }
-        if ($request['end_at'] == MemberEnum::REALLYENJOY){
+        if ($request['end_at'] == MemberEnum::PERMANENT){
             $end_at = 0;
         }else{
             $end_at = strtotime('+' . $request['end_at'] . 'year');
