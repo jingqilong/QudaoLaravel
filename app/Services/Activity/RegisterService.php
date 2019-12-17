@@ -436,12 +436,12 @@ class RegisterService extends BaseService
                 $value['status'] = 2;
                 $value['status_title'] = '进行中';
             }
+            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
+                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
+            }
             if ($value['end_time'] < time()){
                 $value['status'] = 3;
                 $value['status_title'] = '已结束';
-            }
-            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
-                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
@@ -455,7 +455,7 @@ class RegisterService extends BaseService
     /**
      * 生成入场券
      * @param $register_id
-     * @return bool|void
+     * @return mixed
      */
     public function getAdmissionTicket($register_id)
     {
@@ -492,7 +492,15 @@ class RegisterService extends BaseService
             'sign_in_code'      => $register['sign_in_code']
         ]);
         $this->setMessage('生成成功！');
-        return $image_url;
+        $res = [
+            'image_url'     => $image_url,
+            'is_winning'    => 0
+        ];
+        //检查是否已抽奖
+        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
+            $res['is_winning'] = 1;
+        }
+        return $res;
     }
 
     /**
@@ -636,12 +644,7 @@ class RegisterService extends BaseService
         $res = [
             'url'           => $url,
             'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png'),
-            'is_winning'    => 0
         ];
-        //检查是否已抽奖
-        if (ActivityWinningRepository::exists(['member_id' => $member->id,'activity_id' => $activity_id])){
-            $res['is_winning'] = 1;
-        }
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
             return $res;
