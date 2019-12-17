@@ -187,6 +187,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
