@@ -401,7 +401,7 @@ class DetailsService extends BaseService
     protected function categoryList($data)
     {
         $category = $data['category'] ?? null;
-        $where    = ['deleted_at' => 0];
+        $where    = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $page     = '1';
         $page_num = '4';
         $column   = ['id','title','rent','tenancy','image_ids'];
