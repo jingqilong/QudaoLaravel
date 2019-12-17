@@ -303,7 +303,7 @@ class DetailsService extends BaseService
         $area_code  = $request['area_code'] ?? '';
         $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
-        $_order      = $request['order'] ?? '';
+        $_order     = $request['order'] ?? '';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
@@ -342,11 +342,10 @@ class DetailsService extends BaseService
                     $desc_asc   = 'desc';
                     break;
             }
-
         }
         $column = ['id','title','area_code','area','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['title','leasing', 'unit', 'toward']];
+            $keyword = [$keywords => ['title','leasing', 'unit', 'toward','condo_name']];
             if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
