@@ -114,6 +114,15 @@ class GradeController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="image_id",
+     *         in="query",
+     *         description="卡片（图片）ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -130,6 +139,7 @@ class GradeController extends ApiController
             'minimum_time'  => 'required|integer|min:1',
             'amount'        => 'required|integer|min:0',
             'is_buy'        => 'required|in:0,1',
+            'image_id'      => 'integer',
         ];
         $messages = [
             'iden.required'         => '请输入等级',
@@ -147,6 +157,7 @@ class GradeController extends ApiController
             'amount.min'            => '单价金额不能低于0元',
             'is_buy.required'       => '请选择是否可购买',
             'is_buy.in'             => '是否可购买取值不存在',
+            'image_id.integer'      => '卡片ID必须为整数',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
@@ -319,6 +330,15 @@ class GradeController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="image_id",
+     *         in="query",
+     *         description="卡片（图片）ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -336,6 +356,7 @@ class GradeController extends ApiController
             'minimum_time'  => 'integer|min:1',
             'amount'        => 'integer|min:0',
             'is_buy'        => 'in:0,1',
+            'image_id'      => 'integer',
         ];
         $messages = [
             'id.required'           => '等级记录ID不能为空',
@@ -349,6 +370,7 @@ class GradeController extends ApiController
             'amount.integer'        => '单价金额只能是整数',
             'amount.min'            => '单价金额不能低于0元',
             'is_buy.in'             => '是否可购买取值不存在',
+            'image_id.integer'      => '卡片ID必须为整数',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
@@ -854,4 +876,7 @@ class GradeController extends ApiController
         }
         return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
     }
+
+
+    public function getGradeYears(){}
 }
