@@ -120,7 +120,7 @@ $api->version('v1',function ($api){
                 $api->get('member_list','OaMemberController@memberList')->name('获取成员列表');
                 $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
                 $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
-                $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
+                $api->post('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
 
