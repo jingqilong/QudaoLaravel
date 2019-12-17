@@ -227,7 +227,7 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在!');
             return false;
         }
-        if ($request['end_at'] == MemberEnum::REALLYENJOY){
+        if ($request['end_at'] == MemberEnum::PERMANENT){
             $end_at = 0;
         }else{
             $end_at = strtotime('+' . $request['end_at'] . 'year');

@@ -39,12 +39,19 @@ class MemberEnum extends BaseEnum
         //通过
         'NOPASS'              => '未审核',
         'PASS'                => '通过',
+        //通过
+        'ONEYEAR'             => '一年',
+        'TWOYEAR'             => '两年',
+        'THREEYEAR'           => '三年',
+        'FIVEYEAR'            => '五年',
+        'PERMANENT'           => '永久有效',
     ];
 
 
 
     //成员等级
     public static $grade = [
+        0  => 'DEFAULT',
         1  => 'TEST',
         2  => 'ALSOENJOY',
         3  => 'TOENJOY',
@@ -55,7 +62,6 @@ class MemberEnum extends BaseEnum
         8  => 'ZHIRENJOY',
         9  => 'ADVISER',
         10 => 'TEMPORARY',
-        0  => 'DEFAULT',
     ];
 
     //成员分类
@@ -67,12 +73,6 @@ class MemberEnum extends BaseEnum
         4 => 'MINGYIZHUANJIA',
     ];
 
-    //成员or官员or软删除   状态
-    public static $status = [
-        0 => 'ACTIVITEMEMBER',
-        1 => 'DISABLEMEMBER',
-    ];
-
     //成员性别
     public static $sex = [
         0 => 'NOSET',
@@ -81,7 +81,7 @@ class MemberEnum extends BaseEnum
     ];
 
     //成员身份
-    public static $identity = [
+    public static $status = [
         1 => 'OFFICER',
         0 => 'MEMBER',
     ];
@@ -101,6 +101,15 @@ class MemberEnum extends BaseEnum
     public static $pass = [
         0 => 'PASS',
         1 => 'NOPASS',
+    ];
+
+    //pass
+    public static $expiration = [
+        1 => 'ONEYEAR',
+        2 => 'TWOYEAR',
+        3 => 'THREEYEAR',
+        4 => 'FIVEYEAR',
+        5 => 'PERMANENT',
     ];
 
     // 成员等级
@@ -171,6 +180,13 @@ class MemberEnum extends BaseEnum
     const NOPASS            = 0;    //通过
     const PASS              = 1;    //未通过
 
+    //通过
+    const ONEYEAR           = 1;    //一年
+    const TWOYEAR           = 2;    //两年
+    const THREEYEAR         = 3;    //三年
+    const FIVEYEAR          = 4;    //五年
+    const PERMANENT         = 5;    //永久有效
+
 
     /**
      * 获取状态label
@@ -222,8 +238,8 @@ class MemberEnum extends BaseEnum
      * @param string $default
      * @return mixed|string
      */
-    public static function getIdentity(int $value,$default = ''){
-        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : $default;
+    public static function getHidden(int $value,$default = ''){
+        return isset(self::$hidden[$value]) ? self::$labels[self::$hidden[$value]] : $default;
     }
     /**
      * 获取状态label
@@ -231,8 +247,8 @@ class MemberEnum extends BaseEnum
      * @param string $default
      * @return mixed|string
      */
-    public static function getHidden(int $value,$default = ''){
-        return isset(self::$hidden[$value]) ? self::$labels[self::$hidden[$value]] : $default;
+    public static function getExpiration(int $value,$default = ''){
+        return isset(self::$expiration[$value]) ? self::$labels[self::$expiration[$value]] : $default;
     }
 
 }
