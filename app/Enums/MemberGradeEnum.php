@@ -35,9 +35,9 @@ class MemberGradeEnum extends BaseEnum
     const CLOSE             = 1;    //关闭
 
     //是否可购买
-    const HIDDEN            = 1;    //非购买
+    const CANNOTBUY         = 0;    //非购买
 
-    const ACTIVITE          = 0;    //可以购买
+    const CANBUY            = 1;    //可以购买
 
 
     /**

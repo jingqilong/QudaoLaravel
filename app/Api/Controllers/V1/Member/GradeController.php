@@ -853,7 +853,7 @@ class GradeController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="修改失败",
+     *         description="获取失败",
      *     ),
      * )
      *
@@ -878,5 +878,43 @@ class GradeController extends ApiController
     }
 
 
-    public function getGradeYears(){}
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_grade_cart_list",
+     *     tags={"会员"},
+     *     summary="获取等级卡片列表",
+     *     description="sang",
+     *     operationId="get_grade_cart_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGradeCartList(){
+        $res = $this->gradeServiceService->getGradeCartList();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+    }
 }

@@ -334,6 +334,7 @@ $api->version('v1',function ($api){
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
                 #会员等级
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
+                $api->get('get_grade_cart_list','GradeController@getGradeCartList')->name('获取等级卡片列表');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
