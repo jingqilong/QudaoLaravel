@@ -66,10 +66,16 @@ $api->version('v1',function ($api){
     $api->group(['prefix' => 'v1','middleware' => ['cors', 'sign'],'namespace' => 'App\Api\Controllers\V1'], function ($api) {
         //OA 模块
         $api->group(['prefix' => 'oa','namespace' => 'Oa'],function ($api){
-            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
-                $api->post('logout','OaController@logout')->name('退出');
-                $api->post('refresh','OaController@refresh')->name('刷新token');
+            $api->post('login','OaController@login')->name('登录');
+            $api->post('logout','OaController@logout')->name('退出');
+            $api->post('refresh','OaController@refresh')->name('刷新token');
+            $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
+
+                $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
+                $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
+            });
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #OA首页
                 $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
                 $api->get('get_reservation_number','HomeController@getReservationNumber')->name('获取预约数量');
@@ -92,9 +98,7 @@ $api->version('v1',function ($api){
                 $api->post('add_menu','MenuController@addMenu')->name("添加菜单");
                 $api->post('edit_menu','MenuController@editMenu')->name("修改菜单");
                 $api->get('menu_detail','MenuController@menuDetail')->name("菜单详情");
-                $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
                 $api->get('menu_linkage_list','MenuController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
-                $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
 
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");
                 $api->delete('delete_permission','PermissionsController@deletePermission')->name("删除权限");
@@ -159,7 +163,6 @@ $api->version('v1',function ($api){
                     $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
-            $api->post('login','OaController@login')->name('登录');
         });
 
         //精选生活
@@ -296,7 +299,8 @@ $api->version('v1',function ($api){
                 $api->get('get_all_message_list','OaMessageController@getAllMessageList')->name('获取所有消息列表');
                 $api->post('send_system_notice','OaMessageController@sendSystemNotice')->name('发送系统通知');
                 $api->post('send_announce','OaMessageController@sendAnnounce')->name('发送公告');
-
+            });
+            $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
             });
