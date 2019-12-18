@@ -199,31 +199,30 @@ class GradeOrdersService extends BaseService
                 DB::rollBack();
                 return false;
             }
-            //TODO 此处进行升级成员等级
         }
         if (!MemberGradeOrdersRepository::getUpdId(['id' => $request['id']],$upd)){
             $this->setError('设置失败！');
             DB::rollBack();
             return false;
         }
-        //通知用户
-        $member_name = $apply['ch_name'] . MemberEnum::getSex($apply['sex']);
-        $sms_template = [
-            GradeOrderEnum::EVALUATION  => '尊敬的'.$member_name.'您好！您已成功升级为'.$apply['grade_title'].'，进入微信公众号即可查看享有权益。如有疑问请联系客服：021-53067999！',
-            GradeOrderEnum::CANCELED    => '尊敬的'.$member_name.'您好！您的等级升级申请取消成功，如有需要，进入微信公众号即可再次申请。如有疑问请联系客服：021-53067999！',
-        ];
-        #短信通知
-        if (!empty($apply['mobile'])){
-            $smsService = new SmsService();
-            $smsService->sendContent($apply['mobile'],$sms_template[$request['status']]);
-        }
-        $title = '会员等级申请通知';
-        #发送站内信
-        $sms_template = [
-            GradeOrderEnum::EVALUATION  => '尊敬的'.$member_name.'您好！您已成功升级为'.$apply['grade_title'].'，点击【我的 -> 成员权益】即可查看享有权益。如有疑问请联系客服：021-53067999！',
-            GradeOrderEnum::CANCELED    => '尊敬的'.$member_name.'您好！您的等级升级申请取消成功，如有需要，点击【我的 -> 成员权益】即可再次申请。如有疑问请联系客服：021-53067999！',
-        ];
-        SendService::sendMessage($apply['member_id'],MessageEnum::SYSTEMNOTICE,$title,$sms_template[$request['status']],$apply['id']);
+//        //通知用户
+//        $member_name = $apply['ch_name'] . MemberEnum::getSex($apply['sex']);
+//        $sms_template = [
+//            GradeOrderEnum::EVALUATION  => '尊敬的'.$member_name.'您好！您已成功升级为'.$apply['grade_title'].'，进入微信公众号即可查看享有权益。如有疑问请联系客服：021-53067999！',
+//            GradeOrderEnum::CANCELED    => '尊敬的'.$member_name.'您好！您的等级升级申请取消成功，如有需要，进入微信公众号即可再次申请。如有疑问请联系客服：021-53067999！',
+//        ];
+//        #短信通知
+//        if (!empty($apply['mobile'])){
+//            $smsService = new SmsService();
+//            $smsService->sendContent($apply['mobile'],$sms_template[$request['status']]);
+//        }
+//        $title = '会员等级申请通知';
+//        #发送站内信
+//        $sms_template = [
+//            GradeOrderEnum::EVALUATION  => '尊敬的'.$member_name.'您好！您已成功升级为'.$apply['grade_title'].'，点击【我的 -> 成员权益】即可查看享有权益。如有疑问请联系客服：021-53067999！',
+//            GradeOrderEnum::CANCELED    => '尊敬的'.$member_name.'您好！您的等级升级申请取消成功，如有需要，点击【我的 -> 成员权益】即可再次申请。如有疑问请联系客服：021-53067999！',
+//        ];
+//        SendService::sendMessage($apply['member_id'],MessageEnum::SYSTEMNOTICE,$title,$sms_template[$request['status']],$apply['id']);
         $this->setMessage('设置成功！');
         DB::commit();
         return true;
