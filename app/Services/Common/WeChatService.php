@@ -119,7 +119,7 @@ class WeChatService extends BaseService
             if (!empty($bind['user_id'])){
                 if ($member = MemberBaseRepository::getOne(['id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
-                    if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+                    if (!$grade = MemberGradeRepository::getField(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
                         $grade = MemberEnum::DEFAULT;
                     }
                     $member['grade']        = $grade;
