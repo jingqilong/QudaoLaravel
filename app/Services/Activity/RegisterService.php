@@ -684,9 +684,9 @@ class RegisterService extends BaseService
         //模板
         /*
          * resource_ids:[1,2,...]
-         * resource_urls:[image_url1,image_url2,...]
          * top:'0' 0不置顶 1置顶
          * hidden:'0' 0隐藏 1显示
+         * presentation:''
         */
         $activity_id = $request['activity_id'];
         if (!ActivityDetailRepository::getOne(['id' => $activity_id])){
@@ -696,7 +696,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $add_arr =[];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -765,7 +765,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $upd_arr = [];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -807,7 +807,7 @@ class RegisterService extends BaseService
     public function getActivityPastList($request)
     {
         $where      = ['activity_id' => $request['activity_id']];
-        $column     = ['resource_ids','resource_urls','presentation','hidden','top'];
+        $column     = ['resource_ids','presentation','hidden','top'];
         if (!$list = ActivityPastRepository::getList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
@@ -817,7 +817,8 @@ class RegisterService extends BaseService
         foreach ($list as &$value){
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
-        return json_encode($list);
+        //return json_encode($list);
+        return $list;
     }
 
 }
