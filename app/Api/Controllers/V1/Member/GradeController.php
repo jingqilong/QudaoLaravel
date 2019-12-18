@@ -132,7 +132,7 @@ class GradeController extends ApiController
      */
     public function addGrade(){
         $rules = [
-            'iden'          => 'required|integer',
+            'iden'          => 'required|integer|max:99',
             'title'         => 'required|max:50',
             'description'   => 'max:200',
             'status'        => 'required|in:0,1',
@@ -144,6 +144,7 @@ class GradeController extends ApiController
         $messages = [
             'iden.required'         => '请输入等级',
             'iden.integer'          => '等级必须为整数',
+            'iden.max'              => '等级不能超过99',
             'title.required'        => '请输入等级标题',
             'title.max'             => '等级标题不能超过50字',
             'description.max'       => '等级说明不能超过200字',
@@ -348,7 +349,7 @@ class GradeController extends ApiController
      */
     public function editGrade(){
         $rules = [
-            'id'            => 'required|integer',
+            'id'            => 'required|integer|max:99',
             'iden'          => 'integer',
             'title'         => 'max:50',
             'description'   => 'max:200',
@@ -361,6 +362,7 @@ class GradeController extends ApiController
         $messages = [
             'id.required'           => '等级记录ID不能为空',
             'id.integer'            => '等级记录ID必须为整数',
+            'iden.max'              => '等级不能超过99',
             'iden.integer'          => '等级必须为整数',
             'title.max'             => '等级标题不能超过50字',
             'description.max'       => '等级说明不能超过200字',
@@ -912,6 +914,66 @@ class GradeController extends ApiController
      */
     public function getGradeCartList(){
         $res = $this->gradeServiceService->getGradeCartList();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_grade_apply_detail",
+     *     tags={"会员"},
+     *     summary="获取等级申请详情",
+     *     description="sang",
+     *     operationId="get_grade_apply_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGradeApplyDetail(){
+        $rules = [
+            'grade'         => 'required',
+        ];
+        $messages = [
+            'grade.required'        => '等级不能为空',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeServiceService->getGradeApplyDetail($this->request['grade']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }

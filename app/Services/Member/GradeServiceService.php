@@ -3,8 +3,10 @@ namespace App\Services\Member;
 
 
 use App\Enums\GradeServiceEnum;
+use App\Enums\MemberEnum;
 use App\Enums\MemberGradeEnum;
 use App\Repositories\MemberGradeDefineRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeServiceRepository;
 use App\Repositories\MemberGradeServiceViewRepository;
 use App\Repositories\MemberRepository;
@@ -180,6 +182,30 @@ class GradeServiceService extends BaseService
         $list = ImagesService::getListImagesConcise($list,['image_id' => 'single'],true);
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 获取成员等级申请详情
+     * @param $select_grade
+     * @return array|bool
+     */
+    public function getGradeApplyDetail($select_grade)
+    {
+        $member = $this->auth->user();
+        if (!MemberGradeDefineRepository::exists(['iden' => $select_grade,'status' => MemberGradeEnum::ENABLE])){
+            $this->setError('会员等级不存在!');
+            return false;
+        }
+        $grade  = 0;
+        if ($member_grade = MemberGradeRepository::getOne(['user_id' => $member->id,'status' => MemberEnum::PASS])){
+            $grade = $member_grade['grade'];
+        }
+        $res = [
+            'now_grade'     => MemberEnum::getGrade($grade),
+            'years_list'    => $select_grade == MemberEnum::YOUENJOY ? [6] : [1,2,3,4,5]
+        ];
+        $this->setMessage('获取成功！');
+        return $res;
     }
 }
             

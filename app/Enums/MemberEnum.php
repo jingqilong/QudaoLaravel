@@ -99,8 +99,8 @@ class MemberEnum extends BaseEnum
 
     //pass
     public static $pass = [
-        0 => 'PASS',
-        1 => 'NOPASS',
+        0 => 'NOPASS',
+        1 => 'PASS',
     ];
 
     //pass
