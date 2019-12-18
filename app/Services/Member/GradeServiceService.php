@@ -2,10 +2,13 @@
 namespace App\Services\Member;
 
 
+use App\Enums\GradeOrderEnum;
 use App\Enums\GradeServiceEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MemberGradeEnum;
+use App\Enums\OrderEnum;
 use App\Repositories\MemberGradeDefineRepository;
+use App\Repositories\MemberGradeOrdersRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeServiceRepository;
 use App\Repositories\MemberGradeServiceViewRepository;
@@ -18,6 +21,7 @@ use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GradeServiceService extends BaseService
 {

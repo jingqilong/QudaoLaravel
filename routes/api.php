@@ -340,6 +340,7 @@ $api->version('v1',function ($api){
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
                 $api->get('get_grade_cart_list','GradeController@getGradeCartList')->name('获取等级卡片列表');
                 $api->get('get_grade_apply_detail','GradeController@getGradeApplyDetail')->name('获取等级申请详情');
+                $api->post('upgrade_apply','GradeController@upgradeApply')->name('提交等级升级申请');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
@@ -351,10 +352,10 @@ $api->version('v1',function ($api){
                 $api->get('service_list','ServiceController@serviceList')->name('获取服务列表');
                 $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
                 #会员等级服务
-                $api->post('grade_add_service','GradeController@gradeAddService')->name('给等级添加服务');
-                $api->delete('grade_delete_service','GradeController@gradeDeleteService')->name('删除等级中的服务');
-                $api->post('grade_edit_service','GradeController@gradeEditService')->name('修改等级与服务对应关系');
-                $api->get('grade_service_detail','GradeController@gradeServiceDetail')->name('获取等级下的服务详情');
+                $api->post('grade_add_service','OaGradeController@gradeAddService')->name('给等级添加服务');
+                $api->delete('grade_delete_service','OaGradeController@gradeDeleteService')->name('删除等级中的服务');
+                $api->post('grade_edit_service','OaGradeController@gradeEditService')->name('修改等级与服务对应关系');
+                $api->get('grade_service_detail','OaGradeController@gradeServiceDetail')->name('获取等级下的服务详情');
                 #会员产看权限
                 $api->post('add_view_member','ViewController@addViewMember')->name('添加成员可查看成员');
                 $api->post('add_grade_view','ViewController@addGradeView')->name('添加等级可查看成员');
@@ -362,10 +363,14 @@ $api->version('v1',function ($api){
                 $api->post('restore_view_member','ViewController@restoreViewMember')->name('恢复成员可查看成员');
 
                 #会员等级
-                $api->post('add_grade','GradeController@addGrade')->name('添加等级');
-                $api->delete('delete_grade','GradeController@deleteGrade')->name('删除等级');
-                $api->post('edit_grade','GradeController@editGrade')->name('编辑等级');
-                $api->get('get_grade_list','GradeController@getGradeList')->name('获取等级列表');
+                $api->post('add_grade','OaGradeController@addGrade')->name('添加等级');
+                $api->delete('delete_grade','OaGradeController@deleteGrade')->name('删除等级');
+                $api->post('edit_grade','OaGradeController@editGrade')->name('编辑等级');
+                $api->get('get_grade_list','OaGradeController@getGradeList')->name('获取等级列表');
+                #等级申请
+                $api->get('get_upgrade_apply_list','OaGradeController@getUpgradeApplyList')->name('获取等级申请列表');
+                $api->post('audit_apply','OaGradeController@auditApply')->name('审核等级申请');
+                $api->post('set_apply_status','OaGradeController@setApplyStatus')->name('设置等级申请支付状态');
 
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');

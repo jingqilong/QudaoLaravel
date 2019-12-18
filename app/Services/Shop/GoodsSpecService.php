@@ -42,6 +42,16 @@ class GoodsSpecService extends BaseService
                 $this->setError('商品规格库存、价格、规格不能为空！');
                 return false;
             }
+            if (!is_numeric($value['price'])){
+                DB::rollBack();
+                $this->setError('商品价格必须为整数或小数！');
+                return false;
+            }
+            if (!is_numeric($value['stock'])){
+                DB::rollBack();
+                $this->setError('商品库存必须为整数！');
+                return false;
+            }
             if (empty($value['spec'])){
                 DB::rollBack();
                 $this->setError('必须添加规格属性！');
