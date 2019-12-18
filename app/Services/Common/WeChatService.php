@@ -7,6 +7,7 @@ use App\Enums\MemberBindEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
@@ -118,8 +119,13 @@ class WeChatService extends BaseService
             if (!empty($bind['user_id'])){
                 if ($member = MemberBaseRepository::getOne(['id' => $bind['user_id']])){
                     $this->setMessage('登录成功！');
-                    $member['sex']    = MemberEnum::getSex($member['sex']);
-                    $member           = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+                    if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+                        $grade = MemberEnum::DEFAULT;
+                    }
+                    $member['grade']        = $grade;
+                    $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+                    $member['sex']          = MemberEnum::getSex($member['sex']);
+                    $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
                     unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
                     return [
                         'code'  => 1,
@@ -235,9 +241,13 @@ class WeChatService extends BaseService
         }
         $this->setMessage('绑定成功！');
         DB::commit();
-
-        $member['sex']    = MemberEnum::getSex($member['sex']);
-        $member           = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade = MemberEnum::DEFAULT;
+        }
+        $member['grade']        = $grade;
+        $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $member['sex']          = MemberEnum::getSex($member['sex']);
+        $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
         return [
             'code'  => 1,

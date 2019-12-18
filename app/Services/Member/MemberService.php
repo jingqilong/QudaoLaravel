@@ -74,6 +74,11 @@ class MemberService extends BaseService
         }
         $user           = $this->auth->user();
         $user           = $user->toArray();
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade = MemberEnum::DEFAULT;
+        }
+        $user['grade']        = $grade;
+        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
         $user['sex']    = MemberEnum::getSex($user['sex']);
         $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
