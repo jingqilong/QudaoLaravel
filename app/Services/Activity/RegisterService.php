@@ -709,7 +709,6 @@ class RegisterService extends BaseService
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
-                'resource_urls'=> implode(',',$value['resource_urls']),
                 'presentation' => $value['presentation'],
                 'created_at'   => time(),
                 'updated_at'   => time(),
@@ -779,7 +778,6 @@ class RegisterService extends BaseService
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
-                'resource_urls'=> implode(',',$value['resource_urls']),
                 'presentation' => $value['presentation'],
                 'updated_at'   => time(),
             ];
@@ -820,7 +818,6 @@ class RegisterService extends BaseService
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
         return json_encode($list);
-        //return $list;
     }
 
 }
