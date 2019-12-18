@@ -13,6 +13,7 @@ use App\Repositories\OaMemberRepository;
 use App\Repositories\MemberServiceRepository;
 use App\Repositories\MemberSpecifyViewRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
@@ -163,6 +164,22 @@ class GradeServiceService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $grade_list;
+    }
+
+    /**
+     * 获取等级卡片列表（前端）
+     * @return array|null
+     */
+    public function getGradeCartList()
+    {
+        $column = ['iden','title','amount','image_id'];
+        if (!$list = MemberGradeDefineRepository::getList(['status' => MemberGradeEnum::ENABLE,'is_buy' => MemberGradeEnum::CANBUY],$column)){
+            $this->setMessage('暂无等级！');
+            return [];
+        }
+        $list = ImagesService::getListImagesConcise($list,['image_id' => 'single'],true);
+        $this->setMessage('获取成功！');
+        return $list;
     }
 }
             

@@ -35,6 +35,7 @@ class HomeBannersService extends BaseService
         foreach ($banners as &$banner){
             $banner['status']       = 0;
             $banner['status_title'] = '无状态';
+            $banner['image'] = $banner['image_url'];
             if ($banner['type'] == CommonHomeEnum::ACTIVITY && !empty($activity_list) &&
                 $activity = self::searchArrays($activity_list,'id',$banner['related_id'])
             ){
