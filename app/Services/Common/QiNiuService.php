@@ -236,7 +236,14 @@ class QiNiuService extends BaseService
         foreach ($files as $info){
             $name = $info->getClientOriginalName();
             $path = $info->getRealPath();
-            $file_name = $config['bucket'].'/'.$name;
+            try {
+                $file_type = $info->getMimeType();
+                $temp = explode('/',$file_type);
+                $image_format = end($temp);
+            }catch (\Exception $e){
+                $image_format = 'jpg';
+            }
+            $file_name = $config['bucket'].'/'.md5(date('YmdHis').rand(1,10000).$name).'.'.$image_format;
             $result[$name]['name'] = $file_name;
             if ($disk->exists($file_name)){//如果图片已经上传
                 $url = (string)$disk->downloadUrl($file_name);
