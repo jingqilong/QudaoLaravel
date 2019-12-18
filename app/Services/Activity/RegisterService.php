@@ -817,8 +817,7 @@ class RegisterService extends BaseService
         foreach ($list as &$value){
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
-        //return json_encode($list);
-        return $list;
+        return json_encode($list);
     }
 
 }
