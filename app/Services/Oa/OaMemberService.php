@@ -332,7 +332,7 @@ class OaMemberService extends BaseService
             $this->setError('成员不存在!');
             return false;
         }
-        if (!MemberInfoRepository::getUpdId(['id' => $request['id']],['is_home_detail' => $request['exhibition']])){
+        if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],['is_home_detail' => $request['exhibition']])){
             $this->setError('设置失败!');
             return false;
         }
