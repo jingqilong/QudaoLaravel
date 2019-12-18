@@ -98,6 +98,7 @@ class OaMemberService extends BaseService
         $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
         $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
         $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
+        $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
         if (empty($member['birthday'])) $member['birthday'] = '';
         if (0 == $member['end_at']){
             $member['end_at']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
