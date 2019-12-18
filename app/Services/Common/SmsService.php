@@ -49,11 +49,13 @@ class SmsService extends BaseService
     public function checkCode($mobile, $type, $code)
     {
         if (!$sms = CommonSmsRepository::getOrderOne(['mobile' => $mobile,'type' => $type,'status' => 0], 'created_at')){
+            Loggy::write("debug","短信验证码： 未找到对应的记录！",['mobile' => $mobile,'type' => $type,'status' => 0]);
             return '短信已过期，请重新获取！';
         }
         $time = time();
         if ($time > ($sms['created_at'] + 300)){
             CommonSmsRepository::getUpdId(['id' => $sms['id']], ['status' => 1]);
+            Loggy::write("debug","短信验证码： 短信已过期！",['mobile' => $mobile,'type' => $type,'status' => 0]);
             return '短信已过期，请重新获取！';
         }
         if ($code != $sms['code']){
