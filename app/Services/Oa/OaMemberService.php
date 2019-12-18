@@ -10,6 +10,7 @@ use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberPersonalServiceRepository;
+use App\Repositories\MemberSpecifyViewRepository;
 use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -40,12 +41,16 @@ class OaMemberService extends BaseService
         if (empty($data['asc'])){
             $data['asc'] = 1;
         }
+        $is_home_detail = $data['is_home_detail'] ?? null;
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','is_recommend','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
+        $column         = ['id','card_no','ch_name','en_name','is_recommend','is_home_detail','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
         $where          = ['deleted_at' => 0];
+        if (!empty($is_home_detail)){
+            $where['is_home_detail'] = $is_home_detail;
+        }
         if (!empty($keywords)){
             $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
             if(!$member_list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
@@ -314,6 +319,25 @@ class OaMemberService extends BaseService
 //        if (!MemberGradeRepository::getAddId()){
 //
 //        }
+    }
+
+    /**
+     * 设置成员是否在首页显示
+     * @param $request
+     * @return bool
+     */
+    public function setMemberHomeDetail($request)
+    {
+        if (!MemberGradeViewRepository::exists(['id' => $request['id']])){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        if (!MemberInfoRepository::getUpdId(['id' => $request['id']],['is_home_detail' => $request['exhibition']])){
+            $this->setError('设置失败!');
+            return false;
+        }
+        $this->setMessage('设置成功!');
+        return true;
     }
 
 }

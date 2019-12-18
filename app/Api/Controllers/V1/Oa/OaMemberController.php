@@ -60,6 +60,15 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="is_home_detail",
+     *         in="query",
+     *         description="是否在首页显示排序【0不显示 1显示】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -84,20 +93,22 @@ class OaMemberController extends ApiController
     public function memberList()
     {
         $rules = [
-            'page'          => 'integer',
-            'page_num'      => 'integer',
+            'page'            => 'integer',
+            'page_num'        => 'integer',
+            'is_home_detail'  => 'in:0,1',
+            'asc'             => 'in:1,2',
         ];
         $messages = [
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
+            'asc.integer'              => '排序类型不存在',
+            'is_home_detail.integer'   => '显示类型不存在',
+            'page.integer'             => '页码必须为整数',
+            'page_num.integer'         => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-
         $list = $this->OaMemberService->getMemberList($this->request);
-
         return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $list];
     }
 
@@ -545,10 +556,10 @@ class OaMemberController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/add_member_home_detail",
+     *     path="/api/v1/oa/set_member_home_detail",
      *     tags={"OA成员管理"},
-     *     summary="添加成员至首页展示",
-     *     operationId="add_member_home_detail",
+     *     summary="设置成员是否在首页显示",
+     *     operationId="set_member_home_detail",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -568,6 +579,15 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="成员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="exhibition",
      *         in="query",
      *         description="首页显示 默认0不显示 1显示",
@@ -583,20 +603,23 @@ class OaMemberController extends ApiController
      * )
      *
      */
-    public function addMemberHomeDetail()
+    public function setMemberHomeDetail()
     {
         $rules = [
+            'id'              => 'required|integer',
             'exhibition'      => 'required|in:0,1',
         ];
         $messages = [
-            'exhibition.required'   => '首页显示类型不能为空',
-            'exhibition.in'         => '首页显示类型不存在',
+            'id.required'          => '成员ID不能为空',
+            'id.integer'           => '成员ID不是整数',
+            'exhibition.required'  => '首页显示类型不能为空',
+            'exhibition.in'        => '首页显示类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->addMemberHomeDetail($this->request);
+        $res = $this->OaMemberService->setMemberHomeDetail($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
