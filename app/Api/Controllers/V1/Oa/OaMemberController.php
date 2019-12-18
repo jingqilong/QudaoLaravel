@@ -225,7 +225,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/set_member_status",
      *     tags={"OA成员管理"},
-     *     summary="禁用or激活成员and官员",
+     *     summary="成员 禁用or激活",
      *     operationId="set_member_status",
      *     @OA\Parameter(
      *         name="sign",
@@ -536,6 +536,67 @@ class OaMemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->OaMemberService->addMemberServiceView($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/add_member_home_detail",
+     *     tags={"OA成员管理"},
+     *     summary="添加成员至首页展示",
+     *     operationId="add_member_home_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="exhibition",
+     *         in="query",
+     *         description="首页显示 默认0不显示 1显示",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function addMemberHomeDetail()
+    {
+        $rules = [
+            'exhibition'      => 'required|in:0,1',
+        ];
+        $messages = [
+            'exhibition.required'   => '首页显示类型不能为空',
+            'exhibition.in'         => '首页显示类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->addMemberHomeDetail($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
