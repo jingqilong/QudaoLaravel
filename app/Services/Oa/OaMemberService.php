@@ -10,8 +10,7 @@ use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberPersonalServiceRepository;
-use App\Repositories\MemberSpecifyViewRepository;
-use App\Repositories\OaMemberRepository;
+use App\Repositories\OaGradeViewRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -306,21 +305,6 @@ class OaMemberService extends BaseService
         return true;
     }
 
-    public function addMemberServiceView($request)
-    {
-        if (!MemberEnum::isset($request['grade']) && !MemberEnum::isset($request['value'])){
-            $this->setError('等级或可查看值不存在');
-            return false;
-        }
-        $where = ['grade' => $request['grade'],'value' => $request['value'],'deleted_at' => 0];
-        if (!MemberGradeRepository::exists($where)){
-            $this->setError('查看服务已存在');
-            return false;
-        }#TODO
-//        if (!MemberGradeRepository::getAddId()){
-//
-//        }
-    }
 
     /**
      * 设置成员是否在首页显示
@@ -339,6 +323,103 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('设置成功!');
         return true;
+    }
+
+    /**
+     * 添加等级可查看等级服务
+     * @param $request
+     * @return bool
+     */
+    public function addMemberGradeView($request)
+    {
+        if (empty($request['type'])){
+            $this->setError('类型不能为空');
+            return false;
+        }
+        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+            $this->setError('等级或可查看值不存在');
+            return false;
+        }
+        $add_arr = [
+            'type'      => $request['type'],
+            'grade'     => $request['grade'],
+            'value'     => $request['value'],
+        ];
+        if (OaGradeViewRepository::exists($add_arr)){
+            $this->setError('查看服务已存在');
+            return false;
+        }
+        $add_arr['created_at']  = time();
+        $add_arr['updated_at']  = time();
+        if (!OaGradeViewRepository::getAddId($add_arr)){
+            $this->setError('添加失败!');
+            return false;
+        }
+        $this->setMessage('添加成功!');
+        return true;
+    }
+
+
+    /**
+     * 修改等级可查看等级服务
+     * @param $request
+     * @return bool
+     */
+    public function editMemberGradeView($request)
+    {
+        if (empty($request['type'])){
+            $this->setError('类型不能为空');
+            return false;
+        }
+        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+            $this->setError('等级或可查看值不存在');
+            return false;
+        }
+        $upd_arr = [
+            'type'      => $request['type'],
+            'grade'     => $request['grade'],
+            'value'     => $request['value'],
+        ];
+        if (OaGradeViewRepository::exists($upd_arr)){
+            $this->setError('查看服务已存在');
+            return false;
+        }
+        $upd_arr['updated_at']  = time();
+        if (!OaGradeViewRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('修改失败!');
+            return false;
+        }
+        $this->setMessage('修改成功!');
+        return true;
+    }
+
+    /**
+     * 获取等级可查看等级服务列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function getMemberGradeViewList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['id' => ['>',0]];
+        $column     = ['id','grade','type','value','created_at'];
+        if (!$list = OaGradeViewRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return [];
+        }
+        foreach ($list['data'] as &$value){
+            $value['grade']       =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['value']       =   MemberEnum::getGrade($value['value'],'普通成员');
+            $value['type']        =   MemberEnum::getIdentity($value['type'],'成员');
+            $value['created_at']  =   date('Y-m-d H:i:s',$value['created_at']);
+        }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 
 }

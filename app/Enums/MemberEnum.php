@@ -39,6 +39,9 @@ class MemberEnum extends BaseEnum
         //通过
         'NOPASS'              => '未审核',
         'PASS'                => '通过',
+        //等级 身份
+        'GRADE'               => '成员等级',
+        'IDENTITY'            => '身份类型',
         //通过
         'ONEYEAR'             => '一年',
         'TWOYEAR'             => '两年',
@@ -71,6 +74,12 @@ class MemberEnum extends BaseEnum
         2 => 'QIYEJINGYING',
         3 => 'HONOURMEMBER',
         4 => 'MINGYIZHUANJIA',
+    ];
+
+    //等级 身份
+    public static $identity = [
+        1 => 'GRADE',
+        2 => 'IDENTITY',
     ];
 
     //成员性别
@@ -181,6 +190,10 @@ class MemberEnum extends BaseEnum
     const PASS              = 1;    //未通过
 
     //通过
+    const GRADE             = 1;    //成员等级
+    const IDENTITY          = 2;    //身份类型
+
+    //通过
     const ONEYEAR           = 1;    //一年
     const TWOYEAR           = 2;    //两年
     const THREEYEAR         = 3;    //三年
@@ -249,6 +262,15 @@ class MemberEnum extends BaseEnum
      */
     public static function getExpiration(int $value,$default = ''){
         return isset(self::$expiration[$value]) ? self::$labels[self::$expiration[$value]] : $default;
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @param string $default
+     * @return mixed|string
+     */
+    public static function getIdentity(int $value,$default = ''){
+        return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : $default;
     }
 
 }

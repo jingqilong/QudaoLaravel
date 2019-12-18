@@ -469,12 +469,13 @@ class OaMemberController extends ApiController
         }
        return ['code' => 200, 'message' => $this->OaMemberService->message];
     }
+
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/add_member_service_view",
+     *     path="/api/v1/oa/add_member_grade_view",
      *     tags={"OA成员管理"},
-     *     summary="添加成员可查看会员记录",
-     *     operationId="add_member_service_view",
+     *     summary="添加成员可查看会员权限",
+     *     operationId="add_member_grade_view",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -527,7 +528,7 @@ class OaMemberController extends ApiController
      * )
      *
      */
-    public function addMemberServiceView()
+    public function addMemberGradeView()
     {
         $rules = [
             'type'            => 'required|in:1,2',
@@ -546,7 +547,7 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->addMemberServiceView($this->request);
+        $res = $this->OaMemberService->addMemberGradeView($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
@@ -554,9 +555,180 @@ class OaMemberController extends ApiController
     }
 
 
+
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/set_member_home_detail",
+     *     path="/api/v1/oa/edit_member_grade_view",
+     *     tags={"OA成员管理"},
+     *     summary="修改成员可查看会员权限",
+     *     operationId="edit_member_grade_view",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型 1等级 2成员身份",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="成员 等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="value",
+     *         in="query",
+     *         description="可查看成员等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMemberGradeView()
+    {
+        $rules = [
+            'id'              => 'required|integer',
+            'type'            => 'required|in:1,2',
+            'grade'           => 'required|integer',
+            'value'           => 'required|integer',
+        ];
+        $messages = [
+            'id.required'     => 'ID不能为空',
+            'id.integer'      => 'ID不是整数',
+            'type.required'   => '类型不能为空',
+            'type.in'         => '该类型不存在',
+            'grade.required'  => '等级不能为空',
+            'grade.integer'   => '等级不是整数',
+            'value.required'  => '查看值不能为空',
+            'value.integer'   => '查看值不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->editMemberGradeView($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200, 'message' => $this->OaMemberService->message];
+    }
+
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_member_grade_view_list",
+     *     tags={"OA成员管理"},
+     *     summary="获取成员可查看会员权限列表",
+     *     operationId="get_member_grade_view_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="用户信息获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberGradeViewList()
+    {
+        $rules = [
+            'page'            => 'integer',
+            'page_num'        => 'integer',
+        ];
+        $messages = [
+            'page.integer'             => '页码必须为整数',
+            'page_num.integer'         => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->getMemberGradeViewList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => $res];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/_member_home_detail",
      *     tags={"OA成员管理"},
      *     summary="设置成员是否在首页显示",
      *     operationId="set_member_home_detail",

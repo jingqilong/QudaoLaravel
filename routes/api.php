@@ -129,6 +129,12 @@ $api->version('v1',function ($api){
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
                 $api->post('set_member_home_detail','OaMemberController@setMemberHomeDetail')->name('设置成员是否在首页显示');
 
+                #OA成员等级服务
+                $api->post('add_member_grade_view','OaMemberController@addMemberGradeView')->name('添加等级可查看等级服务');
+                $api->post('edit_member_grade_view','OaMemberController@editMemberGradeView')->name('修改等级可查看等级服务');
+                $api->get('get_member_grade_view_list','OaMemberController@getMemberGradeViewList')->name('获取等级可查看等级服务列表');
+
+
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
                     $api->post('add_process_categories','ProcessController@addProcessCategories')->name('添加流程分类');
