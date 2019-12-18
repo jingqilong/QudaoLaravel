@@ -857,12 +857,12 @@ class MemberService extends BaseService
      * @return array
      */
     public static function getHomeShowMemberList($count){
-        if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
+        /*if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
             return [];
         }
-        $view_user_ids  = array_column($list,'view_user_id');
+        $view_user_ids  = array_column($list,'view_user_id');*/
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
-        if (!$view_user_list = MemberGradeViewRepository::getList(['id' => ['in',$view_user_ids]],$column,'id','asc',1,$count)){
+        if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
             return [];
         }
         if (empty($view_user_list['data'])){

@@ -127,6 +127,7 @@ $api->version('v1',function ($api){
                 $api->post('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
+                $api->post('set_member_home_detail','OaMemberController@setMemberHomeDetail')->name('设置成员是否在首页显示');
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
