@@ -39,6 +39,10 @@ class OaAdminRoleMenuRepository extends ApiRepository
                 return false;
             }
         }
+        if (empty($add_data['menu_ids'])){
+            DB::commit();
+            return true;
+        }
         $arr = [];
         foreach ($add_data['menu_ids'] as $k => $menu_id){
             $arr[$k]['role_id']       = $add_data['role_id'];

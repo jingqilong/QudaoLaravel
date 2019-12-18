@@ -40,6 +40,10 @@ class OaAdminRolePermissionsRepository extends ApiRepository
                 return false;
             }
         }
+        if (empty($add_data['permission_ids'])){
+            DB::commit();
+            return true;
+        }
         $arr = [];
         foreach ($add_data['permission_ids'] as $k => $permission_id){
             $arr[$k]['role_id']       = $add_data['role_id'];
