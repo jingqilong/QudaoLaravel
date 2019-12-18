@@ -296,7 +296,8 @@ $api->version('v1',function ($api){
                 $api->get('get_all_message_list','OaMessageController@getAllMessageList')->name('获取所有消息列表');
                 $api->post('send_system_notice','OaMessageController@sendSystemNotice')->name('发送系统通知');
                 $api->post('send_announce','OaMessageController@sendAnnounce')->name('发送公告');
-
+            });
+            $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
             });
