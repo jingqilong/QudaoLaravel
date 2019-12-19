@@ -12,7 +12,6 @@ use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Tolawho\Loggy\Facades\Loggy;
 
 class AdminMenuService extends BaseService
 {
@@ -60,7 +59,6 @@ class AdminMenuService extends BaseService
         $permission = ['name' => $request['title'],'slug' => $request['permission'],'http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? ''];
         if (!OaAdminPermissionsRepository::createPermission($permission)){
             $this->setError('权限创建失败！');
-            Loggy::write('error',json_encode($permission));
             DB::rollBack();
             return false;
         }
