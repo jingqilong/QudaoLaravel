@@ -130,7 +130,7 @@ class ReservationController extends ApiController
     }
 
     /**
-     * @OA\get(
+     * @OA\Get(
      *     path="/api/v1/house/reservation_list",
      *     tags={"房产租赁"},
      *     summary="个人预约列表",
@@ -200,7 +200,7 @@ class ReservationController extends ApiController
         return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
     }
     /**
-     * @OA\get(
+     * @OA\Get(
      *     path="/api/v1/house/all_reservation_list",
      *     tags={"房产租赁后台"},
      *     summary="预约列表",
@@ -364,7 +364,7 @@ class ReservationController extends ApiController
 
 
     /**
-     * @OA\get(
+     * @OA\Get(
      *     path="/api/v1/house/is_reservation_list",
      *     tags={"房产租赁"},
      *     summary="个人被预约列表",
@@ -431,5 +431,65 @@ class ReservationController extends ApiController
             return ['code' => 100, 'message' => $this->reservationService->error];
         }
         return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/house/get_reservation_detail",
+     *     tags={"房产租赁"},
+     *     summary="我的预约详情",
+     *     description="sang" ,
+     *     operationId="get_reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getReservationDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->getReservationDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message,'data' => $res];
     }
 }

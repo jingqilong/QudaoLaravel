@@ -470,6 +470,7 @@ $api->version('v1',function ($api){
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
                 $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
+                $api->get('get_reservation_detail', 'ReservationController@getReservationDetail')->name('我的预约详情');
 
                 $api->get('all_facility_list', 'FacilityController@allFacilityList')->name('获取所有房产设施列表');
             });
