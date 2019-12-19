@@ -27,9 +27,7 @@ class HouseDetailsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','height','area','image_ids','storey','unit','condo_name','toward','category','publisher','publisher_id','facilities_ids','status','recommend','created_at','updated_at','deleted_at'];
-
-
+    protected $fillable = ['id','title','area_code','address','describe','longitude','latitude','rent','tenancy','leasing','decoration','height','area','image_ids','storey','unit','condo_name','toward','category','publisher','publisher_id','facilities_ids','status','recommend','created_at','updated_at','deleted_at'];
 
 }
 

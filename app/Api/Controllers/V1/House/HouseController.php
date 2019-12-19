@@ -68,6 +68,24 @@ class HouseController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="log",
+     *         in="query",
+     *         description="地标经度，例如：【121.48941】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="lat",
+     *         in="query",
+     *         description="地标纬度，例如：【31.40527】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="address",
      *         in="query",
      *         description="详细地址，例如：延安西路300号",
@@ -204,6 +222,8 @@ class HouseController extends ApiController
         $rules = [
             'title'             => 'required',
             'area_code'         => 'required|regex:/^(\d+[,])*\d+$/',
+            'log'               => 'required',
+            'lat'               => 'required',
             'address'           => 'required',
             'rent'              => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
             'tenancy'           => 'required|in:1,2,3,4,5',
@@ -223,6 +243,8 @@ class HouseController extends ApiController
             'title.required'        => '房产标题不能为空',
             'area_code.required'    => '地区编码不能为空',
             'area_code.regex'       => '地区编码格式有误',
+            'log.required'          => '经度不能为空',
+            'lat.required'          => '纬度不能为空',
             'address.required'      => '详细地址不能为空',
             'rent.required'         => '租金不能为空',
             'rent.regex'            => '租金格式有误',
