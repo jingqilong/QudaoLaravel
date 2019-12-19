@@ -38,6 +38,7 @@ class HouseEnum extends BaseEnum
         'RESERVATION'   => '正在预约',
         'RESERVATIONOK' => '预约成功',
         'RESERVATIONNO' => '预约失败',
+        'CANCELRESERVATION' => '预约取消',
     ];
 
     #租期
@@ -83,6 +84,7 @@ class HouseEnum extends BaseEnum
         1 => 'RESERVATION',
         2 => 'RESERVATIONOK',
         3 => 'RESERVATIONNO',
+        4 => 'CANCELRESERVATION',
     ];
 
     // 租期
@@ -117,6 +119,7 @@ class HouseEnum extends BaseEnum
     const RESERVATION   = 1;    //预约中
     const RESERVATIONOK = 2;    //预约成功
     const RESERVATIONNO = 3;    //预约失败
+    const CANCELRESERVATION = 4;    //预约取消
 
 
     /**

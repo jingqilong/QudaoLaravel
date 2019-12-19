@@ -273,5 +273,60 @@ class ReservationService extends BaseService
         $this->setMessage('获取成功！');
         return $reservation;
     }
+
+    /**
+     * 取消预约
+     * @param $id
+     * @return bool
+     */
+    public function cancelReservation($id)
+    {
+        $member = Auth::guard('member_api')->user();
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id,'member_id' => $member->id])){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] == HouseEnum::CANCELRESERVATION){
+            $this->setError('预约已取消！');
+            return false;
+        }
+        if (!HouseReservationRepository::getUpdId(['id' => $id],['state' => HouseEnum::CANCELRESERVATION,'updated_at' => time()])){
+            $this->setError('预约取消失败！');
+            return false;
+        }
+        $this->setMessage('预约取消成功！');
+        return true;
+    }
+
+    /**
+     * 修改预约
+     * @param $request
+     * @return bool
+     */
+    public function editReservation($request)
+    {
+        $member = Auth::guard('member_api')->user();
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $request['id'],'member_id' => $member->id])){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] !== HouseEnum::RESERVATION){
+            $this->setError('只有正在预约状态才能修改！');
+            return false;
+        }
+        $upd_arr = [
+            'name'          => $request['name'],
+            'mobile'        => $request['mobile'],
+            'time'          => strtotime($request['time']),
+            'memo'          => $request['memo'] ?? '',
+            'updated_at'    => time()
+        ];
+        if (HouseReservationRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setMessage('修改成功！');
+            return true;
+        }
+        $this->setError('修改失败！');
+        return false;
+    }
 }
             

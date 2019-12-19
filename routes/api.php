@@ -472,6 +472,8 @@ $api->version('v1',function ($api){
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
                 $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
                 $api->get('get_reservation_detail', 'ReservationController@getReservationDetail')->name('我的预约详情');
+                $api->post('cancel_reservation', 'ReservationController@cancelReservation')->name('取消预约');
+                $api->post('edit_reservation', 'ReservationController@editReservation')->name('修改预约');
 
                 $api->get('all_facility_list', 'FacilityController@allFacilityList')->name('获取所有房产设施列表');
             });
