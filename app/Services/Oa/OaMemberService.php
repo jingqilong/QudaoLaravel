@@ -413,9 +413,9 @@ class OaMemberService extends BaseService
             return [];
         }
         foreach ($list['data'] as &$value){
-            $value['grade']       =   MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['value']       =   MemberEnum::getGrade($value['value'],'普通成员');
-            $value['type']        =   MemberEnum::getIdentity($value['type'],'成员');
+            $value['grade_name']  =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['value_name']  =   MemberEnum::getGrade($value['value'],'普通成员');
+            $value['type_name']   =   MemberEnum::getIdentity($value['type'],'成员');
             $value['created_at']  =   date('Y-m-d H:i:s',$value['created_at']);
         }
         $this->setMessage('获取成功!');
