@@ -792,10 +792,7 @@ class MemberService extends BaseService
      */
     public function perfectMemberInfo($request)
     {
-        if (!$member = MemberBaseRepository::getOne(['mobile' => $request['phone']])){
-            $this->setError('手机号码不一致呦！');
-            return false;
-        }
+        $member = $this->auth->user()->toArray();
         $base_arr = [
             'id'         => $member['id'],
             'ch_name'    => $request['cname'],
@@ -844,16 +841,18 @@ class MemberService extends BaseService
                 return false;
             }
         }
-        $member_base    = MemberBaseRepository::getOne(['id' => $member['id']],['id','mobile','ch_name','sex','avatar_id','status','referral_code']);
-        $member_info    = MemberInfoRepository::getOne(['member_id' => $member['id']],['grade','employer','title','category','profile']);
-        $member_view    = array_merge($member_base,$member_info);
-        $member_view    = ImagesService::getOneImagesConcise($member_view,['avatar_id' => 'single']);
-        $member_view['grade']    = MemberEnum::getGrade($member_view['grade'],'普通成员');
-        $member_view['category'] = MemberEnum::getGrade($member_view['category'],'普通成员');
-        $member_view['sex']      = MemberEnum::getSex($member_view['sex'],'未设置');
         DB::commit();
+        $user           = $this->auth->user()->toArray();
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade = MemberEnum::DEFAULT;
+        }
+        $user['grade']        = $grade;
+        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         $this->setMessage('信息完善成功!');
-        return $member_view;
+        return $user;
     }
 
     /**

@@ -336,6 +336,7 @@ $api->version('v1',function ($api){
                 $api->post('sign','MemberController@sign')->name('每日签到');
                 $api->get('sign_details','MemberController@signDetails')->name('签到页详情');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+                $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
                 #用户地址管理
                 $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
@@ -387,7 +388,6 @@ $api->version('v1',function ($api){
                 $api->get('get_trade_list','OrderController@getTradeList')->name('获取会员所有交易列表');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
-            $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('refresh','MemberController@refresh')->name('刷新token');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');

@@ -928,7 +928,7 @@ class MemberController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *     @OA\Parameter(name="phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="token",in="query",description="会员 TOKEN",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
@@ -948,7 +948,6 @@ class MemberController extends ApiController
     public function perfectMemberInfo()
     {
         $rules = [
-            'phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
             'sex'                      => 'required|integer',
             'cname'                    => 'required|string',
             'email'                    => 'email',
@@ -958,8 +957,6 @@ class MemberController extends ApiController
             'services'               => 'required|in:0,1',
         ];
         $messages = [
-            'phone.required'           => '请填写手机号码',
-            'phone.regex'              => '手机号码不正确',
             'sex.required'             => '请填写性别',
             'sex.integer'              => '请正确填写性别',
             'cname.string'             => '请正确填写姓名',
