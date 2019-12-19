@@ -492,4 +492,171 @@ class ReservationController extends ApiController
         }
         return ['code' => 200, 'message' => $this->reservationService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/house/cancel_reservation",
+     *     tags={"房产租赁"},
+     *     summary="取消预约",
+     *     description="sang" ,
+     *     operationId="cancel_reservation",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function cancelReservation(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->cancelReservation($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/house/edit_reservation",
+     *     tags={"房产租赁"},
+     *     summary="修改预约",
+     *     description="sang" ,
+     *     operationId="edit_reservation",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="预约人姓名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="预约人手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="time",
+     *         in="query",
+     *         description="预约时间 （例如：2019-10-01 08:30）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="memo",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editReservation(){
+        $rules = [
+            'id'                => 'required|integer',
+            'name'              => 'required',
+            'mobile'            => 'required|regex:/^1[35678][0-9]{9}$/',
+            'time'              => [
+                'required',
+                'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
+            ],
+        ];
+        $messages = [
+            'id.required'           => '预约ID不能为空',
+            'id.integer'            => '预约ID必须为整数',
+            'name.required'         => '预约人姓名不能为空',
+            'mobile.required'       => '预约人手机号不能为空',
+            'mobile.regex'          => '预约人手机号格式有误',
+            'time.required'         => '预约时间不能为空',
+            'time.regex'            => '预约时间格式有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->editReservation($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->reservationService->message];
+        }
+        return ['code' => 100, 'message' => $this->reservationService->error];
+    }
 }
