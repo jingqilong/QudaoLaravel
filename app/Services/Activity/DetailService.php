@@ -43,8 +43,8 @@ class DetailService extends BaseService
         $add_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
-            'longitude'     => $request['log'],
-            'latitude'      => $request['lat'],
+            //'longitude'     => $request['log'],
+            //'latitude'      => $request['lat'],
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -384,7 +384,7 @@ class DetailService extends BaseService
         $activity['cover'] = [];
         if (!empty($activity['cover_id'])){
             if ($cover_image = CommonImagesRepository::getOne(['id' => $activity['cover_id']],['id','img_url'])){
-                $activity['cover']= $cover_image;
+                $activity['cover'] = $cover_image;
             }
         }
         $this->setMessage('获取成功！');
