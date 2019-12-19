@@ -7,6 +7,7 @@ use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Models\MemberGradeViewModel;
 use App\Repositories\CommonCommentsRepository;
+use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
@@ -103,6 +104,18 @@ class GoodsService extends BaseService
     public function deleteGoods($id){
         if (!ShopGoodsRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('商品信息不存在！');
+            return false;
+        }
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::SHOP,$id) == false){
+            $this->setError($homeBannerService->error);
+            return false;
+        }
+        //检查商品是否为活动商品
+        $shopActivityService = new ActivityService();
+        if ($shopActivityService->deleteBeforeCheck($id) == false){
+            $this->setError($shopActivityService->error);
             return false;
         }
         if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){

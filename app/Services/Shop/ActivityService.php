@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\ShopActivityEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopActivityRepository;
 use App\Repositories\ShopActivityViewRepository;
@@ -146,6 +147,41 @@ class ActivityService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 商品删除数据前的检查
+     * @param $goods_id
+     * @return bool
+     */
+    public function deleteBeforeCheck($goods_id){
+        if ($banner_list = ShopActivityRepository::getList(['goods_id' => $goods_id])){
+            foreach ($banner_list as $value){
+                $this->setError(ShopActivityEnum::getType($value['type']) . '活动商品，无法删除！');
+                return false;
+            }
+        }
+        $this->setMessage('当前商品不在活动列表');
+        return true;
+    }
+
+    /**
+     * 删除活动商品
+     * @param $activity_id
+     * @return bool
+     */
+    public function deleteActivityGoods($activity_id)
+    {
+        if (!ShopActivityRepository::exists(['id' => $activity_id])){
+            $this->setError('商品活动记录不存在！');
+            return false;
+        }
+        if (!ShopActivityRepository::delete(['id' => $activity_id])){
+            $this->setError('删除失败！');
+            return false;
+        }
+        $this->setMessage('删除成功！');
+        return true;
     }
 }
             
