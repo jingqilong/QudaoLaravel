@@ -851,6 +851,110 @@ class ActivityController extends ApiController
 
     /**
      * @OA\Post(
+     *     path="/api/v1/activity/activity_switch",
+     *     tags={"精选活动后台"},
+     *     summary="活动开关",
+     *     description="sang" ,
+     *     operationId="activity_switch",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="活动状态（1、开启活动，2关闭活动）",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_recommend",
+     *         in="query",
+     *         description="推荐，0不推荐，1推荐",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_member",
+     *         in="query",
+     *         description="是否允许非会员参加，1不允许，2允许，",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="need_audit",
+     *         in="query",
+     *         description="是否需要审核，0不需要，1需要",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="操作失败",
+     *     ),
+     * )
+     *
+     */
+    public function activitySwitch(){
+        $rules = [
+            'id'            => 'required|integer',
+            'status'        => 'in:1,2',
+            'is_recommend'  => 'in:0,1',
+            'is_member'     => 'in:1,2',
+            'need_audit'    => 'in:0,1',
+        ];
+        $messages = [
+            'id.required'       => '活动ID不能为空',
+            'id.integer'        => '活动ID必须为整数',
+            'status.in'         => '活动状态取值有误',
+            'is_recommend.in'   => '推荐取值有误',
+            'is_member.in'      => '是否允许非会员参加取值有误',
+            'need_audit.in'     => '是否需要审核取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->activitySwitch($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityService->message];
+    }
+
+    /**
+     * @OA\Post(
      *     path="/api/v1/activity/activity_add_host",
      *     tags={"精选活动后台"},
      *     summary="添加活动举办方",

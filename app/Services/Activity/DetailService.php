@@ -482,5 +482,41 @@ class DetailService extends BaseService
         $this->setMessage('获取成功！');
         return $activity;
     }
+
+    /**
+     * 获取状态开关
+     * @param $request
+     * @return bool
+     */
+    public function activitySwitch($request)
+    {
+        $status         = $request['status'] ?? null;
+        $is_recommend   = $request['is_recommend'] ?? null;
+        $is_member      = $request['is_member'] ?? null;
+        $need_audit     = $request['need_audit'] ?? null;
+        if (!ActivityDetailRepository::exists(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        $upd_arr = ['updated_at' => time()];
+        if (!is_null($status)){
+            $upd_arr['status'] = $status;
+        }
+        if (!is_null($is_recommend)){
+            $upd_arr['is_recommend'] = $is_recommend == 0 ? 0 : time();
+        }
+        if (!is_null($is_member)){
+            $upd_arr['is_member'] = $is_member;
+        }
+        if (!is_null($need_audit)){
+            $upd_arr['need_audit'] = $need_audit;
+        }
+        if (!ActivityDetailRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('操作失败！');
+            return false;
+        }
+        $this->setMessage('操作成功！');
+        return true;
+    }
 }
             

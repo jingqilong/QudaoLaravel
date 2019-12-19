@@ -228,6 +228,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
                 $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
+                $api->post('activity_switch','ActivityController@activitySwitch')->name('活动开关');
 
                 $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
 
@@ -336,6 +337,7 @@ $api->version('v1',function ($api){
                 $api->post('sign','MemberController@sign')->name('每日签到');
                 $api->get('sign_details','MemberController@signDetails')->name('签到页详情');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+                $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
                 #用户地址管理
                 $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
@@ -345,7 +347,8 @@ $api->version('v1',function ($api){
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
                 #会员等级
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
-                $api->get('get_grade_cart_list','GradeController@getGradeCartList')->name('获取等级卡片列表');
+                $api->get('get_grade_card_list','GradeController@getGradeCardList')->name('获取等级卡片列表');
+                $api->get('get_grade_cart_list','GradeController@getGradeCardList')->name('获取等级卡片列表');#兼容
                 $api->get('get_grade_apply_detail','GradeController@getGradeApplyDetail')->name('获取等级申请详情');
                 $api->post('upgrade_apply','GradeController@upgradeApply')->name('提交等级升级申请');
             });
@@ -386,7 +389,6 @@ $api->version('v1',function ($api){
                 $api->get('get_trade_list','OrderController@getTradeList')->name('获取会员所有交易列表');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
-            $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('refresh','MemberController@refresh')->name('刷新token');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
@@ -469,6 +471,7 @@ $api->version('v1',function ($api){
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
                 $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
+                $api->get('get_reservation_detail', 'ReservationController@getReservationDetail')->name('我的预约详情');
 
                 $api->get('all_facility_list', 'FacilityController@allFacilityList')->name('获取所有房产设施列表');
             });

@@ -49,21 +49,21 @@ class SmsService extends BaseService
     public function checkCode($mobile, $type, $code)
     {
         if (!$sms = CommonSmsRepository::getOrderOne(['mobile' => $mobile,'type' => $type,'status' => 0], 'created_at')){
-            Loggy::write("debug","短信验证码： 未找到对应的记录！",['mobile' => $mobile,'type' => $type,'status' => 0]);
+            Loggy::write("debug","短信验证码： 没有找到有效的短信记录！",['input_code' => $code,'mobile' => $mobile,'type' => $type]);
             return '短信已过期，请重新获取！';
         }
         $time = time();
-        if ($time > ($sms['created_at'] + 300)){
+        $sms_ttl = config('common.sms.ttl',300);
+        if ($time > ($sms['created_at'] + $sms_ttl)){
             CommonSmsRepository::getUpdId(['id' => $sms['id']], ['status' => 1]);
-            Loggy::write("debug","短信验证码： 短信已过期！",['mobile' => $mobile,'type' => $type,'status' => 0]);
+            Loggy::write("debug","短信验证码：短信已过期！",['send_code' => $sms['code'],'input_code' => $code,'mobile' => $mobile,'type' => $type,'status' => 0,'sms_time' => $sms['created_at'],'now_time' => $time]);
             return '短信已过期，请重新获取！';
         }
         if ($code != $sms['code']){
             return '验证码有误，请重新输入！';
-        }else{
-            CommonSmsRepository::getUpdId(['id' => $sms['id']], ['status' => 1]);
-            return true;
         }
+        CommonSmsRepository::getUpdId(['id' => $sms['id']], ['status' => 1]);
+        return true;
     }
 
 
@@ -110,10 +110,15 @@ class SmsService extends BaseService
                 return ['code' => 0, 'message' => '手机号未注册，不能发送短信！'];
             }
         }
-        if (CommonSmsRepository::exists(['mobile' => $mobile, 'type' => $type, 'status' => 0, 'created_at' => ['>=', time() - 300]])){
+        $sms_ttl = config('common.sms.ttl',300);
+        $sms_long = config('common.sms.long',4);
+        if (CommonSmsRepository::exists(['mobile' => $mobile, 'type' => $type, 'status' => 0, 'created_at' => ['>=', time() - $sms_ttl]])){
             return ['code' => 0, 'message' => '验证码已发送，请勿重复操作！'];
         }
-        $code = rand(0,9).rand(0,9).rand(0,9).rand(0,9);
+        $code = '';
+        for ($i=0;$i < $sms_long;$i++){
+            $code .= rand(0,9);
+        }
         $content = sprintf(SMSEnum::getTemplate($type),$code);
         //TODO  此处发送短信
         $yiKaYi = new YiKaYiSms();
