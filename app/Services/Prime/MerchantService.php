@@ -133,6 +133,8 @@ class MerchantService extends BaseService
             'license'           => $request['license'] ?? '',
             'license_img_id'    => $request['license_img_id'] ?? 0,
             'area_code'         => $request['area_code'] ?? '',
+            'longitude'         => $request['log'],
+            'latitude'          => $request['lat'],
             'address'           => $request['address'] ?? '',
             'banner_ids'        => $request['banner_ids'],
             'display_img_ids'   => $request['display_img_ids'],

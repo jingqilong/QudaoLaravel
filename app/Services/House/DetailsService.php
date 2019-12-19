@@ -48,6 +48,8 @@ class DetailsService extends BaseService
         $add_arr = [
             'title'         => $request['title'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['log'],
+            'latitude'      => $request['lat'],
             'address'       => $request['address'],
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
@@ -93,21 +95,17 @@ class DetailsService extends BaseService
             $this->setError('房产信息不存在！');
             return false;
         }
-        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','area'
+        $column = ['id','title','area_code','address','describe','longitude','latitude','rent','tenancy','leasing','decoration','area'
             ,'image_ids','storey','unit','condo_name','toward','category','publisher','facilities_ids'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $id],$column)){
             $this->setError('获取失败！');
             return false;
         }
         #处理地址
-        list($area_address,$lng,$lat) = $this->makeAddress($house['area_code'],$house['address']);
-        
+        list($area_address) = $this->makeAddress($house['area_code'],$house['address']);
         list($district_name) = $this->makeAddress($house['area_code'],'',3);
         $house['district']  = $district_name;
-        
         $house['area_address']  = $area_address;
-        $house['lng']           = $lng;
-        $house['lat']           = $lat;
         #处理价格
         $house['rent']          = '¥'. $house['rent'] .'/'. HouseEnum::getTenancy($house['tenancy']);
 

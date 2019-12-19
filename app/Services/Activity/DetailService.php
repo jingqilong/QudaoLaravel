@@ -43,6 +43,8 @@ class DetailService extends BaseService
         $add_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['log'],
+            'latitude'      => $request['lat'],
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -396,7 +398,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','area_code','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
+        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
