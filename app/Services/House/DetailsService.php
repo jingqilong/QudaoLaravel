@@ -120,9 +120,9 @@ class DetailsService extends BaseService
         $house['publisher']     = HouseEnum::getPublisher($house['publisher']);
         $house['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']));
         #是否收藏
-        $activity['is_collect'] = 0;
+        $house['is_collect'] = 0;
         if (MemberCollectRepository::exists(['type' => CollectTypeEnum::HOUSE,'target_id' => $house['id'],'member_id' => $member->id,'deleted_at' => 0])){
-            $activity['is_collect'] = 1;
+            $house['is_collect'] = 1;
         }
         unset($house['area_code'],$house['tenancy'],$house['image_ids'],
             $house['facilities_ids'],$house['recommend']);
