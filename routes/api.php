@@ -228,6 +228,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
                 $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
+                $api->post('activity_switch','ActivityController@activitySwitch')->name('活动开关');
 
                 $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
 
