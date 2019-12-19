@@ -186,7 +186,7 @@ class HomeBannersService extends BaseService
                 $this->setError('当前数据正在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
                 return false;
             }
-        }
+        }dd($type);
         $this->setMessage('当前数据不在展示列表');
         return true;
     }

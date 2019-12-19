@@ -49,11 +49,11 @@ class CommonHomeEnum extends BaseEnum
 
     const MEMBER        = 3;    //成员风采
 
-    const SHOP          = 0;    //珍品商城
+    const SHOP          = 4;    //珍品商城
 
-    const HOUSE         = 1;    //房产租售
+    const HOUSE         = 5;    //房产租售
 
-    const PRIME         = 1;    //精选生活
+    const PRIME         = 6;    //精选生活
 
     /**
      * 获取banner类别label
