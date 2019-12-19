@@ -864,7 +864,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="活动状态（1、开启，2关闭）",
+     *         description="活动状态（1、开启活动，2关闭活动）",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
