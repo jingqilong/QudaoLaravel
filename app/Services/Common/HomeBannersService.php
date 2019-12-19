@@ -173,5 +173,22 @@ class HomeBannersService extends BaseService
         $this->setMessage('获取成功！');
         return $list;
     }
+
+    /**
+     * 各类别删除数据前的检查
+     * @param $type
+     * @param $related_id
+     * @return bool
+     */
+    public function deleteBeforeCheck($type, $related_id){
+        if ($banner_list = CommonHomeBannersRepository::getList(['type' => $type,'related_id' => $related_id])){
+            foreach ($banner_list as $value){
+                $this->setError('当前数据正在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
+                return false;
+            }
+        }
+        $this->setMessage('当前数据不在展示列表');
+        return true;
+    }
 }
             

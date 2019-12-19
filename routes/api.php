@@ -569,6 +569,7 @@ $api->version('v1',function ($api){
             #OA 商城后台
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('add_activity_goods','ActivityController@addActivityGoods')->name('添加活动商品');
+                $api->delete('delete_activity_goods','ActivityController@deleteActivityGoods')->name('删除活动商品');
                 $api->post('edit_activity_goods','ActivityController@editActivityGoods')->name('修改活动商品');
                 $api->get('get_activity_goods_list','ActivityController@getActivityGoodsList')->name('获取活动商品列表');
 
