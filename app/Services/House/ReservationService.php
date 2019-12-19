@@ -251,8 +251,9 @@ class ReservationService extends BaseService
             $this->setError('预约不存在！');
             return false;
         }
-        $reservation['state_title']= HouseEnum::getReservationStatus($reservation['state']);
-        $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy'];
+        $reservation['state_title'] = HouseEnum::getReservationStatus($reservation['state']);
+        $reservation['time']        = date('Y.m.d / H:i');
+        $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy','longitude','latitude'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $reservation['house_id']],$house_column)){
             $this->setError('预约房产已下架！');
             return false;
@@ -266,6 +267,8 @@ class ReservationService extends BaseService
         $reservation['house_title']           = $house['title'];
         list($area_address)   = $this->makeAddress($house['area_code'],$house['address']);
         $reservation['area_address']          = $area_address;
+        $reservation['longitude']             = $house['longitude'];
+        $reservation['latitude']              = $house['latitude'];
         $reservation['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
         $this->setMessage('获取成功！');
         return $reservation;
