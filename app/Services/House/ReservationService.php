@@ -245,8 +245,9 @@ class ReservationService extends BaseService
      */
     public function getReservationDetail($id)
     {
+        $member = Auth::guard('member_api')->user();
         $column = ['id','house_id','name','mobile','time','memo','state'];
-        if (!$reservation = HouseReservationRepository::getOne(['id' => $id],$column)){
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id,'member_id' => $member->id],$column)){
             $this->setError('预约不存在！');
             return false;
         }
