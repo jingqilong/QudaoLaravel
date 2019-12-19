@@ -89,11 +89,11 @@ class GradeController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_grade_cart_list",
+     *     path="/api/v1/member/get_grade_card_list",
      *     tags={"会员"},
      *     summary="获取等级卡片列表",
      *     description="sang",
-     *     operationId="get_grade_cart_list",
+     *     operationId="get_grade_card_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -119,8 +119,8 @@ class GradeController extends ApiController
      * )
      *
      */
-    public function getGradeCartList(){
-        $res = $this->gradeServiceService->getGradeCartList();
+    public function getGradeCardList(){
+        $res = $this->gradeServiceService->getGradeCardList();
         if ($res === false){
             return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }

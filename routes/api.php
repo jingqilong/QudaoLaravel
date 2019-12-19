@@ -345,7 +345,8 @@ $api->version('v1',function ($api){
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
                 #会员等级
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
-                $api->get('get_grade_cart_list','GradeController@getGradeCartList')->name('获取等级卡片列表');
+                $api->get('get_grade_card_list','GradeController@getGradeCardList')->name('获取等级卡片列表');
+                $api->get('get_grade_cart_list','GradeController@getGradeCardList')->name('获取等级卡片列表');#兼容
                 $api->get('get_grade_apply_detail','GradeController@getGradeApplyDetail')->name('获取等级申请详情');
                 $api->post('upgrade_apply','GradeController@upgradeApply')->name('提交等级升级申请');
             });

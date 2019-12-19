@@ -176,7 +176,7 @@ class GradeServiceService extends BaseService
      * 获取等级卡片列表（前端）
      * @return array|null
      */
-    public function getGradeCartList()
+    public function getGradeCardList()
     {
         $column = ['iden','title','amount','image_id'];
         if (!$list = MemberGradeDefineRepository::getList(['status' => MemberGradeEnum::ENABLE,'is_buy' => MemberGradeEnum::CANBUY],$column)){
@@ -184,6 +184,12 @@ class GradeServiceService extends BaseService
             return [];
         }
         $list = ImagesService::getListImagesConcise($list,['image_id' => 'single'],true);
+        foreach ($list as &$value){
+            $value['service_count'] = 0;
+            if ($service_count = MemberGradeServiceRepository::count(['grade' => $value['iden']])){
+                $value['service_count'] = $service_count;
+            }
+        }
         $this->setMessage('获取成功！');
         return $list;
     }
