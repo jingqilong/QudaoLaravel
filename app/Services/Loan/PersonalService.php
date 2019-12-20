@@ -47,9 +47,8 @@ class PersonalService extends BaseService
         {
             $value['status_name']       =   LoanEnum::getStatus($value['status']);
             $value['type_name']         =   LoanEnum::getType($value['type']);
-            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
-            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            $value['reservation_at']    =   date('Y-m-d',$value['reservation_at']);
+            $value['created_at']        =   date('Y-m-d',$value['created_at']);
         }
         $this->setMessage('查找成功');
         return $list;

@@ -13,7 +13,7 @@ class LoanEnum extends BaseEnum
         'SUBMIT'              => '待审核',
         'PASS'                => '审核通过',
         'NOPASS'              => '审核驳回',
-        'CANCEL'              => '取消预约',
+        'CANCEL'              => '预约取消',
         'ONESELF'             => '本人预约',
         'OTHERS'              => '推荐他人预约',
         'MILLION'             => '100万 - 200万',
@@ -51,7 +51,7 @@ class LoanEnum extends BaseEnum
 
     const NOPASS            = 2;    //审核失败
 
-    const CANCEL            = 4;    //取消预约
+    const CANCEL            = 3;    //取消预约
 
     //type  类型
     const ONESELF           = 1;    //本人预约
