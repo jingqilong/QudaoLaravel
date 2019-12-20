@@ -314,6 +314,7 @@ class ReservationService extends BaseService
             $this->setError('只有正在预约状态才能修改！');
             return false;
         }
+        $request['time'] = str_replace('/','',$request['time']);
         $upd_arr = [
             'name'          => $request['name'],
             'mobile'        => $request['mobile'],
