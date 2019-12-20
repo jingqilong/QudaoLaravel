@@ -729,7 +729,7 @@ class OaMemberController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/_member_home_detail",
+     *     path="/api/v1/oa/set_member_home_detail",
      *     tags={"OA成员管理"},
      *     summary="设置成员是否在首页显示",
      *     operationId="set_member_home_detail",
