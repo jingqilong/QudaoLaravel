@@ -100,9 +100,9 @@ class OaMemberService extends BaseService
         $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
         if (empty($member['birthday'])) $member['birthday'] = '';
         if (0 == $member['end_at']){
-            $member['end_at']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
+            $member['end_at_name']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
         }else{
-            $member['end_at']    = date('Y-m-d H:i:s',$member['end_at']);
+            $member['end_at_name']    = date('Y-m-d H:i:s',$member['end_at']);
         }
         $this->setMessage('获取用户信息成功');
         return $member;

@@ -479,6 +479,9 @@ class DetailService extends BaseService
                 $activity['order_no'] = $register['order_no'];
             }
         }
+        $activity['images'] = $this->suffix($activity['images'],1);
+        $activity['banners'] = $this->suffix($activity['banners'],1);
+        $activity['cover'] = $this->suffix($activity['cover'],1);
         $this->setMessage('获取成功！');
         return $activity;
     }
