@@ -27,7 +27,7 @@ class MemberEnum extends BaseEnum
         'HONOURMEMBER'        => '名医专家',
         'MINGYIZHUANJIA'      => '文艺雅仕',
         //成员性别
-        'NOSET'               => '未设置',
+        'NOSET'               => '',
         'MAN'                 => '先生',
         'WOMAN'               => '女士',
         //成员身份

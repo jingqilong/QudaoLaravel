@@ -9,6 +9,7 @@ use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeDefineRepository;
+use App\Repositories\MemberGradeDetailViewRepository;
 use App\Repositories\MemberGradeOrdersRepository;
 use App\Repositories\MemberGradeOrdersViewRepository;
 use App\Repositories\MemberGradeRepository;
@@ -205,6 +206,7 @@ class GradeOrdersService extends BaseService
             DB::rollBack();
             return false;
         }
+        #由于会员等级由人工升级，故，此处不做通知
 //        //通知用户
 //        $member_name = $apply['ch_name'] . MemberEnum::getSex($apply['sex']);
 //        $sms_template = [
@@ -225,6 +227,92 @@ class GradeOrdersService extends BaseService
 //        SendService::sendMessage($apply['member_id'],MessageEnum::SYSTEMNOTICE,$title,$sms_template[$request['status']],$apply['id']);
         $this->setMessage('设置成功！');
         DB::commit();
+        return true;
+    }
+
+    /**
+     * 获取成员等级列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getMemberGradeList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $keywords   = $request['keywords'] ?? null;
+        $grade      = $request['grade'] ?? null;
+        $where      = ['user_id' => ['>',0]];
+        if (!is_null($grade)){
+            $where['grade'] = $grade;
+        }
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['card_no','mobile','email','ch_name','en_name','grade_title']];
+            if (!$grade_list = MemberGradeDetailViewRepository::search($keyword,$where,['*'],$page,$page_num,'user_id','asc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$grade_list = MemberGradeDetailViewRepository::getList($where,['*'],'user_id','asc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $grade_list = $this->removePagingField($grade_list);
+        if (empty($grade_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $grade_list;
+        }
+        foreach ($grade_list['data'] as &$value){
+            $value['status_title']  = MemberGradeEnum::getGradeStatus($value['status']);
+            $value['created_at']    = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
+            $value['end_at']        = $value['end_at'] == 0 ? '永久' : date('Y-m_d H:i:s',$value['end_at']);
+            $value['update_at']     = $value['update_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['update_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $grade_list;
+    }
+
+    /**
+     * 修改成员等级信息
+     * @param $request
+     * @return bool
+     */
+    public function editMemberGrade($request)
+    {
+        if (!$member = MemberBaseRepository::getOne(['id' => $request['user_id']])){
+            $this->setError('成员信息不存在！');
+            return false;
+        }
+        if (!$grade_info = MemberGradeRepository::getOne(['user_id' => $request['user_id']])){
+            $grade_info = ['user_id' => $request['user_id'],'grade' => MemberEnum::DEFAULT,'status' => MemberGradeEnum::PENDING,'created_at' => time(),'end_at' => 0,'updated_at' => time()];
+            if (!MemberGradeRepository::getAddId($grade_info)){
+                $this->setError('修改失败！【用户等级创建失败】');
+                return false;
+            }
+        }
+        $grade      = $request['grade'] ?? null;
+        $status     = $request['status'] ?? null;
+        $end_at     = $request['end_at'] ?? null;
+        $upd_arr    = ['update_at' => time()];
+        if (!is_null($grade)){
+            if (!MemberGradeDefineRepository::exists(['iden' => $grade,'status' => MemberGradeEnum::ENABLE])){
+                $this->setError('等级信息不存在！');
+                return false;
+            }
+            $upd_arr['grade'] = $grade;
+        }
+        if (!is_null($status)){
+            $now_status        = $status;
+            $upd_arr['status'] = $status;
+        }
+        if (!is_null($end_at)){
+            $upd_arr['end_at'] = $end_at == 0 ? 0 : strtotime($end_at);
+        }
+        if (!MemberGradeRepository::getUpdId(['user_id' => $request['user_id']],$upd_arr)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
         return true;
     }
 }

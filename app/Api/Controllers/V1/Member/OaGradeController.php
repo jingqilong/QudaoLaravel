@@ -1096,4 +1096,190 @@ class OaGradeController extends ApiController
         }
         return ['code' => 200, 'message' => $this->gradeOrdersService->message];
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_grade_list",
+     *     tags={"会员后台"},
+     *     summary="获取成员等级列表",
+     *     description="sang",
+     *     operationId="get_member_grade_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索关键字，【成员姓名、手机号、等级、】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberGradeList(){
+        $rules = [
+            'grade'         => 'integer',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'grade.integer'         => '等级必须为整数',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeOrdersService->getMemberGradeList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeOrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeOrdersService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/edit_member_grade",
+     *     tags={"会员后台"},
+     *     summary="修改成员等级",
+     *     description="sang",
+     *     operationId="edit_member_grade",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="user_id",
+     *         in="query",
+     *         description="成员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="等级",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="等级状态，1审核通过，2审核不通过",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="end_at",
+     *         in="query",
+     *         description="截止时间 0永久有效，取值【0 或 2020-12-20】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMemberGrade(){
+        $rules = [
+            'user_id'       => 'required|integer',
+            'grade'         => 'integer',
+            'status'        => 'in:1,2',
+            'end_at'        => ['regex:/^[0]|[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])/']
+        ];
+        $messages = [
+            'user_id.required'      => '成员ID不能为空',
+            'user_id.integer'       => '成员ID必须为整数',
+            'grade.integer'         => '等级必须为整数',
+            'status.in'             => '等级状态取值有误',
+            'end_at.regex'          => '等级截止时间格式有误'
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeOrdersService->editMemberGrade($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeOrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeOrdersService->message];
+    }
 }
