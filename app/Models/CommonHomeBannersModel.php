@@ -10,7 +10,7 @@ class CommonHomeBannersModel extends Model
      *
      * @var string
      */
-    protected $table = 'common_home_banners_copy1';
+    protected $table = 'common_home_banners';
 
      /**
      * 表明模型是否应该被打上时间戳
