@@ -223,8 +223,8 @@ class DetailService extends BaseService
         $upd_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
-            'longitude'     => $request['log'] ?? '',
-            'latitude'      => $request['lat'] ?? '',
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
