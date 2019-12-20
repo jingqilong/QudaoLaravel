@@ -27,7 +27,7 @@ class LoanEnum extends BaseEnum
         0 => 'SUBMIT',      //待审核
         1 => 'PASS',        //审核通过
         2 => 'NOPASS',      //审核失败
-        3 => 'CANCEL',      //审核失败
+        3 => 'CANCEL',      //取消预约
     ];
 
     public static $price = [
