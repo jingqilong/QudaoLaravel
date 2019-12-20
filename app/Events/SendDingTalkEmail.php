@@ -11,7 +11,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Events\Dispatcher as Event;
 
-class SendDingTalkEmail implements ShouldBroadcast
+class SendDingTalkEmail extends Event implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,7 +26,7 @@ class SendDingTalkEmail implements ShouldBroadcast
     {
         //
         $this->data = $data;
-//        parent::__construct();
+        parent::__construct();
     }
 
     /**

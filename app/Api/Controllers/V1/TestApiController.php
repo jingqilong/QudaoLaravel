@@ -574,6 +574,11 @@ class $serviceName extends BaseService
     }
 
     public function eventTest(){
-        return event(new SendDingTalkEmail(['data' => 123456]));
+        try {
+            return event(new SendDingTalkEmail(['data' => 123456]));
+        }catch (\Exception $exception){
+            dd($exception->getTrace());
+        }
+
     }
 }
