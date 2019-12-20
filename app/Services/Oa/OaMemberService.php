@@ -4,6 +4,7 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\CommonHomeEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeRepository;
@@ -12,6 +13,7 @@ use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\OaGradeViewRepository;
 use App\Services\BaseService;
+use App\Services\Common\HomeBannersService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -115,12 +117,14 @@ class OaMemberService extends BaseService
      */
     public function delMember(string $id)
     {
-        if (empty($id)){
-            $this->setError('会员ID为空！');
-            return false;
-        }
         if (!MemberGradeViewRepository::exists(['id' => $id])){
             $this->setError('用户信息不存在!');
+            return false;
+        }
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::MEMBER,$id) == false){
+            $this->setError($homeBannerService->error);
             return false;
         }
         if (!MemberBaseRepository::getUpdId(['id' => $id],['deleted_at' => time()])){

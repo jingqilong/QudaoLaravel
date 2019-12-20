@@ -215,10 +215,11 @@ class OaMemberController extends ApiController
     public function delMember()
     {
         $rules = [
-            'id'          => 'integer',
+            'id'          => 'required|integer',
         ];
         $messages = [
-            'page.integer'              => 'ID格式不正确',
+            'id.required'             => '会员ID不能为空',
+            'id.integer'              => 'ID格式不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
