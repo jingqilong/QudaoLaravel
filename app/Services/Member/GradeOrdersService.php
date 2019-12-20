@@ -94,10 +94,10 @@ class GradeOrdersService extends BaseService
             $where['grade'] = $grade;
         }
         if (!is_null($status)){
-            $where['grade'] = $grade;
+            $where['status'] = $status;
         }
         if (!is_null($audit)){
-            $where['grade'] = $grade;
+            $where['audit'] = $audit;
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['mobile','ch_name']];
