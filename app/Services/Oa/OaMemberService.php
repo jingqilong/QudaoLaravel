@@ -242,20 +242,20 @@ class OaMemberService extends BaseService
      */
     public function updMemberInfo($request)
     {
-        if (!MemberBaseRepository::getOne(['id' => $request['id']])){
+        if (!$member = MemberBaseRepository::getOne(['id' => $request['id']])){
             $this->setError('用户不存在!');
             return false;
         }
         if ($request['end_at'] == MemberEnum::PERMANENT){
             $end_at = 0;
         }else{
-            $end_at = strtotime('+' . $request['end_at'] . 'year');
+            $end_at = strtotime('+' . $request['end_at'] . 'year',$member['created_at']);
         }
         $base_arr = [
             'id'         => $request['id'],
             'ch_name'    => $request['ch_name'],
             'en_name'    => $request['en_name'] ?? '',
-            'avatar_id'  => $request['avatar_id'] ?? 1226,
+            'avatar_id'  => $request['avatar_id'] ?? 1516,
             'sex'        => $request['sex'] ?? 0,
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
