@@ -179,7 +179,7 @@ class PersonalService extends BaseService
         if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        if ($data['status'] > LoanEnum::SUBMIT){
+        if ($data['status'] != LoanEnum::SUBMIT){
             $this->setError('预约已审核，请联系客服更改!');
             return false;
         }
