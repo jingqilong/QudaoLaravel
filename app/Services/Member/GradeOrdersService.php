@@ -94,10 +94,10 @@ class GradeOrdersService extends BaseService
             $where['grade'] = $grade;
         }
         if (!is_null($status)){
-            $where['grade'] = $grade;
+            $where['status'] = $status;
         }
         if (!is_null($audit)){
-            $where['grade'] = $grade;
+            $where['audit'] = $audit;
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['mobile','ch_name']];
@@ -119,6 +119,7 @@ class GradeOrdersService extends BaseService
         foreach ($list['data'] as &$value){
             $value['status_title'] = GradeOrderEnum::getStatus($value['status']);
             $value['audit_title']  = GradeOrderEnum::getAuditStatus($value['audit']);
+            $value['created_at']   = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $list;

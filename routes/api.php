@@ -662,10 +662,14 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
+                #首页banner设置
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
                 $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
+                $api->post('banner_status_switch', 'BannerController@bannerStatusSwitch')->name('banner显示状态开关');
+
+
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
                 $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');

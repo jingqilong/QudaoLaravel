@@ -27,7 +27,7 @@ class CommonHomeBannersModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','module','type','show_time','related_id','image_id','url','created_at','updated_at'];
+    protected $fillable = ['id','page_space','link_type','sort','related_id','image_id','url','created_by','created_at','updated_by','updated_at'];
 
     /**
      * The attributes that should be cast to native types.

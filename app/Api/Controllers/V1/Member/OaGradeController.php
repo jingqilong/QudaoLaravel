@@ -870,7 +870,7 @@ class OaGradeController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="付款状态",
+     *         description="付款状态，0，待付款，1，已付款，2，已取消",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -879,7 +879,7 @@ class OaGradeController extends ApiController
      *     @OA\Parameter(
      *         name="audit",
      *         in="query",
-     *         description="审核状态",
+     *         description="审核状态，0待审核，1通过，2不通过",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
