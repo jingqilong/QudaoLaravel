@@ -811,6 +811,66 @@ class LoanController extends ApiController
         }
         return ['code' => 200, 'message' => $this->personalService->message];
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/loan/cancel_loan",
+     *     tags={"贷款"},
+     *     summary="取消贷款订单信息",
+     *     operationId="cancel_loan",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="预约id",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="取消贷款订单失败",),
+     * )
+     *
+     */
+    public function cancelLoan()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '预约ID不能为空',
+            'id.integer'    => '预约订单ID不是整数',
+        ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->personalService->cancelLoan($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
+        return ['code' => 200, 'message' => $this->personalService->message];
+    }
     /**
      * @OA\Delete(
      *     path="/api/v1/loan/del_loan",

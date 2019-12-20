@@ -342,5 +342,29 @@ class PersonalService extends BaseService
             'cancel'    => $cancel_count
         ];
     }
+
+    /**
+     * 成员表取消预约贷款
+     * @param $request
+     * @return bool
+     */
+    public function cancelLoan($request)
+    {
+        $member = $this->auth->user();
+        if (!$loan = LoanPersonalRepository::getOne(['id' => $request['id'],'user_id' => $member->id])){
+            $this->setError('没有预约信息!');
+            return false;
+        }
+        if ($loan['status'] > LoanEnum::SUBMIT){
+            $this->setError('预约已被审核，不能取消哦!');
+            return false;
+        }
+        if (!LoanPersonalRepository::getUpdId(['id' => $loan['id']],['status' => LoanEnum::CANCEL])){
+            $this->setError('取消预约失败!');
+            return false;
+        }
+        $this->setMessage('取消成功!');
+        return true;
+    }
 }
             
