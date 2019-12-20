@@ -555,7 +555,7 @@ class LoanController extends ApiController
      *          name="cardid",
      *          in="query",
      *          description="推荐人卡号",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="string",
      *          )
@@ -581,7 +581,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态【1 已提交 2审核中 3 审核失败 4审核通过 9 已删除】",
+     *          description="状态值  0待审核 1审核通过  2审核失败",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -601,7 +601,6 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
-            'cardid'            => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -614,7 +613,6 @@ class LoanController extends ApiController
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
-            'cardid.required'           => '获取预约人的卡号',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
@@ -740,7 +738,7 @@ class LoanController extends ApiController
      *          name="cardid",
      *          in="query",
      *          description="推荐人卡号",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="string",
      *          )
@@ -766,7 +764,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态【1 已提交 2审核中 3 审核失败 4审核通过 9 已删除】",
+     *          description="状态值  0待审核 1审核通过  2审核失败",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -786,7 +784,6 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
-            'cardid'            => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -799,7 +796,6 @@ class LoanController extends ApiController
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
-            'cardid.required'           => '获取预约人的卡号',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
@@ -810,6 +806,66 @@ class LoanController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->personalService->editLoan($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
+        return ['code' => 200, 'message' => $this->personalService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/loan/cancel_loan",
+     *     tags={"贷款"},
+     *     summary="取消贷款订单信息",
+     *     operationId="cancel_loan",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="预约id",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="取消贷款订单失败",),
+     * )
+     *
+     */
+    public function cancelLoan()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '预约ID不能为空',
+            'id.integer'    => '预约订单ID不是整数',
+        ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->personalService->cancelLoan($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->personalService->error];
         }

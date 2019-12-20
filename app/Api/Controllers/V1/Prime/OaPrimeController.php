@@ -137,7 +137,7 @@ class OaPrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="log",
+     *         name="longitude",
      *         in="query",
      *         description="地标经度，例如：【121.48941】",
      *         required=true,
@@ -146,7 +146,7 @@ class OaPrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="lat",
+     *         name="latitude",
      *         in="query",
      *         description="地标纬度，例如：【31.40527】",
      *         required=true,
@@ -237,8 +237,8 @@ class OaPrimeController extends ApiController
         $rules = [
             'name'              => 'required',
             'account'           => 'required|alpha_dash',
-            'log'               => 'required',
-            'lat'               => 'required',
+            'longitude'         => 'required',
+            'latitude'          => 'required',
             'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
             'password'          => 'required|string|min:6|max:20',
             'realname'          => 'required',
@@ -255,8 +255,8 @@ class OaPrimeController extends ApiController
         $messages = [
             'name.required'             => '商户名不能为空',
             'account.required'          => '账户不能为空',
-            'log.required'              => '经度不能为空',
-            'lat.required'              => '纬度不能为空',
+            'longitude.required'        => '经度不能为空',
+            'latitude.required'         => '纬度不能为空',
             'account.alpha_dash'        => '账户格式有误，可包含字母、数字、破折号、下划线',
             'mobile.required'           => '手机号不能为空',
             'mobile.regex'              => '手机号格式有误',
@@ -534,6 +534,24 @@ class OaPrimeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="longitude",
+     *         in="query",
+     *         description="地标经度，例如：【121.48941】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="latitude",
+     *         in="query",
+     *         description="地标纬度，例如：【31.40527】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="address",
      *         in="query",
      *         description="详细地址",
@@ -616,6 +634,9 @@ class OaPrimeController extends ApiController
         $rules = [
             'id'                => 'required|integer',
             'name'              => 'required',
+            'area_code'         => 'required|regex:/^(\d+[,])*\d+$/',
+            'longitude'         => 'required',
+            'latitude'          => 'required',
             'mobile'            => 'required|regex:/^1[3456789][0-9]{9}$/',
             'realname'          => 'required',
             'logo_id'           => 'required|integer',
@@ -631,6 +652,10 @@ class OaPrimeController extends ApiController
         $messages = [
             'id.required'               => '商户ID不能为空',
             'id.integer'                => '商户ID必须为整数',
+            'area_code.required'        => '地区编码不能为空',
+            'area_code.regex'           => '地区编码格式有误',
+            'longitude.required'        => '经度不能为空',
+            'latitude.required'         => '纬度不能为空',
             'name.required'             => '商户名不能为空',
             'mobile.required'           => '手机号不能为空',
             'mobile.regex'              => '手机号格式有误',

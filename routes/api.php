@@ -530,6 +530,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_loan', 'LoanController@editLoan')->name('用户修改贷款订单');
                 $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
                 $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取成员本人贷款订单列表');
+                $api->post('cancel_loan', 'LoanController@cancelLoan')->name('成员取消预约贷款');
             });
 
         });
@@ -541,6 +542,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_enterprise', 'EnterpriseController@editEnterprise')->name('根据ID修改企业咨询订单');
                 $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取本人企业咨询订单列表');
                 $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
+                $api->post('cancel_enterprise', 'EnterpriseController@cancelEnterprise')->name('成员取消预约企业咨询');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('根据ID删除企业咨询订单');

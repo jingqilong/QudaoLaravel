@@ -43,8 +43,8 @@ class DetailService extends BaseService
         $add_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
-            //'longitude'     => $request['log'],
-            //'latitude'      => $request['lat'],
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -223,6 +223,8 @@ class DetailService extends BaseService
         $upd_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -355,7 +357,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','area_code','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit'];
+        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;

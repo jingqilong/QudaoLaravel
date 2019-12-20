@@ -13,6 +13,7 @@ class EnterEnum extends BaseEnum
         'SUBMIT'              => '待审核',
         'PASS'                => '审核通过',
         'NOPASS'              => '审核驳回',
+        'CANCEL'              => '取消预约',
         'ENTERPRICE'          => '企业咨询',
         'DINING'              => '餐饮咨询',
         'COMPANY'             => '公司咨询',
@@ -23,6 +24,7 @@ class EnterEnum extends BaseEnum
         0 => 'SUBMIT',      //待审核
         1 => 'PASS',        //审核通过
         2 => 'NOPASS',      //审核失败
+        3 => 'CANCEL',      //取消预约
     ];
 
 
@@ -40,20 +42,22 @@ class EnterEnum extends BaseEnum
 
     //审核状态
 
-    const PASS              = 1;    //审核通过
+    const SUBMIT         = 0;    //待审核
 
-    const NOPASS            = 2;    //审核失败
+    const PASS           = 1;    //审核通过
 
-    const SUBMIT            = 0;    //待审核
+    const NOPASS         = 2;    //审核失败
+
+    const CANCEL         = 3;    //审核失败
 
     //type  类型
-    const ENTERPRICE          = 1;    //企业咨询
+    const ENTERPRICE     = 1;    //企业咨询
 
-    const DINING              = 2;    //餐饮咨询
+    const DINING         = 2;    //餐饮咨询
 
-    const COMPANY             = 3;    //公司咨询
+    const COMPANY        = 3;    //公司咨询
 
-    const BUSINESS            = 4;    //商业咨询
+    const BUSINESS       = 4;    //商业咨询
 
 
 

@@ -13,6 +13,7 @@ class LoanEnum extends BaseEnum
         'SUBMIT'              => '待审核',
         'PASS'                => '审核通过',
         'NOPASS'              => '审核驳回',
+        'CANCEL'              => '预约取消',
         'ONESELF'             => '本人预约',
         'OTHERS'              => '推荐他人预约',
         'MILLION'             => '100万 - 200万',
@@ -26,6 +27,7 @@ class LoanEnum extends BaseEnum
         0 => 'SUBMIT',      //待审核
         1 => 'PASS',        //审核通过
         2 => 'NOPASS',      //审核失败
+        3 => 'CANCEL',      //取消预约
     ];
 
     public static $price = [
@@ -43,11 +45,13 @@ class LoanEnum extends BaseEnum
 
     //贷款 审核状态
 
+    const SUBMIT            = 0;    //待审核
+
     const PASS              = 1;    //审核通过
 
     const NOPASS            = 2;    //审核失败
 
-    const SUBMIT            = 0;    //待审核
+    const CANCEL            = 3;    //取消预约
 
     //type  类型
     const ONESELF           = 1;    //本人预约
