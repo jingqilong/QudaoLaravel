@@ -397,11 +397,46 @@ trait HelpTrait
     {
         if (!is_array($image)){
             $image = $image . ImageTypeEnum::getSize($size);
-        }else{
-            foreach ($image as &$value){
-                $value = $value . ImageTypeEnum::getSize($size);
-            }
-        }
+        }else foreach ($image as &$value)$value = $value . ImageTypeEnum::getSize($size);
         return $image;
+    }
+
+
+    /**
+     * 根据出生日期计算年龄、生肖、星座
+     * @param string $birthday = "2018-10-23" 日期
+     * @param string $symbol 符号
+     * @return $array
+     * */
+    public function birthday($birthday,$symbol='-'){
+
+        //计算年龄
+        $birth = date('Y-m-d',strtotime($birthday));
+        list($by,$bm,$bd)=explode($symbol,$birth);
+        $cm=date('n');
+        $cd=date('j');
+        $age=date('Y')-$by-1;
+        if ($cm>$bm || $cm==$bm && $cd>$bd) $age++;
+        $array['age'] = $age;
+
+        //计算生肖
+        $animals = array(
+            '鼠', '牛', '虎', '兔', '龙', '蛇',
+            '马', '羊', '猴', '鸡', '狗', '猪'
+        );
+        $key = ($by - 1900) % 12;
+        $array['animals'] = $animals[$key];
+
+        //计算星座
+        $constellation_name = array(
+            '水瓶座','双鱼座','白羊座','金牛座','双子座','巨蟹座',
+            '狮子座','处女座','天秤座','天蝎座)','射手座','摩羯座'
+        );
+        if ($bd <= 22){
+            if ('1' !== $bm) $constellation = $constellation_name[$bm-2]; else $constellation = $constellation_name[11];
+        }else $constellation = $constellation_name[$bm-1];
+        $array['constellation'] = $constellation;
+
+        return $array;
     }
 }

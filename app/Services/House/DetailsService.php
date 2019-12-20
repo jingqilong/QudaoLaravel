@@ -201,6 +201,8 @@ class DetailsService extends BaseService
             'title'         => $request['title'],
             'area_code'     => $request['area_code'] . ',',
             'address'       => $request['address'],
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
             'tenancy'       => $request['tenancy'],
