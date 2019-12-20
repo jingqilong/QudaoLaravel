@@ -3,6 +3,7 @@
 namespace App\Api\Controllers\V1;
 
 use App\Api\Controllers\ApiController;
+use App\Events\SendDingTalkEmail;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Library\UmsPay\UmsPay;
 use App\Services\Common\EventProcessorService;
@@ -570,5 +571,9 @@ class $serviceName extends BaseService
         $umsPay = new UmsPay();
         $response = $umsPay->refund("21190122100423194476");
         return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    public function eventTest(){
+        return event(new SendDingTalkEmail(['data' => 123456]));
     }
 }
