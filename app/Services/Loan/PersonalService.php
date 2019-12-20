@@ -179,12 +179,8 @@ class PersonalService extends BaseService
         if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        if ($data['status'] != LoanEnum::SUBMIT){
+        if ($data['status'] > LoanEnum::SUBMIT){
             $this->setError('预约已审核，请联系客服更改!');
-            return false;
-        }
-        if (!LoanEnum::isset($data['price'])){
-            $this->setError('没有此价格的贷款!');
             return false;
         }
         $add_arr  = [
@@ -193,10 +189,10 @@ class PersonalService extends BaseService
             'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  $data['address'] ?? '',
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
-            'status'          =>  $data['status'],
+            'remark'          =>  $data['remark'] ?? '',
+            'status'          =>  LoanEnum::SUBMIT,
             'updated_at'      =>  time(),
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
@@ -216,8 +212,7 @@ class PersonalService extends BaseService
      */
     public function updLoan(array $data)
     {
-        $id = $data['id'];
-        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!LoanPersonalRepository::exists(['id' => $data['id'],'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
         if (!LoanEnum::isset($data['price'])){
@@ -230,18 +225,18 @@ class PersonalService extends BaseService
             'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  $data['address'] ?? '',
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
+            'remark'          =>  $data['remark'] ?? '',
             'status'          =>  $data['status'],
             'updated_at'      =>  time(),
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
-        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],$add_arr)){
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $data['id']],$add_arr)){
             $this->setError('修改失败,请重试！');
             return false;
         }
-        $this->setMessage('恭喜你，修改成功');
+        $this->setMessage('修改成功');
         return true;
     }
 
@@ -252,11 +247,11 @@ class PersonalService extends BaseService
      */
     public function delLoan($id)
     {
-        if (!$loanInfo = LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在！');
             return false;
         }
-        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+        if (!LoanPersonalRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
         }

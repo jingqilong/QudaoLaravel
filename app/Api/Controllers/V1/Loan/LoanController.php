@@ -555,7 +555,7 @@ class LoanController extends ApiController
      *          name="cardid",
      *          in="query",
      *          description="推荐人卡号",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="string",
      *          )
@@ -581,7 +581,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态【1 已提交 2审核中 3 审核失败 4审核通过 9 已删除】",
+     *          description="状态值  0待审核 1审核通过  2审核失败",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -601,7 +601,6 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
-            'cardid'            => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -614,7 +613,6 @@ class LoanController extends ApiController
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
-            'cardid.required'           => '获取预约人的卡号',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
@@ -740,7 +738,7 @@ class LoanController extends ApiController
      *          name="cardid",
      *          in="query",
      *          description="推荐人卡号",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="string",
      *          )
@@ -766,7 +764,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态【1 已提交 2审核中 3 审核失败 4审核通过 9 已删除】",
+     *          description="状态值  0待审核 1审核通过  2审核失败",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -786,7 +784,6 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
-            'cardid'            => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -799,7 +796,6 @@ class LoanController extends ApiController
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
-            'cardid.required'           => '获取预约人的卡号',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
