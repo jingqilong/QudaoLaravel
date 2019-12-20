@@ -73,7 +73,7 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="log",
+     *         name="longitude",
      *         in="query",
      *         description="地标经度，例如：【121.48941】",
      *         required=true,
@@ -82,7 +82,7 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="lat",
+     *         name="latitude",
      *         in="query",
      *         description="地标纬度，例如：【31.40527】",
      *         required=true,
@@ -245,8 +245,8 @@ class ActivityController extends ApiController
         $rules = [
             'name'          => 'required',
             'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
-            'log'           => 'required',
-            'lat'           => 'required',
+            'longitude'     => 'required',
+            'latitude'      => 'required',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -271,8 +271,8 @@ class ActivityController extends ApiController
             'name.required'         => '活动名称不能为空',
             'area_code.required'    => '地区编码不能为空',
             'area_code.regex'       => '地区编码格式有误',
-            'log.required'          => '经度不能为空',
-            'lat.required'          => '纬度不能为空',
+            'longitude.required'    => '经度不能为空',
+            'latitude.required'     => '纬度不能为空',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
@@ -423,7 +423,7 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="log",
+     *         name="longitude",
      *         in="query",
      *         description="地标经度，例如：【121.48941】",
      *         required=true,
@@ -432,7 +432,7 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="lat",
+     *         name="latitude",
      *         in="query",
      *         description="地标纬度，例如：【31.40527】",
      *         required=true,
@@ -596,8 +596,8 @@ class ActivityController extends ApiController
             'id'            => 'required|integer',
             'name'          => 'required',
             'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
-            'log'           => 'required',
-            'lat'           => 'required',
+            'longitude'     => 'required',
+            'latitude'      => 'required',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -624,8 +624,8 @@ class ActivityController extends ApiController
             'name.required'         => '活动名称不能为空',
             'area_code.required'    => '地区编码不能为空',
             'area_code.regex'       => '地区编码格式有误',
-            'log.required'          => '经度不能为空',
-            'lat.required'          => '纬度不能为空',
+            'longitude.required'    => '经度不能为空',
+            'latitude.required'     => '纬度不能为空',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',

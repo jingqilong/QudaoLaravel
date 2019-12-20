@@ -50,8 +50,8 @@ class DetailsService extends BaseService
         $add_arr = [
             'title'         => $request['title'],
             'area_code'     => $request['area_code'] . ',',
-            'longitude'     => $request['log'],
-            'latitude'      => $request['lat'],
+            'longitude'     => $request['longitude'],
+            'latitude'      => $request['latitude'],
             'address'       => $request['address'],
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
