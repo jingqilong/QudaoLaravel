@@ -381,6 +381,8 @@ $api->version('v1',function ($api){
                 $api->get('get_upgrade_apply_list','OaGradeController@getUpgradeApplyList')->name('获取等级申请列表');
                 $api->post('audit_apply','OaGradeController@auditApply')->name('审核等级申请');
                 $api->post('set_apply_status','OaGradeController@setApplyStatus')->name('设置等级申请支付状态');
+                $api->get('get_member_grade_list','OaGradeController@getMemberGradeList')->name('获取成员等级列表');
+                $api->post('edit_member_grade','OaGradeController@editMemberGrade')->name('修改成员等级');
 
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
