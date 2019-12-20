@@ -176,10 +176,10 @@ class PersonalService extends BaseService
     public function editLoan(array $data)
     {
         $id = $data['id'];
-        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!$loan = LoanPersonalRepository::getOne(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        if ($data['status'] != LoanEnum::SUBMIT){
+        if ($loan['status'] != LoanEnum::SUBMIT){
             $this->setError('预约已审核，请联系客服更改!');
             return false;
         }
@@ -277,9 +277,8 @@ class PersonalService extends BaseService
         $list['type_name']         =    empty($list['type']) ? '' : LoanEnum::getType($list['type']);
         $list['status_name']       =    empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
         $list['price_name']        =    empty($list['price']) ? '' : LoanEnum::getPrice($list['price']);
-        $list['reservation_at']    =    date('Y-m-d H:m:s',$list['reservation_at']);
-        $list['created_at']        =    date('Y-m-d H:m:s',$list['created_at']);
-        $list['updated_at']        =    date('Y-m-d H:m:s',$list['updated_at']);
+        $list['reservation_at']    =    date('Y-m-d',$list['reservation_at']);
+        $list['created_at']        =    date('Y-m-d',$list['created_at']);
         $this->setMessage('查找成功');
         return $list;
     }
