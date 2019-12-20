@@ -9,9 +9,9 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Events\Dispatcher as Event;
+//use Illuminate\Events\Dispatcher as Event;
 
-class SendDingTalkEmail extends Event implements ShouldBroadcast
+class SendDingTalkEmail implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,7 +26,7 @@ class SendDingTalkEmail extends Event implements ShouldBroadcast
     {
         //
         $this->data = $data;
-        parent::__construct();
+       // parent::__construct();
     }
 
     /**

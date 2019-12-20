@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -10,7 +9,6 @@ use App\Events\SendDingTalkEmail;
 use App\Events\SendWeChatPush;
 use App\Events\SendSiteMessage;
 use App\Events\SendFlowSms;
-use App\Listener\ProcessEventSubscriber;
 
 
 
@@ -27,19 +25,20 @@ class EventServiceProvider extends ServiceProvider
         ],
         SendDingTalkEmail::class => [
             //钉钉邮件通知 流程订阅都监听
-            ProcessEventSubscriber::class,
+            \App\Listeners\SendDingTalkEmailListener::class,
         ],
         SendWeChatPush::class => [
             //微信推送 流程订阅都监听
-            ProcessEventSubscriber::class,
+            \App\Listeners\SendWeChatPushListener::class,
+            //ProcessEventSubscriber::class,
         ],
         SendSiteMessage::class => [
             //站内信息 流程订阅都监听
-            ProcessEventSubscriber::class,
+            \App\Listeners\SendSiteMessageListener::class,
         ],
         SendFlowSms::class => [
             //短信 流程订阅都监听
-            ProcessEventSubscriber::class,
+            \App\Listeners\SendFlowSmsListener::class,
         ],
     ];
 

@@ -577,7 +577,7 @@ class $serviceName extends BaseService
         try {
             return event(new SendDingTalkEmail(['data' => 123456]));
         }catch (\Exception $exception){
-            dd($exception->getTrace());
+            dd($exception);
         }
 
     }
