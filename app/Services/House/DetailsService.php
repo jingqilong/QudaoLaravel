@@ -3,6 +3,7 @@ namespace App\Services\House;
 
 
 use App\Enums\CollectTypeEnum;
+use App\Enums\CommonHomeEnum;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonAreaRepository;
@@ -14,6 +15,7 @@ use App\Repositories\MemberCollectRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\AreaService;
+use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
@@ -149,6 +151,12 @@ class DetailsService extends BaseService
         }
         if (HouseEnum::PASS == $house['status']){
             $this->setError('该房源正在上架，无法删除！');
+            return false;
+        }
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::HOUSE,$id) == false){
+            $this->setError($homeBannerService->error);
             return false;
         }
         if (!HouseDetailsRepository::update($where,['deleted_at' => time()])){
