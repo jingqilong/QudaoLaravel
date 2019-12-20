@@ -4,6 +4,7 @@
 namespace App\Traits;
 
 
+use App\Enums\ImageTypeEnum;
 use App\Repositories\CommonAreaRepository;
 
 trait HelpTrait
@@ -385,5 +386,22 @@ trait HelpTrait
             $str .= $chars[mt_rand(0, $lc)];
         }
         return $str;
+    }
+
+    /**
+     * @param $image   [需要加后缀的图片]
+     * @param $size    [ 1 => 375尺寸 NORMAL,2 => 200尺寸 small]
+     * @return string
+     */
+    public function suffix($image, $size)
+    {
+        if (!is_array($image)){
+            $image = $image . ImageTypeEnum::getSize($size);
+        }else{
+            foreach ($image as &$value){
+                $value = $value . ImageTypeEnum::getSize($size);
+            }
+        }
+        return $image;
     }
 }

@@ -15,7 +15,16 @@ class ImageTypeEnum extends BaseEnum
         'GOODS'         => '商品模块',
         'MEMBER'        => '会员模块',
         'PROJECT'       => '精选生活模块',
+        'NORMAL'        => '?imageView2/1/w/375/h/235/q/72|imageslim',
+        'SMALL'         => '?imageView2/1/w/200/h/200/q/72|imageslim',
     ];
+
+    //状态
+    public static $size = [
+        1 => 'NORMAL',
+        2 => 'SMALL',
+    ];
+
 
     // constants
 
@@ -30,4 +39,17 @@ class ImageTypeEnum extends BaseEnum
     const MEMBER        = 5;
 
     const PROJECT       = 6;
+    #图片尺寸
+    const NORMAL        = 1;
+
+    const SMALL         = 2;
+
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getSize(int $value){
+        return isset(self::$size[$value]) ? self::$labels[self::$size[$value]] : '';
+    }
 }

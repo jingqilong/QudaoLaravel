@@ -102,9 +102,9 @@ class OaMemberService extends BaseService
         $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
         if (empty($member['birthday'])) $member['birthday'] = '';
         if (0 == $member['end_at']){
-            $member['end_at']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
+            $member['end_at_name']    = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效');
         }else{
-            $member['end_at']    = date('Y-m-d H:i:s',$member['end_at']);
+            $member['end_at_name']    = date('Y-m-d H:i:s',$member['end_at']);
         }
         $this->setMessage('获取用户信息成功');
         return $member;
@@ -242,20 +242,20 @@ class OaMemberService extends BaseService
      */
     public function updMemberInfo($request)
     {
-        if (!MemberBaseRepository::getOne(['id' => $request['id']])){
+        if (!$member = MemberBaseRepository::getOne(['id' => $request['id']])){
             $this->setError('用户不存在!');
             return false;
         }
         if ($request['end_at'] == MemberEnum::PERMANENT){
             $end_at = 0;
         }else{
-            $end_at = strtotime('+' . $request['end_at'] . 'year');
+            $end_at = strtotime('+' . $request['end_at'] . 'year',$member['created_at']);
         }
         $base_arr = [
             'id'         => $request['id'],
             'ch_name'    => $request['ch_name'],
             'en_name'    => $request['en_name'] ?? '',
-            'avatar_id'  => $request['avatar_id'] ?? 1226,
+            'avatar_id'  => $request['avatar_id'] ?? 1516,
             'sex'        => $request['sex'] ?? 0,
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
