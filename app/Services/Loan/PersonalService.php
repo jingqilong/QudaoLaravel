@@ -7,7 +7,6 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\LoanPersonalRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -343,7 +342,7 @@ class PersonalService extends BaseService
     }
 
     /**
-     * 成员表取消预约贷款
+     * 成员取消预约贷款
      * @param $request
      * @return bool
      */
