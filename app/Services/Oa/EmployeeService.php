@@ -132,7 +132,7 @@ class EmployeeService extends BaseService
      * @return mixed
      */
     public function getPermUserList($page,$pageNum){
-        $column = ['id', 'username', 'real_name', 'mobile', 'email', 'status', 'role_ids', 'permission_ids', 'created_at', 'updated_at'];
+        $column = ['id', 'username', 'real_name','department_id', 'mobile', 'email','work_title', 'status', 'role_ids', 'permission_ids', 'created_at', 'updated_at'];
         if (!$user_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
@@ -142,6 +142,10 @@ class EmployeeService extends BaseService
             $this->setMessage('暂无数据!');
             return $user_list;
         }
+        //获取部门
+        $department_ids = array_column($user_list['data'],'department_id');
+        $department_list = OaDepartmentRepository::getList(['id' => ['in',$department_ids]],['id','name']);
+        //获取角色和权限
         list($role_ids,$permission_ids) = $this->getArrayIds($user_list['data'],['role_ids','permission_ids']);
         $role_list = empty($role_ids) ? [] : OaAdminRolesRepository::getAssignList($role_ids,['id','name']);
         $permission_list = empty($permission_ids) ? [] : OaAdminPermissionsRepository::getAssignList($permission_ids,['id','name']);
@@ -163,6 +167,11 @@ class EmployeeService extends BaseService
                         $value['permissions'][] = reset($permission);
                     }
                 }
+            }
+            //获取部门
+            $value['department_name'] = '';
+            if ($department = $this->searchArray($department_list,'id',$value['department_id'])){
+                $value['department_name'] = reset($department)['name'];
             }
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
