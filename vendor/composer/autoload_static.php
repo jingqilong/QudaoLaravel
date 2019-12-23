@@ -1193,7 +1193,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Services\\Member\\MemberService' => __DIR__ . '/../..' . '/app/Services/Member/MemberService.php',
         'App\\Services\\Member\\OrdersService' => __DIR__ . '/../..' . '/app/Services/Member/OrdersService.php',
         'App\\Services\\Member\\PersonalServiceService' => __DIR__ . '/../..' . '/app/Services/Member/PersonalServiceService.php',
-        'App\\Services\\Member\\PreferenceService' => __DIR__ . '/../..' . '/app/Services/Member/PreferenceService.php',
+        'App\\Services\\Member\\PreferenceService' => __DIR__ . '/../..',
         'App\\Services\\Member\\PublicService' => __DIR__ . '/../..' . '/app/Services/Member/PublicService.php',
         'App\\Services\\Member\\RelationService' => __DIR__ . '/../..' . '/app/Services/Member/RelationService.php',
         'App\\Services\\Member\\ServiceConsumeService' => __DIR__ . '/../..' . '/app/Services/Member/ServiceConsumeService.php',

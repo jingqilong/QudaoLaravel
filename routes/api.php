@@ -130,6 +130,20 @@ $api->version('v1',function ($api){
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
                 $api->post('set_member_home_detail','OaMemberController@setMemberHomeDetail')->name('设置成员是否在首页显示');
 
+
+                #OA成员类别管理
+                $api->get('get_preference_list','MemberPreferenceController@getPreferenceList')->name('获取成员类别列表');
+                $api->get('get_preference_info','MemberPreferenceController@getPreferenceInfo')->name('根据ID 获取成员类别信息');
+                $api->delete('del_preference_type','MemberPreferenceController@delPreferenceType')->name('删除成员活动偏好类别');
+                $api->post('edit_preference_type','MemberPreferenceController@editPreferenceType')->name('修改成员活动偏好类别');
+                $api->post('add_preference_type','MemberPreferenceController@addPreferenceType')->name('添加成员活动偏好类别');
+
+                $api->get('get_preference_value_list','MemberPreferenceController@getPreferenceValueList')->name('获取成员类别属性列表');
+                $api->get('get_preference_value_info','MemberPreferenceController@getPreferenceValueInfo')->name('根据ID获取成员类别属性信息');
+                $api->delete('del_preference_value','MemberPreferenceController@delPreferenceValue')->name('删除成员活动属性类别');
+                $api->post('edit_preference_value','MemberPreferenceController@editPreferenceValue')->name('修改成员活动属性类别');
+                $api->post('add_preference_value','MemberPreferenceController@addPreferenceValue')->name('添加成员活动属性类别');
+
                 #OA成员等级服务
                 $api->post('add_member_grade_view','OaMemberController@addMemberGradeView')->name('添加等级可查看等级服务');
                 $api->post('edit_member_grade_view','OaMemberController@editMemberGradeView')->name('修改等级可查看等级服务');
