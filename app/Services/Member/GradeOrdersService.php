@@ -267,8 +267,8 @@ class GradeOrdersService extends BaseService
         foreach ($grade_list['data'] as &$value){
             $value['status_title']  = MemberGradeEnum::getGradeStatus($value['status']);
             $value['created_at']    = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
-            $value['end_at']        = $value['end_at'] == 0 ? '永久' : date('Y-m_d H:i:s',$value['end_at']);
-            $value['update_at']     = $value['update_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['update_at']);
+            $value['end_at']        = $value['end_at'] == 0 ? '永久' : date('Y-m-d',$value['end_at']);
+            $value['update_at']     = $value['update_at'] == 0 ? '' : date('Y-m-d H:i:s',$value['update_at']);
         }
         $this->setMessage('获取成功！');
         return $grade_list;

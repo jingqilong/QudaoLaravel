@@ -37,5 +37,10 @@ return [
             'daily' => true,
             'level' => 'debug'
         ],
+        'process' => [//流程日志
+            'log' => 'process.log',
+            'daily' => true,
+            'level' => 'debug'
+        ],
     ]
 ];

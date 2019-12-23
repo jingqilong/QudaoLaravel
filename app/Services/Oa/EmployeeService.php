@@ -419,5 +419,32 @@ class EmployeeService extends BaseService
         $this->setMessage('获取成功！');
         return $user;
     }
+
+    /**
+     * OA获取列表中操作人名称
+     * @param $list
+     * @param array $columns
+     * @return mixed
+     */
+    public static function getListOperationByName($list,$columns = ['created_by','updated_by']){
+        if (empty($columns)){
+            return $list;
+        }
+        $employee_ids   = [0];
+        foreach ($columns as $column){
+            $column_employee_ids = array_column($list,$column);
+            $employee_ids = array_merge($employee_ids,$column_employee_ids);
+        }
+        $employee_list  = OaEmployeeRepository::getList(['id' => ['in',$employee_ids]]);
+        foreach ($list as &$datum){
+            foreach ($columns as $column){
+                $datum[$column.'_name'] = '';
+                if ($created_by = self::searchArrays($employee_list,'id',$datum[$column])){
+                    $datum[$column.'_name']   = reset($created_by)['real_name'];
+                }
+            }
+        }
+        return $list;
+    }
 }
             

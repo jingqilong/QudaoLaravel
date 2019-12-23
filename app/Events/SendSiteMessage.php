@@ -9,9 +9,8 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Events\Dispatcher as Event;
 
-class SendSiteMessage extends Event implements ShouldBroadcast
+class SendSiteMessage implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,7 +25,7 @@ class SendSiteMessage extends Event implements ShouldBroadcast
     {
         //
         $this->data = $data;
-        parent::__construct($data);
+
     }
 
     /**

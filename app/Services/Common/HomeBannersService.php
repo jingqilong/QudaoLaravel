@@ -6,7 +6,13 @@ use App\Enums\CommonHomeEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
+use App\Repositories\HouseDetailsRepository;
+use App\Repositories\MemberBaseRepository;
+use App\Repositories\OaEmployeeRepository;
+use App\Repositories\PrimeMerchantRepository;
+use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
+use App\Services\Oa\EmployeeService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Tolawho\Loggy\Facades\Loggy;
@@ -91,7 +97,7 @@ class HomeBannersService extends BaseService
         }
         //如果状态为展示，需要检查添加的banner相同展示（顺序）位置是否已有展示信息，如果有，关闭之前的展示信息
         $check_where = ['page_space' => $request['page_space'],'sort' => $request['sort'],'status' => CommonHomeEnum::SHOW];
-        if ($show_banner = CommonHomeBannersRepository::getOne($check_where)){
+        if ($request['status'] == CommonHomeEnum::SHOW && $show_banner = CommonHomeBannersRepository::getOne($check_where)){
             $upd_show = ['status' => CommonHomeEnum::HIDDEN,'updated_by' => $employee_id,'updated_at' => time()];
             if (!CommonHomeBannersRepository::getUpdId(['id' => $show_banner['id']],$upd_show)){
                 $this->setError('添加失败！');
@@ -220,7 +226,9 @@ class HomeBannersService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data'] = ImagesService::getListImages($list['data'],['image_id' => 'single']);
+        $list['data']   = $this->getBannerListRelatedInfo($list['data']);
+        $list['data']   = EmployeeService::getListOperationByName($list['data']);
+        $list['data']   = ImagesService::getListImages($list['data'],['image_id' => 'single']);
         foreach ($list['data'] as &$datum){
             $datum['page_space_title']  = CommonHomeEnum::getBannerModule($datum['page_space']);
             $datum['link_type_title']   = CommonHomeEnum::getBannerType($datum['link_type']);
@@ -243,7 +251,7 @@ class HomeBannersService extends BaseService
                 $this->setError('当前数据正在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
                 return false;
             }
-        }dd($type);
+        }
         $this->setMessage('当前数据不在展示列表');
         return true;
     }
@@ -287,6 +295,49 @@ class HomeBannersService extends BaseService
         }
         $this->setMessage('操作成功！');
         return true;
+    }
+
+    /**
+     * 获取首页banner列表中相关的信息
+     * @param $banner_list
+     * @return array
+     */
+    protected function getBannerListRelatedInfo($banner_list){
+        if (empty($banner_list)){
+            return [];
+        }
+        //banner链接类别对应的Repository
+        $banner_type_to_repository = [
+            CommonHomeEnum::ACTIVITY    => ActivityDetailRepository::class,
+            CommonHomeEnum::MEMBER      => MemberBaseRepository::class,
+            CommonHomeEnum::SHOP        => ShopGoodsRepository::class,
+            CommonHomeEnum::HOUSE       => HouseDetailsRepository::class,
+            CommonHomeEnum::PRIME       => PrimeMerchantRepository::class,
+        ];
+        //banner链接类别对应的相关信息的名字字段
+        $banner_type_to_column = [
+            CommonHomeEnum::ACTIVITY    =>  'name',
+            CommonHomeEnum::MEMBER      =>  'ch_name',
+            CommonHomeEnum::SHOP        =>  'name',
+            CommonHomeEnum::HOUSE       =>  'title',
+            CommonHomeEnum::PRIME       =>  'name',
+        ];
+        //获取相关的信息
+        $related_infos = [];
+        foreach ($banner_type_to_repository as $type => $repository){
+            if (${$type."banners"} = $this->searchArray($banner_list,'link_type',$type)){
+                ${$type."_ids"} = array_column(${$type."banners"},'related_id');
+                $related_infos[$type]  = $repository::getlist(['id' => ['in',${$type."_ids"}]]);
+            }
+        }
+        //将相关的信息写入列表
+        foreach ($banner_list as &$value){
+            $value['related_name'] = '';
+            if ($relate = $this->searchArray($related_infos[$value['link_type']],'id',$value['related_id'])){
+                $value['related_name'] = reset($relate)[$banner_type_to_column[$value['link_type']]];
+            }
+        }
+        return $banner_list;
     }
 }
             
