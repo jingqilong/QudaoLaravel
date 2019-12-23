@@ -2,7 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessDefinitionEnum;
+use App\Enums\ProcessDefinitionStatusEnum;
 use App\Repositories\MemberBusinessRecordRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeRepository;
@@ -36,7 +36,7 @@ class ProcessRecordService extends BaseService
             'updated_at'        => time(),
         ];
         if (empty($node_id)){
-            if ($process['status'] == ProcessDefinitionEnum::INACTIVE){
+            if ($process['status'] == ProcessDefinitionStatusEnum::INACTIVE){
                 Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$business_id.'，流程ID：'.$process_id.'，执行步骤：'.$node_id);
                 $this->setError('当前流程已被禁用，无法添加该流程！');
                 return false;

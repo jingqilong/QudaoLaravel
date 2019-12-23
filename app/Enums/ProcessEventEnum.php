@@ -10,25 +10,33 @@ class ProcessEventEnum extends BaseEnum
 
     public static $labels=[
         //状态
-        'ENABLE'        => '启用',
-        'DISABLED'      => '禁用',
-    ];
+        'DINGTALK_EMAIL'        => '钉邮',
+        'SMS'                   => '短信',
+        'SITE_MESSAGE'          => '站内信',
+        'WECHAT_PUSH'           => '微信推送',
+     ];
 
-    public static $status = [
-        1 => 'ENABLE',
-        2 => 'DISABLED',
+    public static $data_map = [
+        1 => 'DINGTALK_EMAIL',
+        2 => 'SMS',
+        3 => 'SITE_MESSAGE',
+        4 => 'WECHAT_PUSH',
     ];
     // constants
-    const ENABLE        = 1;
+    const DINGTALK_EMAIL        = 1;
 
-    const DISABLED      = 2;
+    const SMS                   = 2;
+
+    const SITE_MESSAGE          = 3;
+
+    const WECHAT_PUSH           = 4;
 
     /**
      * 获取状态label
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getLabelByValue(int $value){
+        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
     }
 }

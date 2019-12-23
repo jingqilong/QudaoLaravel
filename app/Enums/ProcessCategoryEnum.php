@@ -2,59 +2,49 @@
 /**
  * 流程分类枚举
  */
+
 namespace App\Enums;
 
 
 class ProcessCategoryEnum extends BaseEnum
 {
-
     public static $labels=[
-        //网关类型
-        'ROUTE'         => '路由',
-        'REPOSITORY'    => '仓库',
-        'RESOURCE'      => '资源',
-
-        //状态
-        'INACTIVE'      => '未激活',
-        'ACTIVE'        => '激活',
+        'MEMBER_REGISTER'        => '成员注册',
+        'MEMBER_UPGRADE'         => '成员升级',
+        'ACTIVITY_REGISTER'      => '活动报名',
+        'PROJECT_DOCKING'        => '项目对接',
+        'LOAN_RESERVATION'       => '贷款预约',
+        'ENTERPRISE_CONSULT'     => '企业咨询',
     ];
 
-    public static $getway_type = [
-        0 => 'ROUTE',
-        1 => 'REPOSITORY',
-        2 => 'RESOURCE',
-    ];
-
-    public static $status = [
-        0 => 'INACTIVE',
-        1 => 'ACTIVE',
+    public static $data_map = [
+        1 => 'MEMBER_REGISTER',
+        2 => 'MEMBER_UPGRADE',
+        3 => 'ACTIVITY_REGISTER',
+        4 => 'PROJECT_DOCKING',
+        5 => 'LOAN_RESERVATION',
+        6 => 'ENTERPRISE_CONSULT',
     ];
     // constants
 
-    const ROUTE             = 0;
+    const MEMBER_REGISTER          = 1;
 
-    const REPOSITORY        = 1;
+    const MEMBER_UPGRADE           = 2;
 
-    const RESOURCE          = 2;
+    const ACTIVITY_REGISTER        = 3;
 
-    const INACTIVE          = 0;
+    const PROJECT_DOCKING          = 4;
 
-    const ACTIVE            = 1;
+    const LOAN_RESERVATION         = 5;
 
-    /**
-     * 获取网管类型label
-     * @param int $value
-     * @return mixed|string
-     */
-    public static function getGetWayType(int $value){
-        return isset(self::$getway_type[$value]) ? self::$labels[self::$getway_type[$value]] : '';
-    }
+    const ENTERPRISE_CONSULT       = 6;
+
     /**
      * 获取状态label
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getLabelByValue(int $value){
+        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
     }
 }

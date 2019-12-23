@@ -9,26 +9,33 @@ class ProcessActionEnum extends BaseEnum
 {
 
     public static $labels=[
-        //状态
-        'ENABLE'        => '启用',
-        'DISABLED'      => '禁用',
+        'ACCEPT'        => '同意',
+        'REJECT'        => '拒绝',
+        'CANCEL'        => '取消',
+        'RESTART'       => '重启',
     ];
 
-    public static $status = [
-        1 => 'ENABLE',
-        2 => 'DISABLED',
+    public static $data_map = [
+        1 => 'ACCEPT',
+        2 => 'REJECT',
+        3 => 'CANCEL',
+        4 => 'RESTART',
     ];
     // constants
-    const ENABLE        = 1;
+    const ACCEPT        = 1;
 
-    const DISABLED      = 2;
+    const REJECT        = 2;
+
+    const CANCEL        = 3;
+
+    const RESTART       = 4;
 
     /**
-     * 获取状态label
+     *
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getLabelByValue(int $value){
+        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
     }
 }

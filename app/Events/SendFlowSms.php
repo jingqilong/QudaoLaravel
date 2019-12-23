@@ -9,9 +9,8 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Events\Dispatcher as Event;
 
-class SendFlowSms extends Event implements ShouldBroadcast
+class SendFlowSms implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,7 +25,6 @@ class SendFlowSms extends Event implements ShouldBroadcast
     {
         //
         $this->data = $data;
-        parent::__construct($data);
     }
 
     /**

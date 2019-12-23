@@ -5,7 +5,7 @@
 namespace App\Enums;
 
 
-class ProcessDefinitionEnum extends BaseEnum
+class ProcessDefinitionStatusEnum extends BaseEnum
 {
 
     public static $labels=[
@@ -14,7 +14,7 @@ class ProcessDefinitionEnum extends BaseEnum
         'ACTIVE'        => '启用',
     ];
 
-    public static $status = [
+    public static $data_map = [
         0 => 'INACTIVE',
         1 => 'ACTIVE',
     ];
@@ -28,7 +28,7 @@ class ProcessDefinitionEnum extends BaseEnum
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getLabelByValue(int $value){
+        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
     }
 }

@@ -141,9 +141,10 @@ class HospitalsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         $department_ids  = array_column($list['data'],'department_ids');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        $img_ids         = array_column($list['data'],'img_ids');
+        $img_list        = CommonImagesRepository::getAssignList($img_ids,['id','img_url']);
         foreach ($list['data'] as &$value){
             $value['departments']    = [];
             $value['img_urls']       = [];
@@ -151,6 +152,12 @@ class HospitalsService extends BaseService
             foreach ($department_arr as $item){
                 if ($department = $this->searchArray($department_list,'id',$item)){
                     $value['departments'][] = reset($department);
+                }
+            }
+            $img_arr = explode(',',$value['img_ids']);
+            foreach ($img_arr as $val_str) {
+                if ($img = $this->searchArray($img_list, 'id', $val_str)) {
+                    $value['img_urls'][] = reset($img);
                 }
             }
             #处理地址

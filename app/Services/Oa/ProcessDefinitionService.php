@@ -2,7 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessDefinitionEnum;
+use App\Enums\ProcessDefinitionStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
@@ -40,7 +40,7 @@ class ProcessDefinitionService extends BaseService
             'name'          => $request['name'],
             'category_id'   => $request['category_id'],
             'description'   => $request['description'] ?? '',
-            'status'        => ProcessDefinitionEnum::getConst($request['status']),
+            'status'        => ProcessDefinitionStatusEnum::getConst($request['status']),
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -94,7 +94,7 @@ class ProcessDefinitionService extends BaseService
             'name'          => $request['name'],
             'category_id'   => $request['category_id'],
             'description'   => $request['description'] ?? '',
-            'status'        => ProcessDefinitionEnum::getConst($request['status']),
+            'status'        => ProcessDefinitionStatusEnum::getConst($request['status']),
             'updated_at'    => time(),
         ];
         if (OaProcessDefinitionRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -126,7 +126,7 @@ class ProcessDefinitionService extends BaseService
             return $definition_list;
         }
         foreach ($definition_list['data'] as &$value){
-            $value['status_label'] = ProcessDefinitionEnum::getStatus($value['status']);
+            $value['status_label'] = ProcessDefinitionStatusEnum::getStatus($value['status']);
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
         }
@@ -218,7 +218,7 @@ class ProcessDefinitionService extends BaseService
             $this->setError('该流程不存在！');
         }
         $process['category']     = OaProcessCategoriesRepository::getField(['id' => $process['category_id']],'name');
-        $process['status_label'] = ProcessDefinitionEnum::getStatus($process['status']);
+        $process['status_label'] = ProcessDefinitionStatusEnum::getStatus($process['status']);
         $process['created_at']   = date('Y-m-d H:m:s',$process['created_at']);
         $process['updated_at']   = date('Y-m-d H:m:s',$process['updated_at']);
         $process['node']         = [];

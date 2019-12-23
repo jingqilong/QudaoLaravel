@@ -2,7 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessCategoryEnum;
+use App\Enums\ProcessGetwayTypeEnum;
 use App\Repositories\OaProcessCategoriesRepository;
 use App\Services\BaseService;
 
@@ -22,9 +22,9 @@ class ProcessCategoriesService extends BaseService
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessCategoryEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessCategoryEnum::getConst($request['status']),
+            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -72,9 +72,9 @@ class ProcessCategoriesService extends BaseService
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessCategoryEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessCategoryEnum::getConst($request['status']),
+            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
             'updated_at'    => time(),
         ];
         if (OaProcessCategoriesRepository::getUpdId(['id' => $request['id']],$arr)){
@@ -106,8 +106,8 @@ class ProcessCategoriesService extends BaseService
             return $cate_list;
         }
         foreach ($cate_list['data'] as &$value){
-            $value['getway_type'] = ProcessCategoryEnum::getGetWayType($value['getway_type']);
-            $value['status'] = ProcessCategoryEnum::getStatus($value['status']);
+            $value['getway_type'] = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
+            $value['status'] = ProcessGetwayTypeEnum::getStatus($value['status']);
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
         }
