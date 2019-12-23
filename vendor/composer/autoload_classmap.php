@@ -176,8 +176,6 @@ return array(
     'App\\Library\\UmsPay\\Utils\\UmsQrType' => $baseDir . '/app/Library/UmsPay/Utils/UmsQrType.php',
     'App\\Library\\UmsPay\\Utils\\UmsStatus' => $baseDir . '/app/Library/UmsPay/Utils/UmsStatus.php',
     'App\\Library\\YiKaYi\\YiKaYiSms' => $baseDir . '/app/Library/YiKaYi/YiKaYiSms.php',
-    'App\\Listener\\ProcessEventListener' => $baseDir . '/app/Listeners/ProcessEventListener.php',
-    'App\\Listener\\ProcessEventSubscriber' => $baseDir . '/app/Listeners/ProcessEventSubscriber.php',
     'App\\Models\\ActivityCollectModel' => $baseDir . '/app/Models/ActivityCollectModel.php',
     'App\\Models\\ActivityCommentsModel' => $baseDir . '/app/Models/ActivityCommentsModel.php',
     'App\\Models\\ActivityDetailModel' => $baseDir . '/app/Models/ActivityDetailModel.php',

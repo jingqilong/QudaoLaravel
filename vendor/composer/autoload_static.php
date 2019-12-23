@@ -889,8 +889,6 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Library\\UmsPay\\Utils\\UmsQrType' => __DIR__ . '/../..' . '/app/Library/UmsPay/Utils/UmsQrType.php',
         'App\\Library\\UmsPay\\Utils\\UmsStatus' => __DIR__ . '/../..' . '/app/Library/UmsPay/Utils/UmsStatus.php',
         'App\\Library\\YiKaYi\\YiKaYiSms' => __DIR__ . '/../..' . '/app/Library/YiKaYi/YiKaYiSms.php',
-        'App\\Listener\\ProcessEventListener' => __DIR__ . '/../..' . '/app/Listeners/ProcessEventListener.php',
-        'App\\Listener\\ProcessEventSubscriber' => __DIR__ . '/../..' . '/app/Listeners/ProcessEventSubscriber.php',
         'App\\Models\\ActivityCollectModel' => __DIR__ . '/../..' . '/app/Models/ActivityCollectModel.php',
         'App\\Models\\ActivityCommentsModel' => __DIR__ . '/../..' . '/app/Models/ActivityCommentsModel.php',
         'App\\Models\\ActivityDetailModel' => __DIR__ . '/../..' . '/app/Models/ActivityDetailModel.php',
