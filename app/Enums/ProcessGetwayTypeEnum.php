@@ -13,12 +13,14 @@ class ProcessGetwayTypeEnum extends BaseEnum
         'ROUTE'         => '路由',
         'REPOSITORY'    => '仓库',
         'RESOURCE'      => '资源',
+        'SERVICE'       => '服务',
     ];
 
     public static $getway_type = [
         0 => 'ROUTE',
         1 => 'REPOSITORY',
         2 => 'RESOURCE',
+        3 => 'SERVICE'
     ];
 
     // constants
@@ -27,6 +29,8 @@ class ProcessGetwayTypeEnum extends BaseEnum
     const REPOSITORY        = 1;
 
     const RESOURCE          = 2;
+
+    const SERVICE           = 3;
 
     /**
      * 获取网管类型label
