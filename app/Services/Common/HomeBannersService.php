@@ -12,6 +12,7 @@ use App\Repositories\OaEmployeeRepository;
 use App\Repositories\PrimeMerchantRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
+use App\Services\Oa\EmployeeService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Tolawho\Loggy\Facades\Loggy;
@@ -226,24 +227,13 @@ class HomeBannersService extends BaseService
             return $list;
         }
         $list['data']   = $this->getBannerListRelatedInfo($list['data']);
-        $created_bys    = array_column($list['data'],'created_by');
-        $updated_bys    = array_column($list['data'],'updated_by');
-        $employee_ids   = array_merge($created_bys,$updated_bys);
-        $employee_list  = OaEmployeeRepository::getList(['id' => ['in',$employee_ids]]);
+        $list['data']   = EmployeeService::getListOperationByName($list['data']);
         $list['data']   = ImagesService::getListImages($list['data'],['image_id' => 'single']);
         foreach ($list['data'] as &$datum){
             $datum['page_space_title']  = CommonHomeEnum::getBannerModule($datum['page_space']);
             $datum['link_type_title']   = CommonHomeEnum::getBannerType($datum['link_type']);
             $datum['sort_title']        = CommonHomeEnum::getSort($datum['sort']);
             $datum['status_title']      = CommonHomeEnum::getStatus($datum['status']);
-            $datum['created_by_name']   = '';
-            $datum['updated_by_name']   = '';
-            if ($created_by = $this->searchArray($employee_list,'id',$datum['created_by'])){
-                $datum['created_by_name']   = reset($created_by)['real_name'];
-            }
-            if ($updated_by = $this->searchArray($employee_list,'id',$datum['updated_by'])){
-                $datum['updated_by_name']   = reset($updated_by)['real_name'];
-            }
         }
         $this->setMessage('获取成功！');
         return $list;
