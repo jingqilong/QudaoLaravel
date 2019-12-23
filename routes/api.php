@@ -41,6 +41,7 @@ $api->version('v1',function ($api){
             $api->get('query_clear_date','TestApiController@queryClearDate')->name('queryClearDate');
             $api->get('query_by_system_code','TestApiController@queryBySystemCode')->name('queryBySystemCode');
             $api->get('refund','TestApiController@refund')->name('refund');
+            $api->get('event_test','TestApiController@eventTest')->name('eventTest');
         });
         $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
@@ -66,10 +67,16 @@ $api->version('v1',function ($api){
     $api->group(['prefix' => 'v1','middleware' => ['cors', 'sign'],'namespace' => 'App\Api\Controllers\V1'], function ($api) {
         //OA 模块
         $api->group(['prefix' => 'oa','namespace' => 'Oa'],function ($api){
-            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
-                $api->post('logout','OaController@logout')->name('退出');
-                $api->post('refresh','OaController@refresh')->name('刷新token');
+            $api->post('login','OaController@login')->name('登录');
+            $api->post('logout','OaController@logout')->name('退出');
+            $api->post('refresh','OaController@refresh')->name('刷新token');
+            $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
+
+                $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
+                $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
+            });
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #OA首页
                 $api->get('get_site_pv','HomeController@getSitePv')->name('获取访问量');
                 $api->get('get_reservation_number','HomeController@getReservationNumber')->name('获取预约数量');
@@ -92,9 +99,7 @@ $api->version('v1',function ($api){
                 $api->post('add_menu','MenuController@addMenu')->name("添加菜单");
                 $api->post('edit_menu','MenuController@editMenu')->name("修改菜单");
                 $api->get('menu_detail','MenuController@menuDetail')->name("菜单详情");
-                $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
                 $api->get('menu_linkage_list','MenuController@menuLinkageList')->name("添加菜单使用父级菜单联动列表");
-                $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
 
                 $api->post('add_permission','PermissionsController@addPermission')->name("添加权限");
                 $api->delete('delete_permission','PermissionsController@deletePermission')->name("删除权限");
@@ -120,9 +125,30 @@ $api->version('v1',function ($api){
                 $api->get('member_list','OaMemberController@memberList')->name('获取成员列表');
                 $api->get('get_member_info','OaMemberController@getMemberInfo')->name('获取成员信息');
                 $api->delete('del_member','OaMemberController@delMember')->name('删除成员');
-                $api->get('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
+                $api->post('set_member_status','OaMemberController@setMemberStatus')->name('禁用or激活成员');
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
+                $api->post('set_member_home_detail','OaMemberController@setMemberHomeDetail')->name('设置成员是否在首页显示');
+
+
+                #OA成员类别管理
+                $api->get('get_preference_list','MemberPreferenceController@getPreferenceList')->name('获取成员类别列表');
+                $api->get('get_preference_info','MemberPreferenceController@getPreferenceInfo')->name('根据ID 获取成员类别信息');
+                $api->delete('del_preference_type','MemberPreferenceController@delPreferenceType')->name('删除成员活动偏好类别');
+                $api->post('edit_preference_type','MemberPreferenceController@editPreferenceType')->name('修改成员活动偏好类别');
+                $api->post('add_preference_type','MemberPreferenceController@addPreferenceType')->name('添加成员活动偏好类别');
+
+                $api->get('get_preference_value_list','MemberPreferenceController@getPreferenceValueList')->name('获取成员类别属性列表');
+                $api->get('get_preference_value_info','MemberPreferenceController@getPreferenceValueInfo')->name('根据ID获取成员类别属性信息');
+                $api->delete('del_preference_value','MemberPreferenceController@delPreferenceValue')->name('删除成员活动属性类别');
+                $api->post('edit_preference_value','MemberPreferenceController@editPreferenceValue')->name('修改成员活动属性类别');
+                $api->post('add_preference_value','MemberPreferenceController@addPreferenceValue')->name('添加成员活动属性类别');
+
+                #OA成员等级服务
+                $api->post('add_member_grade_view','OaMemberController@addMemberGradeView')->name('添加等级可查看等级服务');
+                $api->post('edit_member_grade_view','OaMemberController@editMemberGradeView')->name('修改等级可查看等级服务');
+                $api->get('get_member_grade_view_list','OaMemberController@getMemberGradeViewList')->name('获取等级可查看等级服务列表');
+
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){
@@ -159,7 +185,6 @@ $api->version('v1',function ($api){
                     $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
-            $api->post('login','OaController@login')->name('登录');
         });
 
         //精选生活
@@ -218,6 +243,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_activity','ActivityController@editActivity')->name('修改活动');
                 $api->get('get_activity_list','ActivityController@getActivityList')->name('获取活动列表');
                 $api->get('activity_detail','ActivityController@activityDetail')->name('获取获取详细信息');
+                $api->post('activity_switch','ActivityController@activitySwitch')->name('活动开关');
 
                 $api->post('activity_add_host','ActivityController@activityAddHost')->name('添加活动举办方');
 
@@ -296,7 +322,8 @@ $api->version('v1',function ($api){
                 $api->get('get_all_message_list','OaMessageController@getAllMessageList')->name('获取所有消息列表');
                 $api->post('send_system_notice','OaMessageController@sendSystemNotice')->name('发送系统通知');
                 $api->post('send_announce','OaMessageController@sendAnnounce')->name('发送公告');
-
+            });
+            $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
             });
@@ -325,6 +352,7 @@ $api->version('v1',function ($api){
                 $api->post('sign','MemberController@sign')->name('每日签到');
                 $api->get('sign_details','MemberController@signDetails')->name('签到页详情');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+                $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
                 #用户地址管理
                 $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
@@ -332,6 +360,12 @@ $api->version('v1',function ($api){
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
 
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
+                #会员等级
+                $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
+                $api->get('get_grade_card_list','GradeController@getGradeCardList')->name('获取等级卡片列表');
+                $api->get('get_grade_cart_list','GradeController@getGradeCardList')->name('获取等级卡片列表');#兼容
+                $api->get('get_grade_apply_detail','GradeController@getGradeApplyDetail')->name('获取等级申请详情');
+                $api->post('upgrade_apply','GradeController@upgradeApply')->name('提交等级升级申请');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
                 #成员权限（后台）
@@ -341,20 +375,29 @@ $api->version('v1',function ($api){
                 $api->post('edit_service','ServiceController@editService')->name('修改服务');
                 $api->delete('delete_service','ServiceController@deleteService')->name('删除服务');
                 $api->get('service_list','ServiceController@serviceList')->name('获取服务列表');
-                $api->post('grade_add_service','ServiceController@gradeAddService')->name('给等级添加服务');
-                $api->delete('grade_delete_service','ServiceController@gradeDeleteService')->name('删除等级中的服务');
-                $api->post('grade_edit_service','ServiceController@gradeEditService')->name('修改等级与服务对应关系');
-                $api->get('grade_service_detail','ServiceController@gradeServiceDetail')->name('获取等级下的服务详情');
-                $api->post('add_view_member','ServiceController@addViewMember')->name('添加成员可查看成员');
-                $api->post('add_grade_view','ServiceController@addGradeView')->name('添加等级可查看成员');
-                $api->delete('delete_view_member','ServiceController@deleteViewMember')->name('软删除成员可查看成员');
-                $api->post('restore_view_member','ServiceController@restoreViewMember')->name('恢复成员可查看成员');
                 $api->post('add_service_record','ServiceController@addServiceRecord')->name('添加会员服务消费记录');
+                #会员等级服务
+                $api->post('grade_add_service','OaGradeController@gradeAddService')->name('给等级添加服务');
+                $api->delete('grade_delete_service','OaGradeController@gradeDeleteService')->name('删除等级中的服务');
+                $api->post('grade_edit_service','OaGradeController@gradeEditService')->name('修改等级与服务对应关系');
+                $api->get('grade_service_detail','OaGradeController@gradeServiceDetail')->name('获取等级下的服务详情');
+                #会员产看权限
+                $api->post('add_view_member','ViewController@addViewMember')->name('添加成员可查看成员');
+                $api->post('add_grade_view','ViewController@addGradeView')->name('添加等级可查看成员');
+                $api->delete('delete_view_member','ViewController@deleteViewMember')->name('软删除成员可查看成员');
+                $api->post('restore_view_member','ViewController@restoreViewMember')->name('恢复成员可查看成员');
+
                 #会员等级
-                $api->post('add_grade','GradeController@addGrade')->name('添加等级');
-                $api->delete('delete_grade','GradeController@deleteGrade')->name('删除等级');
-                $api->post('edit_grade','GradeController@editGrade')->name('编辑等级');
-                $api->get('get_grade_list','GradeController@getGradeList')->name('获取等级列表');
+                $api->post('add_grade','OaGradeController@addGrade')->name('添加等级');
+                $api->delete('delete_grade','OaGradeController@deleteGrade')->name('删除等级');
+                $api->post('edit_grade','OaGradeController@editGrade')->name('编辑等级');
+                $api->get('get_grade_list','OaGradeController@getGradeList')->name('获取等级列表');
+                #等级申请
+                $api->get('get_upgrade_apply_list','OaGradeController@getUpgradeApplyList')->name('获取等级申请列表');
+                $api->post('audit_apply','OaGradeController@auditApply')->name('审核等级申请');
+                $api->post('set_apply_status','OaGradeController@setApplyStatus')->name('设置等级申请支付状态');
+                $api->get('get_member_grade_list','OaGradeController@getMemberGradeList')->name('获取成员等级列表');
+                $api->post('edit_member_grade','OaGradeController@editMemberGrade')->name('修改成员等级');
 
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
@@ -363,7 +406,6 @@ $api->version('v1',function ($api){
                 $api->get('get_trade_list','OrderController@getTradeList')->name('获取会员所有交易列表');
             });
             $api->post('mobile_register','MemberController@mobileRegister')->name('手机号码注册登录');
-            $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
             $api->post('login','MemberController@login')->name('登录');
             $api->post('refresh','MemberController@refresh')->name('刷新token');
             $api->post('sms_login','MemberController@smsLogin')->name('短信验证登录');
@@ -446,6 +488,9 @@ $api->version('v1',function ($api){
                 $api->post('reservation', 'ReservationController@reservation')->name('预约看房');
                 $api->get('reservation_list', 'ReservationController@reservationList')->name('个人预约列表');
                 $api->get('is_reservation_list', 'ReservationController@isReservationList')->name('个人被预约列表');
+                $api->get('get_reservation_detail', 'ReservationController@getReservationDetail')->name('我的预约详情');
+                $api->post('cancel_reservation', 'ReservationController@cancelReservation')->name('取消预约');
+                $api->post('edit_reservation', 'ReservationController@editReservation')->name('修改预约');
 
                 $api->get('all_facility_list', 'FacilityController@allFacilityList')->name('获取所有房产设施列表');
             });
@@ -500,6 +545,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_loan', 'LoanController@editLoan')->name('用户修改贷款订单');
                 $api->get('get_loan_info', 'LoanController@getLoanInfo')->name('获取贷款订单信息');
                 $api->get('get_loan_list', 'LoanController@getLoanList')->name('获取成员本人贷款订单列表');
+                $api->post('cancel_loan', 'LoanController@cancelLoan')->name('成员取消预约贷款');
             });
 
         });
@@ -511,6 +557,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_enterprise', 'EnterpriseController@editEnterprise')->name('根据ID修改企业咨询订单');
                 $api->get('get_enterprise_list', 'EnterpriseController@getEnterpriseList')->name('获取本人企业咨询订单列表');
                 $api->get('get_enterprise_info', 'EnterpriseController@getEnterpriseInfo')->name('根据ID获取企业咨询订单信息');
+                $api->post('cancel_enterprise', 'EnterpriseController@cancelEnterprise')->name('成员取消预约企业咨询');
             });
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->delete('del_enterprise', 'EnterpriseController@delEnterprise')->name('根据ID删除企业咨询订单');
@@ -546,6 +593,7 @@ $api->version('v1',function ($api){
             #OA 商城后台
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 $api->post('add_activity_goods','ActivityController@addActivityGoods')->name('添加活动商品');
+                $api->delete('delete_activity_goods','ActivityController@deleteActivityGoods')->name('删除活动商品');
                 $api->post('edit_activity_goods','ActivityController@editActivityGoods')->name('修改活动商品');
                 $api->get('get_activity_goods_list','ActivityController@getActivityGoodsList')->name('获取活动商品列表');
 
@@ -629,10 +677,14 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
+                #首页banner设置
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
                 $api->delete('delete_banner', 'BannerController@deleteBanner')->name('删除banner图');
                 $api->post('edit_banners', 'BannerController@editBanners')->name('修改首页banner');
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
+                $api->post('banner_status_switch', 'BannerController@bannerStatusSwitch')->name('banner显示状态开关');
+
+
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
                 $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');

@@ -6,28 +6,33 @@ namespace App\Api\Controllers\V1\Member;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Member\GradeDefineService;
+use App\Services\Member\GradeOrdersService;
+use App\Services\Member\GradeServiceService;
+use Illuminate\Http\JsonResponse;
 
 class GradeController extends ApiController
 {
-    public $gradeDefineService;
+    protected $gradeServiceService;
+    protected $gradeOrdersService;
 
     /**
      * GradeController constructor.
-     * @param $gradeDefineService
+     * @param GradeServiceService $gradeServiceService
+     * @param GradeOrdersService $gradeOrdersService
      */
-    public function __construct(GradeDefineService $gradeDefineService)
+    public function __construct(GradeServiceService $gradeServiceService,GradeOrdersService $gradeOrdersService)
     {
         parent::__construct();
-        $this->gradeDefineService = $gradeDefineService;
+        $this->gradeServiceService = $gradeServiceService;
+        $this->gradeOrdersService = $gradeOrdersService;
     }
-
     /**
-     * @OA\Post(
-     *     path="/api/v1/member/add_grade",
-     *     tags={"会员权限"},
-     *     summary="添加等级",
+     * @OA\Get(
+     *     path="/api/v1/member/get_grade_service",
+     *     tags={"会员"},
+     *     summary="获取等级下的服务详情",
      *     description="sang",
-     *     operationId="add_grade",
+     *     operationId="get_grade_service",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -40,150 +45,16 @@ class GradeController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="OA token",
+     *         description="会员 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="iden",
+     *         name="grade",
      *         in="query",
-     *         description="等级，数字，与系统中的枚举对应",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="title",
-     *         in="query",
-     *         description="等级标题",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="description",
-     *         in="query",
-     *         description="等级说明",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="状态，0、启用，1、关闭",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="minimum_time",
-     *         in="query",
-     *         description="购买最低时长，单位：年",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="amount",
-     *         in="query",
-     *         description="购买单价金额，每年/元，单位：元",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="is_buy",
-     *         in="query",
-     *         description="是否可购买，0不可购买，1可购买",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=100,
-     *         description="添加失败",
-     *     ),
-     * )
-     *
-     */
-    public function addGrade(){
-        $rules = [
-            'iden'          => 'required|integer',
-            'title'         => 'required|max:50',
-            'description'   => 'max:200',
-            'status'        => 'required|in:0,1',
-            'minimum_time'  => 'required|integer|min:1',
-            'amount'        => 'required|integer|min:0',
-            'is_buy'        => 'required|in:0,1',
-        ];
-        $messages = [
-            'iden.required'         => '请输入等级',
-            'iden.integer'          => '等级必须为整数',
-            'title.required'        => '请输入等级标题',
-            'title.max'             => '等级标题不能超过50字',
-            'description.max'       => '等级说明不能超过200字',
-            'status.required'       => '请输入状态',
-            'status.in'             => '状态不存在',
-            'minimum_time.required' => '请输入购买最低时长',
-            'minimum_time.integer'  => '购买最低时长必须为整数',
-            'minimum_time.min'      => '购买最低时长不能低于1年',
-            'amount.required'       => '请输入单价金额',
-            'amount.integer'        => '单价金额只能是整数',
-            'amount.min'            => '单价金额不能低于0元',
-            'is_buy.required'       => '请选择是否可购买',
-            'is_buy.in'             => '是否可购买取值不存在',
-        ];
-
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $res = $this->gradeDefineService->addGrade($this->request);
-        if (!$res){
-            return ['code' => 100, 'message' => $this->gradeDefineService->error];
-        }
-        return ['code' => 200, 'message' => $this->gradeDefineService->message];
-    }
-
-    /**
-     * @OA\Delete(
-     *     path="/api/v1/member/delete_grade",
-     *     tags={"会员权限"},
-     *     summary="删除等级",
-     *     description="sang",
-     *     operationId="delete_grade",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="OA token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="query",
-     *         description="等级记录ID",
+     *         description="等级",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -191,180 +62,38 @@ class GradeController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="添加失败",
+     *         description="获取失败",
      *     ),
      * )
      *
      */
-    public function deleteGrade(){
+    public function getGradeService(){
         $rules = [
-            'id'            => 'required|integer',
+            'grade'         => 'required',
         ];
         $messages = [
-            'id.required'           => '等级记录ID不能为空',
-            'id.integer'            => '等级记录ID必须为整数',
+            'grade.required'        => '等级不能为空',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->gradeDefineService->deleteGrade($this->request['id']);
-        if (!$res){
-            return ['code' => 100, 'message' => $this->gradeDefineService->error];
+        $res = $this->gradeServiceService->getGradeService($this->request['grade']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }
-        return ['code' => 200, 'message' => $this->gradeDefineService->message];
-    }
-
-
-    /**
-     * @OA\Post(
-     *     path="/api/v1/member/edit_grade",
-     *     tags={"会员权限"},
-     *     summary="编辑等级",
-     *     description="sang",
-     *     operationId="edit_grade",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="OA token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="query",
-     *         description="等级记录ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="iden",
-     *         in="query",
-     *         description="等级，数字，与系统中的枚举对应",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="title",
-     *         in="query",
-     *         description="等级标题",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="description",
-     *         in="query",
-     *         description="等级说明",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="状态，0、启用，1、关闭",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="minimum_time",
-     *         in="query",
-     *         description="购买最低时长，单位：年",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="amount",
-     *         in="query",
-     *         description="购买单价金额，每年/元，单位：元",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="is_buy",
-     *         in="query",
-     *         description="是否可购买，0不可购买，1可购买",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=100,
-     *         description="修改失败",
-     *     ),
-     * )
-     *
-     */
-    public function editGrade(){
-        $rules = [
-            'id'            => 'required|integer',
-            'iden'          => 'integer',
-            'title'         => 'max:50',
-            'description'   => 'max:200',
-            'status'        => 'in:0,1',
-            'minimum_time'  => 'integer|min:1',
-            'amount'        => 'integer|min:0',
-            'is_buy'        => 'in:0,1',
-        ];
-        $messages = [
-            'id.required'           => '等级记录ID不能为空',
-            'id.integer'            => '等级记录ID必须为整数',
-            'iden.integer'          => '等级必须为整数',
-            'title.max'             => '等级标题不能超过50字',
-            'description.max'       => '等级说明不能超过200字',
-            'status.in'             => '状态不存在',
-            'minimum_time.integer'  => '购买最低时长必须为整数',
-            'minimum_time.min'      => '购买最低时长不能低于1年',
-            'amount.integer'        => '单价金额只能是整数',
-            'amount.min'            => '单价金额不能低于0元',
-            'is_buy.in'             => '是否可购买取值不存在',
-        ];
-
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $res = $this->gradeDefineService->editGrade($this->request);
-        if (!$res){
-            return ['code' => 100, 'message' => $this->gradeDefineService->error];
-        }
-        return ['code' => 200, 'message' => $this->gradeDefineService->message];
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
     }
 
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_grade_list",
-     *     tags={"会员权限"},
-     *     summary="获取等级列表",
+     *     path="/api/v1/member/get_grade_card_list",
+     *     tags={"会员"},
+     *     summary="获取等级卡片列表",
      *     description="sang",
-     *     operationId="get_grade_list",
+     *     operationId="get_grade_card_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -377,55 +106,157 @@ class GradeController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="OA token",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGradeCardList(){
+        $res = $this->gradeServiceService->getGradeCardList();
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_grade_apply_detail",
+     *     tags={"会员"},
+     *     summary="获取等级申请详情",
+     *     description="sang",
+     *     operationId="get_grade_apply_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="page",
+     *         name="token",
      *         in="query",
-     *         description="页码",
-     *         required=false,
+     *         description="会员 token",
+     *         required=true,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="page_num",
+     *         name="grade",
      *         in="query",
-     *         description="每页显示条数",
-     *         required=false,
+     *         description="等级",
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
      *         response=100,
-     *         description="添加失败",
+     *         description="获取失败",
      *     ),
      * )
      *
      */
-    public function getGradeList(){
+    public function getGradeApplyDetail(){
         $rules = [
-            'page'          => 'integer',
-            'page_num'      => 'integer',
+            'grade'         => 'required',
         ];
         $messages = [
-            'page.integer'          => '页码必须为整数',
-            'page_num.integer'      => '每页显示条数必须为整数',
+            'grade.required'        => '等级不能为空',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->gradeDefineService->getGradeList($this->request);
-        if ($res == false){
-            return ['code' => 100, 'message' => $this->gradeDefineService->error];
+        $res = $this->gradeServiceService->getGradeApplyDetail($this->request['grade']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeServiceService->error];
         }
-        return ['code' => 200, 'message' => $this->gradeDefineService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->gradeServiceService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/upgrade_apply",
+     *     tags={"会员"},
+     *     summary="提交等级升级申请",
+     *     description="sang",
+     *     operationId="upgrade_apply",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="申请升级等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="time",
+     *         in="query",
+     *         description="年限",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function upgradeApply(){
+        $rules = [
+            'grade'         => 'required',
+            'time'          => 'required|integer|max:6',
+        ];
+        $messages = [
+            'grade.required'        => '申请升级等级不能为空',
+            'time.required'         => '年限不能为空',
+            'time.integer'          => '年限必须为整数',
+            'time.max'              => '年限不能超过6年',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeOrdersService->upgradeApply($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeOrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeOrdersService->message];
     }
 }

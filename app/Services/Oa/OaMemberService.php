@@ -4,14 +4,16 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\CommonHomeEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberPersonalServiceRepository;
-use App\Repositories\OaMemberRepository;
+use App\Repositories\OaGradeViewRepository;
 use App\Services\BaseService;
+use App\Services\Common\HomeBannersService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,12 +42,16 @@ class OaMemberService extends BaseService
         if (empty($data['asc'])){
             $data['asc'] = 1;
         }
+        $is_home_detail = $data['is_home_detail'] ?? null;
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','is_recommend','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
+        $column         = ['id','card_no','ch_name','en_name','is_recommend','is_home_detail','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
         $where          = ['deleted_at' => 0];
+        if (!empty($is_home_detail)){
+            $where['is_home_detail'] = $is_home_detail;
+        }
         if (!empty($keywords)){
             $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
             if(!$member_list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
@@ -67,7 +73,7 @@ class OaMemberService extends BaseService
             $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getIdentity($value['status'],'成员');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
             $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
             $value['created_at']    = date('Y-m-d H:i:s',$value['created_at']);
         }
@@ -93,6 +99,11 @@ class OaMemberService extends BaseService
         $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
         $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
         $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
+        $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
+        if (empty($member['birthday'])) $member['birthday'] = '';
+        if (0 == $member['end_at']) $member['end_at_name'] = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效'); else{
+            $member['end_at_name']    = date('Y-m-d H:i:s',$member['end_at']);
+        }
         $this->setMessage('获取用户信息成功');
         return $member;
     }
@@ -104,12 +115,14 @@ class OaMemberService extends BaseService
      */
     public function delMember(string $id)
     {
-        if (empty($id)){
-            $this->setError('会员ID为空！');
+        if (!MemberGradeViewRepository::exists(['id' => $id])){
+            $this->setError('用户信息不存在!');
             return false;
         }
-        if (!MemberGradeViewRepository::exists(['m_id' => $id])){
-            $this->setError('用户信息不存在!');
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::MEMBER,$id) == false){
+            $this->setError($homeBannerService->error);
             return false;
         }
         if (!MemberBaseRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
@@ -129,10 +142,6 @@ class OaMemberService extends BaseService
     {
         if (empty($request['id'])){
             $this->setError('会员ID为空！');
-            return false;
-        }
-        if (!MemberEnum::isset($request['hidden'])){
-            $this->setError('状态属性不存在!');
             return false;
         }
         if (!MemberGradeViewRepository::exists(['id' =>$request['id']])){
@@ -155,8 +164,8 @@ class OaMemberService extends BaseService
      */
     public function addMember($request)
     {
-        if (MemberBaseRepository::exists(['ch_name' => $request['ch_name'],'mobile' => $request['mobile']])){
-            $this->setError('用户已存在!');
+        if (MemberBaseRepository::exists(['card_no' => $request['card_no']])){
+            $this->setError('会员卡号已存在!');
             return false;
         }
         $base_arr = [
@@ -169,6 +178,7 @@ class OaMemberService extends BaseService
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
             'hidden'     => $request['hidden'] ?? MemberEnum::ACTIVITE,
+            'created_at' => time(),
         ];
         DB::beginTransaction();
         if (!$member_id = MemberBaseRepository::getAddId($base_arr)){
@@ -186,6 +196,8 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
+            'created_at'     => time(),
         ];
         if (!MemberInfoRepository::getAddId($info_arr)){
             DB::rollBack();
@@ -195,6 +207,7 @@ class OaMemberService extends BaseService
         $service_arr = [
             'member_id'      => $member_id,
             'other_server'   => $request['other_server'] ?? 1,
+            'created_at'     => time(),
         ];
         if (!MemberPersonalServiceRepository::getAddId($service_arr)){
             DB::rollBack();
@@ -227,15 +240,20 @@ class OaMemberService extends BaseService
      */
     public function updMemberInfo($request)
     {
-        if (!MemberBaseRepository::getOne(['id' => $request['id']])){
+        if (!$member = MemberBaseRepository::getOne(['id' => $request['id']])){
             $this->setError('用户不存在!');
             return false;
+        }
+        if ($request['end_at'] == MemberEnum::PERMANENT){
+            $end_at = 0;
+        }else{
+            $end_at = strtotime('+' . $request['end_at'] . 'year',$member['created_at']);
         }
         $base_arr = [
             'id'         => $request['id'],
             'ch_name'    => $request['ch_name'],
             'en_name'    => $request['en_name'] ?? '',
-            'avatar_id'  => $request['avatar_id'] ?? 1226,
+            'avatar_id'  => $request['avatar_id'] ?? 1516,
             'sex'        => $request['sex'] ?? 0,
             'email'      => $request['email'] ?? '',
             'status'     => $request['status'] ?? MemberEnum::MEMBER,
@@ -243,7 +261,7 @@ class OaMemberService extends BaseService
         ];
         $info_arr = [
             'member_id'      => $request['id'],
-            'birthday'       => $request['birthday'] ?? '',
+            'birthday'       => $request['birthday'] ?? 0,
             'address'        => $request['address'] ?? '' ,
             'info_provider'  => $request['info_provider'] ?? '',
             'employer'       => $request['employer'] ?? '',
@@ -252,6 +270,7 @@ class OaMemberService extends BaseService
             'title'          => $request['title'] ?? '',
             'industry'       => $request['industry'] ?? '',
             'position'       => $request['position'] ?? '',
+            'profile'        => $request['profile'] ?? '',
         ];
         $service_arr = [
             'member_id'      => $request['id'],
@@ -260,7 +279,7 @@ class OaMemberService extends BaseService
         $grade_arr = [
             'grade'          => $info_arr['grade'],
             'created_at'     => time(),
-            'end_at'         => strtotime('+' . $request['end_at'] . 'year'),
+            'end_at'         => $end_at,
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_arr)){
@@ -268,48 +287,141 @@ class OaMemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
-            if (!MemberInfoRepository::getAddId($info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],$info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberInfoRepository::firstOrCreate(['member_id' => $request['id']],$info_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberPersonalServiceRepository::exists(['member_id' => $request['id']])){
-            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['id']],$service_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberPersonalServiceRepository::firstOrCreate(['member_id' => $request['id']],$service_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberGradeRepository::exists(['user_id' => $request['id']])){
-            if (!MemberGradeRepository::getAddId($grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberGradeRepository::getUpdId(['user_id' => $request['id']],$grade_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberGradeRepository::firstOrCreate(['user_id' => $request['id']],$grade_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
         DB::commit();
         $this->setMessage('添加成功!');
         return true;
+    }
+
+
+    /**
+     * 设置成员是否在首页显示
+     * @param $request
+     * @return bool
+     */
+    public function setMemberHomeDetail($request)
+    {
+        if (!MemberGradeViewRepository::exists(['id' => $request['id']])){
+            $this->setError('成员不存在!');
+            return false;
+        }
+        if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],['is_home_detail' => $request['exhibition']])){
+            $this->setError('设置失败!');
+            return false;
+        }
+        $this->setMessage('设置成功!');
+        return true;
+    }
+
+    /**
+     * 添加等级可查看等级服务
+     * @param $request
+     * @return bool
+     */
+    public function addMemberGradeView($request)
+    {
+        if (empty($request['type'])){
+            $this->setError('类型不能为空');
+            return false;
+        }
+        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+            $this->setError('等级或可查看值不存在');
+            return false;
+        }
+        $add_arr = [
+            'type'      => $request['type'],
+            'grade'     => $request['grade'],
+            'value'     => $request['value'],
+        ];
+        if (OaGradeViewRepository::exists($add_arr)){
+            $this->setError('查看服务已存在');
+            return false;
+        }
+        $add_arr['created_at']  = time();
+        $add_arr['updated_at']  = time();
+        if (!OaGradeViewRepository::getAddId($add_arr)){
+            $this->setError('添加失败!');
+            return false;
+        }
+        $this->setMessage('添加成功!');
+        return true;
+    }
+
+
+    /**
+     * 修改等级可查看等级服务
+     * @param $request
+     * @return bool
+     */
+    public function editMemberGradeView($request)
+    {
+        if (empty($request['type'])){
+            $this->setError('类型不能为空');
+            return false;
+        }
+        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+            $this->setError('等级或可查看值不存在');
+            return false;
+        }
+        $upd_arr = [
+            'type'      => $request['type'],
+            'grade'     => $request['grade'],
+            'value'     => $request['value'],
+        ];
+        if (OaGradeViewRepository::exists($upd_arr)){
+            $this->setError('查看服务已存在');
+            return false;
+        }
+        $upd_arr['updated_at']  = time();
+        if (!OaGradeViewRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('修改失败!');
+            return false;
+        }
+        $this->setMessage('修改成功!');
+        return true;
+    }
+
+    /**
+     * 获取等级可查看等级服务列表
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function getMemberGradeViewList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $where      = ['id' => ['>',0]];
+        $column     = ['id','grade','type','value','created_at'];
+        if (!$list = OaGradeViewRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return [];
+        }
+        foreach ($list['data'] as &$value){
+            $value['grade_name']  =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['value_name']  =   MemberEnum::getGrade($value['value'],'普通成员');
+            $value['type_name']   =   MemberEnum::getIdentity($value['type'],'成员');
+            $value['created_at']  =   date('Y-m-d H:i:s',$value['created_at']);
+        }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 
 }

@@ -208,7 +208,7 @@ class CommonController extends ApiController
         if ($res === false){
             return ['code' => 100, 'message' => $this->homeService->error];
         }
-        PvService::recordPV();
+        PvService::recordPV();//添加访问量
         return ['code' => 200, 'message' => $this->homeService->message,'data' => $res];
     }
     /**

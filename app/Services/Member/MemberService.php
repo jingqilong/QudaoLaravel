@@ -16,6 +16,7 @@ use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSignRepository;
 use App\Repositories\MemberSpecifyViewRepository;
+use App\Repositories\OaGradeViewRepository;
 use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
@@ -74,6 +75,11 @@ class MemberService extends BaseService
         }
         $user           = $this->auth->user();
         $user           = $user->toArray();
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade = MemberEnum::DEFAULT;
+        }
+        $user['grade']        = $grade;
+        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
         $user['sex']    = MemberEnum::getSex($user['sex']);
         $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
@@ -246,6 +252,55 @@ class MemberService extends BaseService
         return $list;
     }
 
+
+    /**
+     * 成员按条件查找排序  (拆表后  已修改) 2
+     * @param $data
+     * @return array|bool|null
+     */
+   /* public function getMemberList($data)
+    {
+        $member       =   $this->auth->user();
+        if (empty($data['sort'])) $data['sort']  = 1;
+        $temporary = $data['sort'];
+        if ($data['sort'] == MemberEnum::RECOMMEND) $data['sort']  = 1;
+        $member_info  =   MemberInfoRepository::getOne(['member_id' => $member->id]);
+        $keywords     =   $data['keywords'] ?? null;
+        $category     =   $data['category'] ?? null;
+        $page         =   $data['page'] ?? 1;
+        $page_num     =   $data['page_num'] ?? 20;
+        $asc          =   $data['sort'] == 1 ? 'asc' : 'desc';
+        $where        =   ['deleted_at' => 0 ,'hidden' => 0];
+        if(MemberEnum::RECOMMEND  == $temporary)  $sort = 'is_recommend'; else $sort = 'created_at';
+        $show_grade = OaGradeViewRepository::showGrade(['type' => 1,'grade' => $member_info['grade']]);
+        if (!empty($category))  $where['category'] = $category;
+        if (!empty($show_grade))  $where['grade'] = ['in',$show_grade];
+        $column = ['id','ch_name','img_url','grade','category','title','status','is_recommend','created_at'];
+        if (!empty($keywords)){
+            $keyword  = [$keywords => ['ch_name','category','mobile']];
+            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else {
+            if (!$list = MemberGradeViewRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
+                $this->setError('获取失败!');
+                return false;
+            }
+        }
+        $list  = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据!');
+            return $list;
+        }
+        foreach ($list['data'] as $key => &$value){
+            $value['grade']      =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category']   =   MemberEnum::getCategory($value['category'],'普通成员');
+        }
+        $this->setMessage('获取成功!');
+        return $list;
+    }*/
+
     /**
      * 成员查看成员信息 (拆表后  已修改)
      * @param $request
@@ -262,21 +317,41 @@ class MemberService extends BaseService
             $this->setError('该成员已被禁用');
             return false;
         }
-        foreach ($member_data as &$value){
-            $value = $value ?? '';
-        }
+        foreach ($member_data as &$value) $value = $value ?? '';
         $member_data['profile'] = strip_tags($member_data['profile']);
         $this->setMessage('获取成功!');
         return $member_data;
     }
+    /**
+     * 成员查看成员信息 (拆表后  已修改) 2
+     * @param $request
+     * @return array|bool
+     */
+    /*public function getMemberInfo($request){
+        $column = ['id','ch_name','title','status','employer','position','profile','img_url'];
+        if (!$member_info = MemberGradeViewRepository::getOne(['id' => $request['id']],$column)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        if ($member_info['status'] == MemberEnum::DISABLEMEMBER  && $member_info['status'] == MemberEnum::DISABLEOFFICER){
+            $this->setError('该成员已被禁用');
+            return false;
+        }
+        foreach ($member_info as &$value) $value = $value ?? '';
+        $member_info['profile'] = strip_tags($member_info['profile']);
+        $member_info['avatar_url'] = $member_info['img_url'];//为了和前端统一数据
+        unset($member_info['status'],$member_info['img_url']);
+        $this->setMessage('获取成功!');
+        return $member_info;
+    }*/
 
 
     /**
-     * 根据成员分类获取成员列表 (拆表后  已修改)
+     * 根据成员分类获取成员列表 (拆表后  已修改)  合并为一个接口
      * @param $data
      * @return bool|mixed|null
      */
-    public function getMemberCategoryList($data)
+    /*public function getMemberCategoryList($data)
     {
         if (empty($data['asc'])){
             $data['asc'] = 1;
@@ -312,7 +387,7 @@ class MemberService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
-    }
+    }*/
 
     /**
      * 获取自己的成员信息 (拆表后  已修改)
@@ -330,7 +405,7 @@ class MemberService extends BaseService
         $member['sex_name']     = MemberEnum::getSex($member['sex'],$member['sex']);
         $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
-        $member['category']     = MemberEnum::getCategory($member['category'],$member['category']);
+        $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
         $member['profile']      = strip_tags($member['profile']);
         $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
         foreach ($member as &$value){
@@ -787,10 +862,7 @@ class MemberService extends BaseService
      */
     public function perfectMemberInfo($request)
     {
-        if (!$member = MemberBaseRepository::getOne(['mobile' => $request['phone']])){
-            $this->setError('手机号码不一致呦！');
-            return false;
-        }
+        $member = $this->auth->user()->toArray();
         $base_arr = [
             'id'         => $member['id'],
             'ch_name'    => $request['cname'],
@@ -839,16 +911,18 @@ class MemberService extends BaseService
                 return false;
             }
         }
-        $member_base    = MemberBaseRepository::getOne(['id' => $member['id']],['id','mobile','ch_name','sex','avatar_id','status','referral_code']);
-        $member_info    = MemberInfoRepository::getOne(['member_id' => $member['id']],['grade','employer','title','category','profile']);
-        $member_view    = array_merge($member_base,$member_info);
-        $member_view    = ImagesService::getOneImagesConcise($member_view,['avatar_id' => 'single']);
-        $member_view['grade']    = MemberEnum::getGrade($member_view['grade'],'普通成员');
-        $member_view['category'] = MemberEnum::getGrade($member_view['category'],'普通成员');
-        $member_view['sex']      = MemberEnum::getSex($member_view['sex'],'未设置');
         DB::commit();
+        $user           = $this->auth->user()->toArray();
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade = MemberEnum::DEFAULT;
+        }
+        $user['grade']        = $grade;
+        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $user['sex']    = MemberEnum::getSex($user['sex']);
+        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
         $this->setMessage('信息完善成功!');
-        return $member_view;
+        return $user;
     }
 
     /**
@@ -857,12 +931,12 @@ class MemberService extends BaseService
      * @return array
      */
     public static function getHomeShowMemberList($count){
-        if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
+        /*if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
             return [];
         }
-        $view_user_ids  = array_column($list,'view_user_id');
+        $view_user_ids  = array_column($list,'view_user_id');*/
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
-        if (!$view_user_list = MemberGradeViewRepository::getList(['id' => ['in',$view_user_ids]],$column,'id','asc',1,$count)){
+        if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
             return [];
         }
         if (empty($view_user_list['data'])){

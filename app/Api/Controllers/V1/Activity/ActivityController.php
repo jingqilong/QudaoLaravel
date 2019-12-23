@@ -73,6 +73,24 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="longitude",
+     *         in="query",
+     *         description="地标经度，例如：【121.48941】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="latitude",
+     *         in="query",
+     *         description="地标纬度，例如：【31.40527】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="address",
      *         in="query",
      *         description="活动地点",
@@ -207,6 +225,15 @@ class ActivityController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="need_audit",
+     *         in="query",
+     *         description="是否需要审核（0、不需要，1、需要）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -218,6 +245,8 @@ class ActivityController extends ApiController
         $rules = [
             'name'          => 'required',
             'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
+            'longitude'     => 'required',
+            'latitude'      => 'required',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -236,11 +265,14 @@ class ActivityController extends ApiController
             'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
             'status'        => 'required|in:1,2',
             'is_member'     => 'required|in:1,2',
+            'need_audit'    => 'required|in:0,1',
         ];
         $messages = [
             'name.required'         => '活动名称不能为空',
             'area_code.required'    => '地区编码不能为空',
             'area_code.regex'       => '地区编码格式有误',
+            'longitude.required'    => '经度不能为空',
+            'latitude.required'     => '纬度不能为空',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
@@ -261,6 +293,8 @@ class ActivityController extends ApiController
             'status.in'             => '活动状态取值不在范围内',
             'is_member.required'    => '是否允许非会员参加不能为空',
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
+            'need_audit.required'   => '是否需要审核不能为空',
+            'need_audit.in'         => '是否需要审核取值不在范围内',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -389,6 +423,24 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="longitude",
+     *         in="query",
+     *         description="地标经度，例如：【121.48941】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="latitude",
+     *         in="query",
+     *         description="地标纬度，例如：【31.40527】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="address",
      *         in="query",
      *         description="活动地点",
@@ -523,6 +575,15 @@ class ActivityController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="need_audit",
+     *         in="query",
+     *         description="是否需要审核（0、不需要，1、需要）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -535,6 +596,8 @@ class ActivityController extends ApiController
             'id'            => 'required|integer',
             'name'          => 'required',
             'area_code'     => 'required|regex:/^(\d+[,])*\d+$/',
+            'longitude'     => 'required',
+            'latitude'      => 'required',
             'address'       => 'required',
             'price'         => 'regex:/^\-?\d+(\.\d{1,2})?$/',
             'theme_id'      => 'required|integer',
@@ -553,6 +616,7 @@ class ActivityController extends ApiController
             'image_ids'     => 'required|regex:/^(\d+[,])*\d+$/',
             'status'        => 'required|in:1,2',
             'is_member'     => 'required|in:1,2',
+            'need_audit'    => 'required|in:0,1',
         ];
         $messages = [
             'id.required'           => '活动ID不能为空',
@@ -560,6 +624,8 @@ class ActivityController extends ApiController
             'name.required'         => '活动名称不能为空',
             'area_code.required'    => '地区编码不能为空',
             'area_code.regex'       => '地区编码格式有误',
+            'longitude.required'    => '经度不能为空',
+            'latitude.required'     => '纬度不能为空',
             'address.required'      => '活动地点不能为空',
             'price.regex'           => '活动价格格式有误',
             'theme_id.required'     => '活动主题不能为空',
@@ -580,6 +646,8 @@ class ActivityController extends ApiController
             'status.in'             => '活动状态取值不在范围内',
             'is_member.required'    => '是否允许非会员参加不能为空',
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
+            'need_audit.required'    => '是否需要审核不能为空',
+            'need_audit.in'          => '是否需要审核取值不在范围内',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -672,6 +740,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="need_audit",
+     *         in="query",
+     *         description="是否需要审核（0、不需要，1、需要）",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -707,6 +784,7 @@ class ActivityController extends ApiController
             'is_recommend'  => 'in:0,1',
             'status'        => 'in:1,2',
             'is_member'     => 'in:1,2',
+            'need_audit'    => 'in:0,1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -717,6 +795,7 @@ class ActivityController extends ApiController
             'is_recommend.in'       => '是否推荐取值不在范围内',
             'status.in'             => '活动状态取值不在范围内',
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
+            'need_audit.in'         => '是否需要审核取值不在范围内',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
@@ -790,6 +869,110 @@ class ActivityController extends ApiController
             return ['code' => 100, 'message' => $this->activityService->error];
         }
         return ['code' => 200, 'message' => $this->activityService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/activity/activity_switch",
+     *     tags={"精选活动后台"},
+     *     summary="活动开关",
+     *     description="sang" ,
+     *     operationId="activity_switch",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="活动状态（1、开启活动，2关闭活动）",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_recommend",
+     *         in="query",
+     *         description="推荐，0不推荐，1推荐",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_member",
+     *         in="query",
+     *         description="是否允许非会员参加，1不允许，2允许，",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="need_audit",
+     *         in="query",
+     *         description="是否需要审核，0不需要，1需要",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="操作失败",
+     *     ),
+     * )
+     *
+     */
+    public function activitySwitch(){
+        $rules = [
+            'id'            => 'required|integer',
+            'status'        => 'in:1,2',
+            'is_recommend'  => 'in:0,1',
+            'is_member'     => 'in:1,2',
+            'need_audit'    => 'in:0,1',
+        ];
+        $messages = [
+            'id.required'       => '活动ID不能为空',
+            'id.integer'        => '活动ID必须为整数',
+            'status.in'         => '活动状态取值有误',
+            'is_recommend.in'   => '推荐取值有误',
+            'is_member.in'      => '是否允许非会员参加取值有误',
+            'need_audit.in'     => '是否需要审核取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->activitySwitch($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityService->message];
     }
 
     /**

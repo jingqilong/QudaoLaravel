@@ -43,11 +43,19 @@ class HospitalsService extends BaseService
             'department_ids'   => $request['department_ids'],
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
+            'longitude'        => $request['longitude'] ?? '',
+            'latitude'         => $request['latitude'] ?? '',
             'address'          => $request['address'],
             'recommend'        => $request['recommend'] == 1 ? time() : 0,
             'created_at'       => time(),
             'updated_at'       => time()
         ];
+        if (MediclaHospitalsRepository::exists($add_arr)){
+            $this->setMessage('数据已存在！');
+            return false;
+        }
+        $add_arr['created_at'] =  time();
+        $add_arr['updated_at'] =  time();
         if (MediclaHospitalsRepository::getAddId($add_arr)){
             $this->setMessage('添加成功！');
             return true;
@@ -97,6 +105,8 @@ class HospitalsService extends BaseService
             'department_ids'   => $request['department_ids'],
             'introduction'     => $request['introduction'],
             'area_code'        => $request['area_code'] . ',',
+            'longitude'        => $request['longitude'] ?? '',
+            'latitude'         => $request['latitude'] ?? '',
             'address'          => $request['address'],
             'recommend'        => $request['recommend'] == 1 ? time() : 0,
         ];
@@ -131,9 +141,10 @@ class HospitalsService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
-        $list['data']    = ImagesService::getListImagesConcise($list['data'],['img_ids' => 'several']);
         $department_ids  = array_column($list['data'],'department_ids');
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
+        $img_ids         = array_column($list['data'],'img_ids');
+        $img_list        = CommonImagesRepository::getAssignList($img_ids,['id','img_url']);
         foreach ($list['data'] as &$value){
             $value['departments']    = [];
             $value['img_urls']       = [];
@@ -141,6 +152,12 @@ class HospitalsService extends BaseService
             foreach ($department_arr as $item){
                 if ($department = $this->searchArray($department_list,'id',$item)){
                     $value['departments'][] = reset($department);
+                }
+            }
+            $img_arr = explode(',',$value['img_ids']);
+            foreach ($img_arr as $val_str) {
+                if ($img = $this->searchArray($img_list, 'id', $val_str)) {
+                    $value['img_urls'][] = reset($img);
                 }
             }
             #处理地址
@@ -198,11 +215,9 @@ class HospitalsService extends BaseService
             }
             $value['recommend']  = $value['recommend'] == 0 ? 0 : 1;
             #处理地址
-            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
+            list($area_address) = $this->makeAddress($value['area_code'],$value['address']);
             $value['area_address']  = $area_address;
             $value['area_code']     = rtrim($value['area_code'],',');
-            $value['lng']           = $lng;
-            $value['lat']           = $lat;
             unset($value['img_ids']);
         }
         unset($list['introduction']);
@@ -225,11 +240,9 @@ class HospitalsService extends BaseService
         $department = explode(',',$hospital['department_ids']);
         $hospital['recommend']  = $hospital['recommend'] == 0 ? 0 : 1;
         #处理地址
-        list($area_address,$lng,$lat) = $this->makeAddress($hospital['area_code'],$hospital['address']);
+        list($area_address) = $this->makeAddress($hospital['area_code'],$hospital['address']);
         $hospital['area_address']  = $area_address;
         $hospital['area_code']     = rtrim($hospital['area_code'],',');
-        $hospital['lng']           = $lng;
-        $hospital['lat']           = $lat;
         $hospital['department_name'] = MedicalDepartmentsRepository::getList(['id' => ['in',$department]],['id','name']);
         unset($hospital['created_at'],$hospital['updated_at'],$hospital['deleted_at'],$hospital['department_ids']);
         $this->setMessage('获取成功!');

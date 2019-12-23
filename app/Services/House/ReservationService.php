@@ -237,5 +237,97 @@ class ReservationService extends BaseService
             'cancel'    => $cancel_count
         ];
     }
+
+    /**
+     * 前端获取我的预约详情
+     * @param $id
+     * @return bool|null
+     */
+    public function getReservationDetail($id)
+    {
+        $member = Auth::guard('member_api')->user();
+        $column = ['id','house_id','name','mobile','time','memo','state'];
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id,'member_id' => $member->id],$column)){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        $reservation['state_title'] = HouseEnum::getReservationStatus($reservation['state']);
+        $reservation['time']        = date('Y.m.d / H:i');
+        $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy','longitude','latitude'];
+        if (!$house = HouseDetailsRepository::getOne(['id' => $reservation['house_id']],$house_column)){
+            $this->setError('预约房产已下架！');
+            return false;
+        }
+        $house = ImagesService::getOneImagesConcise($house,['image_ids' => 'single']);
+        $reservation['condo_name']            = $house['condo_name'];
+        $reservation['decoration']            = HouseEnum::getDecoration($house['decoration'],'');
+        $reservation['area']                  = $house['area'];
+        $reservation['category']              = HouseEnum::getCategory($house['category']);
+        $reservation['image_url']             = $house['image_url'];
+        $reservation['house_title']           = $house['title'];
+        list($area_address)   = $this->makeAddress($house['area_code'],$house['address']);
+        $reservation['area_address']          = $area_address;
+        $reservation['longitude']             = $house['longitude'];
+        $reservation['latitude']              = $house['latitude'];
+        $reservation['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
+        $this->setMessage('获取成功！');
+        return $reservation;
+    }
+
+    /**
+     * 取消预约
+     * @param $id
+     * @return bool
+     */
+    public function cancelReservation($id)
+    {
+        $member = Auth::guard('member_api')->user();
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id,'member_id' => $member->id])){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] == HouseEnum::CANCELRESERVATION){
+            $this->setError('预约已取消！');
+            return false;
+        }
+        if (!HouseReservationRepository::getUpdId(['id' => $id],['state' => HouseEnum::CANCELRESERVATION,'updated_at' => time()])){
+            $this->setError('预约取消失败！');
+            return false;
+        }
+        $this->setMessage('预约取消成功！');
+        return true;
+    }
+
+    /**
+     * 修改预约
+     * @param $request
+     * @return bool
+     */
+    public function editReservation($request)
+    {
+        $member = Auth::guard('member_api')->user();
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $request['id'],'member_id' => $member->id])){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        if ($reservation['state'] !== HouseEnum::RESERVATION){
+            $this->setError('只有正在预约状态才能修改！');
+            return false;
+        }
+        $request['time'] = str_replace('/','',$request['time']);
+        $upd_arr = [
+            'name'          => $request['name'],
+            'mobile'        => $request['mobile'],
+            'time'          => strtotime($request['time']),
+            'memo'          => $request['memo'] ?? '',
+            'updated_at'    => time()
+        ];
+        if (HouseReservationRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setMessage('修改成功！');
+            return true;
+        }
+        $this->setError('修改失败！');
+        return false;
+    }
 }
             

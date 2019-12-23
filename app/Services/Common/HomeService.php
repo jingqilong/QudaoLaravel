@@ -33,7 +33,7 @@ class HomeService extends BaseService
         #获取推荐精选活动
         $res['activities']  = app(DetailService::class)->getHomeList(['page_num' => 4,'is_recommend' => 1]);
         #获取成员风采
-        $res['members']     = MemberService::getHomeShowMemberList(8);
+        $res['members']     = MemberService::getHomeShowMemberList(12);
         #获取好物推荐
         $res['shop']        = [];
         $res['shop']        = ActivityService::getHomeRecommendGoods();

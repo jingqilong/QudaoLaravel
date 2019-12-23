@@ -7,7 +7,6 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\LoanPersonalRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -47,9 +46,8 @@ class PersonalService extends BaseService
         {
             $value['status_name']       =   LoanEnum::getStatus($value['status']);
             $value['type_name']         =   LoanEnum::getType($value['type']);
-            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
-            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            $value['reservation_at']    =   date('Y-m-d',$value['reservation_at']);
+            $value['created_at']        =   date('Y-m-d',$value['created_at']);
         }
         $this->setMessage('查找成功');
         return $list;
@@ -176,15 +174,11 @@ class PersonalService extends BaseService
     public function editLoan(array $data)
     {
         $id = $data['id'];
-        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!$loan = LoanPersonalRepository::getOne(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        if ($data['status'] != LoanEnum::SUBMIT){
+        if ($loan['status'] != LoanEnum::SUBMIT){
             $this->setError('预约已审核，请联系客服更改!');
-            return false;
-        }
-        if (!LoanEnum::isset($data['price'])){
-            $this->setError('没有此价格的贷款!');
             return false;
         }
         $add_arr  = [
@@ -193,10 +187,10 @@ class PersonalService extends BaseService
             'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  $data['address'] ?? '',
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
-            'status'          =>  $data['status'],
+            'remark'          =>  $data['remark'] ?? '',
+            'status'          =>  LoanEnum::SUBMIT,
             'updated_at'      =>  time(),
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
@@ -216,8 +210,7 @@ class PersonalService extends BaseService
      */
     public function updLoan(array $data)
     {
-        $id = $data['id'];
-        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!LoanPersonalRepository::exists(['id' => $data['id'],'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
         if (!LoanEnum::isset($data['price'])){
@@ -230,18 +223,18 @@ class PersonalService extends BaseService
             'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  $data['address'] ?? '',
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
+            'remark'          =>  $data['remark'] ?? '',
             'status'          =>  $data['status'],
             'updated_at'      =>  time(),
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
-        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],$add_arr)){
+        if (!$res = LoanPersonalRepository::getUpdId(['id' => $data['id']],$add_arr)){
             $this->setError('修改失败,请重试！');
             return false;
         }
-        $this->setMessage('恭喜你，修改成功');
+        $this->setMessage('修改成功');
         return true;
     }
 
@@ -252,11 +245,11 @@ class PersonalService extends BaseService
      */
     public function delLoan($id)
     {
-        if (!$loanInfo = LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
+        if (!LoanPersonalRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('该订单不存在！');
             return false;
         }
-        if (!$res = LoanPersonalRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+        if (!LoanPersonalRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
         }
@@ -282,9 +275,8 @@ class PersonalService extends BaseService
         $list['type_name']         =    empty($list['type']) ? '' : LoanEnum::getType($list['type']);
         $list['status_name']       =    empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
         $list['price_name']        =    empty($list['price']) ? '' : LoanEnum::getPrice($list['price']);
-        $list['reservation_at']    =    date('Y-m-d H:m:s',$list['reservation_at']);
-        $list['created_at']        =    date('Y-m-d H:m:s',$list['created_at']);
-        $list['updated_at']        =    date('Y-m-d H:m:s',$list['updated_at']);
+        $list['reservation_at']    =    date('Y-m-d',$list['reservation_at']);
+        $list['created_at']        =    date('Y-m-d',$list['created_at']);
         $this->setMessage('查找成功');
         return $list;
     }
@@ -347,6 +339,30 @@ class PersonalService extends BaseService
             'no_audit'  => $no_audit_count,
             'cancel'    => $cancel_count
         ];
+    }
+
+    /**
+     * 成员取消预约贷款
+     * @param $request
+     * @return bool
+     */
+    public function cancelLoan($request)
+    {
+        $member = $this->auth->user();
+        if (!$loan = LoanPersonalRepository::getOne(['id' => $request['id'],'user_id' => $member->id])){
+            $this->setError('没有预约信息!');
+            return false;
+        }
+        if ($loan['status'] > LoanEnum::SUBMIT){
+            $this->setError('预约已被审核，不能取消哦!');
+            return false;
+        }
+        if (!LoanPersonalRepository::getUpdId(['id' => $loan['id']],['status' => LoanEnum::CANCEL])){
+            $this->setError('取消预约失败!');
+            return false;
+        }
+        $this->setMessage('取消成功!');
+        return true;
     }
 }
             

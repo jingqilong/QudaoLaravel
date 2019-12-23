@@ -192,19 +192,15 @@ class AdminRolesService extends BaseService
             $this->setError('修改失败！');
             return false;
         }
-        if (!empty($permission_ids)){
-            if (!OaAdminRolePermissionsRepository::createRelate(['role_id' => $roles_id, 'permission_ids' => $permission_ids])){
-                DB::rollBack();
-                $this->setError('角色权限添加失败！');
-                return false;
-            }
+        if (!OaAdminRolePermissionsRepository::createRelate(['role_id' => $roles_id, 'permission_ids' => $permission_ids])){
+            DB::rollBack();
+            $this->setError('角色权限添加失败！');
+            return false;
         }
-        if (!empty($menu_ids)){
-            if (!OaAdminRoleMenuRepository::createRelate(['role_id' => $roles_id, 'menu_ids' => $menu_ids])){
-                DB::rollBack();
-                $this->setError('菜单添加失败！');
-                return false;
-            }
+        if (!OaAdminRoleMenuRepository::createRelate(['role_id' => $roles_id, 'menu_ids' => $menu_ids])){
+            DB::rollBack();
+            $this->setError('菜单添加失败！');
+            return false;
         }
         DB::commit();
         $this->setMessage('修改成功！');

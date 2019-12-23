@@ -57,6 +57,9 @@ class AdminMenuService extends BaseService
         }
         DB::beginTransaction();
         $permission = ['name' => $request['title'],'slug' => $request['permission'],'http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? ''];
+        if (OaAdminPermissionsRepository::exists(['name' => $request['title']])){
+            $permission['name'] = $request['permission'] . $request['title'];
+        }
         if (!OaAdminPermissionsRepository::createPermission($permission)){
             $this->setError('权限创建失败！');
             DB::rollBack();
@@ -205,11 +208,21 @@ class AdminMenuService extends BaseService
             $this->setError('菜单主键已被使用！');
             return false;
         }
-        $permission = ['http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? '','updated_at' => date('Y-m-d H:i:s')];
-        if (!OaAdminPermissionsRepository::getUpdId(['slug' => $menu['permission']],$permission)){
-            $this->setError('权限创建失败！');
-            DB::rollBack();
-            return false;
+        //此处做兼容，部分菜单没有加入权限，所有在修改的时候
+        if (OaAdminPermissionsRepository::exists(['slug' => $menu['permission']])){
+            $permission = ['http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? '','updated_at' => date('Y-m-d H:i:s')];
+            if (!OaAdminPermissionsRepository::getUpdId(['slug' => $menu['permission']],$permission)){
+                $this->setError('权限更新失败！');
+                DB::rollBack();
+                return false;
+            }
+        }else{
+            $permission = ['name' => $request['title'],'slug' => $request['primary_key'],'http_method' => $request['method'] ?? '','http_path' => $request['path'] ?? ''];
+            if (!OaAdminPermissionsRepository::createPermission($permission)){
+                $this->setError('权限创建失败！');
+                DB::rollBack();
+                return false;
+            }
         }
         if (OaAdminMenuRepository::exists(['title' => $request['title'],'parent_id' => $parent_id,'id' => ['<>',$request['id']]])){
             $this->setError('标题已被使用！');

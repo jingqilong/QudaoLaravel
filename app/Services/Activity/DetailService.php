@@ -43,6 +43,8 @@ class DetailService extends BaseService
         $add_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -58,6 +60,7 @@ class DetailService extends BaseService
             'notice'        => $request['notice'] ?? '',
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
+            'need_audit'    => $request['need_audit'],
         ];
         if (ActivityDetailRepository::exists($add_arr)){
             $this->setError('该活动已添加！');
@@ -148,16 +151,16 @@ class DetailService extends BaseService
             $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
-                $value['status_title'] = 1;
+                $value['status'] = 1;
+                $value['status_title'] = '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
-                $value['status'] = '进行中';
-                $value['status_title'] = 2;
+                $value['status'] = 2;
+                $value['status_title'] = '进行中';
             }
             if ($value['end_time'] < time()){
-                $value['status'] = '已结束';
-                $value['status_title'] = 3;
+                $value['status'] = 3;
+                $value['status_title'] = '已结束';
             }
             $start_time    = date('Y年m/d',$value['start_time']);
             $end_time      = date('m/d',$value['end_time']);
@@ -220,6 +223,8 @@ class DetailService extends BaseService
         $upd_arr = [
             'name'          => $request['name'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'address'       => $request['address'],
             'price'         => isset($request['price']) ? $request['price'] * 100 : 0,
             'theme_id'      => $request['theme_id'],
@@ -235,6 +240,7 @@ class DetailService extends BaseService
             'notice'        => $request['notice'] ?? '',
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
+            'need_audit'    => $request['need_audit'],
         ];
         if (ActivityDetailRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该活动已存在！');
@@ -264,24 +270,28 @@ class DetailService extends BaseService
         $is_recommend   = $request['is_recommend'] ?? null;
         $status         = $request['status'] ?? null;
         $is_member      = $request['is_member'] ?? null;
+        $need_audit     = $request['need_audit'] ?? null;
         $keywords       = $request['keywords'] ?? null;
         $where          = ['id' => ['>',0],'deleted_at' => 0];
-        if (!empty($start_time)){
+        if (!is_null($start_time)){
             $where['start_time']    = ['>',strtotime($start_time)];
         }
-        if (!empty($end_time)){
+        if (!is_null($end_time)){
             $where['end_time']      = ['<',strtotime($end_time)];
         }
         if ($is_recommend != null){
-            $where['is_recommend']  = $is_recommend;
+            $where['is_recommend']  = $is_recommend == 0 ? 0 : ['<>',0];
         }
-        if (!empty($status)){
+        if (!is_null($status)){
             $where['status']  = $status;
         }
-        if (!empty($is_member)){
+        if (!is_null($is_member)){
             $where['is_member']  = $is_member;
         }
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','created_at','updated_at','deleted_at'];
+        if (!is_null($need_audit)){
+            $where['need_audit']  = $need_audit;
+        }
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','need_audit','created_at','updated_at','deleted_at'];
         if (!empty($keywords)){
             if ($search_themes = ActivityThemeRepository::getList(['name' => $keywords],['id'])){
                 $theme_ids = array_column($search_themes,'id');
@@ -347,7 +357,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','area_code','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member'];
+        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -376,7 +386,7 @@ class DetailService extends BaseService
         $activity['cover'] = [];
         if (!empty($activity['cover_id'])){
             if ($cover_image = CommonImagesRepository::getOne(['id' => $activity['cover_id']],['id','img_url'])){
-                $activity['cover']= $cover_image;
+                $activity['cover'] = $cover_image;
             }
         }
         $this->setMessage('获取成功！');
@@ -390,7 +400,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','area_code','address','price','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
+        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -471,8 +481,47 @@ class DetailService extends BaseService
                 $activity['order_no'] = $register['order_no'];
             }
         }
+        $activity['images'] = $this->suffix($activity['images'],1);
+        $activity['banners'] = $this->suffix($activity['banners'],1);
+        $activity['cover'] = $this->suffix($activity['cover'],1);
         $this->setMessage('获取成功！');
         return $activity;
+    }
+
+    /**
+     * 获取状态开关
+     * @param $request
+     * @return bool
+     */
+    public function activitySwitch($request)
+    {
+        $status         = $request['status'] ?? null;
+        $is_recommend   = $request['is_recommend'] ?? null;
+        $is_member      = $request['is_member'] ?? null;
+        $need_audit     = $request['need_audit'] ?? null;
+        if (!ActivityDetailRepository::exists(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('活动不存在！');
+            return false;
+        }
+        $upd_arr = ['updated_at' => time()];
+        if (!is_null($status)){
+            $upd_arr['status'] = $status;
+        }
+        if (!is_null($is_recommend)){
+            $upd_arr['is_recommend'] = $is_recommend == 0 ? 0 : time();
+        }
+        if (!is_null($is_member)){
+            $upd_arr['is_member'] = $is_member;
+        }
+        if (!is_null($need_audit)){
+            $upd_arr['need_audit'] = $need_audit;
+        }
+        if (!ActivityDetailRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('操作失败！');
+            return false;
+        }
+        $this->setMessage('操作成功！');
+        return true;
     }
 }
             

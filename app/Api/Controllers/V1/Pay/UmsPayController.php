@@ -415,11 +415,13 @@ class UmsPayController extends ApiController
         }
         $response = $this->umsPayService->umsQueryOrderStatus($this->request);
         if(false === $response){
-            return ['code' => 200, 'message' => '订单信息不存在！请返回重新下单！', 'data' => 5];
+            $response['status'] = 5;
+            $response['order_type'] = -1;
+            return ['code' => 200, 'message' => '订单信息不存在！请返回重新下单！', 'data' => $response];
         }
-        $response += 1;
-        if(0 === $response){
-            return ['code' => 200, 'message' => '等待支付，请在浏览器中支付！', 'data' => 0];
+        $response['status'] += 1;
+        if(0 === $response['status']){
+            return ['code' => 200, 'message' => '等待支付，请在浏览器中支付！', 'data' => $response];
         }
         return ['code' => 200, 'message' => '查询成功', 'data' => $response];
     }

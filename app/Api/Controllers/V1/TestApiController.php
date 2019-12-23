@@ -3,6 +3,8 @@
 namespace App\Api\Controllers\V1;
 
 use App\Api\Controllers\ApiController;
+use App\Events\SendFlowSms;
+use App\Events\SendSiteMessage;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Library\UmsPay\UmsPay;
 use App\Services\Common\EventProcessorService;
@@ -570,5 +572,14 @@ class $serviceName extends BaseService
         $umsPay = new UmsPay();
         $response = $umsPay->refund("21190122100423194476");
         return ['code' => 200, 'message' => '成功', 'data' => $response];
+    }
+
+    public function eventTest(){
+        try {
+            return event(new SendSiteMessage(['mobile' => '18394377667','content' => '事件测试！']));
+        }catch (\Exception $exception){
+            dd($exception);
+        }
+
     }
 }

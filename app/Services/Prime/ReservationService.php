@@ -303,14 +303,15 @@ class ReservationService extends BaseService
      */
     public function myReservationDetail($id)
     {
-        $column = ['id','merchant_id','time','number','state','merchant_name','banner_ids','star','address','name','mobile','memo'];
+        $column = ['id','merchant_id','time','number','state','merchant_name','type','banner_ids','star','address','name','mobile','memo'];
         if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
             $this->setError('预约信息不存在！');
             return false;
         }
         $reservation        = CommonImagesService::getOneImagesConcise($reservation, ['banner_ids'=>'single']);
         $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
-        $reservation['state_title']       = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $reservation['state_title']     = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $reservation['type_title']      = PrimeTypeEnum::getType($reservation['type']);
         $this->setMessage('获取成功！');
         return $reservation;
     }

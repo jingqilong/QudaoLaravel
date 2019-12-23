@@ -16,6 +16,7 @@ use App\Services\Oa\ProcessEventsService;
 use App\Services\Oa\ProcessNodeActionService;
 use App\Services\Oa\ProcessNodeService;
 use App\Services\Oa\ProcessRecordService;
+use Illuminate\Support\Facades\Auth;
 
 class ProcessController extends ApiController
 {
@@ -92,7 +93,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="getway_type",
      *          in="query",
-     *          description="网关类型：ROUTE：路由, REPOSITORY: 仓库, RESOURCE: 资源",
+     *          description="网关类型：默认0：路由, 1: 仓库, 2: 资源，3：服务",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -110,7 +111,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活状态 ACTIVE：激活状态",
+     *          description="状态 0:非激活状态 1：激活状态",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -124,8 +125,8 @@ class ProcessController extends ApiController
     {
         $rules = [
             'name'          => 'required',
-            'getway_type'   => 'in:ROUTE,REPOSITORY,RESOURCE',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'getway_type'   => 'in:0,1,2,3',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'name.required'     => '类型名称不能为空！',
@@ -253,7 +254,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="getway_type",
      *          in="query",
-     *          description="网关类型：ROUTE：路由, REPOSITORY: 仓库, RESOURCE: 资源",
+     *          description="网关类型：默认0：路由, 1: 仓库, 2: 资源，3：服务",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -271,7 +272,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活状态 ACTIVE：激活状态",
+     *          description="状态 0:非激活状态 1：激活状态",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -286,8 +287,8 @@ class ProcessController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
-            'getway_type'   => 'in:ROUTE,REPOSITORY,RESOURCE',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'getway_type'   => 'in:0,1,2,3',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'id.required'       => '类型ID不能为空！',
@@ -1977,6 +1978,24 @@ class ProcessController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="audit_result",
+     *         in="query",
+     *         description="审核结果",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit_opinion",
+     *         in="query",
+     *         description="审核意见",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(response=100,description="流程进度记录失败",),
      * )
      *
@@ -2000,7 +2019,15 @@ class ProcessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processRecordService->addRecord($this->request['business_id'],$this->request['process_id'],$this->request['node_id']);
+        $employee = Auth::guard('oa_api')->user();
+        $res = $this->processRecordService->addRecord(
+            $this->request['business_id'],
+            $this->request['process_id'],
+            $this->request['node_id'],
+            $employee->id,
+            $this->request['audit_result'] ?? '',
+            $this->request['audit_opinion'] ?? ''
+        );
         if ($res){
             return ['code' => 200,'message' => $this->processRecordService->message];
         }

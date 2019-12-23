@@ -27,7 +27,7 @@ class PrimeMerchantInfoModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','merchant_id','type','license','license_img_id','area_code','banner_ids','display_img_ids','address','shorttitle','describe','star','expect_spend','discount','created_at','updated_at'];
+    protected $fillable = ['id','merchant_id','type','license','license_img_id','area_code','longitude','latitude','banner_ids','display_img_ids','address','shorttitle','describe','star','expect_spend','discount','created_at','updated_at'];
 
 
 

@@ -99,7 +99,6 @@ class YiKaYiSms {
         $getData['openId'] = $this->OpenId;
         $getData['signature'] = $Signature;
         $getData['timestamp'] = $TimeStamp;
-        $result_data = $this->getData ( $url, $getData );
-        return $result_data;
+        return $this->getData ( $url, $getData );
     }
 }

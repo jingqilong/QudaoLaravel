@@ -2,11 +2,13 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Models\MemberGradeViewModel;
 use App\Repositories\CommonCommentsRepository;
+use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
@@ -19,6 +21,7 @@ use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Encore\Admin\Grid\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GoodsService extends BaseService
@@ -103,6 +106,18 @@ class GoodsService extends BaseService
     public function deleteGoods($id){
         if (!ShopGoodsRepository::exists(['id' => $id,'deleted_at' => 0])){
             $this->setError('商品信息不存在！');
+            return false;
+        }
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::SHOP,$id) == false){
+            $this->setError($homeBannerService->error);
+            return false;
+        }
+        //检查商品是否为活动商品
+        $shopActivityService = new ActivityService();
+        if ($shopActivityService->deleteBeforeCheck($id) == false){
+            $this->setError($shopActivityService->error);
             return false;
         }
         if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
@@ -336,6 +351,7 @@ class GoodsService extends BaseService
      */
     public function getGoodsDetailsById($request)
     {
+        $member_id = Auth::guard('member_api')->user()->id;
         $column = ['id', 'name', 'price', 'banner_ids', 'labels',
             'stock', 'express_price', 'image_ids',
             'gift_score', 'score_deduction',
@@ -349,7 +365,7 @@ class GoodsService extends BaseService
         $goods_detail['labels']         = empty($goods_detail['labels']) ? [] : explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
-        $goods_detail['collect']        = MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0]) == false  ? '0' : '1';
+        $goods_detail['collect']        = MemberCollectRepository::exists(['type' => CollectTypeEnum::SHOP,'target_id' => $request['id'],'member_id' => $member_id,'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
         foreach ($goods_detail['recommend'] as &$value){

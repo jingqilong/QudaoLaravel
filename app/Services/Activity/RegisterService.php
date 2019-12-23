@@ -11,14 +11,18 @@ use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPastViewRepository;
+use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
+use App\Repositories\ActivityRegisterViewRepository;
 use App\Repositories\ActivityThemeRepository;
+use App\Repositories\ActivityWinningRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
@@ -49,7 +53,7 @@ class RegisterService extends BaseService
     /**
      * 活动报名
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function register($request)
     {
@@ -57,11 +61,11 @@ class RegisterService extends BaseService
             $this->setError('活动不存在！');
             return false;
         }
-        $member = $this->auth->user();
-        $member_price = $activity['price'];
+        $member         = $this->auth->user();
+        $member_price   = $activity['price'];
         if ($activity['is_member'] == ActivityEnum::NOTALLOW){
-            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member])){
-                $this->setError('本次活动仅限会员参加！');
+            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member->id,'grade' => ['in',[1,2,3,4,5,6,7,8,9]]])){
+                $this->setError('本次活动仅限渠道PLUS成员参加，请升级为渠道PLUS成员！');
                 return false;
             }
             //计算会员价格
@@ -76,10 +80,7 @@ class RegisterService extends BaseService
             $this->setError('活动已经结束了，下次再来吧！');
             return false;
         }
-        if (ActivityRegisterRepository::exists([
-            'activity_id' => $request['activity_id'],
-            'member_id' => $member->id,
-            'status' => ['<',5]])){
+        if (ActivityRegisterRepository::exists(['activity_id' => $request['activity_id'], 'member_id' => $member->id, 'status' => ['<',ActivityRegisterEnum::NOPASS]])){
             $this->setError('您已经报过名了，请勿重复报名！');
             return false;
         }
@@ -90,25 +91,71 @@ class RegisterService extends BaseService
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
             'member_price'  => $member_price,
-            'status'        => ActivityRegisterEnum::PENDING,
+            'status'        => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? ActivityRegisterEnum::PENDING : ActivityRegisterEnum::SUBMIT,
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
+        if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            //如果活动需要审核，设置报名状态为待审核
+            $add_arr['status'] = ActivityRegisterEnum::PENDING;
+        }else if($activity['need_audit'] == ActivityEnum::NONEEDAUDIT && $activity['price'] == 0){
+            $add_arr['sign_in_code']  = ActivityRegisterRepository::getSignCode();
+            //如果活动不需要审核并且活动为免费活动，设置报名状态为已支付（待评论）
+            $add_arr['status'] = ActivityRegisterEnum::EVALUATION;
+        }else{
+            //如果活动不需要审核并且活动不是免费活动，设置报名状态为待支付
+            $add_arr['sign_in_code']  = ActivityRegisterRepository::getSignCode();
+            $add_arr['status'] = ActivityRegisterEnum::SUBMIT;
+        }
+        DB::beginTransaction();
         if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
             $this->setError('报名失败！');
+            Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，添加报名信息失败，导致报名失败！报名信息：'.json_encode($add_arr));
             return false;
         }
-        $title   = '活动报名成功';
-        $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
-        #发送短信
-        if (!empty($member->m_phone)){
-            $sms = new SmsService();
-            $sms->sendContent($member->m_phone,$content);
+        //如果是收费活动，创建订单
+        $order_no = '';
+        if ($add_arr['member_price'] > 0){
+            if (!$order_id = MemberOrdersRepository::addOrder($add_arr['member_price'],$add_arr['member_price'],$member->id,2)){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，创建订单失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
+            if (!$order_no = MemberOrdersRepository::getField(['id' => $order_id],'order_no')){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，获取订单号失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
+            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order_no])){
+                $this->setError('报名失败！');
+                Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，更新报名信息失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
         }
-        #发送站内信
-        SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        //如果需要审核，通知用户等待审核结果审核
+        if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            $title   = '活动报名成功';
+            $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
+            #发送短信
+            if (!empty($member->m_phone)){
+                $sms = new SmsService();
+                $sms->sendContent($member->m_phone,$content);
+            }
+            #发送站内信
+            SendService::sendMessage($member->id,MessageEnum::ACTIVITYENROLL,$title,$content,$register_id);
+        }
+        DB::commit();
         $this->setMessage('报名成功！');
-        return true;
+        $res = [
+            'register_id'       => $register_id,
+            'register_status'   => $add_arr['status'],
+            'order_no'          => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? '' : $order_no,
+            'price'             => round($add_arr['member_price'] / 100,2)
+        ];
+        return $res;
     }
 
 
@@ -157,18 +204,23 @@ class RegisterService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $audited_by     = array_column($list['data'],'audited_by');
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
         $activities     = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
         $members        = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $audits         = OaEmployeeRepository::getList(['id' => ['in',$audited_by]],['id','real_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $member   = $this->searchArray($members,'id',$value['member_id']);
+            $audit    = $this->searchArray($audits,'id',$value['audited_by']);
             $value['theme_name']    = reset($activity)['name'];
             $value['member_name']   = reset($member)['ch_name'];
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterEnum::getStatus($value['status']);
+            $value['audited_by']    = $audit ? reset($audit)['real_name'] : '';
+            $value['audited_at']    = $value['audited_at'] != 0 ? date('Y-m-d H:m:i',$value['audited_at']) : '';
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
         }
@@ -184,6 +236,7 @@ class RegisterService extends BaseService
      */
     public function auditRegister($register_id, $audit)
     {
+        $employees = Auth::guard('oa_api')->user();
         if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
             $this->setError('报名信息不存在！');
             return false;
@@ -207,30 +260,14 @@ class RegisterService extends BaseService
         $upd_register = [
             'status'        => $status,
             'sign_in_code'  => ActivityRegisterRepository::getSignCode(),
-            'updated_at'    => time()
+            'audited_by'    => $employees->id,
+            'updated_at'    => time(),
+            'audited_at'    => time(),
         ];
         if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],$upd_register)){
             $this->setError('审核失败！');
             DB::rollBack();
             return false;
-        }
-        //创建订单
-        if ($register['member_price'] > 0 && $status == ActivityRegisterEnum::SUBMIT){
-            if (!$order_id = MemberOrdersRepository::addOrder($register['member_price'],$register['member_price'],$register['member_id'],2)){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!$order = MemberOrdersRepository::getOne(['id' => $order_id])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
-            if (!ActivityRegisterRepository::getUpdId(['id' => $register_id],['order_no' => $order['order_no']])){
-                $this->setError('审核失败！');
-                DB::rollBack();
-                return false;
-            }
         }
         //通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $register['member_id']])){
@@ -356,80 +393,70 @@ class RegisterService extends BaseService
      * @return array|bool|mixed|null
      */
     public function getMyActivityList($request){
-        $member = $this->auth->user();
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
-        $status = $request['status'] ?? null;
-        $where  = ['member_id' => $member->id];
-        if (!$register_list = ActivityRegisterRepository::getList($where,['id','activity_id','sign_in_code','status'])){
-            $this->setMessage('暂无活动！');
-            return [];
-        }
-        $activity_ids = array_column($register_list,'activity_id');
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
-        $activity_where = ['id' => ['in',$activity_ids]];
+        $member     = $this->auth->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $status     = $request['status'] ?? null;
+        $where      = ['member_id' => $member->id];
         switch ($status){
             case 1://未开始
-                $activity_where['start_time'] = ['>',time()];
+                $where['start_time'] = ['>',time()];
                 break;
             case 2://进行中
-                $activity_where['start_time'] = ['<',time()];
-                $activity_where['end_time'] = ['>',time()];
+                $where['start_time'] = ['<',time()];
+                $where['end_time'] = ['>',time()];
                 break;
             case 3://已结束
-                $activity_where['end_time'] = ['<',time()];
+                $where['end_time'] = ['<',time()];
                 break;
             default:
                 break;
         }
-        if (!$activity_list = ActivityDetailRepository::getList($activity_where,$activity_column,'id','desc',$page,$page_num)){
+        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','sign_in_code','order_no'];
+        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-        $activity_list = $this->removePagingField($activity_list);
-        if (empty($activity_list['data'])){
-            $this->setMessage('暂无活动！');
-            return $activity_list;
+        $register_list = $this->removePagingField($register_list);
+        if (empty($register_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $register_list;
         }
-        $theme_ids  = array_column($activity_list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
-        $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
-        $activity_list['data'] = ImagesService::getListImagesConcise($activity_list['data'],['cover_id' => 'single']);
-        foreach ($activity_list['data'] as &$value){
-            $theme = $this->searchArray($themes,'id',$value['theme_id']);
-            if ($theme)
-                $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
+        foreach ($register_list['data'] as &$value){
+            $value['register_id']   = $value['id'];
+            $value['id']            = $value['activity_id'];
             #处理地址
             list($area_address)     = $this->makeAddress($value['area_code'],'',3);
             $value['address']       = $area_address;
-            $value['theme_name']    = $theme ? reset($theme)['name'] : '活动';
-            $value['theme_icon']    = $icons ? reset($icon)['img_url'] : '';
             $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status'] = 1;
+                $value['status_title'] = '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
-                $value['status'] = '进行中';
+                $value['status'] = 2;
+                $value['status_title'] = '进行中';
+            }
+            if (in_array($value['register_status'],[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::NOPASS])){
+                $value['status_title'] = ActivityRegisterEnum::getStatus($value['register_status']);
             }
             if ($value['end_time'] < time()){
-                $value['status'] = '已结束';
+                $value['status'] = 3;
+                $value['status_title'] = '已结束';
             }
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
-            $sign_code_list         = $this->searchArray($register_list,'activity_id',$value['id']);
-            $value['sign_in_code']  = reset($sign_code_list)['sign_in_code'];
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
+            unset($value['start_time'],$value['end_time'],$value['area_code'],$value['activity_id']);
         }
         $this->setMessage('获取成功！');
-        return $activity_list;
+        return $register_list;
     }
 
     /**
      * 生成入场券
      * @param $register_id
-     * @return bool|void
+     * @return mixed
      */
     public function getAdmissionTicket($register_id)
     {
@@ -466,7 +493,25 @@ class RegisterService extends BaseService
             'sign_in_code'      => $register['sign_in_code']
         ]);
         $this->setMessage('生成成功！');
-        return $image_url;
+        $res = [
+            'image_url'     => $image_url,
+            'is_lottery'    => 0,
+            'is_win'        => 0,
+            'prize'         => []
+        ];
+        //检查是否已抽奖
+        if ($winning = ActivityWinningRepository::getOne(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
+            $res['is_lottery'] = 1;
+            if ($prize = ActivityPrizeRepository::getOne(['id' => $winning['prize_id']],['id','name','odds','image_ids','worth'])){
+                $prize          = ImagesService::getOneImagesConcise($prize,['image_ids' => 'single'],true);
+                $res['is_win']  = $prize['worth'] == 0 ? 0 : 1;
+                $prize['name']  = '价值' . $prize['worth'] . '元的' . $prize['name'];
+                unset($prize['odds'],$prize['id'],$prize['worth']);
+                $res['prize']   = $res['is_win'] == 0 ? [] : $prize;
+            }
+        }
+        //获取抽奖奖品
+        return $res;
     }
 
     /**
@@ -604,11 +649,12 @@ class RegisterService extends BaseService
      */
     public function getShareQrCode($activity_id)
     {
+        $member = $this->auth->user;
         $url        = config('url.'.env('APP_ENV').'_url').'#'."/pages/activity/activitingDetail?listId=".$activity_id;
         $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png');
         $res = [
             'url'           => $url,
-            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png')
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.'activity-'.$activity_id.'.png'),
         ];
         if (file_exists($image_path)){
             $this->setMessage('获取成功！');
@@ -638,9 +684,9 @@ class RegisterService extends BaseService
         //模板
         /*
          * resource_ids:[1,2,...]
-         * resource_urls:[image_url1,image_url2,...]
          * top:'0' 0不置顶 1置顶
          * hidden:'0' 0隐藏 1显示
+         * presentation:''
         */
         $activity_id = $request['activity_id'];
         if (!ActivityDetailRepository::getOne(['id' => $activity_id])){
@@ -650,7 +696,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $add_arr =[];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -663,7 +709,6 @@ class RegisterService extends BaseService
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
-                'resource_urls'=> implode(',',$value['resource_urls']),
                 'presentation' => $value['presentation'],
                 'created_at'   => time(),
                 'updated_at'   => time(),
@@ -720,7 +765,7 @@ class RegisterService extends BaseService
         $parameter   = json_decode($request['parameters'],true);
         $upd_arr = [];
         foreach ($parameter as $value){
-            if (!isset($value['resource_ids']) && !isset($value['resource_urls'])){
+            if (!isset($value['resource_ids'])){
                 $this->setError('资源图片(视频)不能为空!');
                 return false;
             }
@@ -733,7 +778,6 @@ class RegisterService extends BaseService
                 'top'          => $value['top'],
                 'hidden'       => $value['hidden'],
                 'resource_ids' => implode(',',$value['resource_ids']),
-                'resource_urls'=> implode(',',$value['resource_urls']),
                 'presentation' => $value['presentation'],
                 'updated_at'   => time(),
             ];
@@ -763,12 +807,12 @@ class RegisterService extends BaseService
     public function getActivityPastList($request)
     {
         $where      = ['activity_id' => $request['activity_id']];
-        $column     = ['resource_ids','resource_urls','presentation','hidden','top'];
+        $column     = ['resource_ids','presentation','hidden','top'];
         if (!$list = ActivityPastRepository::getList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
         }
-        $list = ImagesService::getListImagesConcise($list,['resource_ids' => 'several']);
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several']);
         $this->setMessage('获取成功');
         foreach ($list as &$value){
             $value['resource_ids']  = explode(',',$value['resource_ids']);

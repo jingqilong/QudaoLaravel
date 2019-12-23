@@ -118,6 +118,67 @@ class ActivityController extends ApiController
     }
 
     /**
+     * @OA\Delete(
+     *     path="/api/v1/shop/delete_activity_goods",
+     *     tags={"商城后台"},
+     *     summary="删除活动商品",
+     *     description="sang" ,
+     *     operationId="delete_activity_goods",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="商品活动记录ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="删除失败",
+     *     ),
+     * )
+     *
+     */
+    public function deleteActivityGoods(){
+        $rules = [
+            'activity_id'       => 'required|integer',
+        ];
+        $messages = [
+            'activity_id.required'  => '商品活动记录ID不能为空',
+            'activity_id.integer'   => '商品活动记录ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->deleteActivityGoods($this->request['activity_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityService->message];
+    }
+
+
+    /**
      * @OA\Post(
      *     path="/api/v1/shop/edit_activity_goods",
      *     tags={"商城后台"},

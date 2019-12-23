@@ -709,5 +709,62 @@ class EnterpriseController extends ApiController
         return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $res];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/enterprise/cancel_enterprise",
+     *     tags={"企业咨询(前端页面)"},
+     *     summary="取消企业咨询订单信息",
+     *     operationId="cancel_enterprise",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="预约id",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="取消企业咨询订单失败",),
+     * )
+     *
+     */
+    public function cancelEnterprise()
+    {
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '预约ID不能为空',
+            'id.integer'    => '预约订单ID不是整数',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->enterpriseService->cancelEnterprise($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->enterpriseService->error];
+        }
+        return ['code' => 200, 'message' => $this->enterpriseService->message];
+    }
 
 }

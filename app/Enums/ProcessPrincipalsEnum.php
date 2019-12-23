@@ -15,7 +15,7 @@ class ProcessPrincipalsEnum extends BaseEnum
         'AGENT'         => '代理人',
     ];
 
-    public static $status = [
+    public static $principals = [
         1 => 'EXECUTOR',
         2 => 'SUPERVISOR',
         3 => 'AGENT',
@@ -32,8 +32,8 @@ class ProcessPrincipalsEnum extends BaseEnum
      * @param int $value
      * @return mixed|string
      */
-    public static function getStatus($value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getPprincipalLabel($value){
+        return isset(self::$principals[$value]) ? self::$labels[self::$principals[$value]] : '';
     }
 
     /**
@@ -41,6 +41,6 @@ class ProcessPrincipalsEnum extends BaseEnum
      * @return string
      */
     public static function getPrincipalString(){
-        return implode(',',self::$status);
+        return implode(',',self::$principals);
     }
 }

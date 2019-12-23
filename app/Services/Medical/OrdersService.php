@@ -132,10 +132,10 @@ class OrdersService extends BaseService
         }
         $add_arr['updated_at'] = time();
         if (!$orderId = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
-            $this->setError('预约失败!');
+            $this->setError('修改预约失败!');
             return false;
         }
-        $this->setMessage('预约成功');
+        $this->setMessage('修改预约成功');
         return $orderId;
     }
 
@@ -218,8 +218,9 @@ class OrdersService extends BaseService
             $this->setError('无此医生!');
             return false;
         }
+        $status = $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
         $upd_arr = [
-            'status'      => $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS,
+            'status'      => $status,
             'updated_at'  => time(),
         ];
         if (!$updOrder = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -227,7 +228,6 @@ class OrdersService extends BaseService
             return false;
         }
         #通知用户
-        $status = $upd_arr['status'];
         if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
             $member_name = $member_name . MemberEnum::getSex($member['sex']);
@@ -381,8 +381,8 @@ class OrdersService extends BaseService
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
-        $orderInfo['appointment_at']  =  date('Y-m-d H:m',strtotime($orderInfo['appointment_at']));
-        $orderInfo['end_time']        =  date('Y-m-d H:m',strtotime($orderInfo['end_time']));
+        $orderInfo['appointment_at']  = date('Y-m-d H:m',strtotime($orderInfo['appointment_at']));
+        $orderInfo['end_time']        = date('Y-m-d H:m',strtotime($orderInfo['end_time']));
         unset($orderInfo['member_id'],$orderInfo['hospital_id'],$orderInfo['created_at'],$orderInfo['updated_at'],$orderInfo['deleted_at']);
         $this->setMessage('查找成功!');
         return $orderInfo;
@@ -395,15 +395,15 @@ class OrdersService extends BaseService
      */
     public function delDoctorOrder($request)
     {
-        if (!MedicalOrdersRepository::getOne(['id' => $request['id']])){
-            $this->setError('订单不存在!');
+        if (!MedicalOrdersRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+            $this->setError('预约不存在!');
             return false;
         }
         if (!MedicalOrdersRepository::getUpdId(['id' => $request['id']],['deleted_at' => time()])){
-            $this->setError('删除失败!');
+            $this->setError('取消预约失败!');
             return false;
         }
-        $this->setMessage('删除成功');
+        $this->setMessage('取消预约成功');
         return true;
     }
 

@@ -3,6 +3,7 @@ namespace App\Services\House;
 
 
 use App\Enums\CollectTypeEnum;
+use App\Enums\CommonHomeEnum;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonAreaRepository;
@@ -14,6 +15,7 @@ use App\Repositories\MemberCollectRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\AreaService;
+use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Traits\HelpTrait;
@@ -48,6 +50,8 @@ class DetailsService extends BaseService
         $add_arr = [
             'title'         => $request['title'],
             'area_code'     => $request['area_code'] . ',',
+            'longitude'     => $request['longitude'],
+            'latitude'      => $request['latitude'],
             'address'       => $request['address'],
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
@@ -93,21 +97,17 @@ class DetailsService extends BaseService
             $this->setError('房产信息不存在！');
             return false;
         }
-        $column = ['id','title','area_code','address','describe','rent','tenancy','leasing','decoration','area'
+        $column = ['id','title','area_code','address','describe','longitude','latitude','rent','tenancy','leasing','decoration','area'
             ,'image_ids','storey','unit','condo_name','toward','category','publisher','facilities_ids'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $id],$column)){
             $this->setError('获取失败！');
             return false;
         }
         #处理地址
-        list($area_address,$lng,$lat) = $this->makeAddress($house['area_code'],$house['address']);
-        
+        list($area_address) = $this->makeAddress($house['area_code'],$house['address']);
         list($district_name) = $this->makeAddress($house['area_code'],'',3);
         $house['district']  = $district_name;
-        
         $house['area_address']  = $area_address;
-        $house['lng']           = $lng;
-        $house['lat']           = $lat;
         #处理价格
         $house['rent']          = '¥'. $house['rent'] .'/'. HouseEnum::getTenancy($house['tenancy']);
 
@@ -120,9 +120,9 @@ class DetailsService extends BaseService
         $house['publisher']     = HouseEnum::getPublisher($house['publisher']);
         $house['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']));
         #是否收藏
-        $activity['is_collect'] = 0;
+        $house['is_collect'] = 0;
         if (MemberCollectRepository::exists(['type' => CollectTypeEnum::HOUSE,'target_id' => $house['id'],'member_id' => $member->id,'deleted_at' => 0])){
-            $activity['is_collect'] = 1;
+            $house['is_collect'] = 1;
         }
         unset($house['area_code'],$house['tenancy'],$house['image_ids'],
             $house['facilities_ids'],$house['recommend']);
@@ -151,6 +151,12 @@ class DetailsService extends BaseService
         }
         if (HouseEnum::PASS == $house['status']){
             $this->setError('该房源正在上架，无法删除！');
+            return false;
+        }
+        //检查商品是否为banner展示
+        $homeBannerService = new HomeBannersService();
+        if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::HOUSE,$id) == false){
+            $this->setError($homeBannerService->error);
             return false;
         }
         if (!HouseDetailsRepository::update($where,['deleted_at' => time()])){
@@ -195,6 +201,8 @@ class DetailsService extends BaseService
             'title'         => $request['title'],
             'area_code'     => $request['area_code'] . ',',
             'address'       => $request['address'],
+            'longitude'     => $request['longitude'] ?? '',
+            'latitude'      => $request['latitude'] ?? '',
             'describe'      => $request['describe'] ?? '',
             'rent'          => $request['rent'],
             'tenancy'       => $request['tenancy'],
@@ -303,7 +311,7 @@ class DetailsService extends BaseService
         $area_code  = $request['area_code'] ?? '';
         $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
-        $_order      = $request['order'] ?? '';
+        $_order     = $request['order'] ?? '';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
@@ -342,11 +350,10 @@ class DetailsService extends BaseService
                     $desc_asc   = 'desc';
                     break;
             }
-
         }
         $column = ['id','title','area_code','area','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['title','leasing', 'unit', 'toward']];
+            $keyword = [$keywords => ['title','leasing', 'unit', 'toward','condo_name']];
             if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
@@ -401,7 +408,7 @@ class DetailsService extends BaseService
     protected function categoryList($data)
     {
         $category = $data['category'] ?? null;
-        $where    = ['deleted_at' => 0];
+        $where    = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $page     = '1';
         $page_num = '4';
         $column   = ['id','title','rent','tenancy','image_ids'];

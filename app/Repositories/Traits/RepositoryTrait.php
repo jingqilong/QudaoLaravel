@@ -288,11 +288,11 @@ trait RepositoryTrait
             if (!is_array($columns)){
                 return false;
             }
-            $model = $model->where(reset($columns),'like','%'.$keyword.'%');
-            array_shift($columns);
-            foreach ($columns as $value){
-                $model = $model->orWhere($value,'like','%'.$keyword.'%');
-            }
+            $model = $model->where(function ($query)use ($columns,$keyword){
+                foreach ($columns as $value) {
+                    $query->orWhere($value, 'like', '%' . $keyword . '%');
+                }
+            });
         }
         if ($order!=null && $desc_asc!=null){
             $model = $model->orderBy($order,$desc_asc);
