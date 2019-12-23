@@ -15,19 +15,23 @@ class ProcessEventSubscriber
     {
 
         $events->listen(
+            'App\Events\SendDingTalkEmail',
             'App\Listeners\ProcessEventListener@onSendDingTalkEmail'
         );
 
         $events->listen(
+            'App\Events\SendFlowSms',
             'App\Listeners\ProcessEventListener@onSendFlowSms'
         );
 
         $events->listen(
+            'App\Events\SendSiteMessage',
             'App\Listeners\ProcessEventListener@onSendSiteMessage'
         );
 
         $events->listen(
-           'App\Listeners\ProcessEventListener@onSendWeChatPush'
+            'App\Events\SendWeChatPush',
+            'App\Listeners\ProcessEventListener@onSendWeChatPush'
         );
     }
 }
