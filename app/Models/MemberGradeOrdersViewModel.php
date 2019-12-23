@@ -27,7 +27,7 @@ class MemberGradeOrdersViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','mobile','ch_name','sex','previous_grade','previous_grade_title','grade','grade_title','amount','validity','order_no','status','audit','created_at','updated_at'];
+    protected $fillable = ['id','member_id','mobile','ch_name','sex','previous_grade','previous_grade_title','grade','grade_title','amount','validity','order_no','status','audit','created_at','updated_at','payment_amount'];
 
 
 

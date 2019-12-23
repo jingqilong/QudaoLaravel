@@ -89,7 +89,7 @@ class GradeOrdersService extends BaseService
         $status     = $request['status'] ?? null;
         $audit      = $request['audit'] ?? null;
         $where      = ['id' => ['>',0]];
-        $column     = ['id','member_id','mobile','ch_name','previous_grade','previous_grade_title','grade','grade_title','amount','validity','order_no','status','audit','created_at'];
+        $column     = ['id','member_id','mobile','ch_name','previous_grade','previous_grade_title','grade','grade_title','amount','validity','order_no','status','audit','created_at','payment_amount'];
         if (!is_null($grade)){
             $where['grade'] = $grade;
         }
@@ -120,6 +120,7 @@ class GradeOrdersService extends BaseService
             $value['status_title'] = GradeOrderEnum::getStatus($value['status']);
             $value['audit_title']  = GradeOrderEnum::getAuditStatus($value['audit']);
             $value['created_at']   = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
+            $value['payment_amount'] = empty($value['payment_amount']) ? 0 : round($value['payment_amount'] / 100,2);
         }
         $this->setMessage('获取成功！');
         return $list;

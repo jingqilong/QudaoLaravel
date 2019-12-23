@@ -2,6 +2,7 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CollectTypeEnum;
 use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\ShopGoodsEnum;
@@ -20,6 +21,7 @@ use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Encore\Admin\Grid\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GoodsService extends BaseService
@@ -349,6 +351,7 @@ class GoodsService extends BaseService
      */
     public function getGoodsDetailsById($request)
     {
+        $member_id = Auth::guard('member_api')->user()->id;
         $column = ['id', 'name', 'price', 'banner_ids', 'labels',
             'stock', 'express_price', 'image_ids',
             'gift_score', 'score_deduction',
@@ -362,7 +365,7 @@ class GoodsService extends BaseService
         $goods_detail['labels']         = empty($goods_detail['labels']) ? [] : explode(',', trim($goods_detail['labels'], ','));
         $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
-        $goods_detail['collect']        = MemberCollectRepository::exists(['id' => $request['id'],'deleted_at' => 0]) == false  ? '0' : '1';
+        $goods_detail['collect']        = MemberCollectRepository::exists(['type' => CollectTypeEnum::SHOP,'target_id' => $request['id'],'member_id' => $member_id,'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
         foreach ($goods_detail['recommend'] as &$value){

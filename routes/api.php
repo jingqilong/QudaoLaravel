@@ -41,6 +41,7 @@ $api->version('v1',function ($api){
             $api->get('query_clear_date','TestApiController@queryClearDate')->name('queryClearDate');
             $api->get('query_by_system_code','TestApiController@queryBySystemCode')->name('queryBySystemCode');
             $api->get('refund','TestApiController@refund')->name('refund');
+            $api->get('event_test','TestApiController@eventTest')->name('eventTest');
         });
         $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
