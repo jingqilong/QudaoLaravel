@@ -10,10 +10,10 @@ class ProcessEventEnum extends BaseEnum
 
     public static $labels=[
         //状态
-        'DINGTALK_EMAIL'        => '启用',
-        'SMS'                   => '禁用',
-        'SITE_MESSAGE'          => '启用',
-        'WECHAT_PUSH'           => '禁用',
+        'DINGTALK_EMAIL'        => '钉邮',
+        'SMS'                   => '短信',
+        'SITE_MESSAGE'          => '站内信',
+        'WECHAT_PUSH'           => '微信推送',
      ];
 
     public static $data_map = [

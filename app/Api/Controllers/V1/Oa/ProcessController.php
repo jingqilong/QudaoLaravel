@@ -16,6 +16,7 @@ use App\Services\Oa\ProcessEventsService;
 use App\Services\Oa\ProcessNodeActionService;
 use App\Services\Oa\ProcessNodeService;
 use App\Services\Oa\ProcessRecordService;
+use Illuminate\Support\Facades\Auth;
 
 class ProcessController extends ApiController
 {
@@ -1977,6 +1978,24 @@ class ProcessController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="audit_result",
+     *         in="query",
+     *         description="审核结果",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit_opinion",
+     *         in="query",
+     *         description="审核意见",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(response=100,description="流程进度记录失败",),
      * )
      *
@@ -2000,7 +2019,15 @@ class ProcessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processRecordService->addRecord($this->request['business_id'],$this->request['process_id'],$this->request['node_id']);
+        $employee = Auth::guard('oa_api')->user();
+        $res = $this->processRecordService->addRecord(
+            $this->request['business_id'],
+            $this->request['process_id'],
+            $this->request['node_id'],
+            $employee->id,
+            $this->request['audit_result'] ?? '',
+            $this->request['audit_opinion'] ?? ''
+        );
         if ($res){
             return ['code' => 200,'message' => $this->processRecordService->message];
         }
