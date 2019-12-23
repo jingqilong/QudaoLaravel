@@ -56,7 +56,15 @@ class ProcessEventListener
      */
     public function onSendSiteMessage(SendSiteMessage $event) {
         $data = $event->data;
-        app(SendService::class)::sendSystemNotice($data['employee_id'],$data['content']);
+        app(SendService::class)::sendMessageForEmployee(
+            $data['employee_id'],
+            $data['category'],
+            $data['title'],
+            $data['content'],
+            $data['relate_id'],
+            $data['url'],
+            $data['image_ids']
+        );
         //接收到事件时，拿$event中的数据去调用对应的Service
         //完成后返回false,则其它监听器再也听不到了
         return false;
