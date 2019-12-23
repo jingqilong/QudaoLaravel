@@ -5,7 +5,10 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-
+use App\Events\SendDingTalkEmail;
+use App\Events\SendSiteMessage;
+use App\Events\SendFlowSms;
+use App\Events\SendWeChatPush;
 
 
 
@@ -29,20 +32,20 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         SendDingTalkEmail::class => [
-            //¶¤¶¤ÓÊ¼şÍ¨Öª Á÷³Ì¶©ÔÄ¶¼¼àÌı
+            //é’‰é’‰é‚®ä»¶é€šçŸ¥ æµç¨‹è®¢é˜…éƒ½ç›‘å¬
             \App\Listeners\SendDingTalkEmailListener::class,
         ],
         SendWeChatPush::class => [
-            //Î¢ĞÅÍÆËÍ Á÷³Ì¶©ÔÄ¶¼¼àÌı
+            //å¾®ä¿¡æ¨é€ æµç¨‹è®¢é˜…éƒ½ç›‘å¬
             \App\Listeners\SendWeChatPushListener::class,
             //ProcessEventSubscriber::class,
         ],
         SendSiteMessage::class => [
-            //Õ¾ÄÚĞÅÏ¢ Á÷³Ì¶©ÔÄ¶¼¼àÌı
+            //ç«™å†…ä¿¡æ¯ æµç¨‹è®¢é˜…éƒ½ç›‘å¬
             \App\Listeners\SendSiteMessageListener::class,
         ],
         SendFlowSms::class => [
-            //¶ÌĞÅ Á÷³Ì¶©ÔÄ¶¼¼àÌı
+            //çŸ­ä¿¡ æµç¨‹è®¢é˜…éƒ½ç›‘å¬
             \App\Listeners\SendFlowSmsListener::class,
         ],    ];
 
