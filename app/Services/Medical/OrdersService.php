@@ -218,8 +218,9 @@ class OrdersService extends BaseService
             $this->setError('无此医生!');
             return false;
         }
+        $status = $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
         $upd_arr = [
-            'status'      => $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS,
+            'status'      => $status,
             'updated_at'  => time(),
         ];
         if (!$updOrder = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -227,7 +228,6 @@ class OrdersService extends BaseService
             return false;
         }
         #通知用户
-        $status = $upd_arr['status'];
         if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
             $member_name = $member_name . MemberEnum::getSex($member['sex']);

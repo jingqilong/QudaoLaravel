@@ -2,12 +2,16 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\ProcessDefinitionStatusEnum;
 use App\Enums\ProcessGetwayTypeEnum;
 use App\Repositories\OaProcessCategoriesRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\Auth;
 
 class ProcessCategoriesService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * 添加流程分类
@@ -16,17 +20,20 @@ class ProcessCategoriesService extends BaseService
      */
     public function addCategories($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         if (OaProcessCategoriesRepository::exists(['name' => $request['name']])){
             $this->setError('该名称已被使用！');
             return false;
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => $request['getway_type'] ?? 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'created_at'    => time(),
+            'created_by'    => $employee->id,
             'updated_at'    => time(),
+            'updated_by'    => $employee->id,
         ];
         if (OaProcessCategoriesRepository::getAddId($arr)){
             $this->setMessage('添加成功！');
@@ -62,6 +69,7 @@ class ProcessCategoriesService extends BaseService
      */
     public function editCategories($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         if (!$cate = OaProcessCategoriesRepository::getOne(['id' => $request['id']])){
             $this->setError('该分类不存在！');
             return false;
@@ -72,10 +80,11 @@ class ProcessCategoriesService extends BaseService
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => $request['getway_type'] ?? 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'updated_at'    => time(),
+            'updated_by'    => $employee->id,
         ];
         if (OaProcessCategoriesRepository::getUpdId(['id' => $request['id']],$arr)){
             $this->setMessage('修改成功！');
@@ -97,19 +106,17 @@ class ProcessCategoriesService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($cate_list['first_page_url'], $cate_list['from'],
-            $cate_list['from'], $cate_list['last_page_url'],
-            $cate_list['next_page_url'], $cate_list['path'],
-            $cate_list['prev_page_url'], $cate_list['to']);
+        $cate_list = $this->removePagingField($cate_list);
         if (empty($cate_list['data'])){
             $this->setMessage('暂无数据!');
             return $cate_list;
         }
+        $cate_list['data'] = EmployeeService::getListOperationByName($cate_list['data']);
         foreach ($cate_list['data'] as &$value){
-            $value['getway_type'] = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
-            $value['status'] = ProcessGetwayTypeEnum::getStatus($value['status']);
-            $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+            $value['getway_type_title']     = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
+            $value['status_title']          = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
+            $value['created_at']            = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']            = date('Y-m-d H:m:s',$value['updated_at']);
         }
         $this->setMessage('获取成功！');
         return $cate_list;

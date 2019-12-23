@@ -93,7 +93,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="getway_type",
      *          in="query",
-     *          description="网关类型：ROUTE：路由, REPOSITORY: 仓库, RESOURCE: 资源",
+     *          description="网关类型：默认0：路由, 1: 仓库, 2: 资源，3：服务",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -111,7 +111,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活状态 ACTIVE：激活状态",
+     *          description="状态 0:非激活状态 1：激活状态",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -125,8 +125,8 @@ class ProcessController extends ApiController
     {
         $rules = [
             'name'          => 'required',
-            'getway_type'   => 'in:ROUTE,REPOSITORY,RESOURCE',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'getway_type'   => 'in:0,1,2,3',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'name.required'     => '类型名称不能为空！',
@@ -254,7 +254,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="getway_type",
      *          in="query",
-     *          description="网关类型：ROUTE：路由, REPOSITORY: 仓库, RESOURCE: 资源",
+     *          description="网关类型：默认0：路由, 1: 仓库, 2: 资源，3：服务",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
@@ -272,7 +272,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活状态 ACTIVE：激活状态",
+     *          description="状态 0:非激活状态 1：激活状态",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -287,8 +287,8 @@ class ProcessController extends ApiController
         $rules = [
             'id'            => 'required|integer',
             'name'          => 'required',
-            'getway_type'   => 'in:ROUTE,REPOSITORY,RESOURCE',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'getway_type'   => 'in:0,1,2,3',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'id.required'       => '类型ID不能为空！',
