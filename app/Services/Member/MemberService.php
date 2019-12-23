@@ -267,9 +267,7 @@ class MemberService extends BaseService
             $this->setError('该成员已被禁用');
             return false;
         }
-        foreach ($member_data as &$value){
-            $value = $value ?? '';
-        }
+        foreach ($member_data as &$value) $value = $value ?? '';
         $member_data['profile'] = strip_tags($member_data['profile']);
         $this->setMessage('获取成功!');
         return $member_data;
