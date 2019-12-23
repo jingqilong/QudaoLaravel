@@ -126,7 +126,7 @@ class ProcessDefinitionService extends BaseService
             return $definition_list;
         }
         foreach ($definition_list['data'] as &$value){
-            $value['status_label'] = ProcessDefinitionStatusEnum::getStatus($value['status']);
+            $value['status_label'] = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
         }
