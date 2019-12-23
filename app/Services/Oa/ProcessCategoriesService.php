@@ -107,10 +107,10 @@ class ProcessCategoriesService extends BaseService
             return $cate_list;
         }
         foreach ($cate_list['data'] as &$value){
-            $value['getway_type'] = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
-            $value['status'] = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
-            $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
+            $value['getway_type_title']     = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
+            $value['status_title']          = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
+            $value['created_at']            = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']            = date('Y-m-d H:m:s',$value['updated_at']);
         }
         $this->setMessage('获取成功！');
         return $cate_list;
