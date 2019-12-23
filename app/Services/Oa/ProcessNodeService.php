@@ -253,5 +253,17 @@ class ProcessNodeService extends BaseService
         $this->setError('修改失败！');
         return false;
     }
+
+    /**
+     * @desc 通过流程ID，以及用户ID获取用户在此流程中的哪一层有审核权限，返回一个ID
+     * @param $process_id
+     * @param $user_id
+     * @return integer
+     *
+     */
+    public function getStartNodeByUser($process_id,$user_id){
+        //TODO 这里有业务逻辑要实现
+        return 1;
+    }
 }
             

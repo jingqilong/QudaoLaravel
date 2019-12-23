@@ -400,5 +400,35 @@ class SendService extends BaseService
         $this->setMessage('获取成功！');
         return $send;
     }
+    /**
+     * 给OA员工发送通知
+     * @param int $employee_id      员工ID
+     * @param int $category         消息类型
+     * @param string $title         消息标题
+     * @param string $content       消息内容
+     * @param mixed $relate_id      与消息相关联的ID
+     * @param null $image_ids       图片ID
+     * @param null $url             链接
+     * @return bool
+     */
+    public static function sendMessageForEmployee($employee_id,$category, $title, $content, $relate_id = null, $url = null, $image_ids = null){
+        DB::beginTransaction();
+        if (!$message_id = DefService::addMessage($category,$title,$content, $relate_id, $image_ids, $url)){
+            DB::rollBack();
+            return false;
+        }
+        $send_arr = [
+            'user_id'       => $employee_id,
+            'user_type'     => MessageEnum::OAEMPLOYEES,
+            'message_id'    => $message_id,
+            'created_at'    => date('Y-m-d H:i:s'),
+        ];
+        if (!MessageSendRepository::getAddId($send_arr)){
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
+        return true;
+    }
 }
             

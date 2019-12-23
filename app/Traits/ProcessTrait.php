@@ -1,12 +1,16 @@
 <?php
 
-
 namespace App\Traits;
 use App\Enums\ProcessGetwayTypeEnum;
 use App\Repositories\OaProcessCategoriesRepository;
 use Ixudra\Curl\Facades\Curl;
 use Tolawho\Loggy\Facades\Loggy;
 
+/**
+ * Trait ProcessTrait
+ * @package App\Traits
+ * @desc 这是给流程引擎用的Trait
+ */
 trait ProcessTrait
 {
     /**
@@ -67,6 +71,8 @@ trait ProcessTrait
             }
             return $response;
         }
+        Loggy::write('error','流程网关类型不对！');
+        return false;
     }
 
 
