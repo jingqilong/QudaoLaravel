@@ -146,7 +146,6 @@ class HospitalsService extends BaseService
         $department_list = MedicalDepartmentsRepository::getAssignList($department_ids,['id','name']);
         foreach ($list['data'] as &$value){
             $value['departments']    = [];
-            $value['img_urls']       = [];
             $department_arr = explode(',',$value['department_ids']);
             foreach ($department_arr as $item){
                 if ($department = $this->searchArray($department_list,'id',$item)){
