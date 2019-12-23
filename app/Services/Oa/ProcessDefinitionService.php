@@ -282,9 +282,10 @@ class ProcessDefinitionService extends BaseService
             $principals = [];
             if ($action_principals = $this->searchArray($action_principals_list,'node_action_id',$node_action['id'])){
                 foreach ($action_principals as $action_principal){
-                    $principals[] = array_merge($this->searchArray($principal_list,'id',$action_principal['principal_id'])[0],
-                        ['principal_iden' => ProcessPrincipalsEnum::getStatus($action_principal['principal_iden'])]
-                    );
+                    if ($principal = $this->searchArray($principal_list,'id',$action_principal['principal_id'])){
+                        $principal = reset($principal);
+                        $principals[] = array_merge($principal, ['principal_iden' => ProcessPrincipalsEnum::getStatus($action_principal['principal_iden'])]);
+                    }
                 }
             }
             //动作结果
