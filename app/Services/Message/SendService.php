@@ -81,7 +81,7 @@ class SendService extends BaseService
     }
 
     /**
-     * 发送通知
+     * 给成员发送通知
      * @param $user_id
      * @param $category
      * @param $title

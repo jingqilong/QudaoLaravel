@@ -23,9 +23,9 @@ class ProcessCategoriesService extends BaseService
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => $request['getway_type'] ?? 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -73,9 +73,9 @@ class ProcessCategoriesService extends BaseService
         }
         $arr = [
             'name'          => $request['name'],
-            'getway_type'   => isset($request['getway_type']) ? ProcessGetwayTypeEnum::getConst($request['getway_type']) : 0,
+            'getway_type'   => $request['getway_type'] ?? 0,
             'getway_name'   => $request['getway_name'] ?? '',
-            'status'        => ProcessGetwayTypeEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'updated_at'    => time(),
         ];
         if (OaProcessCategoriesRepository::getUpdId(['id' => $request['id']],$arr)){
