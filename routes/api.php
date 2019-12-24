@@ -64,7 +64,7 @@ $api->version('v1',function ($api){
         });
         //商城模块
         $api->group(['prefix' => 'shop', 'namespace' => 'Shop'], function ($api){
-            $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情'); //不需要验证签名  名流杂志需要网站商城
+            $api->get('get_goods_ad_details','GoodsController@getGoodsAdDetails')->name('广告用户获取商品详情'); //不需要验证签名  名流杂志需要网站商城
         });
     });
     //需要验签的接口
@@ -643,7 +643,7 @@ $api->version('v1',function ($api){
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
                 $api->delete('delete_order','OrderController@deleteOrder')->name('删除订单');
-                //$api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情'); //不需要验证签名  名流杂志需要上网站
+                $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情'); //不需要验证签名  名流杂志需要上网站
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');
                 $api->get('get_goods_list','GoodsController@getGoodsList')->name('获取商品列表');
                 $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');

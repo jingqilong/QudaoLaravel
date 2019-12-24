@@ -59,10 +59,10 @@ class GoodsService extends BaseService
         $add_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100 ?? 0,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
-            'labels'            => isset($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -176,7 +176,7 @@ class GoodsService extends BaseService
         $upd_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100 ?? 0,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
             'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
@@ -426,6 +426,39 @@ class GoodsService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 获取商品详情
+     * @param $request
+     * @return array|bool|null
+     */
+    public function getGoodsAdDetails($request)
+    {
+        $column = ['id', 'name', 'price', 'banner_ids', 'labels',
+            'stock', 'express_price', 'image_ids','negotiable',
+            'gift_score', 'score_deduction',
+        ];
+        if (!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'], 'deleted_at' => 0], $column)) {
+            $this->setError('商品不存在!');
+            return false;
+        }
+        $goods_detail                   = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several'],true);
+        $goods_detail['sales']          = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]);
+        $goods_detail['labels']         = empty($goods_detail['labels']) ? [] : explode(',', trim($goods_detail['labels'], ','));
+        $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
+        $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
+        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        foreach ($goods_detail['recommend'] as &$value){
+            $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
+        if ($goods_detail['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods_detail['price'] = ShopGoodsEnum::getNegotiable($goods_detail['negotiable']);
+        unset($goods_detail['deleted_at']);
+        $this->setMessage('获取成功!');
+        return $goods_detail;
     }
 }
             
