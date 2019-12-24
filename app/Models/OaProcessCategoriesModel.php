@@ -27,7 +27,7 @@ class OaProcessCategoriesModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','getway_type','getway_name','status','created_at','updated_at'];
+    protected $fillable = ['id','name','getway_type','getway_name','status','created_at','created_by','updated_at','updated_by'];
 
 
 

@@ -40,7 +40,7 @@ class ProcessDefinitionService extends BaseService
             'name'          => $request['name'],
             'category_id'   => $request['category_id'],
             'description'   => $request['description'] ?? '',
-            'status'        => ProcessDefinitionStatusEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -94,7 +94,7 @@ class ProcessDefinitionService extends BaseService
             'name'          => $request['name'],
             'category_id'   => $request['category_id'],
             'description'   => $request['description'] ?? '',
-            'status'        => ProcessDefinitionStatusEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'updated_at'    => time(),
         ];
         if (OaProcessDefinitionRepository::getUpdId(['id' => $request['id']],$upd_arr)){

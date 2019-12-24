@@ -27,7 +27,7 @@ class OaProcessActionsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','result','status','description','created_at','updated_at'];
+    protected $fillable = ['id','name','status','description','created_at','updated_at'];
 
 
 

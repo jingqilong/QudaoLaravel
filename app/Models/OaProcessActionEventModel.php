@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class OaProcessTransitionModel extends Model
+class OaProcessActionEventModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class OaProcessTransitionModel extends Model
      *
      * @var string
      */
-    protected $table = 'oa_process_transition';
+    protected $table = 'oa_process_action_event';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class OaProcessTransitionModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','process_id','node_action_result_id','current_node','next_node','status','created_at','updated_at'];
+    protected $fillable = ['id','node_action_id','node_action_result_id','event_type','event_id','principals_type','created_at','updated_at'];
 
 
 
