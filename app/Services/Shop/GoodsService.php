@@ -56,12 +56,14 @@ class GoodsService extends BaseService
             $this->setError('可抵扣积分类型不能为空！');
             return false;
         }
+        if (empty($request['labels']))  $labels = ''; else $labels = ','.$request['labels'].',';
         $add_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
+            'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
-            'labels'            => isset($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => $labels,
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -75,7 +77,7 @@ class GoodsService extends BaseService
             $this->setError('该商品已添加！');
             return false;
         }
-        $add_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
+        $add_arr['keywords']        = $request['name'].$category['name'].$labels;
         $add_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $add_arr['created_at']      = $add_arr['updated_at'] = time();
         DB::beginTransaction();
@@ -172,12 +174,14 @@ class GoodsService extends BaseService
             $this->setError('可抵扣积分类型不能为空！');
             return false;
         }
+        if (empty($request['labels']))  $labels = ''; else $labels = ','.$request['labels'].',';
         $upd_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
+            'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
-            'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => $labels,
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -191,7 +195,7 @@ class GoodsService extends BaseService
             $this->setError('该商品已添加！');
             return false;
         }
-        $upd_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
+        $upd_arr['keywords']        = $request['name'].$category['name'].$labels;
         $upd_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $upd_arr['updated_at']      = time();
         DB::beginTransaction();
@@ -228,7 +232,7 @@ class GoodsService extends BaseService
         $order      = 'id';
         $asc_desc   = 'desc';
         $where = ['deleted_at' => 0];
-        $column = ['id','name','category','price','banner_ids','stock','is_recommend','status','created_at','updated_at'];
+        $column = ['id','name','category','price','banner_ids','stock','negotiable','is_recommend','status','created_at','updated_at'];
         if (!empty($category)){
             $where['category'] = $category;
         }
@@ -262,6 +266,8 @@ class GoodsService extends BaseService
             $v['price']         = empty($v['price']) ? 0 : round($v['price'] / 100,2);
             $v['is_recommend']  = $v['is_recommend'] !== 0 ? 1 : 0;
             $v['status_title']        = ShopGoodsEnum::getStatus($v['status']);
+            if ($v['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $v['price'] = ShopGoodsEnum::getNegotiable($v['negotiable']);
+
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -278,18 +284,17 @@ class GoodsService extends BaseService
             return false;
         }
         $category = ShopGoodsCategoryRepository::getOne(['id' => $goods['category']]);
-        $goods['labels']            = trim($goods['labels'],',');
-        $goods['label_list']        = empty($goods['labels']) ? [] : explode(',',$goods['labels']);
-        $goods['category_title']    = $category['name'] ?? '';
-        $goods['category_icon']     = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
-        $goods['price']             = empty($goods['price']) ? 0 : round($goods['price'] / 100,2);
-        $goods['banner_list']       = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
-        $goods['image_list']        = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
-        $goods['express_price']     = empty($value['express_price']) ? 0 : round($value['express_price'] / 100,2);
-        $goods['is_recommend']      = $goods['is_recommend'] == 0 ? 2 : 1;
-        $goods['status_title']      = ShopGoodsEnum::getStatus($goods['status']);
-        $goods['spec_json']         = GoodsSpecRelateService::getGoodsSpecJson($id);
-        unset($goods['deleted_at']);
+        $goods['labels']         = trim($goods['labels'],',');
+        $goods['label_list']     = empty($goods['labels']) ? [] : explode(',',$goods['labels']);
+        $goods['category_title'] = $category['name'] ?? '';
+        $goods['category_icon']  = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
+        $goods['price']          = empty($goods['price']) ? 0 : round($goods['price'] / 100,2);
+        $goods['banner_list']    = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
+        $goods['image_list']     = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
+        $goods['express_price']  = empty($value['express_price']) ? 0 : round($value['express_price'] / 100,2);
+        $goods['is_recommend']   = $goods['is_recommend'] == 0 ? 2 : 1;
+        $goods['status_title']   = ShopGoodsEnum::getStatus($goods['status']);
+        $goods['spec_json']      = GoodsSpecRelateService::getGoodsSpecJson($id);
         $this->setMessage('获取成功！');
         return $goods;
     }
@@ -317,7 +322,7 @@ class GoodsService extends BaseService
         if (is_null($where)){
             $where = ['is_recommend' => ['<>',0]];
         }
-        $column = ['id','name','price','banner_ids','labels'];
+        $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (is_null($count)){
             if (!$list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc')){
                 $this->setMessage('暂无数据！');
@@ -338,6 +343,7 @@ class GoodsService extends BaseService
         foreach ($list as &$value){
             $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+            if ($value['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $value['price'] = ShopGoodsEnum::getNegotiable($value['negotiable']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -353,7 +359,7 @@ class GoodsService extends BaseService
     {
         $member_id = Auth::guard('member_api')->user()->id;
         $column = ['id', 'name', 'price', 'banner_ids', 'labels',
-            'stock', 'express_price', 'image_ids',
+            'stock', 'express_price', 'image_ids','negotiable',
             'gift_score', 'score_deduction',
         ];
         if (!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'], 'deleted_at' => 0], $column)) {
@@ -373,6 +379,8 @@ class GoodsService extends BaseService
             $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
         }
         $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
+        if ($goods_detail['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods_detail['price'] = ShopGoodsEnum::getNegotiable($goods_detail['negotiable']);
+        unset($goods_detail['deleted_at']);
         $this->setMessage('获取成功!');
         return $goods_detail;
     }
@@ -394,7 +402,7 @@ class GoodsService extends BaseService
         if (!is_null($category)){
             $where['category'] = $category;
         }
-        $column = ['id','name','price','banner_ids','labels'];
+        $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (!empty($keywords)){
             if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
                 $this->setError('获取失败！');
@@ -415,9 +423,43 @@ class GoodsService extends BaseService
         foreach ($list['data'] as &$value){
             $value['price'] = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels']= empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+            if ($value['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $value['price'] = ShopGoodsEnum::getNegotiable($value['negotiable']);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 获取商品详情
+     * @param $request
+     * @return array|bool|null
+     */
+    public function getGoodsAdDetails($request)
+    {
+        $column = ['id', 'name', 'price', 'banner_ids', 'labels',
+            'stock', 'express_price', 'image_ids','negotiable',
+            'gift_score', 'score_deduction',
+        ];
+        if (!$goods_detail = ShopGoodsRepository::getOne(['id' => $request['id'], 'deleted_at' => 0], $column)) {
+            $this->setError('商品不存在!');
+            return false;
+        }
+        $goods_detail                   = ImagesService::getOneImagesConcise($goods_detail,['banner_ids' => 'several','image_ids' => 'several'],true);
+        $goods_detail['sales']          = ShopOrderGoodsRepository::count(['goods_id' => $request['id']]);
+        $goods_detail['labels']         = empty($goods_detail['labels']) ? [] : explode(',', trim($goods_detail['labels'], ','));
+        $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
+        $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
+        $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
+        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        foreach ($goods_detail['recommend'] as &$value){
+            $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
+        if ($goods_detail['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods_detail['price'] = ShopGoodsEnum::getNegotiable($goods_detail['negotiable']);
+        unset($goods_detail['deleted_at']);
+        $this->setMessage('获取成功!');
+        return $goods_detail;
     }
 }
             

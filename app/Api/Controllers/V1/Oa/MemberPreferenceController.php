@@ -316,7 +316,7 @@ class MemberPreferenceController extends ApiController
      *
      */
     public function getPreferenceList(){
-        $res = $this->MemberPreferenceService->getPreferenceList($this->request);
+        $res = $this->MemberPreferenceService->getPreferenceList();
         if ($res == false){
             return ['code' => 100, 'message' => $this->MemberPreferenceService->error];
         }
