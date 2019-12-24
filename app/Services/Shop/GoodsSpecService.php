@@ -37,16 +37,16 @@ class GoodsSpecService extends BaseService
         }
         DB::beginTransaction();
         foreach ($decode_spec as $value){
-            if (!isset($value['stock']) || !isset($value['price']) || !isset($value['spec'])){
+            if (!isset($value['stock']) || !isset($value['spec']) ){//删除|| !isset($value['price'])
                 DB::rollBack();
-                $this->setError('商品规格库存、价格、规格不能为空！');
+                $this->setError('商品规格库存、规格不能为空！');
                 return false;
             }
-            if (!is_numeric($value['price'])){
+            /*if (!is_numeric($value['price'])){
                 DB::rollBack();
                 $this->setError('商品价格必须为整数或小数！');
                 return false;
-            }
+            }*/
             if (!is_numeric($value['stock'])){
                 DB::rollBack();
                 $this->setError('商品库存必须为整数！');
