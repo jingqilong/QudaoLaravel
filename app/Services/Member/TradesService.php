@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\OrderEnum;
 use App\Enums\TradeEnum;
 use App\Library\Time\Time;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Services\BaseService;
@@ -154,7 +155,30 @@ class TradesService extends BaseService
             $this->setMessage('暂无数据！');
             return $trade_list;
         }
+        $order_ids      = array_column($trade_list['data'],'order_id');
+        $pay_user_ids   = array_column($trade_list['data'],'pay_user_id');
+        $payee_user_ids = array_column($trade_list['data'],'payee_user_id');
+        $order_list     = MemberOrdersRepository::getList(['id' => ['in',$order_ids]],['id','order_no']);
+        $pay_user_list  = MemberBaseRepository::getList(['id' => ['in',$pay_user_ids]],['id','ch_name','en_name']);
+        $payee_user_list= MemberBaseRepository::getList(['id' => ['in',$payee_user_ids]],['id','ch_name','en_name']);
+
         foreach ( $trade_list['data'] as &$trade){
+            $trade['order_no']              = '';
+            if ($order = $this->searchArray($order_list,'id',$trade['order_id'])){
+                $trade['order_no'] = reset($order)['order_no'];
+            }
+            #匹配付款人信息
+            $trade['pay_user_name']         = $trade['pay_user_id'] == 0 ? '系统' : '';
+            if ($pay_user = $this->searchArray($pay_user_list,'id',$trade['pay_user_id'])){
+                $pay_user = reset($pay_user);
+                $trade['pay_user_name']     = $pay_user['ch_name'] ?? $pay_user['en_name'];
+            }
+            #匹配收款人信息
+            $trade['payee_user_name']       = $trade['payee_user_id'] == 0 ? '系统' : '';
+            if ($payee_user = $this->searchArray($payee_user_list,'id',$trade['payee_user_id'])){
+                $payee_user = reset($payee_user);
+                $trade['payee_user_name']   = $payee_user['ch_name'] ?? $payee_user['en_name'];
+            }
             $trade['fund_flow_title']       = $trade['fund_flow'] == '+' ? '进账' : '出账';
             $trade['trade_method_title']    = TradeEnum::getTradeMethod($trade['trade_method']);
             $trade['status_title']          = TradeEnum::getStatus($trade['status']);
