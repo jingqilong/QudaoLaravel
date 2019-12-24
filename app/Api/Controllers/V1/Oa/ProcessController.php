@@ -773,9 +773,9 @@ class ProcessController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
-     *          name="execute",
+     *          name="event_type",
      *          in="query",
-     *          description="事件执行相关字段（例如：send_sms）",
+     *          description="事件类型",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -806,13 +806,13 @@ class ProcessController extends ApiController
     public function addEvent(){
         $rules = [
             'name'          => 'required',
-            'execute'       => 'required',
+            'event_type'       => 'required',
             'status'        => 'required|in:ENABLE,DISABLED',
             'description'   => 'required',
         ];
         $messages = [
             'name.required'         => '事件名称不能为空！',
-            'execute.required'      => '执行字段不能为空！',
+            'event_type.required'      => '执行字段不能为空！',
             'status.required'       => '事件状态不能为空！',
             'status.in'             => '事件状态值有误！',
             'description.required'  => '事件描述不能为空！'
@@ -933,9 +933,9 @@ class ProcessController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
-     *          name="execute",
+     *          name="event_type",
      *          in="query",
-     *          description="事件执行相关字段（例如：send_sms）",
+     *          description="事件类型",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -967,7 +967,7 @@ class ProcessController extends ApiController
         $rules = [
             'event_id'      => 'required|integer',
             'name'          => 'required',
-            'execute'       => 'required',
+            'event_type'       => 'required',
             'status'        => 'required|in:ENABLE,DISABLED',
             'description'   => 'required',
         ];
@@ -975,7 +975,7 @@ class ProcessController extends ApiController
             'event_id.required'     => '事件ID不能为空！',
             'event_id.integer'      => '事件ID必须为整数！',
             'name.required'         => '事件名称不能为空！',
-            'execute.required'      => '执行字段不能为空！',
+            'event_type.required'      => '事件类型不能为空！',
             'status.required'       => '事件状态不能为空！',
             'status.in'             => '事件状态值有误！',
             'description.required'  => '事件描述不能为空！'

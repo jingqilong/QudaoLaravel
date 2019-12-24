@@ -23,7 +23,7 @@ class ProcessEventsService extends BaseService
         }
         $add_arr = [
             'name'          => $request['name'],
-            'execute'       => $request['execute'],
+            'event_type'       => $request['event_type'],
             'status'        => ProcessEventEnum::getConst($request['status']),
             'description'   => $request['description'],
             'created_at'    => time(),
@@ -79,7 +79,7 @@ class ProcessEventsService extends BaseService
         }
         $upd_arr = [
             'name'          => $request['name'],
-            'execute'       => $request['execute'],
+            'event_type'       => $request['event_type'],
             'status'        => ProcessEventEnum::getConst($request['status']),
             'description'   => $request['description'],
             'updated_at'    => time(),
