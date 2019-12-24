@@ -3,12 +3,16 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessEventEnum;
+use App\Enums\ProcessEventStatusEnum;
+use App\Repositories\OaProcessActionEventRepository;
 use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessEventsRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 
 class ProcessEventsService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * 添加事件
@@ -23,9 +27,9 @@ class ProcessEventsService extends BaseService
         }
         $add_arr = [
             'name'          => $request['name'],
-            'event_type'       => $request['event_type'],
-            'status'        => ProcessEventEnum::getConst($request['status']),
-            'description'   => $request['description'],
+            'event_type'    => $request['event_type'],
+            'status'        => $request['status'],
+            'description'   => $request['description'] ?? '',
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
@@ -48,9 +52,7 @@ class ProcessEventsService extends BaseService
             $this->setError('该事件不存在！');
             return false;
         }
-        if (OaProcessActionRelatedRepository::exists(['event_ids' => ['like','%,'.$event_id . ',%']]) ||
-            OaProcessActionRelatedRepository::exists(['event_ids' => ['like',$event_id . ',%']])
-        ){
+        if (OaProcessActionEventRepository::exists(['event_id' => $event_id])){
             $this->setError('无法删除正在使用的事件！');
             return false;
         }
@@ -79,9 +81,9 @@ class ProcessEventsService extends BaseService
         }
         $upd_arr = [
             'name'          => $request['name'],
-            'event_type'       => $request['event_type'],
-            'status'        => ProcessEventEnum::getConst($request['status']),
-            'description'   => $request['description'],
+            'event_type'    => $request['event_type'],
+            'status'        => $request['status'],
+            'description'   => $request['description'] ?? '',
             'updated_at'    => time(),
         ];
         if (OaProcessEventsRepository::getUpdId(['id' => $request['event_id']],$upd_arr)){
@@ -104,17 +106,14 @@ class ProcessEventsService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($event_list['first_page_url'], $event_list['from'],
-            $event_list['from'], $event_list['last_page_url'],
-            $event_list['next_page_url'], $event_list['path'],
-            $event_list['prev_page_url'], $event_list['to']);
+        $event_list = $this->removePagingField($event_list);
         if (empty($event_list['data'])){
             $this->setMessage('暂无数据!');
             return $event_list;
         }
         foreach ($event_list['data'] as &$value){
-            $value['status_label']  = ProcessEventEnum::getStatus($value['status']);
-            $value['status']        = ProcessEventEnum::$status[$value['status']];
+            $value['event_type_title'] = ProcessEventEnum::getLabelByValue($value['event_type']);
+            $value['status_title']  = ProcessEventStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }
