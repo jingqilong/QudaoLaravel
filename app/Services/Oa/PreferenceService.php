@@ -118,7 +118,7 @@ class PreferenceService extends BaseService
         return $res;
     }
     /**
-     * 获取偏好类别列表
+     * 获取偏好类别列表分类树（优化）
      * @return bool
      */
     public function getPreferenceList()
@@ -184,7 +184,7 @@ class PreferenceService extends BaseService
             return false;
         }
         DB::beginTransaction();
-        if (MemberPreferenceRepository::exists(['type' => $request['id']])) if (!MemberPreferenceRepository::delete(['type' => $request['id']])){#业务表数据删除
+        if (!MemberPreferenceRepository::delete(['type' => $request['id']])){#业务表数据删除
             $this->setError('删除失败!');
             DB::rollBack();
             return false;

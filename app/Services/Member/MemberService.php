@@ -260,17 +260,17 @@ class MemberService extends BaseService
      */
    /* public function getMemberList($data)
     {
-        $member       =   $this->auth->user();
+        $member           =   $this->auth->user();
         if (empty($data['sort'])) $data['sort']  = 1;
-        $temporary = $data['sort'];
+        $temporary        = $data['sort'];
         if ($data['sort'] == MemberEnum::RECOMMEND) $data['sort']  = 1;
-        $member_info  =   MemberInfoRepository::getOne(['member_id' => $member->id]);
-        $keywords     =   $data['keywords'] ?? null;
-        $category     =   $data['category'] ?? null;
-        $page         =   $data['page'] ?? 1;
-        $page_num     =   $data['page_num'] ?? 20;
-        $asc          =   $data['sort'] == 1 ? 'asc' : 'desc';
-        $where        =   ['deleted_at' => 0 ,'hidden' => 0];
+        $member_info      =   MemberInfoRepository::getOne(['member_id' => $member->id]);
+        $keywords         =   $data['keywords'] ?? null;
+        $category         =   $data['category'] ?? null;
+        $page             =   $data['page'] ?? 1;
+        $page_num         =   $data['page_num'] ?? 20;
+        $asc              =   $data['sort'] == 1 ? 'asc' : 'desc';
+        $where            =   ['deleted_at' => 0 ,'hidden' => 0];
         if(MemberEnum::RECOMMEND  == $temporary)  $sort = 'is_recommend'; else $sort = 'created_at';
         $show_grade = OaGradeViewRepository::showGrade(['type' => 1,'grade' => $member_info['grade']]);
         if (!empty($category))  $where['category'] = $category;
@@ -347,54 +347,11 @@ class MemberService extends BaseService
 
 
     /**
-     * 根据成员分类获取成员列表 (拆表后  已修改)  合并为一个接口
-     * @param $data
-     * @return bool|mixed|null
-     */
-    /*public function getMemberCategoryList($data)
-    {
-        if (empty($data['asc'])){
-            $data['asc'] = 1;
-        }
-        $member       =   $this->auth->user();
-        $member_info  =   MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0]);
-        $category     =   $data['category'] ?? null;
-        $page         =   $data['page'] ?? 1;
-        $page_num     =   $data['page_num'] ?? 20;
-        $asc          =   $data['asc'] == 1 ? 'asc' : 'desc';
-        $where        =   ['deleted_at' => 0 ];
-        if (!empty($category)){
-            $where['category'] = $category;
-         }
-        if (MemberEnum::HONOURENJOY == $member_info['grade']){
-            $where['status'] = ['in',[MemberEnum::ACTIVITEMEMBER,MemberEnum::ACTIVITEOFFICER]];
-        }else{
-            $where['status'] =  MemberEnum::ACTIVITEMEMBER;
-        }
-        $column = ['id','ch_name','img_url','grade','title','category','created_at'];
-        if (!$list = MemberGradeViewRepository::getList($where,$column,'created_at',$asc,$page,$page_num)) {
-            $this->setError('获取失败!');
-            return false;
-        }
-        $list  = $this->removePagingField($list);
-        if (empty($list['data'])){
-            $this->setMessage('暂无数据！');
-            return $list;
-        }
-        foreach ($list['data'] as &$value){
-           $value['grade']      = MemberEnum::getGrade($value['grade'],$value['grade']);
-           $value['category']   = MemberEnum::getCategory($value['category'],$value['category']);
-        }
-        $this->setMessage('获取成功！');
-        return $list;
-    }*/
-
-    /**
      * 获取自己的成员信息 (拆表后  已修改)
      * Get user info.
      * @return mixed
      */
-    public function getMemberInfoByUser(){
+    /*public function getMemberInfoByUser(){
         $user = $this->auth->user();
         $member_id = $user->id;
         $info_column            = ['grade','employer','title','industry','brands','category','position','profile','birthday','address'];
@@ -411,6 +368,29 @@ class MemberService extends BaseService
         foreach ($member as &$value){
             $value = $value ?? '';
         }
+        $this->setMessage('获取成功!');
+        return $member;
+    }*/
+
+
+    /**
+     * 获取自己的成员信息 (拆表后  已修改)
+     * Get user info.
+     * @return mixed
+     */
+    public function getMemberInfoByUser(){
+        $user = $this->auth->user();
+        $column = ['id','card_no','ch_name','mobile','email','sex','grade','employer','title','industry','category','position','profile','birthday','address'];
+        if (!$member = MemberGradeViewRepository::getOne(['id' => 160,'deleted_at' => 0],$column)){dd($member);
+            $this->setError('获取失败!');
+            return false;
+        }
+        $member['sex_name']     = MemberEnum::getSex($member['sex'],'未设置');
+        $member['grade']        = MemberEnum::getGrade($member['grade'],'普通成员');
+        $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
+        $member['profile']      = strip_tags($member['profile']);
+        $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
+        foreach ($member as &$value) $value = $value ?? '';
         $this->setMessage('获取成功!');
         return $member;
     }
