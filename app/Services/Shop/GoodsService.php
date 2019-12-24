@@ -77,7 +77,7 @@ class GoodsService extends BaseService
             $this->setError('该商品已添加！');
             return false;
         }
-        $add_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
+        $add_arr['keywords']        = $request['name'].$category['name'].$labels;
         $add_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $add_arr['created_at']      = $add_arr['updated_at'] = time();
         DB::beginTransaction();
