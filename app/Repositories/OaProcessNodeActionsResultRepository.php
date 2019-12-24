@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\OaProcessTransitionDetailViewModel;
+use App\Models\OaProcessNodeActionsResultModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class OaProcessTransitionDetailViewRepository extends ApiRepository
+class OaProcessNodeActionsResultRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class OaProcessTransitionDetailViewRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(OaProcessTransitionDetailViewModel $model)
+    public function __construct(OaProcessNodeActionsResultModel $model)
     {
         $this->model = $model;
     }

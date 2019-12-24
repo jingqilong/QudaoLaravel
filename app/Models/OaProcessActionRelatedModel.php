@@ -27,7 +27,7 @@ class OaProcessActionRelatedModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','node_action_id','action_result','event_ids','transition_id','created_at','updated_at'];
+    protected $fillable = ['id','node_action_id','action_result_id','action_result','event_ids','transition_id','created_at','updated_at'];
 
 
 
