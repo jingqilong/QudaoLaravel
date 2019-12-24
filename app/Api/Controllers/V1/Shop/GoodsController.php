@@ -202,15 +202,6 @@ class GoodsController extends ApiController
      *     description="jing" ,
      *     operationId="get_goods_details",
      *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="token",
      *         in="query",
      *         description="成员 token",

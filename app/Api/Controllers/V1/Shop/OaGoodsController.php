@@ -74,6 +74,15 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="negotiable",
+     *         in="query",
+     *         description="是否面议，【默认 0无需 1面议】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="details",
      *         in="query",
      *         description="详情介绍",
@@ -190,6 +199,7 @@ class OaGoodsController extends ApiController
             'name'              => 'required',
             'category'          => 'required|integer',
             'price'             => 'required|regex:/^\-?\d+(\.\d{1,2})?$/',
+            'negotiable'        => 'required|integer',
             'banner_ids'        => 'required|regex:/^(\d+[,])*\d+$/',
             'image_ids'         => 'required|regex:/^(\d+[,])*\d+$/',
             'labels'            => 'string',
@@ -206,6 +216,8 @@ class OaGoodsController extends ApiController
             'name.required'             => '商品名称不能为空',
             'category.required'         => '商品类别不能为空',
             'category.integer'          => '商品类别必须为整数',
+            'negotiable.required'       => '面议类别不能为空',
+            'negotiable.integer'        => '面议类别必须为整数',
             'price.required'            => '商品价格不能为空',
             'price.regex'               => '商品价格必须为整数或两位小数',
             'labels.string'             => '商品标签必须为字符串',
