@@ -548,7 +548,6 @@ class OaGoodsController extends ApiController
             'name.required'             => '商品名称不能为空',
             'category.required'         => '商品类别不能为空',
             'category.integer'          => '商品类别必须为整数',
-            'price.required'            => '商品价格不能为空',
             'price.regex'               => '商品价格必须为整数或两位小数',
             'negotiable.required'       => '价格类型不能为空',
             'negotiable.in'             => '价格类型不存在',
