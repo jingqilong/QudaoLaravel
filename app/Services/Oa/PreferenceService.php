@@ -6,11 +6,12 @@ use App\Repositories\MemberPreferenceTypeRepository;
 use App\Repositories\MemberPreferenceRepository;
 use App\Repositories\MemberPreferenceValueRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\DB;
 
 class PreferenceService extends BaseService
 {
-
+    use HelpTrait;
 
     /**
      * 添加成员简历偏好类别
@@ -25,7 +26,7 @@ class PreferenceService extends BaseService
         }
         $add_arr = [
             'name'      =>  $request['name'],
-            'content'   =>  $request['content'],
+            'content'   =>  $request['content'] ?? '',
             'create_at' =>  time(),
             'updated_at'=>  time(),
         ];
@@ -91,7 +92,7 @@ class PreferenceService extends BaseService
         }
         $upd_arr = [
             'name'         =>  $request['name'],
-            'content'      =>  $request['content'],
+            'content'      =>  $request['content'] ?? '',
             'updated_at'   =>  time(),
         ];
         if (!MemberPreferenceTypeRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -118,43 +119,27 @@ class PreferenceService extends BaseService
     }
     /**
      * 获取偏好类别列表
-     * @param $request
      * @return bool
      */
-    public function getPreferenceList($request)
+    public function getPreferenceList()
     {
         if (!$list = MemberPreferenceTypeRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
             $this->setError('没有数据!');
             return false;
         }
+        $type_id = array_column($list,'id');
+        if (!$type_list = MemberPreferenceValueRepository::getList(['type_id' => ['in',$type_id]])){
+            $this->setError('没有数据!');
+            return false;
+        }
+        $value['next_level'] = [];
+        foreach ($list as &$value){
+            if (!$next_level = $this->searchArray($type_list,'type_id',$value['id'])) $next_level = [];
+            $value['next_level'] = $next_level;
+        }
         $this->setMessage('获取成功!');
         return $list;
     }
-
-   /* public function addMemberPreferences($request) TODO
-    {
-        if (!MemberPreferenceTypeRepository::exists(['id' => [$request['type']]])){
-            $this->setError('类别不存在!');
-            return false;
-        }
-        $add_arr = [
-            'type'      =>  $request['type'],
-            'name'      =>  $request['name'],
-            'content'   =>  $request['content'],
-        ];
-        if (MemberPreferenceRepository::exists($add_arr)){
-            $this->setError('该类别已存在!');
-            return false;
-        }
-        $add_arr['create_at']   =   time();
-        $add_arr['updated_at']  =   time();
-        if (!MemberPreferenceRepository::getAddId($add_arr)){
-            $this->setError('添加失败!');
-            return false;
-        }
-        $this->setMessage('添加成功!');
-        return true;
-    }*/
 
     /**
      * 添加成员偏好类别值属性
@@ -174,7 +159,7 @@ class PreferenceService extends BaseService
         $add_arr = [
             'name'      =>  $request['name'],
             'type_id'   =>  $request['type'],
-            'content'   =>  $request['content'],
+            'content'   =>  $request['content'] ?? '',
             'create_at' =>  time(),
             'updated_at'=>  time(),
         ];
@@ -227,7 +212,7 @@ class PreferenceService extends BaseService
         }
         $upd_arr = [
             'name'         =>  $request['name'],
-            'content'      =>  $request['content'],
+            'content'      =>  $request['content'] ?? '',
             'updated_at'   =>  time(),
         ];
         if (!MemberPreferenceValueRepository::getUpdId(['id' => $request['id']],$upd_arr)){
