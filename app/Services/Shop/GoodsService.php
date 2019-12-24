@@ -174,13 +174,14 @@ class GoodsService extends BaseService
             $this->setError('可抵扣积分类型不能为空！');
             return false;
         }
+        if (empty($request['labels']))  $labels = ''; else $labels = ','.$request['labels'].',';
         $upd_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
             'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
-            'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => $labels,
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
@@ -194,7 +195,7 @@ class GoodsService extends BaseService
             $this->setError('该商品已添加！');
             return false;
         }
-        $upd_arr['keywords']        = $request['name'].$category['name'].$request['labels'];
+        $upd_arr['keywords']        = $request['name'].$category['name'].$labels;
         $upd_arr['is_recommend']    = isset($request['is_recommend']) ? ($request['is_recommend'] == 1 ? time() : 0) : 0;
         $upd_arr['updated_at']      = time();
         DB::beginTransaction();
