@@ -115,7 +115,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活 ACTIVE：激活",
+     *          description="状态 0:非激活 1：激活",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -129,7 +129,7 @@ class ProcessController extends ApiController
         $rules = [
             'name'          => 'required',
             'category_id'   => 'required|integer',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'name.required'         => '流程名称不能为空！',
@@ -273,7 +273,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="status",
      *          in="query",
-     *          description="状态 INACTIVE:非激活 ACTIVE：激活",
+     *          description="状态 0:非激活 1：激活",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -288,7 +288,7 @@ class ProcessController extends ApiController
             'id'            => 'required|integer',
             'name'          => 'required',
             'category_id'   => 'required|integer',
-            'status'        => 'required|in:INACTIVE,ACTIVE',
+            'status'        => 'required|in:0,1',
         ];
         $messages = [
             'id.required'           => 'ID不能为空！',
