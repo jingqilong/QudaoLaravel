@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\MemberEnum;
 use App\Models\MemberBaseModel;
 use App\Repositories\Traits\RepositoryTrait;
 use Illuminate\Http\JsonResponse;
@@ -149,6 +150,40 @@ class MemberBaseRepository extends ApiRepository
             return self::getReferralCode($len);
         }
         return $str;
+    }
+
+    /**
+     * 添加成员基础信息
+     * @param $request
+     * @return bool|null
+     */
+    protected function addMemberBase($request)
+    {
+        $base_arr = [
+            'card_no'           => $request['card_no'],
+            'mobile'            => $request['mobile'],
+            'email'             => $request['email'] ?? '',
+            'ch_name'           => $request['ch_name'],
+            'en_name'           => $request['en_name'] ?? '',
+            'sex'               => $request['sex'] ?? 0,
+            'avatar_id'         => $request['avatar_id'],
+            'id_card'           => $request['id_card'] ?? '',
+            'birthplace'        => $request['birthplace'] ?? '',
+            'address'           => $request['address'] ?? '',
+            'paperexpo'         => $request['paperexpo'] ?? '',
+            'zipcode'           => $request['zipcode'] ?? '',
+            'status'            => $request['status'] ?? MemberEnum::MEMBER,
+            'hidden'            => $request['hidden'] ?? MemberEnum::ACTIVITE,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ];
+        if ($this->exists($base_arr)){
+            return false;
+        }
+        if (!$member_id = $this->getAddId($base_arr)){
+            return false;
+        }
+        return $member_id;
     }
 }
             
