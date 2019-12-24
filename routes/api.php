@@ -178,10 +178,11 @@ $api->version('v1',function ($api){
                     $api->post('edit_event','ProcessEventsController@editEvent')->name('修改事件');
                     $api->get('get_event_list','ProcessEventsController@getEventList')->name('获取事件列表');
 
-                    $api->post('add_action','ProcessController@addAction')->name('添加动作');
-                    $api->delete('delete_action','ProcessController@deleteAction')->name('删除动作');
-                    $api->post('edit_action','ProcessController@editAction')->name('修改动作');
-                    $api->get('get_action_list','ProcessController@getActionList')->name('获取动作列表');
+                    #流程动作定义
+                    $api->post('add_action','ProcessActionsControllerController@addAction')->name('添加动作');
+                    $api->delete('delete_action','ProcessActionsControllerController@deleteAction')->name('删除动作');
+                    $api->post('edit_action','ProcessActionsControllerController@editAction')->name('修改动作');
+                    $api->get('get_action_list','ProcessActionsControllerController@getActionList')->name('获取动作列表');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
