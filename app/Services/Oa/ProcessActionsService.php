@@ -3,15 +3,19 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessActionEnum;
+use App\Enums\ProcessActionStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessActionsRepository;
+use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessNodeActionRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 
 class ProcessActionsService extends BaseService
 {
+    use HelpTrait;
 
     /**
      * 添加动作
@@ -26,8 +30,7 @@ class ProcessActionsService extends BaseService
         }
         $add_arr = [
             'name'          => $request['name'],
-            'result'       => $request['result'],
-            'status'        => ProcessActionEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'description'   => $request['description'],
             'created_at'    => time(),
             'updated_at'    => time(),
@@ -80,8 +83,7 @@ class ProcessActionsService extends BaseService
         }
         $upd_arr = [
             'name'          => $request['name'],
-            'result'        => $request['result'],
-            'status'        => ProcessActionEnum::getConst($request['status']),
+            'status'        => $request['status'],
             'description'   => $request['description'],
             'updated_at'    => time(),
         ];
@@ -105,18 +107,19 @@ class ProcessActionsService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        unset($action_list['first_page_url'], $action_list['from'],
-            $action_list['from'], $action_list['last_page_url'],
-            $action_list['next_page_url'], $action_list['path'],
-            $action_list['prev_page_url'], $action_list['to']);
+        $action_list = $this->removePagingField($action_list);
         if (empty($action_list['data'])){
             $this->setMessage('暂无数据!');
             return $action_list;
         }
+        $action_ids = array_column($action_list,'id');
+        $action_results_list = OaProcessActionsResultRepository::getList(['action_id' => ['in',$action_ids]],['id','action_id','name']);
         foreach ($action_list['data'] as &$value){
-            $value['results']       = empty($value['result']) ? [] : explode(',',$value['result']);
-            $value['status_label']  = ProcessActionEnum::getStatus($value['status']);
-            $value['status']        = ProcessActionEnum::$status[$value['status']];
+            $value['results']       = [];
+            if ($results = $this->searchArray($action_results_list,'action_id',$value['id'])){
+                $value['results'] = $results;
+            }
+            $value['status_title']  = ProcessActionStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }

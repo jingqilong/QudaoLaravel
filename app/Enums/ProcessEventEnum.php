@@ -34,9 +34,10 @@ class ProcessEventEnum extends BaseEnum
     /**
      * 获取状态label
      * @param int $value
+     * @param string $defailt
      * @return mixed|string
      */
-    public static function getLabelByValue(int $value){
-        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
+    public static function getLabelByValue($value,$defailt = ''){
+        return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : $defailt;
     }
 }

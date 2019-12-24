@@ -162,7 +162,6 @@ class UserActivityController extends ApiController
      *     path="/api/v1/activity/collect_list",
      *     tags={"精选活动"},
      *     summary="获取活动收藏列表",
-     *     deprecated=true,
      *     description="sang" ,
      *     operationId="collect_list",
      *     @OA\Parameter(
@@ -187,7 +186,7 @@ class UserActivityController extends ApiController
      *         name="type",
      *         in="query",
      *         description="活动状态，1全部，2未开始，3进行中，4已结束",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer"
      *         )

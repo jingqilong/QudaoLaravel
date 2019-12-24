@@ -12,13 +12,15 @@ class ProcessPrincipalsEnum extends BaseEnum
         //负责人身份
         'EXECUTOR'      => '执行人',
         'SUPERVISOR'    => '监督人',
+        'STARTER'         => '发起人',
         'AGENT'         => '代理人',
     ];
 
     public static $principals = [
         1 => 'EXECUTOR',
         2 => 'SUPERVISOR',
-        3 => 'AGENT',
+        3 => 'STARTER',
+        4 => 'AGENT',
     ];
     // constants
     const EXECUTOR          = 1;

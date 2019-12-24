@@ -172,15 +172,17 @@ $api->version('v1',function ($api){
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
                     $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
 
-                    $api->post('add_event','ProcessController@addEvent')->name('添加事件');
-                    $api->delete('delete_event','ProcessController@deleteEvent')->name('删除事件');
-                    $api->post('edit_event','ProcessController@editEvent')->name('修改事件');
-                    $api->get('get_event_list','ProcessController@getEventList')->name('获取事件列表');
+                    #流程事件定义
+                    $api->post('add_event','ProcessEventsController@addEvent')->name('添加事件');
+                    $api->delete('delete_event','ProcessEventsController@deleteEvent')->name('删除事件');
+                    $api->post('edit_event','ProcessEventsController@editEvent')->name('修改事件');
+                    $api->get('get_event_list','ProcessEventsController@getEventList')->name('获取事件列表');
 
-                    $api->post('add_action','ProcessController@addAction')->name('添加动作');
-                    $api->delete('delete_action','ProcessController@deleteAction')->name('删除动作');
-                    $api->post('edit_action','ProcessController@editAction')->name('修改动作');
-                    $api->get('get_action_list','ProcessController@getActionList')->name('获取动作列表');
+                    #流程动作定义
+                    $api->post('add_action','ProcessActionsControllerController@addAction')->name('添加动作');
+                    $api->delete('delete_action','ProcessActionsControllerController@deleteAction')->name('删除动作');
+                    $api->post('edit_action','ProcessActionsControllerController@editAction')->name('修改动作');
+                    $api->get('get_action_list','ProcessActionsControllerController@getActionList')->name('获取动作列表');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
