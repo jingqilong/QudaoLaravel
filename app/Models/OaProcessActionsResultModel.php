@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class OaProcessDefinitionModel extends Model
+class OaProcessActionsResultModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class OaProcessDefinitionModel extends Model
      *
      * @var string
      */
-    protected $table = 'oa_process_definition';
+    protected $table = 'oa_process_actions_result';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -27,7 +27,7 @@ class OaProcessDefinitionModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','name','category_id','description','step_count','status','created_at','updated_at'];
+    protected $fillable = ['id','action_id','name','created_at','updated_at'];
 
 
 

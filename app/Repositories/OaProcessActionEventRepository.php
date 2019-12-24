@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\OaProcessDefinitionModel;
+use App\Models\OaProcessActionEventModel;
 use App\Repositories\Traits\RepositoryTrait;
 
-class OaProcessDefinitionRepository extends ApiRepository
+class OaProcessActionEventRepository extends ApiRepository
 {
     use RepositoryTrait;
 
@@ -15,7 +15,7 @@ class OaProcessDefinitionRepository extends ApiRepository
      * AdminUserRepository constructor.
      * @param $model
      */
-    public function __construct(OaProcessDefinitionModel $model)
+    public function __construct(OaProcessActionEventModel $model)
     {
         $this->model = $model;
     }
