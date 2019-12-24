@@ -5,21 +5,24 @@ namespace App\Api\Controllers\V1\Oa;
 
 
 use App\Api\Controllers\ApiController;
+use App\Services\Oa\ProcessActionResultsService;
 use App\Services\Oa\ProcessActionsService;
-use App\Services\Oa\ProcessEventsService;
 
 class ProcessActionsControllerController extends ApiController
 {
     protected $processActionsService;
+    protected $processActionResultsService;
 
     /**
      * ProcessActionsControllerController constructor.
-     * @param $processActionsService
+     * @param ProcessActionsService $processActionsService
+     * @param ProcessActionResultsService $processActionResultsService
      */
-    public function __construct(ProcessActionsService $processActionsService)
+    public function __construct(ProcessActionsService $processActionsService,ProcessActionResultsService $processActionResultsService)
     {
         parent::__construct();
         $this->processActionsService = $processActionsService;
+        $this->processActionResultsService = $processActionResultsService;
     }
 
     /**
@@ -322,4 +325,199 @@ class ProcessActionsControllerController extends ApiController
         return ['code' => 200,'message' => $this->processActionsService->message, 'data' => $res];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/add_action_result",
+     *     tags={"OA流程"},
+     *     summary="添加动作结果",
+     *     description="sang" ,
+     *     operationId="add_action_result",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="action_id",
+     *          in="query",
+     *          description="动作ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="结果名称",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function addActionResult(){
+        $rules = [
+            'action_id'     => 'required|integer',
+            'name'          => 'required',
+        ];
+        $messages = [
+            'action_id.required'    => '动作ID不能为空！',
+            'action_id.integer'     => '动作ID必须为整数！',
+            'name.required'         => '动作名称不能为空！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processActionResultsService->addActionResult($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processActionResultsService->message];
+        }
+        return ['code' => 100,'message' => $this->processActionResultsService->error];
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/oa/process/delete_action_result",
+     *     tags={"OA流程"},
+     *     summary="删除动作结果",
+     *     description="sang" ,
+     *     operationId="delete_action_result",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="result_id",
+     *          in="query",
+     *          description="结果ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function deleteActionResult(){
+        $rules = [
+            'result_id'     => 'required|integer',
+            'name'          => 'required',
+        ];
+        $messages = [
+            'action_id.required'    => '结果ID不能为空！',
+            'action_id.integer'     => '结果ID必须为整数！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processActionResultsService->deleteActionResult($this->request['result_id']);
+        if ($res){
+            return ['code' => 200,'message' => $this->processActionResultsService->message];
+        }
+        return ['code' => 100,'message' => $this->processActionResultsService->error];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/edit_action_result",
+     *     tags={"OA流程"},
+     *     summary="修改动作结果",
+     *     description="sang" ,
+     *     operationId="edit_action_result",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="result_id",
+     *          in="query",
+     *          description="结果ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="结果名称",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function editActionResult(){
+        $rules = [
+            'result_id'     => 'required|integer',
+            'name'          => 'required',
+        ];
+        $messages = [
+            'result_id.required'    => '结果ID不能为空！',
+            'result_id.integer'     => '结果ID必须为整数！',
+            'name.required'         => '结果名称不能为空！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processActionResultsService->editActionResult($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processActionResultsService->message];
+        }
+        return ['code' => 100,'message' => $this->processActionResultsService->error];
+    }
 }

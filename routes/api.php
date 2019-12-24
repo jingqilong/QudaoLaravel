@@ -183,6 +183,9 @@ $api->version('v1',function ($api){
                     $api->delete('delete_action','ProcessActionsControllerController@deleteAction')->name('删除动作');
                     $api->post('edit_action','ProcessActionsControllerController@editAction')->name('修改动作');
                     $api->get('get_action_list','ProcessActionsControllerController@getActionList')->name('获取动作列表');
+                    $api->post('add_action_result','ProcessActionsControllerController@addActionResult')->name('添加动作结果');
+                    $api->delete('delete_action_result','ProcessActionsControllerController@deleteActionResult')->name('删除动作结果');
+                    $api->post('edit_action_result','ProcessActionsControllerController@editActionResult')->name('修改动作结果');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
