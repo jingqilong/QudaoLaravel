@@ -295,7 +295,6 @@ class GoodsService extends BaseService
         $goods['is_recommend']   = $goods['is_recommend'] == 0 ? 2 : 1;
         $goods['status_title']   = ShopGoodsEnum::getStatus($goods['status']);
         $goods['spec_json']      = GoodsSpecRelateService::getGoodsSpecJson($id);
-        if ($goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods['price'] = ShopGoodsEnum::getNegotiable($goods['negotiable']);
         $this->setMessage('获取成功！');
         return $goods;
     }
