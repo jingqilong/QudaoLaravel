@@ -56,13 +56,14 @@ class GoodsService extends BaseService
             $this->setError('可抵扣积分类型不能为空！');
             return false;
         }
+        if (empty($request['labels']))  $labels = ''; else $labels = ','.$request['labels'].',';
         $add_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
             'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
-            'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
+            'labels'            => $labels,
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
