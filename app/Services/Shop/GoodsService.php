@@ -59,7 +59,7 @@ class GoodsService extends BaseService
         $add_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100 ?? 0,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
             'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
@@ -176,7 +176,7 @@ class GoodsService extends BaseService
         $upd_arr = [
             'name'              => $request['name'],
             'category'          => $request['category'],
-            'price'             => $request['price'] * 100 ?? 0,
+            'price'             => !empty($request['price']) ? $request['price'] * 100 : 0,
             'negotiable'        => $request['negotiable'],
             'details'           => $request['details'] ?? '',
             'labels'            => !empty($request['labels']) ? ','.$request['labels'].',' : '',
