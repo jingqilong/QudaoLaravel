@@ -89,14 +89,18 @@ class OaMemberService extends BaseService
     {
         if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;
+        $grade          = $data['grade'] ?? null;
+        $category       = $data['category'] ?? null;
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
         $where          = ['deleted_at' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at',
+        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','img_url',
             'end_at','is_recommend','is_home_detail','grade','title','category'];
         if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
+        if (!empty($grade)) $where['grade'] = $grade;
+        if (!empty($category)) $where['category'] = $category;
         if (!empty($keywords)) {
             $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'grade', 'category']];
             if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
@@ -129,14 +133,19 @@ class OaMemberService extends BaseService
     /**
      * 获取成员信息 (拆表后 已修改)
      * @param string $id
-     * @return bool|null
+     * @return mixed
      */
     public function getMemberInfo(string $id)
     {
-        if (!$member = MemberGradeViewRepository::getOne(['id' => $id,'deleted_at' => 0])){
-            $this->setError('用户不存在!');
+        if (!$member_base = MemberBaseRepository::getOne(['id' => $id,'deleted_at' => 0])){
+            $this->setError('用户不存在或别删除!');
             return false;
         }
+        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
+        if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
+        if (empty($member_preference = MemberPreferenceRepository::getOne(['member_id' => $id]))) $member_preference = [];
+        $member = array_merge($member_base,$member_info,$member_grade,$member_service,$member_preference);
         $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
         $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
         $member['is_recommend']  = $member['is_recommend'] == 0 ? 0 : 1;
