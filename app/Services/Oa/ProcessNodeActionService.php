@@ -3,6 +3,7 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessActionEnum;
+use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessActionStatusEnum;
 use App\Enums\ProcessEventEnum;
 use App\Repositories\OaProcessActionEventRepository;
@@ -231,6 +232,10 @@ class ProcessNodeActionService extends BaseService
     public function processAddEvent($request)
     {
         $node_action_result_id = $request['node_action_result_id'] ?? 0;
+        if (ProcessActionEventTypeEnum::ACTION_RESULT_EVENT == $request['event_type'] && empty($node_action_result_id)){
+            $this->setError('节点动作结果ID不能为空！');
+            return false;
+        }
         if (!OaProcessNodeRepository::exists(['id' => $request['node_id']])){
             $this->setError('该节点不存在！');
             return false;
@@ -263,6 +268,24 @@ class ProcessNodeActionService extends BaseService
             return false;
         }
         $this->setMessage('添加成功！');
+        return true;
+    }
+
+    /**流程删除事件
+     * @param $node_action_event_id
+     * @return bool
+     */
+    public function processDeleteEvent($node_action_event_id)
+    {
+        if (!OaProcessActionEventRepository::exists(['id' => $node_action_event_id])){
+            $this->setError('该节点动作事件不存在！');
+            return false;
+        }
+        if (!OaProcessActionEventRepository::delete(['id' => $node_action_event_id])){
+            $this->setError('删除失败！');
+            return false;
+        }
+        $this->setMessage('删除成功！');
         return true;
     }
 }

@@ -894,7 +894,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *         name="node_action_result_id",
      *         in="query",
-     *         description="节点动作结果ID",
+     *         description="节点动作结果ID【注：事件类型为动作结果事件时，为必要参数】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -956,6 +956,64 @@ class ProcessController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->processNodeActionService->processAddEvent($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeActionService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/oa/process/process_delete_event",
+     *     tags={"OA流程"},
+     *     summary="流程删除事件",
+     *     description="sang" ,
+     *     operationId="process_delete_event",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="node_action_event_id",
+     *         in="query",
+     *         description="节点动作事件ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function processDeleteEvent(){
+        $rules = [
+            'node_action_event_id'  => 'required|integer',
+        ];
+        $messages = [
+            'node_action_event_id.required' => '节点动作事件ID不能为空！',
+            'node_action_event_id.integer'  => '节点动作事件ID必须为整数！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeActionService->processDeleteEvent($this->request['node_action_event_id']);
         if ($res){
             return ['code' => 200,'message' => $this->processNodeActionService->message];
         }

@@ -190,6 +190,8 @@ $api->version('v1',function ($api){
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
                     $api->post('process_add_event','ProcessController@processAddEvent')->name('流程添加事件');
+                    $api->delete('process_delete_event','ProcessController@processDeleteEvent')->name('流程删除事件');
+
                     $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
                     $api->post('action_add_principal','ProcessController@actionAddPrincipal')->name('流程节点动作添加负责人');
 
