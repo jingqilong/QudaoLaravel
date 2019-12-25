@@ -894,7 +894,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *         name="node_action_result_id",
      *         in="query",
-     *         description="节点动作结果ID",
+     *         description="节点动作结果ID【注：事件类型为动作结果事件时，为必要参数】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -962,6 +962,235 @@ class ProcessController extends ApiController
         return ['code' => 100,'message' => $this->processNodeActionService->error];
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/oa/process/process_delete_event",
+     *     tags={"OA流程"},
+     *     summary="流程删除事件",
+     *     description="sang" ,
+     *     operationId="process_delete_event",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="node_action_event_id",
+     *         in="query",
+     *         description="节点动作事件ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function processDeleteEvent(){
+        $rules = [
+            'node_action_event_id'  => 'required|integer',
+        ];
+        $messages = [
+            'node_action_event_id.required' => '节点动作事件ID不能为空！',
+            'node_action_event_id.integer'  => '节点动作事件ID必须为整数！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeActionService->processDeleteEvent($this->request['node_action_event_id']);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeActionService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/process_edit_event",
+     *     tags={"OA流程"},
+     *     summary="流程修改事件",
+     *     description="sang" ,
+     *     operationId="process_edit_event",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="node_action_event_id",
+     *         in="query",
+     *         description="节点动作事件ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="event_id",
+     *         in="query",
+     *         description="事件ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="principals_type",
+     *         in="query",
+     *         description="相关人身份（1、执行人，2、监督人，3，发起人）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="修改失败",),
+     * )
+     *
+     */
+    public function processEditEvent(){
+        $rules = [
+            'node_action_event_id'  => 'required|integer',
+            'event_id'              => 'required|integer',
+            'principals_type'       => 'required|in:1,2,3',
+        ];
+        $messages = [
+            'node_action_event_id.required' => '节点动作事件ID不能为空！',
+            'node_action_event_id.integer'  => '节点动作事件ID必须为整数！',
+            'event_id.required'             => '事件ID不能为空！',
+            'event_id.integer'              => '事件ID必须为整数！',
+            'principals_type.required'      => '相关人身份不能为空！',
+            'principals_type.in'            => '相关人身份不存在！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeActionService->processEditEvent($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeActionService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/process/get_process_event_list",
+     *     tags={"OA流程"},
+     *     summary="获取流程事件列表",
+     *     description="sang" ,
+     *     operationId="get_process_event_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="node_id",
+     *         in="query",
+     *         description="节点ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="node_action_result_id",
+     *         in="query",
+     *         description="节点动作结果ID【此值不为空，则获取动作结果事件列表】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取失败",),
+     * )
+     *
+     */
+    public function getProcessEventList(){
+        $rules = [
+            'node_id'               => 'required|integer',
+            'node_action_result_id' => 'integer',
+            'page'                  => 'integer',
+            'page_num'              => 'integer',
+        ];
+        $messages = [
+            'node_id.required'              => '节点ID不能为空！',
+            'node_id.integer'               => '节点ID必须为整数！',
+            'node_action_result_id.integer' => '节点动作结果ID必须为整数！',
+            'page.integer'                  => '页码必须为整数',
+            'page_num.integer'              => '每页显示条数必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeActionService->getProcessEventList($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeActionService->message,'data' => $res];
+        }
+        return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+
 
     /**
      * @OA\Post(
@@ -970,6 +1199,7 @@ class ProcessController extends ApiController
      *     summary="给流程节点动作事件与下一节点",
      *     description="sang" ,
      *     operationId="action_add_related",
+     *     deprecated=true,
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -1051,6 +1281,7 @@ class ProcessController extends ApiController
      *     summary="记录流程进度【测试用】",
      *     description="sang" ,
      *     operationId="process_record",
+     *     deprecated=true,
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -1150,87 +1381,5 @@ class ProcessController extends ApiController
             return ['code' => 200,'message' => $this->processRecordService->message];
         }
         return ['code' => 100,'message' => $this->processRecordService->error];
-    }
-
-
-    /**
-     * @OA\Post(
-     *     path="/api/v1/oa/process/action_add_principal",
-     *     tags={"OA流程"},
-     *     summary="流程节点动作添加负责人",
-     *     description="sang" ,
-     *     operationId="action_add_principal",
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="node_action_id",
-     *         in="query",
-     *         description="节点动作ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="principal_ids",
-     *         in="query",
-     *         description="负责人ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="principal_iden",
-     *         in="query",
-     *         description="负责人身份（EXECUTOR:执行人，SUPERVISOR:监督人，AGENT:代理人）",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(response=100,description="添加失败！",),
-     * )
-     *
-     */
-    public function actionAddPrincipal(){
-        $rules = [
-            'node_action_id'   => 'required|integer',
-            'principal_ids'    => 'required|integer',
-            'principal_iden'   => 'required|in:'.ProcessPrincipalsEnum::getPrincipalString(),
-        ];
-        $messages = [
-            'node_action_id.required'   => '节点动作ID不能为空！',
-            'node_action_id.integer'    => '节点动作ID必须为整数！',
-            'principal_ids.required'    => '负责人ID不能为空！',
-            'principal_ids.integer'     => '负责人ID必须为整数！',
-            'principal_iden.required'   => '负责人身份不能为空！',
-            'principal_iden.in'         => '负责人身份有误！',
-        ];
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $res = $this->processActionsService->AddPrincipal($this->request['node_action_id'],$this->request['principal_ids'],$this->request['principal_iden']);
-        if ($res){
-            return ['code' => 200,'message' => $this->processActionsService->message];
-        }
-        return ['code' => 100,'message' => $this->processActionsService->error];
     }
 }

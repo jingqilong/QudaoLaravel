@@ -27,7 +27,9 @@ class ProcessPrincipalsEnum extends BaseEnum
 
     const SUPERVISOR        = 2;
 
-    const AGENT             = 3;
+    const STARTER           = 3;
+
+    const AGENT             = 4;
 
     /**
      * 获取身份标签
@@ -43,6 +45,6 @@ class ProcessPrincipalsEnum extends BaseEnum
      * @return string
      */
     public static function getPrincipalString(){
-        return implode(',',self::$principals);
+        return implode(',',array_keys(self::$principals));
     }
 }

@@ -364,5 +364,14 @@ class PersonalService extends BaseService
         $this->setMessage('取消成功!');
         return true;
     }
+
+    /**
+     * 获取申请人ID
+     * @param $personal_id
+     * @return mixed
+     */
+    public function getCreatedUser($personal_id){
+        return LoanPersonalRepository::getField(['id',$personal_id],'user_id');
+    }
 }
             

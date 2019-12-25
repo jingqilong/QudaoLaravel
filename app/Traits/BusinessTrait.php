@@ -2,7 +2,7 @@
 namespace App\Traits;
 
 use App\Enums\ProcessEventEnum;
-use App\Enums\ProcessEventTypeEnum;
+use App\Enums\ProcessActionEventTypeEnum;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
@@ -95,7 +95,7 @@ trait BusinessTrait
             return ['code'=>100,  'message' => $message ];
         }
         $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
-            0,$process_record_data['node_action_result_id'],ProcessEventTypeEnum::RESULT);
+            0,$process_record_data['node_action_result_id'],ProcessActionEventTypeEnum::ACTION_RESULT_EVENT);
         //触发流程事件
         $this->triggerEvent($event_list,$process_record_data);
         $where['process_id'] = $process_record_data['process_id'];
@@ -114,7 +114,7 @@ trait BusinessTrait
             Loggy::write('error',"添加审核任务新节点失败！".$next_node_id);
         }
         $next_event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
-            $next_node_id,0,ProcessEventTypeEnum::NODE);
+            $next_node_id,0,ProcessActionEventTypeEnum::NODE_EVENT);
         if($next_event_list){
             $this->triggerEvent($next_event_list,$next_event_data);
         }

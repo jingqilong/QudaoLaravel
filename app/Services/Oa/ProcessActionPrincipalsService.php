@@ -147,7 +147,7 @@ class ProcessActionPrincipalsService extends BaseService
         if(!empty($principal_iden)){
             $where ['principal_iden']=$principal_iden;
         }
-        $column = ['id', 'node_action_id', 'principal_id','$principal_iden', 'created_at', 'updated_at'];
+        $column = ['id', 'node_action_id', 'principal_id','principal_iden', 'created_at', 'updated_at'];
         if (!$principal_list = OaProcessActionPrincipalsRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;

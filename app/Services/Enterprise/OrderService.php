@@ -348,5 +348,14 @@ class OrderService extends BaseService
         $this->setMessage('取消成功!');
         return true;
     }
+
+    /**
+     * 获取申请人ID
+     * @param $order_id
+     * @return mixed
+     */
+    public function getCreatedUser($order_id){
+        return EnterpriseOrderRepository::getField(['id',$order_id],'user_id');
+    }
 }
             
