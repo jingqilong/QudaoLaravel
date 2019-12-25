@@ -371,7 +371,7 @@ class ProcessController extends ApiController
 
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/process/get_process_detail",
      *     tags={"OA流程"},
      *     summary="获取流程详情",
@@ -423,9 +423,9 @@ class ProcessController extends ApiController
         }
         $res = $this->processDefinitionService->getProcessDetail($this->request['process_id']);
         if ($res === false){
-            return ['code' => 100,'message' => $this->processNodeService->message];
+            return ['code' => 100,'message' => $this->processNodeService->error];
         }
-        return ['code' => 200,'message' => $this->processNodeService->error,'data' => $res];
+        return ['code' => 200,'message' => $this->processNodeService->message,'data' => $res];
     }
 
 

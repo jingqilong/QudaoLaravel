@@ -214,15 +214,13 @@ class ProcessDefinitionService extends BaseService
      * @return mixed
      */
     public function getProcessDetail($process_id){
-        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id])){
+        $process_column = ['id','name','category_id','step_count','status'];
+        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id],$process_column)){
             $this->setError('该流程不存在！');
         }
         $process['category']     = OaProcessCategoriesRepository::getField(['id' => $process['category_id']],'name');
-        $process['status_label'] = ProcessCommonStatusEnum::getStatus($process['status']);
-        $process['created_at']   = date('Y-m-d H:m:s',$process['created_at']);
-        $process['updated_at']   = date('Y-m-d H:m:s',$process['updated_at']);
+        $process['status_label'] = ProcessCommonStatusEnum::getLabelByValue($process['status']);
         $process['node']         = [];
-        unset($process['category_id']);
         #获取流程下所有相关数据列表
         list(
             $node_list,
@@ -284,7 +282,7 @@ class ProcessDefinitionService extends BaseService
                 foreach ($action_principals as $action_principal){
                     if ($principal = $this->searchArray($principal_list,'id',$action_principal['principal_id'])){
                         $principal = reset($principal);
-                        $principals[] = array_merge($principal, ['principal_iden' => ProcessPrincipalsEnum::getStatus($action_principal['principal_iden'])]);
+                        $principals[] = array_merge($principal, ['principal_iden' => ProcessPrincipalsEnum::getPprincipalLabel($action_principal['principal_iden'])]);
                     }
                 }
             }
@@ -348,6 +346,7 @@ class ProcessDefinitionService extends BaseService
      */
     protected function getAllProcessRelatedList($process_id){
         $node_action_list       = [];   //所有节点动作列表
+        $node_action_result_list= [];   //所有节点动作列表
         $action_principals_list = [];   //所有节点动作负责人关联列表
         $principal_list         = [];   //所有负责人列表
         $action_related_list    = [];   //所有节点动作相关列表
