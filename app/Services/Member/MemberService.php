@@ -181,7 +181,7 @@ class MemberService extends BaseService
      */
     public function refresh($token){
         try {
-            if ($token = MemberRepository::refresh($token)){
+            if ($token = MemberBaseRepository::refresh($token)){
                 $this->setMessage('刷新成功！');
                 return $token;
             }
