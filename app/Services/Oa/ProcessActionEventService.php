@@ -2,11 +2,16 @@
 
 namespace App\Services\Oa;
 
+use App\Enums\ProcessActionEventTypeEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessEventEnum;
 use App\Repositories\OaProcessActionEventRepository;
+use App\Repositories\OaProcessEventsRepository;
+use App\Repositories\OaProcessNodeActionsResultRepository;
+use App\Repositories\OaProcessNodeRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Tolawho\Loggy\Facades\Loggy;
-use App\Enums\ProcessPrincipalsEnum;
 
 /**
  * @desc 动作事件操作  ModifiedBy: bardo
@@ -15,6 +20,7 @@ use App\Enums\ProcessPrincipalsEnum;
  */
 class ProcessActionEventService extends BaseService
 {
+    use HelpTrait;
     /**
      * 添加动作事件
      * @param $request
@@ -22,25 +28,44 @@ class ProcessActionEventService extends BaseService
      */
     public function addActionEvent($request)
     {
-        if (OaProcessActionEventRepository::exists(['name' => $request['name']])){
-            $this->setError('名称已被使用！');
+        $node_action_result_id = $request['node_action_result_id'] ?? 0;
+        if (ProcessActionEventTypeEnum::ACTION_RESULT_EVENT == $request['event_type'] && empty($node_action_result_id)){
+            $this->setError('节点动作结果ID不能为空！');
             return false;
         }
-        $add_arr = [
-            'node_id'	 => $request['node_id'],
-            'node_action_result_id'	 => $request['node_action_result_id'],
-            'event_type' => $request['event_type'],
-            'event_id' => $request['event_id'],
-            'principals_type' => $request['principals_type'],
-            'created_at'    => time(),
-            'updated_at'    => time(),
-        ];
-        if (OaProcessActionEventRepository::getAddId($add_arr)){
-            $this->setMessage('添加成功！');
-            return true;
+        if (!OaProcessNodeRepository::exists(['id' => $request['node_id']])){
+            $this->setError('该节点不存在！');
+            return false;
         }
-        $this->setError('添加失败！');
-        return false;
+        if (!empty($node_action_result_id)){
+            if (!OaProcessNodeActionsResultRepository::exists(['id' => $node_action_result_id])){
+                $this->setError('节点动作结果不存在！');
+                return false;
+            }
+        }
+        $check_event = OaProcessEventsRepository::isEnabled($request['event_id']);
+        if (100 == $check_event['code']){
+            $this->setError($check_event['message']);
+            return false;
+        }
+        $add_event_arr = [
+            'node_id'               => $request['node_id'],
+            'node_action_result_id' => $node_action_result_id,
+            'event_type'            => $request['event_type'],
+            'event_id'              => $request['event_id'],
+            'principals_type'       => $request['principals_type'],
+        ];
+        if (OaProcessActionEventRepository::exists($add_event_arr)){
+            $this->setError('该事件已添加，请勿重复添加！');
+            return false;
+        }
+        $add_event_arr['created_at'] = $add_event_arr['updated_at'] = time();
+        if (!OaProcessActionEventRepository::getAddId($add_event_arr)){
+            $this->setError('添加失败！');
+            return false;
+        }
+        $this->setMessage('添加成功！');
+        return true;
     }
 
     /**
@@ -82,59 +107,78 @@ class ProcessActionEventService extends BaseService
      */
     public function editActionEvent($request)
     {
-        if (!$action_event = OaProcessActionEventRepository::getOne(['id' => $request['action_event_id']])){
-            $this->setError('该事件不存在！');
+        if (!OaProcessActionEventRepository::exists(['id' => $request['node_action_event_id']])){
+            $this->setError('该节点动作事件不存在！');
             return false;
         }
-        $upd_arr = [
-            'node_id'	 => $request['node_id'],
-            'node_action_result_id'	 => $request['node_action_result_id'],
-            'event_type' => $request['event_type'],
-            'event_id' => $request['event_id'],
-            'principals_type' => $request['principals_type'],
-            'created_at'    => time(),
-            'updated_at'    => time(),
-        ];
-        if (OaProcessActionEventRepository::getUpdId(['id' => $request['action_id']],$upd_arr)){
-            $this->setMessage('修改成功！');
-            return true;
+        $check_event = OaProcessEventsRepository::isEnabled($request['event_id']);
+        if (100 == $check_event['code']){
+            $this->setError($check_event['message']);
+            return false;
         }
-        $this->setError('修改失败！');
-        return false;
+        $update = [
+            'event_id'          => $request['event_id'],
+            'principals_type'   => $request['principals_type'],
+            'updated_at'        => time()
+        ];
+        if (!OaProcessActionEventRepository::getUpdId(['id' => $request['node_action_event_id']],$update)){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
+        return true;
     }
 
     /**
      * @desc 获取动作事件列表
-     * @param $where
-     * @param $page
-     * @param $pageNum
+     * @param $request
      * @return bool|null
      */
-    public function getActionEventList($where, $page, $pageNum)
+    public function getActionEventList($request)
     {
-        if (empty($where)){
-            $where=['id' => ['>',0]];
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $node_action_result_id = $request['node_action_result_id'] ?? 0;
+        $where      = [
+            'node_id'                   => $request['node_id'],
+            'node_action_result_id'     => 0,
+            'event_type'                => ProcessActionEventTypeEnum::NODE_EVENT
+        ];
+        if (!empty($node_action_result_id)){
+            $where['node_action_result_id'] = $node_action_result_id;
+            $where['event_type']            = ProcessActionEventTypeEnum::ACTION_RESULT_EVENT;
         }
-        if (!$action_list = OaProcessActionEventRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
-            $this->setError('获取失败!');
+        $column = ['*'];
+        if (!$process_event_list = OaProcessActionEventRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
             return false;
         }
-        unset($action_list['first_page_url'], $action_list['from'],
-            $action_list['from'], $action_list['last_page_url'],
-            $action_list['next_page_url'], $action_list['path'],
-            $action_list['prev_page_url'], $action_list['to']);
-        if (empty($action_list['data'])){
-            $this->setMessage('暂无数据!');
-            return $action_list;
+        $process_event_list = $this->removePagingField($process_event_list);
+        if (empty($process_event_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $process_event_list;
         }
-        foreach ($action_list['data'] as &$value){
-            $value['event_type_label']  = ProcessEventEnum::getLabelByValue($value['event_type']);
-            $value['principals_type_label']   = ProcessPrincipalsEnum::getPprincipalLabel($value['principals_type']);
-            $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
+        $event_ids  = array_column($process_event_list['data'],'event_id');
+        $event_list = OaProcessEventsRepository::getList(['id' => ['in',$event_ids]],['id','name','event_type','status']);
+        foreach ($process_event_list['data'] as &$value){
+            $value['event_name']            = '';
+            $value['base_event_type']       = 0;
+            $value['base_event_type_title'] = '';
+            $value['status']                = 0;
+            $value['status_title']          = '';
+            foreach ($event_list as $event){
+                if ($event['id'] == $value['event_id']){
+                    $value['event_name']            = $event['name'];
+                    $value['base_event_type']       = $event['event_type'];
+                    $value['base_event_type_title'] = ProcessEventEnum::getLabelByValue($event['event_type']);
+                    $value['status']                = $event['status'];
+                    $value['status_title']          = ProcessCommonStatusEnum::getLabelByValue($event['status']);
+                    break;
+                }
+            }
         }
         $this->setMessage('获取成功！');
-        return $action_list;
+        return $process_event_list;
     }
 
     /**
