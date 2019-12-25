@@ -2,8 +2,10 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
+use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Services\BaseService;
 use Tolawho\Loggy\Facades\Loggy;
 
@@ -180,15 +182,15 @@ class ProcessActionPrincipalsService extends BaseService
     /**
      * @desc 通过$business_id获取发起人信息 的统一接口，后续增加，只要在类中增加即楞
      * @param $business_id
-     * @param $process_type
+     * @param $process_category
      * @return mixed
      */
-    public function getStartUserInfo($business_id,$process_type){
+    public function getStartUserInfo($business_id,$process_category){
         //1	成员升级         //2	活动报名        //3	项目对接        //4	贷款预约
         //5	企业咨询        //6	看房预约        //7	医疗预约        //8	精选生活预约
         //从配置文件读取方法  //TODO 具体的方法仍未实现 ,这样，后续变化不要到这里改代码
         $config_data  = config('process.process_starter');
-        list($class,$function) = $config_data[$process_type];
+        list($class,$function) = $config_data[$process_category];
         try{
             $target_object = app()->make($class);
         }catch (\Exception $e){
@@ -201,6 +203,36 @@ class ProcessActionPrincipalsService extends BaseService
             return false;
         }
         return $target_object->$function($business_id);
+    }
+
+    /**
+     * @desc 获取节点事件参与人的信息
+     * @param $business_id
+     * @param $node_id
+     * @param $process_category
+     * @return mixed
+     */
+    public function getNodeEventPrincipals($business_id,$node_id,$process_category){
+        //获取所有的参与人
+        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_id'=> $node_id])){
+            Loggy::write("error","本节点缺少参与人！Node_id::" . $node_id);
+            return [];
+        }
+        $principal_list = [];
+        foreach ($stakeholders as $receivers) {
+            //如果是发起人，则先获取发起人的相关信息
+            $principal_list['receiver_iden'] = $receivers['principal_iden'];
+            if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
+                $principal = $this->getStartUserInfo($business_id,$process_category);
+                $principal_list['receiver_name'] = $principal['ch_name'];
+                $principal_list['receiver_id'] = $principal['id'];
+            } else {   //获取员工信息
+                $principal = app(OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]));
+                $principal_list['receiver_name'] = $principal['m_cname'];
+                $principal_list['receiver_id'] = $principal['m_id'];
+            }
+        }
+        return $principal_list;
     }
 }
             
