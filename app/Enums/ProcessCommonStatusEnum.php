@@ -4,7 +4,7 @@
 namespace App\Enums;
 
 
-class ProcessCommonStatus
+class ProcessCommonStatusEnum
 {
     public static $labels=[
         //状态
