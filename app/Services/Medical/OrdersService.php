@@ -423,5 +423,14 @@ class OrdersService extends BaseService
             'cancel'    => $cancel_count
         ];
     }
+
+    /**
+     * 获取申请人ID
+     * @param $order_id
+     * @return mixed
+     */
+    public function getCreatedUser($order_id){
+        return MedicalOrdersRepository::getField(['id',$order_id],'member_id');
+    }
 }
             

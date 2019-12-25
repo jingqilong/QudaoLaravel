@@ -819,6 +819,13 @@ class RegisterService extends BaseService
         }
         return json_encode($list);
     }
-
+    /**
+     * 获取申请人ID
+     * @param $register_id
+     * @return mixed
+     */
+    public function getCreatedUser($register_id){
+        return ActivityRegisterRepository::getField(['id',$register_id],'member_id');
+    }
 }
             

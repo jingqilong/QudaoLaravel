@@ -249,7 +249,7 @@ class ProcessEventsController extends ApiController
         $rules = [
             'event_id'      => 'required|integer',
             'name'          => 'required',
-            'event_type'    => 'required|in:L1,2,3,4',
+            'event_type'    => 'required|in:1,2,3,4',
             'status'        => 'required|in:1,2',
         ];
         $messages = [

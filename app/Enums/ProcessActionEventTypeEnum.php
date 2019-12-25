@@ -1,39 +1,34 @@
 <?php
 /**
- * 流程事件状态枚举
+ * 流程节点动作结果事件类型枚举
  */
 namespace App\Enums;
 
 /**
- * Class ProcessEventStatusEnum
+ * Class ProcessActionStatusEnum
  * @package App\Enums
- * @deprecated true
  */
-class ProcessEventStatusEnum extends BaseEnum
+class ProcessActionEventTypeEnum extends BaseEnum
 {
 
     /**
      * @var array
-     * @deprecated true
      */
     public static $labels=[
-        //状态
-        'ENABLE'            => '启用',
-        'DISABLE'           => '禁用',
+        'NODE_EVENT'            => '节点事件',
+        'ACTION_RESULT_EVENT'   => '动作结果事件',
      ];
-
     /**
      * @var array
-     * @deprecated true
      */
     public static $data_map = [
-        1 => 'ENABLE',
-        2 => 'DISABLE',
+        0 => 'NODE_EVENT',
+        1 => 'ACTION_RESULT_EVENT',
     ];
     // constants
-    const ENABLE        = 1;
+    const NODE_EVENT            = 0;
 
-    const DISABLE       = 2;
+    const ACTION_RESULT_EVENT   = 1;
 
     /**
      * 获取状态label

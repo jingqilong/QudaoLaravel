@@ -5,6 +5,10 @@ use App\Services\BaseService;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 
+/**
+ * Class ProcessNodeActionResultService
+ * @package App\Services\Oa
+ */
 class ProcessNodeActionResultService extends BaseService
 {
     /**
@@ -74,14 +78,18 @@ class ProcessNodeActionResultService extends BaseService
     }
 
     /**
-     * 获取节点动作结果列表
+     * @desc 获取节点动作结果列表
+     * @param $where
      * @param $page
      * @param $pageNum
      * @return bool|null
      */
-    public function getActionList($page, $pageNum)
+    public function getActionList($where,$page, $pageNum)
     {
-        if (!$action_list = OaProcessNodeActionsResultRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if(empty($where)){
+            $where = ['id' => ['>',0]];
+        }
+        if (!$action_list = OaProcessNodeActionsResultRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
         }
@@ -99,5 +107,19 @@ class ProcessNodeActionResultService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $action_list;
+    }
+
+    /**
+     * 用$action_result_id获取$node_action_result_id
+     * @param $action_result_id
+     * @return bool
+     */
+    public function getIdByResult($action_result_id){
+        $where = ['action_result_id' =>$action_result_id];
+        if (!$node_action_result = OaProcessNodeActionsResultRepository::getOne($where)){
+            return false;
+        }
+        $node_action_result_id = $node_action_result['id'];
+        return $node_action_result_id;
     }
 }

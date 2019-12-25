@@ -187,11 +187,24 @@ $api->version('v1',function ($api){
                     $api->delete('delete_action','ProcessActionsControllerController@deleteAction')->name('删除动作');
                     $api->post('edit_action','ProcessActionsControllerController@editAction')->name('修改动作');
                     $api->get('get_action_list','ProcessActionsControllerController@getActionList')->name('获取动作列表');
+                    $api->post('add_action_result','ProcessActionsControllerController@addActionResult')->name('添加动作结果');
+                    $api->delete('delete_action_result','ProcessActionsControllerController@deleteActionResult')->name('删除动作结果');
+                    $api->post('edit_action_result','ProcessActionsControllerController@editActionResult')->name('修改动作结果');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
+                    $api->post('process_add_event','ProcessController@processAddEvent')->name('流程添加事件');
+                    $api->delete('process_delete_event','ProcessController@processDeleteEvent')->name('流程删除事件');
+                    $api->post('process_edit_event','ProcessController@processEditEvent')->name('流程修改事件');
+                    $api->get('get_process_event_list','ProcessController@getProcessEventList')->name('获取流程事件列表');
+
                     $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
-                    $api->post('action_add_principal','ProcessController@actionAddPrincipal')->name('流程节点动作添加负责人');
+
+                    #节点动作负责人
+                    $api->post('add_node_action_principal','ProcessActionPrincipalsController@addNodeActionPrincipal')->name('添加节点动作负责人');
+                    $api->delete('delete_node_action_principal','ProcessActionPrincipalsController@deleteNodeActionPrincipal')->name('删除节点动作负责人');
+                    $api->post('edit_node_action_principal','ProcessActionPrincipalsController@editNodeActionPrincipal')->name('修改节点动作负责人');
+                    $api->get('get_node_action_principal_list','ProcessActionPrincipalsController@getNodeActionPrincipalList')->name('获取节点动作负责人列表');
 
                     $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });

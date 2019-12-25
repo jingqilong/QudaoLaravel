@@ -3,13 +3,18 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessEventEnum;
-use App\Enums\ProcessEventStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Repositories\OaProcessActionEventRepository;
-use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessEventsRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 
+/**
+ * @desc 基础数据：定义事件 codeBy: bardo
+ * Class ProcessEventsService
+ * @package App\Services\Oa
+ *
+ */
 class ProcessEventsService extends BaseService
 {
     use HelpTrait;
@@ -113,7 +118,7 @@ class ProcessEventsService extends BaseService
         }
         foreach ($event_list['data'] as &$value){
             $value['event_type_title'] = ProcessEventEnum::getLabelByValue($value['event_type']);
-            $value['status_title']  = ProcessEventStatusEnum::getLabelByValue($value['status']);
+            $value['status_title']  = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }
