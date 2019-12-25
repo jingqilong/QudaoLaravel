@@ -25,11 +25,11 @@ class OaProcessDefinitionRepository extends ApiRepository
      * @return mixed;
      */
     protected function isEnabled($process_id){
-        $action = $this->getOne(['id'=>$process_id]);
-        if(!$action){
+        $process = $this->getOne(['id'=>$process_id]);
+        if(!$process){
             return ['code'=>100,'message'=>"抱歉，此流程仍未定义！"];
         }
-        if(0==$action['status']){
+        if(2==$process['status']){
             return ['code'=>100,'message'=>"抱歉，此流程已被禁用！"];
         }
         return ['code'=>200,'message'=>"此流程存在且可用！"];

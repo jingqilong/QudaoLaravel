@@ -25,11 +25,11 @@ class OaProcessCategoriesRepository extends ApiRepository
      * @return mixed;
      */
     protected function isEnabled($category_id){
-        $action = $this->getOne(['id'=>$category_id]);
-        if(!$action){
+        $category = $this->getOne(['id'=>$category_id]);
+        if(!$category){
             return ['code'=>100,'message'=>"抱歉，此流程分类仍未定义！"];
         }
-        if(1==$action['status']){
+        if(2==$category['status']){
             return ['code'=>100,'message'=>"抱歉，此流程分类已被禁用！"];
         }
         return ['code'=>200,'message'=>"此流程分类存在且可用！"];
