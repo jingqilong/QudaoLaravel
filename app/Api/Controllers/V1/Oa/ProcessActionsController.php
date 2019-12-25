@@ -8,13 +8,13 @@ use App\Api\Controllers\ApiController;
 use App\Services\Oa\ProcessActionResultsService;
 use App\Services\Oa\ProcessActionsService;
 
-class ProcessActionsControllerController extends ApiController
+class ProcessActionsController extends ApiController
 {
     protected $processActionsService;
     protected $processActionResultsService;
 
     /**
-     * ProcessActionsControllerController constructor.
+     * ProcessActionsController constructor.
      * @param ProcessActionsService $processActionsService
      * @param ProcessActionResultsService $processActionResultsService
      */

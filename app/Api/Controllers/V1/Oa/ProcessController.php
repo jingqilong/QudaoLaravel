@@ -542,6 +542,146 @@ class ProcessController extends ApiController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/process_choose_node",
+     *     tags={"OA流程"},
+     *     summary="流程选择节点",
+     *     description="sang，如果动作结果是回到上一个节点，调用此接口" ,
+     *     operationId="process_choose_node",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="node_actions_result_id",
+     *          in="query",
+     *          description="节点动作结果ID【如果不填，表示添加第一个节点】",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="node_id",
+     *          in="query",
+     *          description="节点ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function processChooseNode(){
+        $rules = [
+            'node_actions_result_id'=> 'required|integer',
+            'process_id'            => 'required|integer',
+            'node_id'               => 'required|integer',
+        ];
+        $messages = [
+            'node_actions_result_id.required'=> '节点动作结果ID不能为空！',
+            'node_actions_result_id.integer'=> '节点动作结果ID必须为整型！',
+            'process_id.required'           => '流程ID不能为空！',
+            'process_id.integer'            => '流程ID必须为整型！',
+            'node_id.required'              => '节点ID不能为空！',
+            'node_id.integer'               => '节点ID必须为整型！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeService->processChooseNode($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeService->error];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/delete_last_node_transition",
+     *     tags={"OA流程"},
+     *     summary="删除与上一步节点之间的流转",
+     *     description="sang，只能用来删除下一节点与当前节点在同一步骤或在当前步骤之前的流转" ,
+     *     operationId="delete_last_node_transition",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="node_actions_result_id",
+     *          in="query",
+     *          description="节点动作结果ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function deleteTransition(){
+        $rules = [
+            'node_actions_result_id'=> 'required|integer',
+        ];
+        $messages = [
+            'node_actions_result_id.required'=> '节点动作结果ID不能为空！',
+            'node_actions_result_id.integer'=> '节点动作结果ID必须为整型！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeService->deleteTransition($this->request['node_actions_result_id']);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeService->error];
+    }
+
+    /**
      * @OA\Delete(
      *     path="/api/v1/oa/process/delete_node",
      *     tags={"OA流程"},
