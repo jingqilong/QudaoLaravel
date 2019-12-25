@@ -5,13 +5,13 @@ use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessEventMessageTypeEnum;
 use App\Enums\ProcessPrincipalsEnum;
-use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
-use App\Repositories\OaProcessTransitionRepository;
 use App\Services\Oa\ProcessActionEventService;
+use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
+use App\Services\Oa\ProcessNodeService;
 use App\Services\Oa\ProcessRecordService;
 use App\Services\Oa\ProcessTransitionService;
 use Illuminate\Support\Facades\Config;
@@ -19,7 +19,6 @@ use Tolawho\Loggy\Facades\Loggy;
 use App\Events\SendDingTalkEmail;
 use App\Events\SendSiteMessage;
 use App\Events\SendFlowSms;
-use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 
 /**
  * Class BusinessTrait
@@ -197,56 +196,23 @@ trait BusinessTrait
     /**
      * @desc 流程触发事件总接口函数
      * @param $event_list
-     * @param $event_data
+     * @param $event_params
      * @return bool
      */
-    public function triggerResultEvent($event_list,$event_data){
-
-        foreach($event_list as $event){
-            //事件表有问题，没有用事件类型，同时，也不知发给谁。
-            // TODO 这里的问题
-            //下面的 receiver只是指定了是监督人， 审核人， 还是发起人， 所以，还要获取到具体的ID。
-            $event_data["receiver_type"] = $event['receiver_type'];
-            //下面指定了，这类人是来自于哪个终端，即是会员，还是员工，
-            $event_data["receiver_from"] = $event['receiver_from'];
-            //所以，到这里，还是要具体获取这些人的ID
-            if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['execute']){
-                event(new SendDingTalkEmail($event_data));
-            }
-            if(ProcessEventEnum::SMS ==  $event['execute']){
-                event(new SendSiteMessage($event_data));
-            }
-            if(ProcessEventEnum::SITE_MESSAGE ==  $event['execute']){
-                event(new SendFlowSms($event_data));
-            }
-            if(ProcessEventEnum::WECHAT_PUSH ==  $event['execute']){
-                //后续加上
-                ;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @desc 流程触发事件总接口函数
-     * @param $event_list
-     * @param $event_data
-     * @return bool
-     */
-    public function triggerNodeEvent($event_list,$event_data){
+    public function triggerResultEvent($event_list,$event_params){
         //数据有效性检测
-        if(!isset($event_data['business_id'],$event_data['node_id'],$event_data['process_category'])){
-            Loggy::write('error',"节点事件需要变量business_id、node_id、process_category不全！ ",$event_data );
+        if(!isset($event_params['business_id'],$event_params['node_id'],$event_params['process_category'])){
+            Loggy::write('error',"节点事件需要变量business_id、node_id、process_category不全！ ",$event_params );
             return false;
         }
         //获取所有的参与人  返回具有以下KEY的列表 {receiver_iden:,receiver_name:,receiver_id}
-        $stakeholders = app(ProcessActionPrincipalsService::class)->getNodeEventPrincipals(
-            $event_data['business_id'],$event_data['node_id'],$event_data['process_category']);
+        $stakeholders = app(ProcessActionPrincipalsService::class)->getResultEventPrincipals(
+            $event_params['node_action_result_id'],$event_params['business_id'],$event_params['process_category']);
         if(empty($stakeholders)){
-            Loggy::write('error',"没有事件参与人,node_id::" .$event_data['node_id'] );
+            Loggy::write('error',"没有事件参与人,node_id::" .$event_params['node_id'] );
             return false;
         }
-        //定义事件消息类型
+        //定义事件消息类型 //TODO 这里是不是要升级为配置，或数据表
         $message_type = [
             ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
             ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
@@ -255,50 +221,98 @@ trait BusinessTrait
         ];
         //初始化事件的数据。
         $send_data = [
-                'business_id'       	=> $event_data['business_id'],
-                'process_id'        	=> $event_data['process_id'],
-                'process_category'  	=> $event_data['process_category'],
-                'node_id'           	=> $event_data['node_id'],
-                'process_name'          => '',
-            ];
-
-        //通过 process_id 获取流程名称。
-        //通过 NODE 获取动作名称。
-        //任务即是 流程的动作
-
+            'business_id'       	=> $event_params['business_id'],
+            'process_id'        	=> $event_params['process_id'],
+            'process_category'  	=> $event_params['process_category'],
+            'node_id'           	=> $event_params['node_id'],
+        ];
+        //通过 process_id 获取流程名称。NODE 获取动作名称。
+        $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
+            $event_params['business_id'],$event_params['node_id']
+        );
         foreach($event_list as $event){
+            foreach ($stakeholders as $receiver){
+                $event_data = $send_data;
+                $event_data['receiver'] = $receiver;
+                $event_data['event_type'] =  $event['event_type'];
+                //所以，到这里，还是要具体获取这些人的ID
+                if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_type']){
+                    event(new SendDingTalkEmail($event_data));
+                }
+                if(ProcessEventEnum::SMS ==  $event['event_type']){
+                    event(new SendSiteMessage($event_data));
+                }
+                if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_type']){
+                    event(new SendFlowSms($event_data));
+                }
+//                if(ProcessEventEnum::WECHAT_PUSH ==  $event['event_type']){
+//                    //后续加上
+//                    ;
+//                }
+            }
+        }
+        return true;
+    }
 
-
-           if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_id'=> $event_data['node_id']])){
-               Loggy::write("error","本节点缺少参与人！Node_id::" .  $event_data['node_id']);
-               return false;
-           } ;
-           foreach ($stakeholders as $receivers){
-               //下面的 receiver只是指定了是监督人， 审核人， 还是发起人， 所以，还要获取到具体的ID。
-               $event_data["receiver_type"] = $event['receiver_type'];
-               //下面指定了，这类人是来自于哪个终端，即是会员，还是员工，
-               $event_data["receiver_from"] = $event['receiver_from'];
+    /**
+     * @desc 流程触发事件总接口函数
+     * @param $event_list
+     * @param $event_params
+     * @return bool
+     */
+    public function triggerNodeEvent($event_list,$event_params){
+        //数据有效性检测
+        if(!isset($event_params['business_id'],$event_params['node_id'],$event_params['process_category'])){
+            Loggy::write('error',"节点事件需要变量business_id、node_id、process_category不全！ ",$event_params );
+            return false;
+        }
+        //获取所有的参与人  返回具有以下KEY的列表 {receiver_iden:,receiver_name:,receiver_id}
+        $stakeholders = app(ProcessActionPrincipalsService::class)->getNodeEventPrincipals(
+            $event_params['node_id'],$event_params['business_id'],$event_params['process_category']);
+        if(empty($stakeholders)){
+            Loggy::write('error',"没有事件参与人,node_id::" .$event_params['node_id'] );
+            return false;
+        }
+        //定义事件消息类型 //TODO 这里是不是要升级为配置，或数据表
+        $message_type = [
+            ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+            ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+            ProcessPrincipalsEnum::STARTER => ProcessEventMessageTypeEnum::STATUS_NOTICE,
+            ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
+        ];
+        //初始化事件的数据。
+        $send_data = [
+                'business_id'       	=> $event_params['business_id'],
+                'process_id'        	=> $event_params['process_id'],
+                'process_category'  	=> $event_params['process_category'],
+                'node_id'           	=> $event_params['node_id'],
+            ];
+        //通过 process_id 获取流程名称。NODE 获取动作名称。
+        $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
+            $event_params['business_id'],$event_params['node_id']
+        );
+        foreach($event_list as $event){
+           foreach ($stakeholders as $receiver){
+               $event_data = $send_data;
+               $event_data['receiver'] = $receiver;
+               $event_data['event_type'] =  $event['event_type'];
                //所以，到这里，还是要具体获取这些人的ID
-               if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['execute']){
+               if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_type']){
                    event(new SendDingTalkEmail($event_data));
                }
-               if(ProcessEventEnum::SMS ==  $event['execute']){
+               if(ProcessEventEnum::SMS ==  $event['event_type']){
                    event(new SendSiteMessage($event_data));
                }
-               if(ProcessEventEnum::SITE_MESSAGE ==  $event['execute']){
+               if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_type']){
                    event(new SendFlowSms($event_data));
                }
-               if(ProcessEventEnum::WECHAT_PUSH ==  $event['execute']){
-                   //后续加上
-                   ;
-               }
-
-
+//               if(ProcessEventEnum::WECHAT_PUSH ==  $event['event_type']){
+//                   //后续加上
+//                   ;
+//               }
            }
-
-
         }
-        return false;
+        return true;
     }
 
     /**

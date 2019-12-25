@@ -329,6 +329,22 @@ class ProcessNodeService extends BaseService
         return 1;
     }
 
+    /**
+     * @param $proccess_id
+     * @param $node_id
+     * @return array
+     */
+    public function getProcessNodeFullName($proccess_id,$node_id){
+        $data = [
+            'process_name'=>'',
+            'node_name'=>'',
+        ];
+        $process = OaProcessDefinitionRepository::getOne(['id'=>$proccess_id]);
+        $data['process_name'] = $process['name'];
+        $node = OaProcessNodeRepository::getOne(['id'=>$node_id]);
+        $data['node_name'] = $node['name'];
+        return $data;
+    }
 
 }
             

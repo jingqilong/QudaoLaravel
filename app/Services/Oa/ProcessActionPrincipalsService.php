@@ -207,12 +207,12 @@ class ProcessActionPrincipalsService extends BaseService
 
     /**
      * @desc 获取节点事件参与人的信息
-     * @param $business_id
      * @param $node_id
+     * @param $business_id
      * @param $process_category
      * @return mixed
      */
-    public function getNodeEventPrincipals($business_id,$node_id,$process_category){
+    public function getNodeEventPrincipals($node_id,$business_id,$process_category){
         //获取所有的参与人
         if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_id'=> $node_id])){
             Loggy::write("error","本节点缺少参与人！Node_id::" . $node_id);
@@ -234,5 +234,38 @@ class ProcessActionPrincipalsService extends BaseService
         }
         return $principal_list;
     }
+
+    /**
+     * @desc 获取节点动作结果事件参与人的信息
+     * @param $node_action_result_id
+     * @param $business_id
+     * @param $process_category
+     * @return mixed
+     */
+    public function getResultEventPrincipals($node_action_result_id,$business_id,$process_category){
+        //获取所有的参与人
+        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_action_result_id'=> $node_action_result_id])){
+            Loggy::write("error","本节点缺少参与人！node_action_result_id::" . $node_action_result_id);
+            return [];
+        }
+        $principal_list = [];
+        foreach ($stakeholders as $receivers) {
+            //如果是发起人，则先获取发起人的相关信息
+            $principal_list['receiver_iden'] = $receivers['principal_iden'];
+            if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
+                $principal = $this->getStartUserInfo($business_id,$process_category);
+                $principal_list['receiver_name'] = $principal['ch_name'];
+                $principal_list['receiver_id'] = $principal['id'];
+            } else {   //获取员工信息
+                $principal = app(OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]));
+                $principal_list['receiver_name'] = $principal['m_cname'];
+                $principal_list['receiver_id'] = $principal['m_id'];
+            }
+        }
+        return $principal_list;
+    }
+
+
+
 }
             
