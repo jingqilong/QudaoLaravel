@@ -27,7 +27,9 @@ class ProcessPrincipalsEnum extends BaseEnum
 
     const SUPERVISOR        = 2;
 
-    const AGENT             = 3;
+    const STARTER           = 3;
+
+    const AGENT             = 4;
 
     /**
      * 获取身份标签

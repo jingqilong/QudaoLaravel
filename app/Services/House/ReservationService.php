@@ -329,5 +329,14 @@ class ReservationService extends BaseService
         $this->setError('修改失败！');
         return false;
     }
+
+    /**
+     * 获取申请人ID
+     * @param $reservation_id
+     * @return mixed
+     */
+    public function getCreatedUser($reservation_id){
+        return HouseReservationRepository::getField(['id',$reservation_id],'member_id');
+    }
 }
             

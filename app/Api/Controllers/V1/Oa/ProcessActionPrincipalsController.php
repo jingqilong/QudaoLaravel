@@ -61,7 +61,7 @@ class ProcessActionPrincipalsController extends ApiController
      *     @OA\Parameter(
      *         name="principal_id",
      *         in="query",
-     *         description="负责人ID",
+     *         description="负责人ID，如果是添加发起人，此参数为0",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -70,7 +70,7 @@ class ProcessActionPrincipalsController extends ApiController
      *     @OA\Parameter(
      *         name="principal_iden",
      *         in="query",
-     *         description="负责人身份（1:执行人，2:监督人，3:代理人）",
+     *         description="负责人身份（1:执行人，2:监督人，3发起人，4:代理人）",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -208,7 +208,7 @@ class ProcessActionPrincipalsController extends ApiController
      *     @OA\Parameter(
      *         name="principal_id",
      *         in="query",
-     *         description="负责人ID",
+     *         description="负责人ID，如果是添加发起人，此参数为0",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -217,7 +217,7 @@ class ProcessActionPrincipalsController extends ApiController
      *     @OA\Parameter(
      *         name="principal_iden",
      *         in="query",
-     *         description="负责人身份（1:执行人，2:监督人，3:代理人）",
+     *         description="负责人身份（1:执行人，2:监督人，3发起人，4:代理人）",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -293,7 +293,7 @@ class ProcessActionPrincipalsController extends ApiController
      *     @OA\Parameter(
      *         name="principal_iden",
      *         in="query",
-     *         description="负责人身份（1:执行人，2:监督人，3:代理人）",
+     *         description="负责人身份（1:执行人，2:监督人，3发起人，4:代理人）",
      *         required=false,
      *         @OA\Schema(
      *             type="string",

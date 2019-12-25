@@ -394,5 +394,14 @@ class ReservationService extends BaseService
             'cancel'    => $cancel_count
         ];
     }
+
+    /**
+     * 获取申请人ID
+     * @param $reservation_id
+     * @return mixed
+     */
+    public function getCreatedUser($reservation_id){
+        return PrimeReservationRepository::getField(['id',$reservation_id],'member_id');
+    }
 }
             

@@ -317,5 +317,14 @@ class GradeOrdersService extends BaseService
         $this->setMessage('修改成功！');
         return true;
     }
+
+    /**
+     * 获取申请人ID
+     * @param $grade_order_id
+     * @return mixed
+     */
+    public function getCreatedUser($grade_order_id){
+        return MemberGradeOrdersRepository::getField(['id',$grade_order_id],'member_id');
+    }
 }
             
