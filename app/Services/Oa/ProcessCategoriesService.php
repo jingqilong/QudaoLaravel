@@ -9,6 +9,11 @@ use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @desc 基础数据，流程分类操作
+ * Class ProcessCategoriesService
+ * @package App\Services\Oa
+ */
 class ProcessCategoriesService extends BaseService
 {
     use HelpTrait;

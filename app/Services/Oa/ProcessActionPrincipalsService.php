@@ -9,8 +9,9 @@ use Tolawho\Loggy\Facades\Loggy;
 
 /**
  * Class ProcessActionPrincipalsService
- * @desc 流程相关人，获取部门，联动员工，选择后，获得相关人ID。
+ * @desc 流程相关人，获取部门，联动员工，选择后，获得相关人ID。 codeBy:bardo
  * @package App\Services\Oa
+ *
  */
 class ProcessActionPrincipalsService extends BaseService
 {

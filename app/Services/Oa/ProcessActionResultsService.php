@@ -6,6 +6,11 @@ use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Services\BaseService;
 
+/**
+ * @desc 基础数据定义 流程动作结果操作。 modifiedBy: Bardo
+ * Class ProcessActionResultsService
+ * @package App\Services\Oa
+ */
 class ProcessActionResultsService extends BaseService
 {
     /**
@@ -83,6 +88,38 @@ class ProcessActionResultsService extends BaseService
         }
         $this->setError('修改失败！');
         return false;
+    }
+
+    /**
+     * @desc 获取动作结果列表
+     * @param $where
+     * @param $page
+     * @param $pageNum
+     * @return bool|null
+     */
+    public function getActionResultList($where, $page, $pageNum)
+    {
+        if (empty($where)){
+            $where=['id' => ['>',0]];
+        }
+        if (!$action_list = OaProcessActionsResultRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        unset($action_list['first_page_url'], $action_list['from'],
+            $action_list['from'], $action_list['last_page_url'],
+            $action_list['next_page_url'], $action_list['path'],
+            $action_list['prev_page_url'], $action_list['to']);
+        if (empty($action_list['data'])){
+            $this->setMessage('暂无数据!');
+            return $action_list;
+        }
+        foreach ($action_list['data'] as &$value){
+            $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $action_list;
     }
 }
             

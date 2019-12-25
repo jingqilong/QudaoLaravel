@@ -38,7 +38,7 @@ return [
         6 => [ App\Services\House\ReservationService::class,'getCreatedUser'],
 //        'HOSPITAL_RESERVATION'     => '医疗预约',
         7 => [ App\Services\Medical\OrdersService::class,'getCreatedUser'],
-//        'PRIME_RESERVATION'     => '医疗预约',
+//        'PRIME_RESERVATION'     => '精选生活预约',
         8 => [ App\Services\Prime\ReservationService::class,'getCreatedUser'],
     ],
 

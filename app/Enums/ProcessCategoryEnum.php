@@ -9,35 +9,43 @@ namespace App\Enums;
 class ProcessCategoryEnum extends BaseEnum
 {
     public static $labels=[
-        'MEMBER_REGISTER'        => '成员注册',
         'MEMBER_UPGRADE'         => '成员升级',
         'ACTIVITY_REGISTER'      => '活动报名',
         'PROJECT_DOCKING'        => '项目对接',
         'LOAN_RESERVATION'       => '贷款预约',
         'ENTERPRISE_CONSULT'     => '企业咨询',
+        'HOUSE_RESERVATION'      => '看房预约',
+        'HOSPITAL_RESERVATION'   => '医疗预约',
+        'PRIME_RESERVATION'      => '精选生活预约',
     ];
 
     public static $data_map = [
-        1 => 'MEMBER_REGISTER',
-        2 => 'MEMBER_UPGRADE',
-        3 => 'ACTIVITY_REGISTER',
-        4 => 'PROJECT_DOCKING',
-        5 => 'LOAN_RESERVATION',
-        6 => 'ENTERPRISE_CONSULT',
+        1 => 'MEMBER_UPGRADE',
+        2 => 'ACTIVITY_REGISTER',
+        3 => 'PROJECT_DOCKING',
+        4 => 'LOAN_RESERVATION',
+        5 => 'ENTERPRISE_CONSULT',
+        6 => 'HOUSE_RESERVATION',
+        7 => 'HOSPITAL_RESERVATION',
+        8 => 'PRIME_RESERVATION',
     ];
     // constants
 
-    const MEMBER_REGISTER          = 1;
+    const MEMBER_UPGRADE           = 1;
 
-    const MEMBER_UPGRADE           = 2;
+    const ACTIVITY_REGISTER        = 2;
 
-    const ACTIVITY_REGISTER        = 3;
+    const PROJECT_DOCKING          = 3;
 
-    const PROJECT_DOCKING          = 4;
+    const LOAN_RESERVATION         = 4;
 
-    const LOAN_RESERVATION         = 5;
+    const ENTERPRISE_CONSULT       = 5;
 
-    const ENTERPRISE_CONSULT       = 6;
+    const HOUSE_RESERVATION        = 6;
+
+    const HOSPITAL_RESERVATION     = 7;
+
+    const PRIME_RESERVATION        = 8;
 
     /**
      * 获取状态label
