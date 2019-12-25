@@ -1,7 +1,7 @@
 <?php
 namespace App\Services\Oa;
 
-use App\Enums\ProcessDefinitionStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordRepository;
@@ -24,7 +24,7 @@ class ProcessRecordService extends BaseService
         $process_record_data['created_at'] = time();
         $process_record_data['updated_at'] = time();
         if (empty($node_id)){
-            if ($process['status'] == ProcessDefinitionStatusEnum::INACTIVE){
+            if ($process['status'] == ProcessCommonStatusEnum::INACTIVE){
                 Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
                 $this->setError('当前流程已被禁用，无法添加该流程！');
                 return false;

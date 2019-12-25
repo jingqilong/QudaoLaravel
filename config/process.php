@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'start_node' => 1,
     'getway' =>[
 //        'MEMBER_UPGRADE'         => '成员升级',
             1 => "\\App\\Services\\Member\\GradeOrdersService.NotFound",

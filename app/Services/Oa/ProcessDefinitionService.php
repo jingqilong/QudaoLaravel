@@ -2,7 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessDefinitionStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
@@ -126,7 +126,7 @@ class ProcessDefinitionService extends BaseService
             return $definition_list;
         }
         foreach ($definition_list['data'] as &$value){
-            $value['status_label'] = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
+            $value['status_label'] = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at'] = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:m:s',$value['updated_at']);
         }
@@ -218,7 +218,7 @@ class ProcessDefinitionService extends BaseService
             $this->setError('该流程不存在！');
         }
         $process['category']     = OaProcessCategoriesRepository::getField(['id' => $process['category_id']],'name');
-        $process['status_label'] = ProcessDefinitionStatusEnum::getStatus($process['status']);
+        $process['status_label'] = ProcessCommonStatusEnum::getStatus($process['status']);
         $process['created_at']   = date('Y-m-d H:m:s',$process['created_at']);
         $process['updated_at']   = date('Y-m-d H:m:s',$process['updated_at']);
         $process['node']         = [];

@@ -62,6 +62,34 @@ class ProcessActionResultsService extends BaseService
     }
 
     /**
+     * 获取动作结果
+     * @param $result_id
+     * @return mixed
+     */
+    public function getActionResult($result_id)
+    {
+        if (!$action_result=OaProcessActionsResultRepository::getOne(['id' => $result_id])){
+            $this->setError('该动作结果不存在！');
+            return false;
+        }
+        return $action_result;
+    }
+
+    /**
+     * 获取动作结果
+     * @param $result_id
+     * @return mixed
+     */
+    public function getActionResultText($result_id)
+    {
+        if (!$action_result=OaProcessActionsResultRepository::getOne(['id' => $result_id])){
+            $this->setError('该动作结果不存在！');
+            return false;
+        }
+        return $action_result['name'];
+    }
+
+    /**
      * 修改动作
      * @param $request
      * @return bool

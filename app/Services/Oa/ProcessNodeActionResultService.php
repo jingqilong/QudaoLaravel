@@ -108,4 +108,18 @@ class ProcessNodeActionResultService extends BaseService
         $this->setMessage('获取成功！');
         return $action_list;
     }
+
+    /**
+     * 用$action_result_id获取$node_action_result_id
+     * @param $action_result_id
+     * @return bool
+     */
+    public function getIdByResult($action_result_id){
+        $where = ['action_result_id' =>$action_result_id];
+        if (!$node_action_result = OaProcessNodeActionsResultRepository::getOne($where)){
+            return false;
+        }
+        $node_action_result_id = $node_action_result['id'];
+        return $node_action_result_id;
+    }
 }

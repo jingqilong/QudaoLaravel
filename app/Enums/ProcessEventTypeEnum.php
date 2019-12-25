@@ -4,22 +4,24 @@
 namespace App\Enums;
 
 
-class ProcessCommonStatusEnum extends BaseEnum
+class ProcessEventTypeEnum extends BaseEnum
 {
     public static $labels=[
         //状态
-        'ENABLE'            => '启用',
-        'DISABLE'           => '禁用',
+        'NODE'        => '节点',
+        'RESULT'      => '结查',
+
     ];
 
     public static $data_map = [
-        1 => 'ENABLE',
-        2 => 'DISABLE',
+        0 => 'NODE',
+        1 => 'RESULT',
     ];
     // constants
-    const ENABLE        = 1;
+    const NODE        = 0;
 
-    const DISABLE       = 2;
+    const RESULT      = 0;
+
 
     /**
      * 获取状态label

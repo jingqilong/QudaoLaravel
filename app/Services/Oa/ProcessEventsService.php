@@ -3,7 +3,7 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessEventEnum;
-use App\Enums\ProcessEventStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Repositories\OaProcessActionEventRepository;
 use App\Repositories\OaProcessEventsRepository;
 use App\Services\BaseService;
@@ -118,7 +118,7 @@ class ProcessEventsService extends BaseService
         }
         foreach ($event_list['data'] as &$value){
             $value['event_type_title'] = ProcessEventEnum::getLabelByValue($value['event_type']);
-            $value['status_title']  = ProcessEventStatusEnum::getLabelByValue($value['status']);
+            $value['status_title']  = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }

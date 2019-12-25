@@ -2,7 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessDefinitionStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessGetwayTypeEnum;
 use App\Repositories\OaProcessCategoriesRepository;
 use App\Services\BaseService;
@@ -119,7 +119,7 @@ class ProcessCategoriesService extends BaseService
         $cate_list['data'] = EmployeeService::getListOperationByName($cate_list['data']);
         foreach ($cate_list['data'] as &$value){
             $value['getway_type_title']     = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
-            $value['status_title']          = ProcessDefinitionStatusEnum::getLabelByValue($value['status']);
+            $value['status_title']          = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at']            = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']            = date('Y-m-d H:m:s',$value['updated_at']);
         }

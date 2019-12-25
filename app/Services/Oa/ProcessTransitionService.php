@@ -64,7 +64,7 @@ class ProcessTransitionService extends BaseService
      * @return bool|null
      */
     public function getTransition($transition_id){
-        if (!$transition = OaProcessTransitionRepository::getOne(['id' => $request['transition_id']])){
+        if (!$transition = OaProcessTransitionRepository::getOne(['id' =>$transition_id])){
             $this->setError('该流转不存在！');
             return false;
         }
@@ -125,6 +125,19 @@ class ProcessTransitionService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $transition_list;
+    }
+
+    /**
+     * 根据$node_action_result_id获取当前流转
+     * @param array $where
+     * @return bool|null
+     */
+    public function getTransitionByResult($where){
+        if (!$transition = OaProcessTransitionRepository::getOne($where)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        return $transition;
     }
 }
             
