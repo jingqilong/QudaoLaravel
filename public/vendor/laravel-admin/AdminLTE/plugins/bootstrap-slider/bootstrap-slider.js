@@ -282,7 +282,7 @@
 
 			/*************************************************
 						
-							Process Options
+							ProcessStructure Options
 
 			**************************************************/
 			options = options ? options : {};

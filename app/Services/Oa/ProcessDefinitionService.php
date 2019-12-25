@@ -4,6 +4,7 @@ namespace App\Services\Oa;
 
 use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
+use App\ProcessStructure\Process;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessActionRelatedRepository;
@@ -134,16 +135,11 @@ class ProcessDefinitionService extends BaseService
 //            '流程ID',
 //            '流程名称',
 //            '流程启用状态',
-//            '流程分类',
 //            '流程描述',
 //            '流程总步骤数',
-//            '创建时间',
-//            '更新时间',
 //            '第一步节点' => [
 //                '节点ID',
 //                '节点名称',
-//                '完成时间',
-//                '节点图标',
 //                '步骤位置',
 //                '节点描述',
 //                '节点动作' => [
@@ -151,51 +147,17 @@ class ProcessDefinitionService extends BaseService
 //                        '节点动作ID',
 //                        '动作ID',
 //                        '动作名称',
-//                        '动作负责人' => [
-//                            '执行人' => [
-//                                '执行人ID',
-//                                '执行人名称'
-//                            ],
-//                            '监督人' => [
-//                                '监督人ID',
-//                                '监督人名称'
-//                            ],
-//                            '代理人' => [
-//                                '代理人ID',
-//                                '代理人名称'
-//                            ],
 //                        ],
 //                        '动作执行结果' => [
 //                            '结果1' => [
-//                                '事件' => [
-//                                    '事件1' => [
-//                                        '事件名称' => '发短信',
-//                                        '事件描述',
-//                                    ],
-//                                    '事件2' => [
-//                                        '事件名称' => '发邮件',
-//                                        '事件描述',
-//                                    ],
-//                                ],
 //                                '结果状态' => '跳转下一节点',
 //                                '第二步节点' => ['...']
 //                            ],
 //                            '结果2' => [
-//                                '事件' => [
-//                                    '事件1' => [
-//                                        '事件名称' => '发短信',
-//                                        '事件描述',
-//                                    ],
-//                                    '事件2' => [
-//                                        '事件名称' => '发邮件',
-//                                        '事件描述',
-//                                    ],
-//                                ],
 //                                '结果状态' => '回跳到某个节点',
 //                                '第二部节点' => '回跳节点ID'
 //                            ],
 //                            '结果3' => [
-//                                '事件' => [],
 //                                '结果状态' => '流程结束',
 //                                '结束' => '0'
 //                            ],
@@ -214,6 +176,11 @@ class ProcessDefinitionService extends BaseService
      * @return mixed
      */
     public function getProcessDetail($process_id){
+        $process = new Process($process_id);
+        $process->getNode();dd($process);
+        $this->setMessage('获取成功！');
+        return $process->getNodeData();
+
         $process_column = ['id','name','category_id','step_count','status'];
         if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id],$process_column)){
             $this->setError('该流程不存在！');

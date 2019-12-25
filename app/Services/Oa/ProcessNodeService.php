@@ -42,7 +42,7 @@ class ProcessNodeService extends BaseService
         }
         $position = 1;
         if ($check_first_node && !empty($request['node_actions_result_id'])){#如果节点动作结果ID存在，则表示添加的节点需要关联到节点动作结果
-            if (OaProcessTransitionRepository::exists(['process_id' => $request['process_id'],'node_action_result_id' => $request['node_action_result_id']])){
+            if (OaProcessTransitionRepository::exists(['process_id' => $request['process_id'],'node_action_result_id' => $request['node_actions_result_id']])){
                 $this->setError('当前节点动作结果已添加下一节点，无法添加！');
                 return false;
             }
