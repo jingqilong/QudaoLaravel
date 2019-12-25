@@ -374,17 +374,23 @@ class MemberService extends BaseService
 
 
     /**
-     * 获取自己的成员信息 (拆表后  已修改)
+     * 获取自己的成员信息 (拆表后  已修改) (2)
      * Get user info.
      * @return mixed
      */
     public function getMemberInfoByUser(){
         $user = $this->auth->user();
-        $column = ['id','card_no','ch_name','mobile','email','sex','grade','employer','title','industry','category','position','profile','birthday','address'];
-        if (!$member = MemberGradeViewRepository::getOne(['id' => 160,'deleted_at' => 0],$column)){dd($member);
+        $member_id = $user->id;
+        $info_column  = ['employer','title','industry','position','profile'];
+        $column       = ['id','card_no','ch_name','mobile','avatar_id','email','sex','birthday','category','address'];
+        if (!$member_base = MemberBaseRepository::getOne(['id' => $member_id,'deleted_at' => 0],$column)){
             $this->setError('获取失败!');
             return false;
         }
+        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column))) $member_info = [];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $member_id],['grade'])))  $member_grade = [];
+        $member = array_merge($member_base,$member_info,$member_grade);
+        $member = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['sex_name']     = MemberEnum::getSex($member['sex'],'未设置');
         $member['grade']        = MemberEnum::getGrade($member['grade'],'普通成员');
         $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');

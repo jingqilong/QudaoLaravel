@@ -51,6 +51,24 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="成员等级",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="成员类别",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="asc",
      *         in="query",
      *         description="时间排序【1正序 2倒叙】",
@@ -95,6 +113,8 @@ class OaMemberController extends ApiController
         $rules = [
             'page'            => 'integer',
             'page_num'        => 'integer',
+            'grade'           => 'integer',
+            'category'        => 'integer',
             'is_home_detail'  => 'in:0,1',
             'asc'             => 'in:1,2',
         ];
@@ -103,13 +123,18 @@ class OaMemberController extends ApiController
             'is_home_detail.integer'   => '显示类型不存在',
             'page.integer'             => '页码必须为整数',
             'page_num.integer'         => '每页显示条数必须为整数',
+            'grade.integer'            => '成员等级不存在',
+            'category.integer'         => '成员类别不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->OaMemberService->getMemberList($this->request);
-        return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $list];
+        $res = $this->OaMemberService->getMemberList($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
     }
 
     /**
@@ -165,11 +190,11 @@ class OaMemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $id = $this->request['id'];
-        $memberInfo = $this->OaMemberService->getMemberInfo($id);
-        if (!$memberInfo){
+        $res = $this->OaMemberService->getMemberInfo($id);
+        if ($res === false){
             return ['code' => 100, 'message' => $this->OaMemberService->error];
         }
-        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberInfo' => $memberInfo]];
+        return ['code' => 200, 'message' => $this->OaMemberService->message, 'data' => ['memberInfo' => $res]];
     }
 
     /**
