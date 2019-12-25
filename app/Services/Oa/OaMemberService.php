@@ -96,7 +96,7 @@ class OaMemberService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
         $where          = ['deleted_at' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at',
+        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','img_url',
             'end_at','is_recommend','is_home_detail','grade','title','category'];
         if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
         if (!empty($grade)) $where['grade'] = $grade;
