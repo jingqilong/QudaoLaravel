@@ -43,6 +43,6 @@ class ProcessPrincipalsEnum extends BaseEnum
      * @return string
      */
     public static function getPrincipalString(){
-        return implode(',',self::$principals);
+        return implode(',',array_keys(self::$principals));
     }
 }

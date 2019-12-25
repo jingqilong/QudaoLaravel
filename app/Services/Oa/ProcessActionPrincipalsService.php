@@ -107,7 +107,7 @@ class ProcessActionPrincipalsService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (!OaEmployeeRepository::getUpdId(['id' => $id],$upd_arr)){
+        if (!OaProcessActionPrincipalsRepository::getUpdId(['id' => $id],$upd_arr)){
             $this->setError('修改失败！');
             return false;
         }
@@ -147,7 +147,7 @@ class ProcessActionPrincipalsService extends BaseService
         if(!empty($principal_iden)){
             $where ['principal_iden']=$principal_iden;
         }
-        $column = ['id', 'node_action_id', 'principal_id','$principal_iden', 'created_at', 'updated_at'];
+        $column = ['id', 'node_action_id', 'principal_id','principal_iden', 'created_at', 'updated_at'];
         if (!$principal_list = OaProcessActionPrincipalsRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
@@ -158,14 +158,8 @@ class ProcessActionPrincipalsService extends BaseService
             return $principal_list;
         }
         //TODO 这里最好改为视图。
-        $employee_ids ='';
-        foreach($principal_list['data'] as $principal){
-            if(!empty($employee_ids)){
-                $employee_ids.=',';
-            }
-            $employee_ids .= $principal['principal_id'];
-        }
-        $employee_list = OaEmployeeRepository::getList(['is'=>['in',$employee_ids]],['id','real_name'],['id'],'asc',1,count($principal_list['data']));
+        $employee_ids = array_column($principal_list['data'],'principal_id');
+        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name']);
         foreach($principal_list['data'] as &$principal){
             foreach($employee_list as $employee){
                 if ($employee['id']== $principal['principal_id']){
@@ -174,7 +168,7 @@ class ProcessActionPrincipalsService extends BaseService
                 }
             }
         }
-        return $employee_list;
+        return $principal_list;
     }
 
     /**
