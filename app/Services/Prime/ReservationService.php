@@ -303,7 +303,7 @@ class ReservationService extends BaseService
      */
     public function myReservationDetail($id)
     {
-        $column = ['id','merchant_id','time','number','state','merchant_name','type','banner_ids','star','address','name','mobile','memo'];
+        $column = ['id','merchant_id','time','longitude','latitude','number','state','merchant_name','type','banner_ids','star','address','name','mobile','memo','discount'];
         if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
             $this->setError('预约信息不存在！');
             return false;

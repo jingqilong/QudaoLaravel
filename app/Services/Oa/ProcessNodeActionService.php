@@ -5,6 +5,7 @@ namespace App\Services\Oa;
 use App\Enums\ProcessActionEnum;
 use App\Enums\ProcessActionStatusEnum;
 use App\Enums\ProcessEventEnum;
+use App\Repositories\OaProcessActionEventRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessActionsRepository;
@@ -222,9 +223,47 @@ class ProcessNodeActionService extends BaseService
         return true;
     }
 
+    /**
+     * 流程添加事件
+     * @param $request
+     * @return bool
+     */
     public function processAddEvent($request)
     {
-
+        $node_action_result_id = $request['node_action_result_id'] ?? 0;
+        if (!OaProcessNodeRepository::exists(['id' => $request['node_id']])){
+            $this->setError('该节点不存在！');
+            return false;
+        }
+        if (!empty($node_action_result_id)){
+            if (!OaProcessNodeActionsResultRepository::exists(['id' => $node_action_result_id])){
+                $this->setError('节点动作结果不存在！');
+                return false;
+            }
+        }
+        $check_event = OaProcessEventsRepository::isEnabled($request['event_id']);
+        if (100 == $check_event['code']){
+            $this->setError($check_event['message']);
+            return false;
+        }
+        $add_event_arr = [
+            'node_id'               => $request['node_id'],
+            'node_action_result_id' => $node_action_result_id,
+            'event_type'            => $request['event_type'],
+            'event_id'              => $request['event_id'],
+            'principals_type'       => $request['principals_type'],
+        ];
+        if (OaProcessActionEventRepository::exists($add_event_arr)){
+            $this->setError('该事件已添加，请勿重复添加！');
+            return false;
+        }
+        $add_event_arr['created_at'] = $add_event_arr['updated_at'] = time();
+        if (!OaProcessActionEventRepository::getAddId($add_event_arr)){
+            $this->setError('添加失败！');
+            return false;
+        }
+        $this->setMessage('添加成功！');
+        return true;
     }
 }
             
