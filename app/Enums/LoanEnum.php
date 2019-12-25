@@ -21,6 +21,8 @@ class LoanEnum extends BaseEnum
         'THREEMILLION'        => '300万 - 500万',
         'FOURMILLION'         => '500万 - 1000万',
         'FIVEMILLION'         => '1000万以上',
+        'PLATFORM'            => '平台预约',
+        'ACTIVITY'            => '活动预约',
     ];
 
     public static $status = [
@@ -41,6 +43,11 @@ class LoanEnum extends BaseEnum
     public static $type = [
         1 => 'ONESELF',   //1本人预约
         2 => 'OTHERS',    //2推荐他人预约
+    ];
+
+    public static $appointment = [
+        0 => 'PLATFORM',    //0平台预约
+        1 => 'ACTIVITY',    //1活动预约
     ];
 
     //贷款 审核状态
@@ -69,6 +76,10 @@ class LoanEnum extends BaseEnum
 
     const FIVEMILLION       = 5;    //1000万以上
 
+    const PLATFORM          = 0;    //平台预约
+
+    const ACTIVITY          = 1;    //活动预约
+
 
     /**
      * 获取状态label
@@ -93,5 +104,13 @@ class LoanEnum extends BaseEnum
      */
     public static function getPrice(int $value){
         return isset(self::$price[$value]) ? self::$labels[self::$price[$value]] : '';
+    }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @return mixed|string
+     */
+    public static function getAppointment(int $value){
+        return isset(self::$appointment[$value]) ? self::$appointment[self::$price[$value]] : '';
     }
 }

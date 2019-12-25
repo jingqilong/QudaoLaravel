@@ -66,6 +66,10 @@ $api->version('v1',function ($api){
         $api->group(['prefix' => 'shop', 'namespace' => 'Shop'], function ($api){
             $api->get('get_goods_ad_details','GoodsController@getGoodsAdDetails')->name('广告用户获取商品详情'); //不需要验证签名  名流杂志需要网站商城
         });
+        //贷款模块
+        $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
+            $api->post('add_loan_activity', 'LoanController@addLoanActivity')->name('活动添加贷款订单'); //不需要验证签名 贷款模块活动报名
+        });
     });
     //需要验签的接口
     $api->group(['prefix' => 'v1','middleware' => ['cors', 'sign'],'namespace' => 'App\Api\Controllers\V1'], function ($api) {

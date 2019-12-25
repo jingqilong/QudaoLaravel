@@ -415,7 +415,7 @@ class LoanController extends ApiController
         $rules = [
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
-            'price'             => 'required|integer',
+            'price'             => 'required|in:1,2,3,4,5',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
@@ -426,7 +426,7 @@ class LoanController extends ApiController
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
             'price.required'            => '请正确填写贷款金额',
-            'price.integer'             => '金额数量格式不正确',
+            'price.in'                  => '贷款金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
@@ -440,6 +440,134 @@ class LoanController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->personalService->addLoan($this->request);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->personalService->error];
+        }
+        return ['code' => 200, 'message' => $this->personalService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/loan/add_loan_activity",
+     *     tags={"贷款"},
+     *     summary="活动无token添加贷款订单信息",
+     *     operationId="add_loan_activity",
+     *     @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="操作类型(1本人预约;2推荐预约)",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="姓名",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="mobile",
+     *          in="query",
+     *          description="手机号",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="ent_name",
+     *          in="query",
+     *          description="企业名称",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="ent_title",
+     *          in="query",
+     *          description="职位",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="price",
+     *          in="query",
+     *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="address",
+     *          in="query",
+     *          description="面谈地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="reservation_at",
+     *          in="query",
+     *          description="预约时间",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="remark",
+     *          in="query",
+     *          description="备注",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加贷款订单失败",),
+     * )
+     *
+     */
+    public function addLoanActivity()
+    {
+        $rules = [
+            'name'              => 'required',
+            'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
+            'price'             => 'required|in:1,2,3,4,5',
+            'ent_name'          => 'required',
+            'ent_title'         => 'required',
+            'address'           => 'required',
+            'reservation_at'    => 'required|date',
+        ];
+        $messages = [
+            'name.required'             => '请输入预约姓名',
+            'mobile.required'           => '请填写预约手机号',
+            'mobile.regex'              => '请正确填写手机号',
+            'price.required'            => '请正确填写贷款金额',
+            'price.in'                  => '贷款金额数量格式不正确',
+            'ent_name.required'         => '请输入企业名称',
+            'ent_title.required'        => '请输入职位',
+            'address.required'          => '请输入面谈地址',
+            'reservation_at.required'   => '请输入预约时间',
+            'reservation_at.date'       => '请输入正确预约时间',
+        ];
+
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->personalService->addLoanActivity($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->personalService->error];
         }
