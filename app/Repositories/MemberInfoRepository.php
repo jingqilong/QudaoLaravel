@@ -13,7 +13,7 @@ class MemberInfoRepository extends ApiRepository
 
     /**
      * AdminUserRepository constructor.
-     * @param $model
+     * @param MemberInfoModel $model
      */
     public function __construct(MemberInfoModel $model)
     {

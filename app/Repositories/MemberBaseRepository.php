@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Enums\MemberEnum;
 use App\Models\MemberBaseModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 class MemberBaseRepository extends ApiRepository
 {
     use RepositoryTrait;
+    use HelpTrait;
 
     /**
      * AdminUserRepository constructor.
@@ -22,6 +24,33 @@ class MemberBaseRepository extends ApiRepository
     public function __construct(MemberBaseModel $model)
     {
         $this->model = $model;
+    }
+
+    /**
+     * OA 获取成员列表
+     * @param $keywords
+     * @param $is_home_detail
+     * @param int $page
+     * @param int $page_num
+     * @param string $asc
+     * @param array $where
+     * @return bool|mixed|null
+     */
+    protected function searchMemberBase($keywords, $is_home_detail, int $page, int $page_num, string $asc, array $where)
+    {
+        $base_column = ['id','card_no','ch_name','en_name','avatar_id','sex','mobile','address','status','hidden','created_at'];
+        if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
+        if (!empty($keywords)){
+            $keyword  = [$keywords => ['ch_name','en_name','card_no','mobile']];
+            if (!$list = $this->search($keyword,$where,$base_column,$page,$page_num,'created_at',$asc)){
+                return false;
+            }
+        }else{
+            if (!$list = $this->getList($where,$base_column,'created_at',$asc,$page,$page_num)){
+                return false;
+            }
+        }
+        return $list;
     }
 
     /**
@@ -185,5 +214,8 @@ class MemberBaseRepository extends ApiRepository
         }
         return $member_id;
     }
+
+
+
 }
             

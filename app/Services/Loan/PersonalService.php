@@ -166,6 +166,45 @@ class PersonalService extends BaseService
         return true;
     }
 
+
+    /**
+     * 活动无需token  添加贷款订单信息
+     * @param array $data
+     * @return mixed
+     */
+    public function addLoanActivity(array $data)
+    {
+        if (!LoanEnum::isset($data['type'])){
+              $this->setError('该推荐类型不存在');
+        }
+        $add_arr  = [
+            'user_id'         =>  0,
+            'name'            =>  $data['name'],
+            'mobile'          =>  $data['mobile'],
+            'price'           =>  $data['price'],
+            'ent_name'        =>  $data['ent_name'],
+            'ent_title'       =>  $data['ent_title'],
+            'address'         =>  $data['address'],
+            'type'            =>  $data['type'],
+            'remark'          =>  $data['remark'],
+            'appointment'     =>  LoanEnum::ACTIVITY,
+            'status'          =>  LoanEnum::SUBMIT,
+            'reservation_at'  =>  strtotime($data['reservation_at']),
+        ];
+        if (LoanPersonalRepository::exists($add_arr)){
+            $this->setError('您已预约，请勿重复预约!');
+            return false;
+        }
+        $add_arr['created_at']     =  time();
+        $add_arr['updated_at']     =  time();
+        if (!$res = LoanPersonalRepository::getAddId($add_arr)){
+            $this->setError('预约失败,请重试！');
+            return false;
+        }
+        $this->setMessage('恭喜你，预约成功');
+        return true;
+    }
+
     /**
      * 用户 修改贷款订单信息
      * @param array $data
@@ -272,11 +311,11 @@ class PersonalService extends BaseService
             $this->setError('没有查到该订单信息！');
             return false;
         }
-        $list['type_name']         =    empty($list['type']) ? '' : LoanEnum::getType($list['type']);
-        $list['status_name']       =    empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
-        $list['price_name']        =    empty($list['price']) ? '' : LoanEnum::getPrice($list['price']);
-        $list['reservation_at']    =    date('Y-m-d',$list['reservation_at']);
-        $list['created_at']        =    date('Y-m-d',$list['created_at']);
+        $list['type_name']       =  empty($list['type']) ? '' : LoanEnum::getType($list['type']);
+        $list['status_name']     =  empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
+        $list['price_name']      =  empty($list['price']) ? '' : LoanEnum::getPrice($list['price']);
+        $list['reservation_at']  =  date('Y-m-d',$list['reservation_at']);
+        $list['created_at']      =  date('Y-m-d',$list['created_at']);
         $this->setMessage('查找成功');
         return $list;
     }
@@ -303,9 +342,8 @@ class PersonalService extends BaseService
             return false;
         }
         #通知用户
-        if ($member = MemberBaseRepository::getOne(['id' => $comment['user_id']])){
+        if ($member = LoanPersonalRepository::getOne(['id' => $id])){
             $member_name = $comment['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 LoanEnum::PASS   => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditPass', ['member_name' => $member_name]),
                 LoanEnum::NOPASS => MessageEnum::getTemplate(MessageEnum::LOANBOOKING, 'auditNoPass', ['member_name' => $member_name]),

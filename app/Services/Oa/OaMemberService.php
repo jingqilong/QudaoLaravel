@@ -10,11 +10,13 @@ use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
+use App\Repositories\MemberOaListViewRepository;
 use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\MemberPreferenceRepository;
 use App\Repositories\OaGradeViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +40,7 @@ class OaMemberService extends BaseService
      * @param array $data
      * @return mixed
      */
-    public function getMemberList(array $data)
+    /*public function getMemberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;
@@ -75,6 +77,53 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $member_list;
+    }*/
+
+
+    /**
+     * 获取成员列表 (拆表后 已修改) （2）
+     * @param array $data
+     * @return mixed
+     */
+    public function getMemberList(array $data)
+    {
+        if (empty($data['asc'])) $data['asc'] = 1;
+        $is_home_detail = $data['is_home_detail'] ?? null;
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
+        $keywords       = $data['keywords'] ?? null;
+        $where          = ['deleted_at' => 0];
+        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at',
+            'end_at','is_recommend','is_home_detail','grade','title','category'];
+        if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
+        if (!empty($keywords)) {
+            $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'grade', 'category']];
+            if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else{
+            if (!$list = MemberOaListViewRepository::getList($where, $column, 'created_at', $asc, $page, $page_num)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('获取成功!');
+            return [];
+        }
+        foreach ($list['data'] as &$value){
+            $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
+            $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
+            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+        }
+        $this->setMessage('获取成功！');
+        return $list;
     }
 
     /**
