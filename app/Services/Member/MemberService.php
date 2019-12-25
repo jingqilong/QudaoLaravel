@@ -252,55 +252,6 @@ class MemberService extends BaseService
         return $list;
     }
 
-
-    /**
-     * 成员按条件查找排序  (拆表后  已修改) 2
-     * @param $data
-     * @return array|bool|null
-     */
-   /* public function getMemberList($data)
-    {
-        $member           =   $this->auth->user();
-        if (empty($data['sort'])) $data['sort']  = 1;
-        $temporary        = $data['sort'];
-        if ($data['sort'] == MemberEnum::RECOMMEND) $data['sort']  = 1;
-        $member_info      =   MemberInfoRepository::getOne(['member_id' => $member->id]);
-        $keywords         =   $data['keywords'] ?? null;
-        $category         =   $data['category'] ?? null;
-        $page             =   $data['page'] ?? 1;
-        $page_num         =   $data['page_num'] ?? 20;
-        $asc              =   $data['sort'] == 1 ? 'asc' : 'desc';
-        $where            =   ['deleted_at' => 0 ,'hidden' => 0];
-        if(MemberEnum::RECOMMEND  == $temporary)  $sort = 'is_recommend'; else $sort = 'created_at';
-        $show_grade = OaGradeViewRepository::showGrade(['type' => 1,'grade' => $member_info['grade']]);
-        if (!empty($category))  $where['category'] = $category;
-        if (!empty($show_grade))  $where['grade'] = ['in',$show_grade];
-        $column = ['id','ch_name','img_url','grade','category','title','status','is_recommend','created_at'];
-        if (!empty($keywords)){
-            $keyword  = [$keywords => ['ch_name','category','mobile']];
-            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
-                $this->setError('获取失败!');
-                return false;
-            }
-        }else {
-            if (!$list = MemberGradeViewRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
-                $this->setError('获取失败!');
-                return false;
-            }
-        }
-        $list  = $this->removePagingField($list);
-        if (empty($list['data'])){
-            $this->setMessage('暂无数据!');
-            return $list;
-        }
-        foreach ($list['data'] as $key => &$value){
-            $value['grade']      =   MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['category']   =   MemberEnum::getCategory($value['category'],'普通成员');
-        }
-        $this->setMessage('获取成功!');
-        return $list;
-    }*/
-
     /**
      * 成员查看成员信息 (拆表后  已修改)
      * @param $request
