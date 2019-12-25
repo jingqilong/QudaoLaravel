@@ -1,10 +1,14 @@
 <?php
 namespace App\Services\Oa;
 
-
 use App\Repositories\OaProcessTransitionRepository;
 use App\Services\BaseService;
 
+/**
+ * @desc 基础数据：流程的节点流转操作  ModifiedBy bardo
+ * Class ProcessTransitionService
+ * @package App\Services\Oa
+ */
 class ProcessTransitionService extends BaseService
 {
     /**
@@ -55,13 +59,26 @@ class ProcessTransitionService extends BaseService
     }
 
     /**
+     * 获取单个流转
+     * @param $transition_id
+     * @return bool|null
+     */
+    public function getTransition($transition_id){
+        if (!$transition = OaProcessTransitionRepository::getOne(['id' => $request['transition_id']])){
+            $this->setError('该流转不存在！');
+            return false;
+        }
+        return $transition;
+    }
+
+    /**
      * 修改流转
      * @param $request
      * @return bool
      */
     public function editTransition($request)
     {
-        if (!$action = OaProcessTransitionRepository::getOne(['id' => $request['transition_id']])){
+        if (!$transition= OaProcessTransitionRepository::getOne(['id' => $request['transition_id']])){
             $this->setError('该流转不存在！');
             return false;
         }
@@ -83,27 +100,31 @@ class ProcessTransitionService extends BaseService
     }
 
     /**
-     * 获取流转列表
-     * @param $page
-     * @param $pageNum
+     * @desc 获取流转列表
+     * @param array $where
+     * @param int $page
+     * @param int $pageNum
      * @return bool|null
      */
-    public function getTransitionList($page, $pageNum)
+    public function getTransitionList($where,$page, $pageNum)
     {
-        if (!$action_list = OaProcessTransitionRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (empty($where)){
+            $where=['id' => ['>',0]];
+        }
+        if (!$transition_list = OaProcessTransitionRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
         }
-        unset($action_list['first_page_url'], $action_list['from'],
-            $action_list['from'], $action_list['last_page_url'],
-            $action_list['next_page_url'], $action_list['path'],
-            $action_list['prev_page_url'], $action_list['to']);
-        if (empty($action_list['data'])){
+        unset($transition_list['first_page_url'], $transition_list['from'],
+            $transition_list['from'], $transition_list['last_page_url'],
+            $transition_list['next_page_url'], $transition_list['path'],
+            $transition_list['prev_page_url'], $transition_list['to']);
+        if (empty($transition_list['data'])){
             $this->setMessage('暂无数据!');
-            return $action_list;
+            return $transition_list;
         }
         $this->setMessage('获取成功！');
-        return $action_list;
+        return $transition_list;
     }
 }
             

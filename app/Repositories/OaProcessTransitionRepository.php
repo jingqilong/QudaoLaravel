@@ -19,5 +19,14 @@ class OaProcessTransitionRepository extends ApiRepository
     {
         $this->model = $model;
     }
+
+    /**
+     * @param $transition_id
+     * @return mixed;
+     */
+    protected function isFinished($transition_id){
+        $transition = $this->getOne(['id'=>$transition_id]);
+        return $transition['status'];
+    }
 }
             

@@ -13,6 +13,11 @@ use App\Repositories\OaProcessNodeActionRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 
+/**
+ * @desc 基础数据，流程动作
+ * Class ProcessActionsService
+ * @package App\Services\Oa
+ */
 class ProcessActionsService extends BaseService
 {
     use HelpTrait;
@@ -128,11 +133,12 @@ class ProcessActionsService extends BaseService
     }
 
     /**
-     * 节点动作添加负责人
+     * @desc节点动作添加负责人(老代码。已废弃)
      * @param integer $node_action_id   节点动作ID
      * @param integer $principal_ids    负责人ID
      * @param string $principal_iden    负责人身份标识【EXECUTOR:执行人，SUPERVISOR:监督人】
      * @return bool
+     * @deprecated true
      */
     public function AddPrincipal($node_action_id, $principal_ids, $principal_iden)
     {

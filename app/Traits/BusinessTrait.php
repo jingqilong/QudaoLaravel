@@ -1,12 +1,12 @@
 <?php
 namespace App\Traits;
 
-use App\Enums\ProcessActionEnum;
 use App\Enums\ProcessEventEnum;
 use App\Repositories\OaProcessDefinitionRepository;
-use App\Services\Oa\ProcessNodeService;
+use App\Repositories\OaProcessNodeRepository;
+use App\Repositories\OaProcessTransitionRepository;
+use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessRecordService;
-use Illuminate\Support\Facades\Auth;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Events\SendDingTalkEmail;
 use App\Events\SendSiteMessage;
@@ -17,121 +17,101 @@ use App\Events\SendFlowSms;
  * @package App\Traits
  * @desc 这是给业务程序来使用的trait
  */
-class BusinessTrait
+trait BusinessTrait
 {
-
     /**
      * @desc 发起流程请求
      * @param $business_id    ,业务ID
-     * @param $process_type   ,业务类型
-     * @param $by_oa_user     ,发起人类型
-     * @param $auto_audit     ,是否自动审核
+     * @param $process_category   ,流程分类
      * @return mixed
      */
-    public function addNewProcessRecord($business_id,$process_type,$by_oa_user,$auto_audit=false){
-        //是否发起后，直接通过，并请求下一节点
-        $has_next = false;
+    public function addNewProcessRecord($business_id,$process_category){
         //获取流程定义ID
-        $process_id = OaProcessDefinitionRepository::getOne(['category_id'=>$process_type],['id',]);
+        $process_id = OaProcessDefinitionRepository::getOne(['category_id'=>$process_category],['id',]);
         if(!$process_id){
             $message = "此类流程未定义，请联系系统管理员，定义后再处理";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        $node_id =1;
-        $auditors_id = 0;
-        $audit_result = 0;
-        $audit_opinion = "";
-        if($by_oa_user){ //如果发起人是从OA中来的。那么，我们要查一下此人的审核位置。
-            $auth = Auth::guard('oa_api');
-            $user_id = $auth->id;
-            $oaProcessNodeService =new ProcessNodeService();
-            //查找我负责审核的节点  //TODO 这个函数未完成
-            $node= $oaProcessNodeService->getStartNodeByUser($process_id,$user_id);
-            if(1 != $node['position']){
-                $node_id = $node['id'];
-                //我要transition中，审核 ACCEPT 的走向。
-                $has_next= true;
-                //自动设为审核完成
-                if(true == $auto_audit){
-                    $auditors_id = $user_id;
-                    $audit_result = ProcessActionEnum::ACCEPT;
-                }
-                $audit_opinion = "";
-            }
-        }
+        //获取第一个流程节点ID
+        $node_id = OaProcessNodeRepository::getList([['process_id' => $process_id],['$position' => 1]]);
+        $record_data = [
+            'business_id'       	=> $business_id,
+            'process_id'        	=> $process_id,
+            'process_category'  	=> $process_category,
+            'node_id'           	=> $node_id,
+            'position'           	=> 1,
+            'action_result_id'  	=> 0,
+            'operator_id'       	=> 0,
+            'note'              	=> '',
+        ];
+        //创建流程节点
         $processRecordService = new ProcessRecordService();
-
-        $result = $processRecordService->addRecord($process_id,$business_id, $node_id,$auditors_id,$audit_result,$audit_opinion);
+        $result = $processRecordService->addRecord($record_data);
         if(!$result){
             $message = $processRecordService->error;
             return ['code'=>100,  'message' => $message ];
         }
-        $event_data = [
-            'business_id'=> $business_id,
-            'process_id'=> $process_id,
-            'node_id'=> $node_id,
-            'auditors_id'=> $auditors_id,
-            'audit_result'=> $audit_result,
-            'audit_opinion'=> $audit_opinion
-        ];
+        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType($node_id,0,0);
         //触发流程事件
-        $this->triggerEvent($event_data);
-        if($has_next){ //如果是审核人添加，自己的节点自动通过以后，自动触发下一节点。
-            $next_event_data = $this->addNextProcessRecord($business_id,$process_id, $node_id, $auditors_id, $audit_result);
-            if($next_event_data){
-                $this->triggerEvent($next_event_data);
-            }
-        }
+        $this->triggerEvent($event_list,$record_data);
         return ['code'=>200,  'message' => "流程发起成功！" ];
     }
 
     /**
      * @desc 客户端审核提交
-     * @param $business_id
-     * @param $process_id
-     * @param $node_id
-     * @param $auditors_id
-     * @param $audit_result
-     * @param string $audit_opinion
+     * @param $process_record_id
+     * @param $process_record_data
      * @return array
      */
-    public function updateProcessRecord($business_id, $process_id, $node_id, $auditors_id, $audit_result, $audit_opinion = ''){
+    public function updateProcessRecord($process_record_id, $process_record_data){
+        if(!isset($process_record_data['action_result_id'])){
+            $message = "缺少节点动作结果id！";
+            Loggy::write("error",$message);
+            return ['code'=>100,  'message' => $message ];
+        }
+        if(!isset($process_record_data['operator_id'])){
+            $message = "缺少操作人id";
+            Loggy::write("error",$message);
+            return ['code'=>100,  'message' => $message ];
+        }
         //是否发起后，直接通过，并请求下一节点
-        $has_next = false;
         $processRecordService = new ProcessRecordService();
-        //  function addRecord($business_id, $process_id, $node_id, $auditors_id, $audit_result, $audit_opinion = '')
-        $result = $processRecordService->addRecord($process_id,$business_id, $node_id,$auditors_id,$audit_result,$audit_opinion);
+        $result = $processRecordService->updateRecord($process_record_id,$process_record_data);
         if(!$result){
             $message = $processRecordService->error;
             return ['code'=>100,  'message' => $message ];
         }
-        $event_data = [
-            'business_id'=> $business_id,
-            'process_id'=> $process_id,
-            'node_id'=> $node_id,
-            'auditors_id'=> $auditors_id,
-            'audit_result'=> $audit_result,
-            'audit_opinion'=> $audit_opinion
-        ];
+        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(0,$process_record_data['node_action_result_id'],1);
         //触发流程事件
-        $this->triggerEvent($event_data);
-        if($has_next){  //审核完成后，增加新节点   //TODO 问题：我如何判断当前已经结束？
-            $next_event_data  =  $this->addNextProcessRecord($business_id,$process_id, $node_id, $auditors_id, $audit_result);
-            if($next_event_data)
-            $this->triggerEvent($next_event_data);
+        $this->triggerEvent($event_list,$process_record_data);
+        $where['process_id'] = $process_record_data['process_id'];
+        $where['action_result_id'] = $process_record_data['action_result_id'];
+        //获取是否拥有下一个节点
+        $next_node = OaProcessTransitionRepository::getOne($where);
+        if($next_node){
+            if(0!=$next_node['next_node']){
+                $next_nnode_id = $next_node['next_node']
+            }
+        }
+        if($next_nnode_id){  //审核完成后，增加新节点   //TODO 问题：我如何判断当前已经结束？
+            $next_event_data  =  $this->addNextProcessRecord($process_record_data,$next_nnode_id);
+            if($next_event_data){
+                $event_list =  app(ProcessActionEventService::class)->getActionEventList($node_id,0,0);
+                $this->triggerEvent($event_list,$next_event_data);
+            }
         }
         return ['code'=>200,  'message' => "流程发起成功！" ];
-
     }
 
     /**
      * @desc 获取当前业务的审核列表
-     * @param $business_id
+     * @param $request
+     * @return mixed
      */
-    public function getProcessRecordList($business_id){
-        //TODO 这里调用审核详情
-
+    public function getProcessRecordList($request){
+        $processRecordService = new ProcessRecordService();
+        return $processRecordService->getProcessRecodeList($request);
     }
 
 
@@ -152,14 +132,15 @@ class BusinessTrait
         //TODO 添加下一个待审记录节点
     }
 
+
     /**
-     * @param $event_data
      * @desc 流程触发事件总接口函数
+     * @param $event_list
+     * @param $event_data
      * @return bool
      */
-    public function triggerEvent($event_data){
-        //这里获取所有的事件列表
-        $event_list = [];
+    public function triggerEvent($event_list,$event_data){
+
         foreach($event_list as $event){
             //事件表有问题，没有用事件类型，同时，也不知发给谁。
             // TODO 这里的问题
