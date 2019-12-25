@@ -47,7 +47,7 @@ class ProcessNodeService extends BaseService
                 return false;
             }
             if (!$node_actions_result = OaProcessNodeActionsResultRepository::getOne(['id' => $request['node_actions_result_id']])){
-                $this->setError('节点动作相关不存在！');
+                $this->setError('节点动作结果不存在！');
                 return false;
             }
             if (!$node_id = OaProcessNodeActionRepository::getField(['id' => $node_actions_result['node_action_id']],'node_id')){
@@ -237,6 +237,87 @@ class ProcessNodeService extends BaseService
     }
 
     /**
+     * 流程节点动作结果选择节点（例如：驳回后返回上一节点等...）
+     * @param $request
+     * @return bool
+     */
+    public function processChooseNode($request)
+    {
+        if (!$node_actions_result = OaProcessNodeActionsResultRepository::getOne(['id' => $request['node_actions_result_id']])){
+            $this->setError('节点动作结果不存在！');
+            return false;
+        }
+        if (!$current_node_id = OaProcessNodeActionRepository::getField(['id' => $node_actions_result['node_action_id']],'node_id')){
+            $this->setError('数据异常！');
+            Loggy::write('error','给流程添加节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
+            return false;
+        }
+        $where = [
+            'node_action_result_id' => $request['node_actions_result_id'],
+            'process_id'            => $request['process_id']
+        ];
+        ##如果流转已建立，且下一节点为空，直接更新节点，否则添加新的流转
+        if ($transition = OaProcessTransitionRepository::getOne($where)){
+            if ($transition['next_node'] != 0){
+                $this->setError('当前动作结果已添加下一节点，不能重复添加！');
+                return false;
+            }
+            if (!OaProcessTransitionRepository::getUpdId(['id' => $transition['id']],
+                ['next_node' => $current_node_id,'status' => ProcessTransitionStatusEnum::GO_ON,'updated_at' => time()])){
+                $this->setError('添加失败！');
+                return false;
+            }
+            $this->setMessage('添加成功！');
+            return true;
+        }
+        $add_transition = [
+            'process_id'            => $request['process_id'],
+            'node_action_result_id' => $request['node_actions_result_id'],
+            'current_node'          => $current_node_id,
+            'next_node'             => $request['node_id'],
+            'status'                => ProcessTransitionStatusEnum::GO_ON,
+            'created_at'            => time(),
+            'updated_at'            => time(),
+        ];
+        if (!$transition_id = OaProcessTransitionRepository::getAddId($add_transition)){
+            $this->setError('添加失败！');
+            Loggy::write('error','给流程节点动作结果选择节点：流转添加失败！');
+            return false;
+        }
+        $this->setMessage('添加成功！');
+        return true;
+    }
+
+    /**
+     * 删除流转，（只删除下一节点是之前节点的流转）
+     * @param $node_actions_result_id
+     * @return bool
+     */
+    public function deleteTransition($node_actions_result_id)
+    {
+        if (!$transition = OaProcessTransitionRepository::getOne(['node_action_result_id' => $node_actions_result_id])){
+            $this->setError('当前动作结果未添加流转');
+            return false;
+        }
+        //如果存在下一节点，需要判断下一节点是往上个步骤走还是往下一步走，如果是往下一步走，则不能删除，需要先删除下一节点，如果是往上一步走，则删除流转
+        if (0 != $transition['next_node']){
+            if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])
+                && $next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])
+            ){#如果下一节点是当前节点之前，则不能删除流转
+                if ($next_node['position'] > $current_node['position']){
+                    $this->setError('当前流转不能删除，需要先删除下一节点！');
+                    return false;
+                }
+            }
+        }
+        if (!OaProcessTransitionRepository::delete(['node_action_result_id' => $node_actions_result_id])){
+            $this->setError('流转删除失败！');
+            return false;
+        }
+        $this->setMessage('流转删除成功！');
+        return true;
+    }
+    /**
      * @desc 通过流程ID，以及用户ID获取用户在此流程中的哪一层有审核权限，返回一个ID
      * @param $process_id
      * @param $user_id
@@ -247,5 +328,7 @@ class ProcessNodeService extends BaseService
         //TODO 这里有业务逻辑要实现
         return 1;
     }
+
+
 }
             

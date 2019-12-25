@@ -173,6 +173,8 @@ $api->version('v1',function ($api){
                     $api->post('get_process_detail','ProcessController@getProcessDetail')->name('获取流程详情');
 
                     $api->post('process_add_node','ProcessController@processAddNode')->name('流程添加节点');
+                    $api->post('process_choose_node','ProcessController@processChooseNode')->name('流程选择节点');
+                    $api->delete('delete_last_node_transition','ProcessController@deleteTransition')->name('删除与上一步节点之间的流转');
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
                     $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
 
@@ -183,13 +185,13 @@ $api->version('v1',function ($api){
                     $api->get('get_event_list','ProcessEventsController@getEventList')->name('获取事件列表');
 
                     #流程动作定义
-                    $api->post('add_action','ProcessActionsControllerController@addAction')->name('添加动作');
-                    $api->delete('delete_action','ProcessActionsControllerController@deleteAction')->name('删除动作');
-                    $api->post('edit_action','ProcessActionsControllerController@editAction')->name('修改动作');
-                    $api->get('get_action_list','ProcessActionsControllerController@getActionList')->name('获取动作列表');
-                    $api->post('add_action_result','ProcessActionsControllerController@addActionResult')->name('添加动作结果');
-                    $api->delete('delete_action_result','ProcessActionsControllerController@deleteActionResult')->name('删除动作结果');
-                    $api->post('edit_action_result','ProcessActionsControllerController@editActionResult')->name('修改动作结果');
+                    $api->post('add_action','ProcessActionsController@addAction')->name('添加动作');
+                    $api->delete('delete_action','ProcessActionsController@deleteAction')->name('删除动作');
+                    $api->post('edit_action','ProcessActionsController@editAction')->name('修改动作');
+                    $api->get('get_action_list','ProcessActionsController@getActionList')->name('获取动作列表');
+                    $api->post('add_action_result','ProcessActionsController@addActionResult')->name('添加动作结果');
+                    $api->delete('delete_action_result','ProcessActionsController@deleteActionResult')->name('删除动作结果');
+                    $api->post('edit_action_result','ProcessActionsController@editActionResult')->name('修改动作结果');
 
                     $api->post('node_add_action','ProcessController@nodeAddAction')->name('给流程节点添加动作');
                     $api->delete('node_delete_action','ProcessController@nodeDeleteAction')->name('流程节点删除动作');
