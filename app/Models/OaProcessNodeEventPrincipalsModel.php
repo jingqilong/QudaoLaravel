@@ -1,18 +1,21 @@
 <?php
+
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class OaProcessActionPrincipalsModel extends Model
-{
 
+
+class OaProcessNodeEventPrincipalsModel extends Model
+{
     /**
      * 关联到模型的数据表
      *
      * @var string
      */
-    protected $table = 'oa_process_action_principals';
+    protected $table = 'oa_process_node_event_principals';
 
-     /**
+    /**
      * 表明模型是否应该被打上时间戳
      *
      * @var bool
@@ -28,9 +31,4 @@ class OaProcessActionPrincipalsModel extends Model
 
 
     protected $fillable = ['id','node_id','node_action_id','principal_id','principal_iden'];
-
-
-
 }
-
- 
