@@ -27,7 +27,7 @@ class OaProcessActionEventModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','node_action_id','node_action_result_id','event_type','event_id','principals_type','created_at','updated_at'];
+    protected $fillable = ['id','node_id','node_action_result_id','event_type','event_id','principals_type','created_at','updated_at'];
 
 
 

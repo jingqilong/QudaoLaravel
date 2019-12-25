@@ -761,12 +761,12 @@ class ProcessController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="action_ids",
+     *         name="action_id",
      *         in="query",
-     *         description="动作ID组合【例如：1,2】",
+     *         description="动作ID",
      *         required=true,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(response=100,description="添加失败",),
@@ -776,20 +776,20 @@ class ProcessController extends ApiController
     public function nodeAddAction(){
         $rules = [
             'node_id'       => 'required|integer',
-            'action_ids'    => 'required|regex:/^(\d+[,])*\d+$/',
+            'action_id'     => 'required|integer',
         ];
         $messages = [
             'node_id.required'      => '节点ID不能为空！',
             'node_id.integer'       => '节点ID必须为整数！',
-            'action_ids.required'   => '动作ID不能为空！',
-            'action_ids.regex'      => '动作ID串格式有误！',
+            'action_id.required'    => '动作ID不能为空！',
+            'action_id.regex'       => '动作ID必须为整数！',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processNodeActionService->nodeAddAction($this->request['node_id'],$this->request['action_ids']);
+        $res = $this->processNodeActionService->nodeAddAction($this->request['node_id'],$this->request['action_id']);
         if ($res){
             return ['code' => 200,'message' => $this->processNodeActionService->message];
         }
@@ -824,6 +824,65 @@ class ProcessController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="node_action_id",
+     *         in="query",
+     *         description="节点动作ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function nodeDeleteAction(){
+        $rules = [
+            'node_action_id'    => 'required|integer',
+        ];
+        $messages = [
+            'node_action_id.required'   => '节点动作ID不能为空！',
+            'node_action_id.integer'    => '节点动作ID必须为整数！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeActionService->nodeDeleteAction($this->request['node_action_id']);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeActionService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/process_add_event",
+     *     tags={"OA流程"},
+     *     summary="流程添加事件",
+     *     description="sang" ,
+     *     operationId="process_add_event",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="node_id",
      *         in="query",
      *         description="节点ID",
@@ -833,35 +892,70 @@ class ProcessController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="action_id",
+     *         name="node_action_result_id",
      *         in="query",
-     *         description="动作ID",
-     *         required=true,
+     *         description="节点动作结果ID",
+     *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
-     *     @OA\Response(response=100,description="删除失败",),
+     *     @OA\Parameter(
+     *         name="event_type",
+     *         in="query",
+     *         description="事件类型：（0：节点事件，1，动作结果事件）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="event_id",
+     *         in="query",
+     *         description="事件ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="principals_type",
+     *         in="query",
+     *         description="相关人身份（1、执行人，2、监督人，3，发起人）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="添加失败",),
      * )
      *
      */
-    public function nodeDeleteAction(){
+    public function processAddEvent(){
         $rules = [
-            'node_id'       => 'required|integer',
-            'action_id'     => 'required|integer',
+            'node_id'               => 'required|integer',
+            'node_action_result_id' => 'integer',
+            'event_type'            => 'required|in:0,1',
+            'event_id'              => 'required|integer',
+            'principals_type'       => 'required|in:1,2,3',
         ];
         $messages = [
-            'node_id.required'      => '节点ID不能为空！',
-            'node_id.integer'       => '节点ID必须为整数！',
-            'action_id.required'    => '动作ID不能为空！',
-            'action_id.integer'     => '动作ID必须为整数！',
+            'node_id.required'              => '节点ID不能为空！',
+            'node_id.integer'               => '节点ID必须为整数！',
+            'node_action_result_id.integer' => '节点动作结果ID必须为整数！',
+            'event_type.required'           => '事件类型不能为空！',
+            'event_type.in'                 => '事件类型不存在！',
+            'event_id.required'             => '事件ID不能为空！',
+            'event_id.integer'              => '事件ID必须为整数！',
+            'principals_type.required'      => '相关人身份不能为空！',
+            'principals_type.in'            => '相关人身份不存在！',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processNodeActionService->nodeDeleteAction($this->request['node_id'],$this->request['action_id']);
+        $res = $this->processNodeActionService->processAddEvent($this->request);
         if ($res){
             return ['code' => 200,'message' => $this->processNodeActionService->message];
         }
