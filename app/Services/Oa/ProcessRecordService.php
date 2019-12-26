@@ -1,11 +1,15 @@
 <?php
 namespace App\Services\Oa;
 
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ProcessCommonStatusEnum;
+use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessDefinitionRepository;
+use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordRepository;
 use App\Services\BaseService;
+use App\Traits\HelpTrait;
 use Tolawho\Loggy\Facades\Loggy;
 
 class ProcessRecordService extends BaseService
@@ -131,6 +135,77 @@ class ProcessRecordService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $action_list;
+    }
+
+    /**
+     * 获取当前业务的审核列表
+     * @param $request
+     * @return array|bool|null
+     */
+    public function getProcessRecodeList($request)
+    {
+        if (!isset($request['business_id'])){
+            $this->setError('业务ID不能为空！');
+            return false;
+        }
+        if (!isset($request['process_category'])){
+            $this->setError('流程类型！');
+            return false;
+        }
+        $where = ['business_id' => $request['business_id'],'process_category' => $request['process_category']];
+        $column= ['id','position','node_id','node_action_result_id','operator_id','note','created_at','updated_at'];
+        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc')){
+            $this->setMessage('暂无数据！');
+            return [];
+        }
+        $node_action_result_ids = array_column($recode_list,'node_action_result_id');
+        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getList(['id' => ['in',$node_action_result_ids]]);
+        $operator_list          = EmployeeService::getListOperationByName($recode_list,['operator_id']);
+        foreach ($recode_list as &$recode){
+            $recode['action_result_name'] = '';
+            foreach ($node_action_result_list as $value){
+                if ($recode['node_action_result_id'] == $value['id']){
+                    $recode['action_result_name'] = $value['action_result_name'];
+                }
+            }
+            $recode['created_at'] = empty($recode['created_at']) ? '' : date('Y-m-d H:i:s',$recode['created_at']);
+            $recode['updated_at'] = empty($recode['updated_at']) ? '' : date('Y-m-d H:i:s',$recode['updated_at']);
+        }
+        $this->setMessage('记录列表获取成功！');
+        return $recode_list;
+    }
+
+    /**
+     * 仪表板中的我的审核列表
+     * @param $user_id
+     * @param $page
+     * @param $page_num
+     * @return mixed
+     */
+    public function getNodeListByUserId($user_id,$page,$page_num)
+    {
+        $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
+        $column= ['*'];
+        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $recode_list = app(HelpTrait::class)->removePagingField($recode_list);
+        if (empty($recode_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $recode_list;
+        }
+        return [];
+    }
+
+    public function getAllBusinessList($business_ids,$process_category){
+        if (empty($business_ids)){
+            return [];
+        }
+        $config_data  = config('process.process_business_list');
+        if (!isset($process_category)){
+            return [];
+        }
     }
 }
             
