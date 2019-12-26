@@ -62,7 +62,7 @@ class Process
         $return_data['process_id']  = $this->process_id;
         $return_data['name']        = $this->name;
         $return_data['description'] = $this->description;
-        $return_data['node']        = $this->node->buildData();
+        $return_data['next_level'][]= $this->node->buildData();//原名node
         return $return_data;
     }
 }

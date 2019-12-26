@@ -249,7 +249,7 @@ class ProcessNodeService extends BaseService
         }
         if (!$current_node_id = OaProcessNodeActionRepository::getField(['id' => $node_actions_result['node_action_id']],'node_id')){
             $this->setError('数据异常！');
-            Loggy::write('error','给流程添加节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
+            Loggy::write('error','给流程选择节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
             return false;
         }
         $where = [
@@ -317,6 +317,60 @@ class ProcessNodeService extends BaseService
         $this->setMessage('流转删除成功！');
         return true;
     }
+
+    /**
+     * 动作结果选择流转状态
+     * @param $request
+     * @return bool
+     */
+    public function actionResultChooseStatus($request)
+    {
+        if (!$node_actions_result = OaProcessNodeActionsResultRepository::getOne(['id' => $request['node_actions_result_id']])){
+            $this->setError('节点动作结果不存在！');
+            return false;
+        }
+        if (!$current_node_id = OaProcessNodeActionRepository::getField(['id' => $node_actions_result['node_action_id']],'node_id')){
+            $this->setError('数据异常！');
+            Loggy::write('error','给流程选择节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
+            return false;
+        }
+        $where = [
+            'node_action_result_id' => $request['node_actions_result_id'],
+            'process_id'            => $request['process_id']
+        ];
+        ##如果流转已建立，且下一节点为空，直接更新节点，否则添加新的流转
+        if ($transition = OaProcessTransitionRepository::getOne($where)){
+            if (0 != $transition['next_node']){
+                $this->setError('当前动作结果已添加下一节点，不能进行此操作！');
+                return false;
+            }
+            if (!OaProcessTransitionRepository::getUpdId(['id' => $transition['id']],
+                ['next_node' => 0,'status' => $request['status'],'updated_at' => time()])){
+                $this->setError('添加失败！');
+                return false;
+            }
+            $this->setMessage('添加成功！');
+            return true;
+        }
+        $add_transition = [
+            'process_id'            => $request['process_id'],
+            'node_action_result_id' => $request['node_actions_result_id'],
+            'current_node'          => $current_node_id,
+            'next_node'             => 0,
+            'status'                => $request['status'],
+            'created_at'            => time(),
+            'updated_at'            => time(),
+        ];
+        if (!$transition_id = OaProcessTransitionRepository::getAddId($add_transition)){
+            $this->setError('操作失败！');
+            Loggy::write('error','给流程节点动作结果选择节点：流转添加失败！');
+            return false;
+        }
+        $this->setMessage('操作成功！');
+        return true;
+    }
+
+
     /**
      * @desc 通过流程ID，以及用户ID获取用户在此流程中的哪一层有审核权限，返回一个ID
      * @param $process_id

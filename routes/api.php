@@ -177,6 +177,7 @@ $api->version('v1',function ($api){
                     $api->delete('delete_last_node_transition','ProcessController@deleteTransition')->name('删除与上一步节点之间的流转');
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
                     $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
+                    $api->post('action_result_choose_status','ProcessController@actionResultChooseStatus')->name('流程动作结果选择流转状态');
 
                     #流程事件定义
                     $api->post('add_event','ProcessEventsController@addEvent')->name('添加事件');

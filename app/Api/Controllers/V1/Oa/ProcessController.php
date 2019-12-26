@@ -569,7 +569,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="node_actions_result_id",
      *          in="query",
-     *          description="节点动作结果ID【如果不填，表示添加第一个节点】",
+     *          description="节点动作结果ID",
      *          required=true,
      *          @OA\Schema(
      *              type="integer",
@@ -983,5 +983,87 @@ class ProcessController extends ApiController
             return ['code' => 200,'message' => $this->processNodeActionService->message];
         }
         return ['code' => 100,'message' => $this->processNodeActionService->error];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/process/action_result_choose_status",
+     *     tags={"OA流程"},
+     *     summary="流程动作结果选择流转状态",
+     *     description="sang" ,
+     *     operationId="action_result_choose_status",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *          name="node_actions_result_id",
+     *          in="query",
+     *          description="节点动作结果ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="status",
+     *          in="query",
+     *          description="流转状态，默认1继续，2结束，3终止",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Response(response=100,description="添加失败",),
+     * )
+     *
+     */
+    public function actionResultChooseStatus(){
+        $rules = [
+            'node_actions_result_id'=> 'required|integer',
+            'process_id'            => 'required|integer',
+            'status'                => 'required|in:1,2,3',
+        ];
+        $messages = [
+            'node_actions_result_id.required'   => '节点动作结果ID不能为空！',
+            'node_actions_result_id.integer'    => '节点动作结果ID必须为整型！',
+            'process_id.required'               => '流程ID不能为空！',
+            'process_id.integer'                => '流程ID必须为整型！',
+            'status.required'                   => '流转状态不能为空！',
+            'status.in'                         => '流转状态不存在！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processNodeService->actionResultChooseStatus($this->request);
+        if ($res){
+            return ['code' => 200,'message' => $this->processNodeService->message];
+        }
+        return ['code' => 100,'message' => $this->processNodeService->error];
     }
 }

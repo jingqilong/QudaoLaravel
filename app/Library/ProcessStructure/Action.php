@@ -104,9 +104,10 @@ class Action
         $return_data['status']              = $this->status;
         $return_data['description']         = $this->description;
         $return_data['node_action_id']      = $this->node_action_id;
+        $return_data['next_level']          = [];//原名node_action_results
         foreach($this->node_action_results as $action_result){
             $action_result_data = $action_result->buildData();
-            $return_data['node_action_results'][] = $action_result_data;
+            $return_data['next_level'][] = $action_result_data;
         }
         return $return_data;
     }
