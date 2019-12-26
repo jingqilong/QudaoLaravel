@@ -364,14 +364,14 @@ class ProcessController extends ApiController
         }
         $res = $this->processDefinitionService->getProcessList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if ($res === false){
-            return ['code' => 100,'message' => $this->processCategoriesService->error];
+            return ['code' => 100,'message' => $this->processDefinitionService->error];
         }
-        return ['code' => 200,'message' => $this->processCategoriesService->message,'data' => $res];
+        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => $res];
     }
 
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/oa/process/get_process_detail",
      *     tags={"OA流程"},
      *     summary="获取流程详情",
@@ -423,9 +423,9 @@ class ProcessController extends ApiController
         }
         $res = $this->processDefinitionService->getProcessDetail($this->request['process_id']);
         if ($res === false){
-            return ['code' => 100,'message' => $this->processNodeService->message];
+            return ['code' => 100,'message' => $this->processDefinitionService->error];
         }
-        return ['code' => 200,'message' => $this->processNodeService->error,'data' => $res];
+        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => $res];
     }
 
 
@@ -569,7 +569,7 @@ class ProcessController extends ApiController
      *     @OA\Parameter(
      *          name="node_actions_result_id",
      *          in="query",
-     *          description="节点动作结果ID【如果不填，表示添加第一个节点】",
+     *          description="节点动作结果ID",
      *          required=true,
      *          @OA\Schema(
      *              type="integer",
@@ -985,15 +985,13 @@ class ProcessController extends ApiController
         return ['code' => 100,'message' => $this->processNodeActionService->error];
     }
 
-
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/process/action_add_related",
+     *     path="/api/v1/oa/process/action_result_choose_status",
      *     tags={"OA流程"},
-     *     summary="给流程节点动作事件与下一节点",
+     *     summary="流程动作结果选择流转状态",
      *     description="sang" ,
-     *     operationId="action_add_related",
-     *     deprecated=true,
+     *     operationId="action_result_choose_status",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -1013,167 +1011,59 @@ class ProcessController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="action_related_id",
-     *         in="query",
-     *         description="动作相关ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
+     *          name="node_actions_result_id",
+     *          in="query",
+     *          description="节点动作结果ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
      *     @OA\Parameter(
-     *         name="event_ids",
-     *         in="query",
-     *         description="事件ID组合【例如：1,2】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
      *     @OA\Parameter(
-     *         name="next_node_id",
-     *         in="query",
-     *         description="下一节点ID",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
+     *          name="status",
+     *          in="query",
+     *          description="流转状态，默认1继续，2结束，3终止",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
      *     @OA\Response(response=100,description="添加失败",),
      * )
      *
      */
-    public function actionAddRelated(){
+    public function actionResultChooseStatus(){
         $rules = [
-            'action_related_id' => 'required|integer',
-            'event_ids'         => 'regex:/^(\d+[,])*\d+$/',
-            'next_node_id'      => 'integer',
+            'node_actions_result_id'=> 'required|integer',
+            'process_id'            => 'required|integer',
+            'status'                => 'required|in:1,2,3',
         ];
         $messages = [
-            'action_related_id.required'    => '动作相关ID不能为空！',
-            'action_related_id.integer'     => '动作相关ID必须为整数！',
-            'event_ids.regex'               => '事件组格式有误！',
-            'next_node_id.integer'          => '下一节点必须为整数！',
+            'node_actions_result_id.required'   => '节点动作结果ID不能为空！',
+            'node_actions_result_id.integer'    => '节点动作结果ID必须为整型！',
+            'process_id.required'               => '流程ID不能为空！',
+            'process_id.integer'                => '流程ID必须为整型！',
+            'status.required'                   => '流转状态不能为空！',
+            'status.in'                         => '流转状态不存在！',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processNodeActionService->actionAddRelated($this->request);
+        $res = $this->processNodeService->actionResultChooseStatus($this->request);
         if ($res){
-            return ['code' => 200,'message' => $this->processNodeActionService->message];
+            return ['code' => 200,'message' => $this->processNodeService->message];
         }
-        return ['code' => 100,'message' => $this->processNodeActionService->error];
-    }
-
-
-    /**
-     * @OA\Post(
-     *     path="/api/v1/oa/process/process_record",
-     *     tags={"OA流程"},
-     *     summary="记录流程进度【测试用】",
-     *     description="sang" ,
-     *     operationId="process_record",
-     *     deprecated=true,
-     *     @OA\Parameter(
-     *         name="sign",
-     *         in="query",
-     *         description="签名",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         description="token",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="business_id",
-     *         in="query",
-     *         description="业务ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="process_id",
-     *         in="query",
-     *         description="流程ID",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="node_id",
-     *         in="query",
-     *         description="当前节点ID【为0时表示给业务添加流程】",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="audit_result",
-     *         in="query",
-     *         description="审核结果",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="audit_opinion",
-     *         in="query",
-     *         description="审核意见",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(response=100,description="流程进度记录失败",),
-     * )
-     *
-     */
-    public function processRecord(){
-        $rules = [
-            'business_id'   => 'required|integer',
-            'process_id'    => 'required|integer',
-            'node_id'       => 'required|integer',
-        ];
-        $messages = [
-            'business_id.required'  => '业务ID不能为空！',
-            'business_id.integer'   => '业务ID必须为整数！',
-            'process_id.required'   => '流程ID不能为空！',
-            'process_id.integer'    => '流程ID必须为整数！',
-            'node_id.required'      => '当前节点ID不能为空！',
-            'node_id.integer'       => '当前节点ID必须为整数！',
-        ];
-
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        $employee = Auth::guard('oa_api')->user();
-        $res = $this->processRecordService->addRecord(
-            $this->request['business_id'],
-            $this->request['process_id'],
-            $this->request['node_id'],
-            $employee->id,
-            $this->request['audit_result'] ?? '',
-            $this->request['audit_opinion'] ?? ''
-        );
-        if ($res){
-            return ['code' => 200,'message' => $this->processRecordService->message];
-        }
-        return ['code' => 100,'message' => $this->processRecordService->error];
+        return ['code' => 100,'message' => $this->processNodeService->error];
     }
 }

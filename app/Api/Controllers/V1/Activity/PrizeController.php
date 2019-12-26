@@ -155,7 +155,7 @@ class PrizeController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         if ($this->request['worth'] != 0){
-            if (isset($this->request['image_ids']) || empty($this->request['image_ids'])){
+            if (!isset($this->request['image_ids']) || empty($this->request['image_ids'])){
                 return ['code' => 100, 'message' => '请至少上传一张奖品图片'];
             }
         }

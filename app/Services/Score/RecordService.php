@@ -365,18 +365,19 @@ class RecordService extends BaseService
         foreach ($member_score as $key => $score){
             if (isset($goods_scores[$score['score_type']])){
                 $goods_score = $goods_scores[$score['score_type']];
-                $result[$key]['score_type']     = $score['score_type'];
-                $result[$key]['score_title']    = $score['score_title'];
-                $result[$key]['expense_rate']   = $score['expense_rate'];
+                $usable_score['score_type']     = $score['score_type'];
+                $usable_score['score_title']    = $score['score_title'];
+                $usable_score['expense_rate']   = $score['expense_rate'];
                 if ($score['score'] > $goods_score['total_score']){
-                    $result[$key]['usable_score'] = $goods_score['total_score'];
+                    $usable_score['usable_score']   = $goods_score['total_score'];
                 }else{
-                    $result[$key]['usable_score'] = $score['score'];
+                    $usable_score['usable_score']   = $score['score'];
                 }
                 #防止出现兑换积分×汇率出现超过订单价格的情况，如果超过，则按订单总额的最大积分
-                if (($result[$key]['usable_score'] * $score['expense_rate']) > $total_price){
-                    $result[$key]['usable_score']   = floor($total_price / $score['expense_rate']);
+                if (($usable_score['usable_score'] * $score['expense_rate']) > $total_price){
+                    $usable_score['usable_score']   = floor($total_price / $score['expense_rate']);
                 }
+                $result[] = $usable_score;
             }
         }
         $this->setMessage('获取成功！');
