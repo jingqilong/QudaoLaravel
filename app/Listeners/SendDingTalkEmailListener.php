@@ -5,8 +5,9 @@ namespace App\Listeners;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendDingTalkEmailListener
+class SendDingTalkEmailListener implements ShouldQueue
 {
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      *
