@@ -208,8 +208,6 @@ $api->version('v1',function ($api){
                     $api->delete('delete_node_action_principal','ProcessActionPrincipalsController@deleteNodeActionPrincipal')->name('删除节点动作负责人');
                     $api->post('edit_node_action_principal','ProcessActionPrincipalsController@editNodeActionPrincipal')->name('修改节点动作负责人');
                     $api->get('get_node_action_principal_list','ProcessActionPrincipalsController@getNodeActionPrincipalList')->name('获取节点动作负责人列表');
-
-                    $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
         });
