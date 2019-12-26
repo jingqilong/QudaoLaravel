@@ -2,6 +2,7 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessTransitionStatusEnum;
 use App\Repositories\OaProcessActionEventRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
@@ -165,9 +166,10 @@ class ProcessNodeService extends BaseService
         #如果该节点有添加动作，删除相应的信息
         if ($node_action_list = OaProcessNodeActionRepository::getList(['node_id' => $node_id],['id'])){
             $node_action_ids = array_column($node_action_list,'id');
+
             #删除节点动作结果事件
-            if (OaProcessActionEventRepository::exists(['node_action_id' => ['in' , $node_action_ids]]) &&
-                !OaProcessActionEventRepository::delete(['node_action_id' => ['in' , $node_action_ids]])
+            if (OaProcessActionEventRepository::exists(['node_id' => $node_id,'event_type' => ProcessActionEventTypeEnum::ACTION_RESULT_EVENT]) &&
+                !OaProcessActionEventRepository::delete(['node_id' => $node_id,'event_type' => ProcessActionEventTypeEnum::ACTION_RESULT_EVENT])
             ){
                 $this->setError('删除失败！');
                 Loggy::write('error','删除流程节点：删除节点动作结果事件失败！节点ID：'.$node_id);

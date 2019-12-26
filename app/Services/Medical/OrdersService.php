@@ -432,5 +432,31 @@ class OrdersService extends BaseService
     public function getCreatedUser($order_id){
         return MedicalOrdersRepository::getField(['id',$order_id],'member_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $order_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($order_ids){
+        if (empty($order_ids)){
+            return [];
+        }
+        $column     = ['id','member_id','name','mobile'];
+        if (!$order_list = MedicalOrdersRepository::getAssignList($order_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '医疗预约',
+                'member_id'     => $value['member_id'],
+                'member_name'   => $value['name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             

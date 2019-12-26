@@ -403,5 +403,31 @@ class ReservationService extends BaseService
     public function getCreatedUser($reservation_id){
         return PrimeReservationRepository::getField(['id',$reservation_id],'member_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $repository_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($repository_ids){
+        if (empty($repository_ids)){
+            return [];
+        }
+        $column     = ['id','member_id','name','mobile'];
+        if (!$order_list = PrimeReservationRepository::getAssignList($repository_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '精选生活预约',
+                'member_id'     => $value['member_id'],
+                'member_name'   => $value['name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             

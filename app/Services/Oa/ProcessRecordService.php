@@ -207,14 +207,18 @@ class ProcessRecordService extends BaseService
         }
         foreach ($recode_list['data'] as &$recode){
             $list = $business_list[$recode['process_category']];
-            foreach ($business_list as $category => $list){
-                if ($recode['process_category'] !== $category){
-                    break;
+            foreach ($list as $value){
+                if ($recode['business_id'] == $value['id']){
+                    $recode['business_name']    = $value['name'];
+                    $recode['member_id']        = $value['member_id'];
+                    $recode['member_name']      = $value['member_name'];
+                    $recode['member_mobile']    = $value['member_mobile'];
+                    //TODO 如需要更多参数，在此添加
                 }
-                //foreach ($list)
             }
         }
-        return [];
+        $this->setMessage('获取成功！');
+        return $recode_list;
     }
 
     /**
