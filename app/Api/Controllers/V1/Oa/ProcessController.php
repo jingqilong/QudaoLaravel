@@ -364,9 +364,9 @@ class ProcessController extends ApiController
         }
         $res = $this->processDefinitionService->getProcessList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
         if ($res === false){
-            return ['code' => 100,'message' => $this->processCategoriesService->error];
+            return ['code' => 100,'message' => $this->processDefinitionService->error];
         }
-        return ['code' => 200,'message' => $this->processCategoriesService->message,'data' => $res];
+        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => $res];
     }
 
 
@@ -423,9 +423,9 @@ class ProcessController extends ApiController
         }
         $res = $this->processDefinitionService->getProcessDetail($this->request['process_id']);
         if ($res === false){
-            return ['code' => 100,'message' => $this->processNodeService->error];
+            return ['code' => 100,'message' => $this->processDefinitionService->error];
         }
-        return ['code' => 200,'message' => $this->processNodeService->message,'data' => $res];
+        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => $res];
     }
 
 
