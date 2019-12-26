@@ -298,12 +298,12 @@ class DetailService extends BaseService
                 $where['theme_id'] = ['in',$theme_ids];
             }
             $keyword = [$keywords => ['name', 'address', 'price','firm']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num)){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,'created_at','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'start_time','desc',$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'created_at','desc',$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }
