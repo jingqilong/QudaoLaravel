@@ -17,14 +17,15 @@ class ProcessRecordService extends BaseService
      */
     public function addRecord($process_record_data)
     {
-        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_record_data['process_id']])){
+        if (!OaProcessDefinitionRepository::exists(['id' => $process_record_data['process_id']])){
             $this->setError('流程不存在！');
             return false;
         }
         $process_record_data['created_at'] = time();
         $process_record_data['updated_at'] = time();
         if (empty($node_id)){
-            if ($process['status'] == ProcessCommonStatusEnum::INACTIVE){
+            $check_process = OaProcessDefinitionRepository::isEnabled($process_record_data['process_id']);
+            if ($check_process['code'] == 100){
                 Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
                 $this->setError('当前流程已被禁用，无法添加该流程！');
                 return false;
@@ -86,7 +87,7 @@ class ProcessRecordService extends BaseService
      */
     public function updateRecord($process_record_id,$process_record_data)
     {
-        if (!$action = OaProcessRecordRepository::getOne(['id' => $process_record_id])){
+        if (!OaProcessRecordRepository::exists(['id' => $process_record_id])){
             $this->setError('该流程记录不存在！');
             return false;
         }

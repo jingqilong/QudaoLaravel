@@ -104,6 +104,7 @@ class Action
         $return_data['status']              = $this->status;
         $return_data['description']         = $this->description;
         $return_data['node_action_id']      = $this->node_action_id;
+        $return_data['tree_type']           = 2;//树类型前端使用
         $return_data['next_level']          = [];//原名node_action_results
         foreach($this->node_action_results as $action_result){
             $action_result_data = $action_result->buildData();

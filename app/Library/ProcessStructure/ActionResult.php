@@ -133,12 +133,13 @@ class ActionResult
         $parent_node_id                         = $this->getParent()->node_id;
         $return_data['action_result_id']        = $this->action_result_id;
         $return_data['node_actions_result_id']  = $this->node_actions_result_id;
-        $return_data['action_result_name']      = $this->action_result_name;
+        $return_data['name']                    = $this->action_result_name;//原名action_result_name
         $return_data['transition_id']           = $this->transition_id;
         $return_data['transition_status_label'] = $this->transition_status_label;
         $return_data['transition_status']       = $this->transition_status;
         $return_data['parent_node_id']          = $parent_node_id;
         $return_data['next_node_id']            = $this->next_node_id;
+        $return_data['tree_type']               = 3;//树类型前端使用
         return $return_data;
     }
 }
