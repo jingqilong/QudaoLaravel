@@ -869,10 +869,6 @@ class MemberService extends BaseService
             'title'      => $request['title'] ?? '',
             'profile'    => $request['profile'] ?? ''
         ];
-        if (MemberBaseRepository::exists($base_arr)){
-            $this->setError('成员已存在!');
-            return false;
-        }
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $member_id],$base_arr)){
             DB::rollBack();
