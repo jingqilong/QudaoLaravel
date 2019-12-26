@@ -851,7 +851,7 @@ class MemberService extends BaseService
     {
         $member    = $this->auth->user();
         $member_id = $member->id;
-        if (!MemberBaseRepository::getOne(['id' => $member_id])){
+        if (!MemberBaseRepository::exists(['id' => $member_id])){
             $this->setError('成员不存在!');
             return false;
         }
@@ -861,13 +861,15 @@ class MemberService extends BaseService
             'email'      => $request['email'] ?? '',
             'birthday'   => $request['birthday'],
             'address'    => $request['address'] ?? '',
+            'updated_at' => time(),
         ];
         $info_arr = [
             'member_id'  => $member_id,
             'employer'   => $request['employer'] ?? '',
             'industry'   => $request['industry'] ?? '',
             'title'      => $request['title'] ?? '',
-            'profile'    => $request['profile'] ?? ''
+            'profile'    => $request['profile'] ?? '',
+            'update_at'  => time(),
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $member_id],$base_arr)){
@@ -875,10 +877,18 @@ class MemberService extends BaseService
             $this->setError('修改失败!');
             return false;
         }
-        if (!MemberInfoRepository::firstOrCreate($info_arr,$info_arr)){
-            DB::rollBack();
-            $this->setError('修改失败!');
-            return false;
+        if (!MemberInfoRepository::exists(['member_id' => $member_id])){
+            if (!MemberInfoRepository::getAddId($info_arr)){
+                DB::rollBack();
+                $this->setError('修改失败!');
+                return false;
+            }
+        }else{
+            if (!MemberInfoRepository::getUpdId(['member_id' => $member_id],$info_arr)){
+                DB::rollBack();
+                $this->setError('修改失败!');
+                return false;
+            }
         }
         DB::commit();
         $this->setMessage('修改成功!');
