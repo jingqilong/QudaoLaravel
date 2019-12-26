@@ -326,5 +326,31 @@ class GradeOrdersService extends BaseService
     public function getCreatedUser($grade_order_id){
         return MemberGradeOrdersRepository::getField(['id',$grade_order_id],'member_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $grade_order_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($grade_order_ids){
+        if (empty($grade_order_ids)){
+            return [];
+        }
+        $column     = ['id','member_id','ch_name','mobile','previous_grade_title','grade_title','payment_amount'];
+        if (!$order_list = MemberGradeOrdersViewRepository::getAssignList($grade_order_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '由【'.$value['previous_grade_title'].'】申请成为【'.$value['grade_title'].'】',
+                'member_id'     => $value['member_id'],
+                'member_name'   => $value['ch_name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             

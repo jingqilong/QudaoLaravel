@@ -357,5 +357,31 @@ class OrderService extends BaseService
     public function getCreatedUser($order_id){
         return EnterpriseOrderRepository::getField(['id',$order_id],'user_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $order_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($order_ids){
+        if (empty($order_ids)){
+            return [];
+        }
+        $column     = ['id','user_id','name','mobile','enterprise_name'];
+        if (!$order_list = EnterpriseOrderRepository::getAssignList($order_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => $value['enterprise_name'],
+                'member_id'     => $value['user_id'],
+                'member_name'   => $value['name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             

@@ -45,7 +45,9 @@ class ActivityRegisterViewModel extends Model
         'is_register',
         'sign_in_code',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'ch_name',
+        'mobile'
     ];
 
 

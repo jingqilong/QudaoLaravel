@@ -778,6 +778,15 @@ class ProcessController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *          name="process_id",
+     *          in="query",
+     *          description="流程ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="node_id",
      *          in="query",
      *          description="节点ID",
@@ -828,6 +837,7 @@ class ProcessController extends ApiController
      */
     public function processEditNode(){
         $rules = [
+            'process_id'    => 'required|integer',
             'node_id'       => 'required|integer',
             'name'          => 'required',
             'limit_time'    => 'integer',
@@ -835,6 +845,8 @@ class ProcessController extends ApiController
             'description'   => 'string',
         ];
         $messages = [
+            'process_id.required'   => '节点ID不能为空！',
+            'process_id.integer'    => '节点ID必须为整型！',
             'node_id.required'      => '节点ID不能为空！',
             'node_id.integer'       => '节点ID必须为整型！',
             'name.required'         => '节点名称不能为空！',

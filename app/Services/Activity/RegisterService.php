@@ -827,5 +827,31 @@ class RegisterService extends BaseService
     public function getCreatedUser($register_id){
         return ActivityRegisterRepository::getField(['id',$register_id],'member_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $register_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($register_ids){
+        if (empty($register_ids)){
+            return [];
+        }
+        $column     = ['id','member_id','ch_name','mobile','name'];
+        if (!$order_list = ActivityRegisterViewRepository::getAssignList($register_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => $value['name'],
+                'member_id'     => $value['member_id'],
+                'member_name'   => $value['ch_name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             

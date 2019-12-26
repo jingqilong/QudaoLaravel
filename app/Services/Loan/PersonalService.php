@@ -411,5 +411,31 @@ class PersonalService extends BaseService
     public function getCreatedUser($personal_id){
         return LoanPersonalRepository::getField(['id',$personal_id],'user_id');
     }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $repository_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($repository_ids){
+        if (empty($repository_ids)){
+            return [];
+        }
+        $column     = ['id','user_id','name','mobile','price'];
+        if (!$order_list = LoanPersonalRepository::getAssignList($repository_ids,$column)){
+            return [];
+        }
+        $result_list = [];
+        foreach ($order_list as $value){
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '贷款'.LoanEnum::getPrice($value['price']),
+                'member_id'     => $value['user_id'],
+                'member_name'   => $value['name'],
+                'member_mobile' => $value['mobile'],
+            ];
+        }
+        return $result_list;
+    }
 }
             
