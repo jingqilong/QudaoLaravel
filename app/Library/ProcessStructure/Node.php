@@ -103,10 +103,9 @@ class Node
         $return_data['position']    = $this->position;
         $return_data['description'] = $this->description;
         $return_data['back_node_ids'] = $this->back_node_ids;
-        $return_data['tree_type']   = 1;//树类型前端使用
-        $return_data['next_level']  = [];//原名node_actions
+        $return_data['node_actions']= [];
         foreach ($this->node_actions as $action){
-            $return_data['next_level'][] = $action->buildData();
+            $return_data['node_actions'][]= $action->buildData();
         }
         $return_data['children']    = [];
         foreach($this->children as $node){
