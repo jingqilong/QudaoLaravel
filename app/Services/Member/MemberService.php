@@ -793,7 +793,7 @@ class MemberService extends BaseService
 
 
     /**
-     * 手机号码注册完善用户信息  (拆表后  已修改)
+     * 手机号码注册完善用户信息  (修改)
      * @param array $request
      * @return array|bool
      */
@@ -801,22 +801,21 @@ class MemberService extends BaseService
     {
         $member = $this->auth->user()->toArray();
         $base_arr = [
-            'id'         => $member['id'],
-            'ch_name'    => $request['cname'],
+            'ch_name'    => $request['ch_name'],
             'sex'        => $request['sex'],
             'email'      => $request['email'] ?? '',
+            'birthday'   => $request['birthday'] ?? '',
+            'address'    => $request['address'] ?? '' ,
+            'id_card'    => $request['id_card'] ?? '' ,
         ];
         $info_arr = [
             'member_id'      => $member['id'],
-            'birthday'       => $request['birthday'] ?? '',
-            'id_card'        => $request['numcard'] ?? '' ,
-            'address'        => $request['address'] ?? '' ,
-            'info_provider'  => $request['referrername'] ?? '',
+            'info_provider'  => $request['info_provider'] ?? '',
         ];
         $service_arr = [
             'member_id'     => $member['id'],
-            'publicity'     => $request['wechattext'] ?? 0,
-            'other_server'  => $request['services'] ?? 1,
+            'publicity'     => $request['publicity'] ?? 0,
+            'other_server'  => $request['other_server'] ?? 1,
         ];
         DB::beginTransaction();
         if (!MemberBaseRepository::getUpdId(['id' => $member['id']],$base_arr)){
@@ -824,29 +823,15 @@ class MemberService extends BaseService
             $this->setError('信息完善失败，请重试！');
             return false;
         }
-        if (!MemberInfoRepository::exists(['member_id' => $member['id']])){
-            if (!MemberInfoRepository::getAddId($info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberInfoRepository::getUpdId(['member_id' => $member['id']],$info_arr)){
-                DB::rollBack();
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberInfoRepository::firstOrCreate($info_arr,$info_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
-        if (!MemberPersonalServiceRepository::exists(['member_id' => $member['id']])){
-            if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
-        }else{
-            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $member['id']],$service_arr)){
-                $this->setError('信息完善失败，请重试！');
-                return false;
-            }
+        if (!MemberPersonalServiceRepository::firstOrCreate($service_arr,$service_arr)){
+            DB::rollBack();
+            $this->setError('信息完善失败，请重试！');
+            return false;
         }
         DB::commit();
         $user           = $this->auth->user()->toArray();
@@ -868,10 +853,6 @@ class MemberService extends BaseService
      * @return array
      */
     public static function getHomeShowMemberList($count){
-        /*if (!$list = MemberSpecifyViewRepository::getList(['user_id' => 0])){
-            return [];
-        }
-        $view_user_ids  = array_column($list,'view_user_id');*/
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
         if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
             return [];

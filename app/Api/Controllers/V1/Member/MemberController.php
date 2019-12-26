@@ -929,14 +929,14 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(name="token",in="query",description="会员 TOKEN",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="ch_name",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="numcard",in="query",description="身份证",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="id_card",in="query",description="身份证",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="wechattext",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="publicity",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="services",in="query",description="其他服务[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Response(
      *         response=100,
@@ -949,22 +949,22 @@ class MemberController extends ApiController
     {
         $rules = [
             'sex'                      => 'required|integer',
-            'cname'                    => 'required|string',
+            'ch_name'                  => 'required|string',
             'email'                    => 'email',
             'birthday'                 => 'required',
             'address'                  => 'required',
-            'wechattext'               => 'required|in:0,1',
-            'services'               => 'required|in:0,1',
+            'publicity'                => 'required|in:0,1',
+            'services'                 => 'required|in:0,1',
         ];
         $messages = [
             'sex.required'             => '请填写性别',
             'sex.integer'              => '请正确填写性别',
-            'cname.string'             => '请正确填写姓名',
-            'cname.required'           => '请填写中文姓名',
+            'ch_name.string'           => '请正确填写姓名',
+            'ch_name.required'         => '请填写中文姓名',
             'email.email'              => '邮箱格式不正确',
             'birthday.required'        => '生日未填写',
-            'wechattext.required'      => '微信推广服务不能为空',
-            'wechattext.in'            => '微信推广类型不存在',
+            'publicity.required'       => '微信推广服务不能为空',
+            'publicity.in'             => '微信推广类型不存在',
             'services.required'        => '其他服务不能为空',
             'services.in'              => '其他服务类型不存在',
         ];
