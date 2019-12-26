@@ -253,32 +253,11 @@ class MemberService extends BaseService
     }
 
     /**
-     * 成员查看成员信息 (拆表后  已修改)
-     * @param $request
-     * @return array|bool
-     */
-    public function getMemberInfo($request){
-        $base_column  = ['id','ch_name','avatar_id','status'];
-        $info_column  = ['employer','position','title','profile'];
-        $member_base  = MemberBaseRepository::getOne(['id' => $request['id']],$base_column);
-        $member_info  = MemberInfoRepository::getOne(['member_id' => $request['id']],$info_column);
-        $member_data  = array_merge($member_base,$member_info);
-        $member_data  = ImagesService::getOneImagesConcise($member_data,['avatar_id' => 'single']);
-        if ($member_data['status'] == MemberEnum::DISABLEMEMBER  && $member_data['status'] == MemberEnum::DISABLEOFFICER){
-            $this->setError('该成员已被禁用');
-            return false;
-        }
-        foreach ($member_data as &$value) $value = $value ?? '';
-        $member_data['profile'] = strip_tags($member_data['profile']);
-        $this->setMessage('获取成功!');
-        return $member_data;
-    }
-    /**
      * 成员查看成员信息 (拆表后  已修改) 2
      * @param $request
      * @return array|bool
      */
-    /*public function getMemberInfo($request){
+    public function getMemberInfo($request){
         $column = ['id','ch_name','title','status','employer','position','profile','img_url'];
         if (!$member_info = MemberGradeViewRepository::getOne(['id' => $request['id']],$column)){
             $this->setError('获取失败!');
@@ -294,7 +273,7 @@ class MemberService extends BaseService
         unset($member_info['status'],$member_info['img_url']);
         $this->setMessage('获取成功!');
         return $member_info;
-    }*/
+    }
 
 
     /**
@@ -900,18 +879,10 @@ class MemberService extends BaseService
             $this->setError('修改失败!');
             return false;
         }
-        if (!MemberInfoRepository::exists(['member_id' => $member_id])){
-            if (!MemberInfoRepository::getAddId($info_arr)){
-                DB::rollBack();
-                $this->setError('修改失败!');
-                return false;
-            }
-        }else{
-            if (!MemberInfoRepository::getUpdId(['member_id' => $member_id],$info_arr)){
-                DB::rollBack();
-                $this->setError('修改失败!');
-                return false;
-            }
+        if (!MemberInfoRepository::firstOrCreate($info_arr,$info_arr)){
+            DB::rollBack();
+            $this->setError('修改失败!');
+            return false;
         }
         DB::commit();
         $this->setMessage('修改成功!');
