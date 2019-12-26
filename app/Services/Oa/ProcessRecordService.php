@@ -195,10 +195,35 @@ class ProcessRecordService extends BaseService
             $this->setMessage('暂无数据！');
             return $recode_list;
         }
+        $business_list = [];//业务列表
+        foreach (ProcessCategoryEnum::$data_map as $process_category => $label){
+            $business_ids = [];
+            foreach ($recode_list['data'] as $recode){
+                if ($process_category == $recode['process_category']){
+                    $business_ids[] = $recode['business_id'];
+                }
+            }
+            $business_list[$process_category] = $this->getAllBusinessList($business_ids,$process_category);
+        }
+        foreach ($recode_list['data'] as &$recode){
+            $list = $business_list[$recode['process_category']];
+            foreach ($business_list as $category => $list){
+                if ($recode['process_category'] !== $category){
+                    break;
+                }
+                //foreach ($list)
+            }
+        }
         return [];
     }
 
-    public function getAllBusinessList($business_ids,$process_category){
+    /**
+     * 获取所有流程业务列表
+     * @param $business_ids
+     * @param $process_category
+     * @return array|bool
+     */
+    public function getAllBusinessList($business_ids, $process_category){
         if (empty($business_ids)){
             return [];
         }
@@ -206,6 +231,19 @@ class ProcessRecordService extends BaseService
         if (!isset($process_category)){
             return [];
         }
+        list($class,$function) = $config_data[$process_category];
+        try{
+            $target_object = app()->make($class);
+        }catch (\Exception $e){
+            Loggy::write('error',$e->getMessage());
+            $this->setError('获取失败!');
+            return false;
+        }
+        if(!method_exists($target_object,$function)){
+            $this->setError('函数'.$target_object ."->".$function. '不存在，获取失败!');
+            return false;
+        }
+        return $target_object->$function($business_ids);
     }
 }
             

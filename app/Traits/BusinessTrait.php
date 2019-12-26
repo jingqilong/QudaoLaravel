@@ -341,6 +341,8 @@ trait BusinessTrait
     /**
      * @desc DASHBOARD 仪表板中的我的审核列表
      * @param $user_id
+     * @param int $page
+     * @param int $page_num
      * @return array
      */
     public function getNodeListByUserid($user_id,$page = 1,$page_num = 20){
