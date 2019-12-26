@@ -929,14 +929,14 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(name="token",in="query",description="会员 TOKEN",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="cname",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="ch_name",in="query",description="姓名",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="birthday",in="query",description="生日",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="numcard",in="query",description="身份证",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="id_card",in="query",description="身份证",required=false,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="address",in="query",description="所在地区",required=true,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
      *     @OA\Parameter(name="referrername",in="query",description="推荐人姓名",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="wechattext",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="publicity",in="query",description="微信推广[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Parameter(name="services",in="query",description="其他服务[0 不需要 1需要 ]",required=true,@OA\Schema(type="integer",)),
      *     @OA\Response(
      *         response=100,
@@ -949,22 +949,22 @@ class MemberController extends ApiController
     {
         $rules = [
             'sex'                      => 'required|integer',
-            'cname'                    => 'required|string',
+            'ch_name'                  => 'required|string',
             'email'                    => 'email',
             'birthday'                 => 'required',
             'address'                  => 'required',
-            'wechattext'               => 'required|in:0,1',
-            'services'               => 'required|in:0,1',
+            'publicity'                => 'required|in:0,1',
+            'services'                 => 'required|in:0,1',
         ];
         $messages = [
             'sex.required'             => '请填写性别',
             'sex.integer'              => '请正确填写性别',
-            'cname.string'             => '请正确填写姓名',
-            'cname.required'           => '请填写中文姓名',
+            'ch_name.string'           => '请正确填写姓名',
+            'ch_name.required'         => '请填写中文姓名',
             'email.email'              => '邮箱格式不正确',
             'birthday.required'        => '生日未填写',
-            'wechattext.required'      => '微信推广服务不能为空',
-            'wechattext.in'            => '微信推广类型不存在',
+            'publicity.required'       => '微信推广服务不能为空',
+            'publicity.in'             => '微信推广类型不存在',
             'services.required'        => '其他服务不能为空',
             'services.in'              => '其他服务类型不存在',
         ];
@@ -997,15 +997,15 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(name="token",in="query",description="用户 token",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_phone",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_birthday",in="query",description="生日【格式 2019-11-18】",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_email",in="query",description="邮箱",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_workunits",in="query",description="单位",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_industry",in="query",description="从事行业",required=false,@OA\Schema(type="integer",)),
-     *     @OA\Parameter(name="m_address",in="query",description="地址",required=true,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_socialposition",in="query",description="社会职务[泰基企业 董事长,老凤祥 董事长]",required=false,@OA\Schema(type="string",)),
-     *     @OA\Parameter(name="m_introduce",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="mobile",in="query",description="手机号",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="sex",in="query",description="性别 1先生 2女士",required=true,@OA\Schema(type="integer",)),
+     *     @OA\Parameter(name="birthday",in="query",description="生日【格式 2019-11-18】",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="email",in="query",description="邮箱",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="employer",in="query",description="单位",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="industry",in="query",description="从事行业",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="address",in="query",description="地址",required=true,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="title",in="query",description="社会职务[泰基企业 董事长,老凤祥 董事长]",required=false,@OA\Schema(type="string",)),
+     *     @OA\Parameter(name="profile",in="query",description="个人简介",required=false,@OA\Schema(type="string",)),
      *     @OA\Response(
      *         response=100,
      *         description="用户信息获取失败",
@@ -1016,21 +1016,20 @@ class MemberController extends ApiController
     public function editMemberInfo()
     {
         $rules = [
-            'm_phone'                    => 'required|regex:/^1[35678][0-9]{9}$/',
-            'm_sex'                      => 'required|in:1,2',
-            'm_email'                    => 'required|email',
-            'm_birthday'                 => 'required',
-            'm_address'                  => 'required',
+            'mobile'            => 'required|regex:/^1[35678][0-9]{9}$/',
+            'sex'               => 'required|in:1,2',
+            'email'             => 'email',
+            'birthday'          => 'required',
+            'address'           => 'required',
         ];
         $messages = [
-            'm_phone.required'           => '请填写手机号码',
-            'm_birthday.required'        => '请填写生日',
-            'm_phone.regex'              => '手机号码不正确',
-            'm_sex.required'             => '请填写性别',
-            'm_sex.integer'              => '请正确填写性别',
-            'm_email.email'              => '邮箱格式不正确',
-            'm_email.required'           => '邮箱格式不正确',
-            'm_address.required'         => '请填写您的地址',
+            'mobile.required'   => '请填写手机号码',
+            'mobile.regex'      => '手机号码不正确',
+            'birthday.required' => '请填写生日日期',
+            'sex.required'      => '请填写性别',
+            'sex.in'            => '请正确填写性别',
+            'email.email'       => '邮箱格式不正确',
+            'address.required'  => '请填写您的地址',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

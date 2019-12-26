@@ -29,7 +29,7 @@ class MemberBaseModel extends Authenticatable implements JWTSubject
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','card_no','mobile','email','ch_name','en_name','sex','avatar_id','id_card','birthplace','password','status','hidden','referral_code','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','card_no','mobile','email','ch_name','en_name','sex','avatar_id','id_card','birthplace','birthday','category','wechat_no','zipcode','address','password','status','hidden','referral_code','created_at','updated_at','deleted_at'];
 
 
 

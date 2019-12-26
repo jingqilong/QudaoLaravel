@@ -9,7 +9,10 @@ use App\Events\SendDingTalkEmail;
 use App\Events\SendSiteMessage;
 use App\Events\SendFlowSms;
 use App\Events\SendWeChatPush;
-
+use App\Listeners\SendDingTalkEmailListener;
+use App\Listeners\SendFlowSmsListener;
+use App\Listeners\SendSiteMessageListener;
+use App\Listeners\SendWeChatPushListener;
 
 
 class EventServiceProvider extends ServiceProvider
@@ -20,7 +23,7 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $subscribe = [
-        '\App\Listeners\ProcessEventSubscriber',
+        #'\App\Listeners\ProcessEventSubscriber',
     ];
     /**
      * The event listener mappings for the application.
@@ -33,21 +36,21 @@ class EventServiceProvider extends ServiceProvider
         ],
         SendDingTalkEmail::class => [
             //钉钉邮件通知 流程订阅都监听
-            \App\Listeners\SendDingTalkEmailListener::class,
+            SendDingTalkEmailListener::class,
         ],
         SendWeChatPush::class => [
             //微信推送 流程订阅都监听
-            \App\Listeners\SendWeChatPushListener::class,
-            //ProcessEventSubscriber::class,
+            SendWeChatPushListener::class,
         ],
         SendSiteMessage::class => [
             //站内信息 流程订阅都监听
-            \App\Listeners\SendSiteMessageListener::class,
+            SendSiteMessageListener::class,
         ],
         SendFlowSms::class => [
             //短信 流程订阅都监听
-            \App\Listeners\SendFlowSmsListener::class,
-        ],    ];
+            SendFlowSmsListener::class,
+        ],
+    ];
 
     /**
      * Register any events for your application.

@@ -27,7 +27,7 @@ class MemberBaseRepository extends ApiRepository
     }
 
     /**
-     * OA 获取成员列表
+     * OA 获取成员基础信息
      * @param $keywords
      * @param $is_home_detail
      * @param int $page
