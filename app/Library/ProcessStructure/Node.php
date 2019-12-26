@@ -6,96 +6,90 @@ namespace App\ProcessStructure;
 
 use App\Repositories\OaProcessNodeActionRepository;
 use App\Repositories\OaProcessNodeRepository;
-use App\Repositories\OaProcessTransitionRepository;
 
 class Node
 {
     /**
+     * 节点ID
      * @var Int
      */
-    public $id;
+    public $node_id;
 
     /**
+     * 节点名称
      * @var string
      */
     public $name;
 
     /**
+     * 节点步骤
      * @var int
      */
     public $position;
 
     /**
+     * 节点说明
      * @var string
      */
     public $description;
-
-    /**
-     * 动作
-     * @var array
-     */
-    public $actions = [];
-
-    /**
-     * 子节点
-     * @var array
-     */
-    public $children = [];
-
-    /**
-     * 父级节点
-     * @var Node|Null
-     */
-    public $parent;
-
-    /**
-     * 流转
-     * @var array
-     */
-    public $transitions = [];
-
     /**
      * 节点动作
      * @var array
      */
     public $node_actions = [];
 
+    public $children = [];
+
+    public $back_node_ids = [];
+
     /**
      * 需要返回的数据
      * @var array
      */
-    public $return_data;
 
     /**
      * Node constructor.
-     * @param Int $id
-     * @param Node|Null $parent
+     * @param Int $node_id
      */
-    public function __construct(Int $id, Node $parent=Null)
+    public function __construct(Int $node_id)
     {
-        $this->id = $id;
-        if(null!==$parent){
-            $this->parent = $parent;
+        $this->node_id = $node_id;
+    }
+
+    /**
+     * @desc 获取流程数据并填充
+     */
+    public function setData(){
+        $id = $this->node_id;
+        if ($process = OaProcessNodeRepository::getOne(['id' => $id])){
+            $this->node_id      = $process['id'];
+            $this->name         = $process['name'];
+            $this->position     = $process['position'];
+            $this->description  = $process['description'];
+        }
+        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $id])){
+            foreach ($node_actions as $node_action){
+                $action = new Action($node_action['action_id'],$node_action['id'],$this);
+                $action->setData();
+                $this->node_actions[] = $action;
+            }
         }
     }
 
     /**
-     *
+     * @param $node_id
+     * @return bool
      */
-    public function init(){
-        foreach($this->transitions as $transition){
-            if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])){
-                #如果下一节点是当前节点之前，则不能继续创建
-                if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){
-                    if ($next_node['position'] <= $current_node['position']){
-                        continue;
-                    }
-                }
+    public function exists($node_id){
+       foreach($this->children as $node ){
+            if($node->exists($node_id)) {
+                return true;
             }
-            $child  = new Node($transition['next_node'],$this);
-            $child->init();
-            $this->children[] = $child;
-        }
+            if($node_id == $this->node_id){
+                return true;
+            }
+       }
+       return false;
     }
 
     /**
@@ -103,39 +97,20 @@ class Node
      * @return array
      */
     public function buildData(){
-        $return_data = [];
+        $return_data                = [];
+        $return_data['node_id']     = $this->node_id;
+        $return_data['name']        = $this->name;
+        $return_data['position']    = $this->position;
+        $return_data['description'] = $this->description;
+        $return_data['back_node_ids'] = $this->back_node_ids;
+        $return_data['node_actions']= [];
+        foreach ($this->node_actions as $action){
+            $return_data['node_actions'][]= $action->buildData();
+        }
+        $return_data['children']    = [];
         foreach($this->children as $node){
             $return_data['children'][] = $node->buildData();
         }
-        $return_data['data']['id']          = $this->id;
-        $return_data['data']['name']        = $this->name;
-        $return_data['data']['position']    = $this->position;
-        $return_data['data']['description'] = $this->description;
-        $this->return_data = $return_data;
         return $return_data;
-    }
-
-    /**
-     * @desc 获取流程数据并填充
-     */
-    public function setData(){
-        $id = $this->id;
-        if ($process = OaProcessNodeRepository::getOne(['id' => $id])){
-            $this->id           = $process['id'];
-            $this->name         = $process['name'];
-            $this->position     = $process['position'];
-            $this->description  = $process['description'];
-        }
-        if ($transitions = OaProcessTransitionRepository::getList(['current_node' => $id])){
-            $this->transitions = $transitions;
-        }
-        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $id])){
-            foreach ($node_actions as $node_action){
-                $action = new Action($node_action['action_id'],$node_action['id']);
-                $action->setData();
-                $action->buildNodeActionResult();
-                $this->node_actions[] = $action;
-            }
-        }
     }
 }

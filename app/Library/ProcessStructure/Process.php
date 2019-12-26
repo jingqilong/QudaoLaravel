@@ -13,66 +13,59 @@ class Process
      * 流程ID
      * @var int
      */
-    public $id;
+    public $process_id;
     /**
      * 流程名称
      * @var string
      */
-    public $name;
+    public $name = '';
     /**
      * 流程描述
      * @var string
      */
-    public $description;
+    public $description = '';
 
-    /**
-     * 第一个节点
-     * @var int
-     */
-    public $first_node_id = 0;
 
     /**
      * @var Node
      */
     public $node;
 
-    public $node_data;
-
     public function __construct($id)
     {
-        $this->setData($id);
+        $this->process_id = $id;
     }
 
     /**
      * @desc 获取流程数据并填充
-     * @param $id
      */
-    public function setData($id){
+    public function setData(){
+        $id = $this->process_id;
         if ($process = OaProcessDefinitionRepository::getOne(['id' => $id])){
-            $this->id           = $process['id'];
+            $this->process_id   = $process['id'];
             $this->name         = $process['name'];
             $this->description  = $process['description'];
         }
-        if ($first_node = OaProcessNodeRepository::getOrderOne(['process_id' => $this->id],'position','asc')){
-            $this->first_node_id = $first_node['id'];
+        if ($first_node = OaProcessNodeRepository::getOrderOne(['process_id' => $id],'position','asc')){
+            $first_node_id = $first_node['id'];
+            $node = new Node($first_node_id);
+            $node->setData();
+            $this->node = $node;
         }
     }
 
     /**
-     * @desc 获取流程节点
-     */
-    public function getNode(){
-        $node = new Node($this->first_node_id);
-        $node->setData();
-//        $node->init();
-        $this->node = $node;
-    }
-
-    /**
-     * 获取节点数据
+     * 生成数据
      * @return array
      */
-    public function getNodeData(){
-        return $this->node->buildData();
+    public function buildData(){
+        $return_data['process_id']  = $this->process_id;
+        $return_data['name']        = $this->name;
+        $return_data['description'] = $this->description;
+        $return_data['children']    = [];
+        if ($this->node){
+            $return_data['children'][]= $this->node->buildData();//原名node
+        }
+        return $return_data;
     }
 }

@@ -117,7 +117,7 @@ class ProcessActionsService extends BaseService
             $this->setMessage('暂无数据!');
             return $action_list;
         }
-        $action_ids = array_column($action_list,'id');
+        $action_ids = array_column($action_list['data'],'id');
         $action_results_list = OaProcessActionsResultRepository::getList(['action_id' => ['in',$action_ids]],['id','action_id','name']);
         foreach ($action_list['data'] as &$value){
             $value['results']       = [];

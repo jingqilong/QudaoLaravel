@@ -151,7 +151,11 @@ trait BusinessTrait
      */
     public function getProcessRecordList($request){
         $processRecordService = new ProcessRecordService();
-        return $processRecordService->getProcessRecodeList($request);
+        $recode_list = $processRecordService->getProcessRecodeList($request);
+        if ($recode_list == false){
+            return ['code' => 100,$processRecordService->error];
+        }
+        return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
 
 
@@ -337,9 +341,17 @@ trait BusinessTrait
     /**
      * @desc DASHBOARD 仪表板中的我的审核列表
      * @param $user_id
+     * @param int $page
+     * @param int $page_num
+     * @return array
      */
-    public function getNodeListByUserid($user_id){
-        //TODO  获取仪表板中的我的审核列表
+    public function getNodeListByUserid($user_id,$page = 1,$page_num = 20){
+        $processRecordService = new ProcessRecordService();
+        $recode_list = $processRecordService->getNodeListByUserId($user_id,$page,$page_num);
+        if ($recode_list == false){
+            return ['code' => 100,$processRecordService->error];
+        }
+        return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
 
 

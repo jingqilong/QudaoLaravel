@@ -177,6 +177,7 @@ $api->version('v1',function ($api){
                     $api->delete('delete_last_node_transition','ProcessController@deleteTransition')->name('删除与上一步节点之间的流转');
                     $api->delete('delete_node','ProcessController@deleteNode')->name('删除流程节点');
                     $api->post('process_edit_node','ProcessController@processEditNode')->name('流程修改节点');
+                    $api->post('action_result_choose_status','ProcessController@actionResultChooseStatus')->name('流程动作结果选择流转状态');
 
                     #流程事件定义
                     $api->post('add_event','ProcessEventsController@addEvent')->name('添加事件');
@@ -201,15 +202,11 @@ $api->version('v1',function ($api){
                     $api->post('process_edit_event','ProcessActionEventController@processEditEvent')->name('流程修改事件');
                     $api->get('get_process_event_list','ProcessActionEventController@getProcessEventList')->name('获取流程事件列表');
 
-                    $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
-
                     #节点动作负责人
                     $api->post('add_node_action_principal','ProcessActionPrincipalsController@addNodeActionPrincipal')->name('添加节点动作负责人');
                     $api->delete('delete_node_action_principal','ProcessActionPrincipalsController@deleteNodeActionPrincipal')->name('删除节点动作负责人');
                     $api->post('edit_node_action_principal','ProcessActionPrincipalsController@editNodeActionPrincipal')->name('修改节点动作负责人');
                     $api->get('get_node_action_principal_list','ProcessActionPrincipalsController@getNodeActionPrincipalList')->name('获取节点动作负责人列表');
-
-                    $api->post('process_record','ProcessController@processRecord')->name('记录流程进度');
                 });
             });
         });

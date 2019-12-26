@@ -883,7 +883,7 @@ class MemberService extends BaseService
     }
 
     /**
-     * 成员编辑个人信息  (拆表后  已修改)
+     * 成员编辑个人信息  (已修改)
      * @param $request
      * @return bool
      */
@@ -891,23 +891,23 @@ class MemberService extends BaseService
     {
         $member    = $this->auth->user();
         $member_id = $member->id;
-        if (!MemberBaseRepository::getOne(['id' => $member_id,'deleted_at' => 0])){
+        if (!MemberBaseRepository::getOne(['id' => $member_id])){
             $this->setError('成员不存在!');
             return false;
         }
         $base_arr = [
-            'mobile'     => $request['m_phone'],
-            'sex'        => $request['m_sex'],
-            'email'      => $request['m_email'],
+            'mobile'     => $request['mobile'],
+            'sex'        => $request['sex'],
+            'email'      => $request['email'] ?? '',
+            'birthday'   => $request['birthday'],
+            'address'    => $request['address'] ?? '',
         ];
         $info_arr = [
             'member_id'  => $member_id,
-            'birthday'   => $request['m_birthday'] ?? null,
-            'employer'   => $request['m_workunits'] ?? null,
-            'industry'   => $request['m_industry'] ?? null,
-            'address'    => $request['m_address'] ?? null,
-            'title'      => $request['m_socialposition'] ?? null,
-            'profile'    => $request['m_introduce'] ?? null
+            'employer'   => $request['employer'] ?? '',
+            'industry'   => $request['industry'] ?? '',
+            'title'      => $request['title'] ?? '',
+            'profile'    => $request['profile'] ?? ''
         ];
         if (MemberBaseRepository::exists($base_arr)){
             $this->setError('成员已存在!');
