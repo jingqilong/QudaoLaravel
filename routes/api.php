@@ -201,8 +201,6 @@ $api->version('v1',function ($api){
                     $api->post('process_edit_event','ProcessActionEventController@processEditEvent')->name('流程修改事件');
                     $api->get('get_process_event_list','ProcessActionEventController@getProcessEventList')->name('获取流程事件列表');
 
-                    $api->post('action_add_related','ProcessController@actionAddRelated')->name('给流程节点动作事件与下一节点');
-
                     #节点动作负责人
                     $api->post('add_node_action_principal','ProcessActionPrincipalsController@addNodeActionPrincipal')->name('添加节点动作负责人');
                     $api->delete('delete_node_action_principal','ProcessActionPrincipalsController@deleteNodeActionPrincipal')->name('删除节点动作负责人');
