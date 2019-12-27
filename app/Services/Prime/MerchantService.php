@@ -458,7 +458,6 @@ class MerchantService extends BaseService
         $list['data'] = CommonImagesService::getListImages($list['data'], ['banner_ids'=> 'single']
         );
         foreach ($list['data'] as &$value){
-            $value['type_label']         = PrimeTypeEnum::getType($value['type']);
             $value['expect_spend_title'] = empty($value['expect_spend']) ? '' : '人均 '.round($value['expect_spend'] / 100,2).' 元';
             unset($value['banner_ids'],$value['logo_id']);
         }
