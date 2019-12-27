@@ -358,14 +358,31 @@ class GradeOrdersService extends BaseService
         return $result_list;
     }
 
+    /**
+     * 获取申请详情
+     * @param $id
+     * @return bool|null
+     */
     public function getApplyDetail($id)
     {
+        $employee = Auth::guard('oa_api')->user();
         $column = ['id','member_id','mobile','ch_name','sex','previous_grade_title','grade_title','amount','validity','order_no','status','created_at','updated_at','payment_amount'];
-        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id])){
+        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id],$column)){
             $this->setError('记录不存在！');
             return false;
         }
         #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::MEMBER_UPGRADE]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        $apply['progress'] = $progress['data'];
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
+        $apply['process_permission'] = $process_permission;
+        $apply['action_result_list'] = $this->getActionResultList($process_permission['process_record_id']);
+        $this->setMessage('获取成功！');
+        return $apply;
     }
 }
             

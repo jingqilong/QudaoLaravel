@@ -10,6 +10,7 @@ use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
+use App\Repositories\OaProcessRecordActionsResultViewRepository;
 use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
@@ -160,7 +161,7 @@ trait BusinessTrait
         $processRecordService = new ProcessRecordService();
         $recode_list = $processRecordService->getProcessRecodeList($request);
         if ($recode_list == false){
-            return ['code' => 100,$processRecordService->error];
+            return ['code' => 100,'message' => $processRecordService->error];
         }
         return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
@@ -412,5 +413,19 @@ trait BusinessTrait
             $progress['process_record_id']  = $result['process_record_id'];
         }
         return $progress;
+    }
+
+    /**
+     * 获取操作结果列表
+     * @param $process_record_id
+     * @return array|null
+     */
+    public function getActionResultList($process_record_id){
+        $actions_result_column = ['node_actions_result_id','actions_result_name'];
+        #如果查看的人是操作人，返回这个操作列表
+        if (!$action_result_list = OaProcessRecordActionsResultViewRepository::getList(['record_id' => $process_record_id],$actions_result_column)){
+            $action_result_list = [];
+        }
+        return $action_result_list;
     }
 }
