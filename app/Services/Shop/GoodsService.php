@@ -396,11 +396,16 @@ class GoodsService extends BaseService
         $page_num = $request['page_num'] ?? 20;
         $keywords = $request['keywords'] ?? null;
         $category = $request['category'] ?? null;
+        $price_sort = $request['price_sort'] ?? null;
         $order      = 'id';
         $asc_desc   = 'desc';
         $where = ['deleted_at' => 0,'status' => ShopGoodsEnum::PUTAWAY];
         if (!is_null($category)){
             $where['category'] = $category;
+        }
+        if (!is_null($price_sort)){
+            $order = 'price';
+            $asc_desc = $price_sort == 1 ? 'desc' : 'asc';
         }
         $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (!empty($keywords)){
