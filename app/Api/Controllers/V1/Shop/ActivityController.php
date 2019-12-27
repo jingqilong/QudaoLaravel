@@ -58,7 +58,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="活动类别，1积分兑换、2好物推荐（首页）",
+     *         description="活动类别，1积分兑换、2好物推荐，3首页展示",
      *         required=true,
      *         @OA\Schema(
      *             type="integer"
@@ -77,7 +77,7 @@ class ActivityController extends ApiController
      *         name="show_image",
      *         in="query",
      *         description="展示图片id，用于首页展示",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer"
      *         )
@@ -92,9 +92,9 @@ class ActivityController extends ApiController
     public function addActivityGoods(){
         $rules = [
             'goods_id'      => 'required|integer',
-            'type'          => 'required|in:1,2',
+            'type'          => 'required|in:1,2,3',
             'status'        => 'required|in:1,2',
-            'show_image'    => 'required|integer',
+            'show_image'    => 'integer',
         ];
         $messages = [
             'goods_id.required'     => '商品ID不能为空',
@@ -103,7 +103,6 @@ class ActivityController extends ApiController
             'type.in'               => '不存在该活动类型',
             'status.required'       => '展示状态不能为空',
             'status.in'             => '展示状态取值不存在',
-            'show_image.required'   => '展示图片不能为空',
             'show_image.integer'    => '展示图片ID必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -225,16 +224,7 @@ class ActivityController extends ApiController
      *         name="show_image",
      *         in="query",
      *         description="展示图片id，用于首页展示",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="stop",
-     *         in="query",
-     *         description="是否停止使用此商品，1不停止，2停止",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer"
      *         )
@@ -250,18 +240,14 @@ class ActivityController extends ApiController
         $rules = [
             'activity_id'       => 'required|integer',
             'status'            => 'required|in:1,2',
-            'show_image'        => 'required|integer',
-            'stop'              => 'required|in:1,2',
+            'show_image'        => 'integer',
         ];
         $messages = [
             'activity_id.required'  => '商品活动ID不能为空',
             'activity_id.integer'   => '商品活动ID必须为整数',
             'status.required'       => '展示状态不能为空',
             'status.in'             => '展示状态取值不存在',
-            'show_image.required'   => '展示图片不能为空',
             'show_image.integer'    => '展示图片ID必须为整数',
-            'stop.required'         => '是否停止使用此商品不能为空',
-            'stop.in'               => '是否停止使用此商品取值不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -312,7 +298,7 @@ class ActivityController extends ApiController
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="商品活动类型，1积分兑换 2好物推荐（首页）",
+     *         description="活动类别，1积分兑换、2好物推荐，3首页展示",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -363,5 +349,79 @@ class ActivityController extends ApiController
             return ['code' => 100, 'message' => $this->activityService->error];
         }
         return ['code' => 200, 'message' => $this->activityService->message, 'data' => $res];
+    }
+
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/set_activity_goods_status",
+     *     tags={"商城后台"},
+     *     summary="设置活动商品状态",
+     *     description="sang" ,
+     *     operationId="set_activity_goods_status",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="activity_id",
+     *         in="query",
+     *         description="商品活动ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态，1禁用，2开启",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function setActivityGoodsStatus(){
+        $rules = [
+            'activity_id'   => 'required|integer',
+            'status'        => 'required|in:1,2',
+        ];
+        $messages = [
+            'activity_id.required'  => '商品活动ID不能为空',
+            'activity_id.integer'   => '商品活动ID必须为整数',
+            'status.required'       => '状态不能为空',
+            'status.in'             => '状态取值有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->activityService->setActivityGoodsStatus($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->activityService->error];
+        }
+        return ['code' => 200, 'message' => $this->activityService->message];
     }
 }

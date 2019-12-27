@@ -29,7 +29,7 @@ class HomeBannersService extends BaseService
      */
     public static function getHomeBanners($module = CommonHomeEnum::MAINHOME,$count = 4){
         $column = ['id','link_type','related_id','image_id','url'];
-        $where = ['page_space' => $module];
+        $where = ['page_space' => $module,'status' => CommonHomeEnum::SHOW];
         if (!$banners = CommonHomeBannersRepository::getList($where,$column,'sort','asc')){
             return [];
         }
@@ -227,7 +227,7 @@ class HomeBannersService extends BaseService
             return $list;
         }
         $list['data']   = $this->getBannerListRelatedInfo($list['data']);
-        $list['data']   = EmployeeService::getListOperationByName($list['data']);
+        $list['data']   = EmployeeService::getListOperationByName($list['data'],['created_by' => 'created_by_name','updated_by' => 'updated_by_name']);
         $list['data']   = ImagesService::getListImages($list['data'],['image_id' => 'single']);
         foreach ($list['data'] as &$datum){
             $datum['page_space_title']  = CommonHomeEnum::getBannerModule($datum['page_space']);
@@ -270,14 +270,14 @@ class HomeBannersService extends BaseService
             return false;
         }
         //如果状态为展示，需要检查编辑的banner相同展示（顺序）位置是否已有展示信息，如果有，关闭之前的展示信息
-        $check_where = ['page_space' => $banner['page_space'],'sort' => $banner['sort'],'status' => CommonHomeEnum::SHOW];
+        $check_where = ['page_space' => $banner['page_space'],'status' => CommonHomeEnum::SHOW];
         if (CommonHomeEnum::HIDDEN == $request['status']){
-            if (1 == CommonHomeBannersRepository::count($check_where)){
+            if (1 == CommonHomeBannersRepository::count(array_merge($check_where))){
                 $this->setError('当前显示位置仅剩一张banner，无法再隐藏！');
                 return false;
             }
         }else{
-            if ($show_banner = CommonHomeBannersRepository::getOne($check_where)){
+            if ($show_banner = CommonHomeBannersRepository::getOne(array_merge($check_where,['sort' => $banner['sort']]))){
                 $upd_show = ['status' => CommonHomeEnum::HIDDEN,'updated_by' => $employee_id,'updated_at' => time()];
                 if (!CommonHomeBannersRepository::getUpdId(['id' => $show_banner['id']],$upd_show)){
                     $this->setError('操作失败！');
@@ -333,6 +333,9 @@ class HomeBannersService extends BaseService
         //将相关的信息写入列表
         foreach ($banner_list as &$value){
             $value['related_name'] = '';
+            if (in_array($value['link_type'],[CommonHomeEnum::AD])){//广告是没有相关信息的
+                continue;
+            }
             if ($relate = $this->searchArray($related_infos[$value['link_type']],'id',$value['related_id'])){
                 $value['related_name'] = reset($relate)[$banner_type_to_column[$value['link_type']]];
             }

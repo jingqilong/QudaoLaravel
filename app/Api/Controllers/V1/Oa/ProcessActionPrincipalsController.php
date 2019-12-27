@@ -285,7 +285,7 @@ class ProcessActionPrincipalsController extends ApiController
      *         name="node_action_id",
      *         in="query",
      *         description="节点动作ID",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -323,12 +323,13 @@ class ProcessActionPrincipalsController extends ApiController
      */
     public function getNodeActionPrincipalList(){
         $rules = [
-            'node_action_id'            => 'integer',
+            'node_action_id'            => 'required|integer',
             'principal_iden'            => 'in:'.ProcessPrincipalsEnum::getPrincipalString(),
             'page'                      => 'integer',
             'page_num'                  => 'integer',
         ];
         $messages = [
+            'node_action_id.required'           => '节点动作ID不能为空！',
             'node_action_id.integer'            => '节点动作ID必须为整数！',
             'principal_iden.in'                 => '负责人身份有误！',
             'page.integer'                      => '页码必须为整数',
@@ -339,7 +340,7 @@ class ProcessActionPrincipalsController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->processActionPrincipalsService->getPrincipalList(
-            $this->request['node_action_id'] ?? null,
+            $this->request['node_action_id'],
             $this->request['principal_iden'] ?? null,
             $this->request['page'] ?? 1,
             $this->request['page_num'] ?? 20

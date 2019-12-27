@@ -55,4 +55,12 @@ class ProcessCategoryEnum extends BaseEnum
     public static function getLabelByValue(int $value){
         return isset(self::$data_map[$value]) ? self::$labels[self::$data_map[$value]] : '';
     }
+
+    /**
+     * 获取数据校验字符串
+     * @return string
+     */
+    public static function getCheckString(){
+        return implode(',',array_keys(self::$data_map));
+    }
 }

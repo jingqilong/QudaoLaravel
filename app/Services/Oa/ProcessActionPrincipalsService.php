@@ -139,19 +139,18 @@ class ProcessActionPrincipalsService extends BaseService
     /**
      * @param $node_action_id
      * @param int $principal_iden
-     * @desc 根据指定的action_id 以及 $principal_type 获取相关人列表
+     * @param $page
+     * @param $pageNum
      * @return mixed
+     * @desc 根据指定的action_id 以及 $principal_type 获取相关人列表
      */
     public function getPrincipalList($node_action_id,$principal_iden,$page,$pageNum){
-        $where = [];
-        if(!empty($node_action_id)){
-            $where ['node_action_id']=$node_action_id;
-         }
+        $where = ['node_action_id' => $node_action_id];
         if(!empty($principal_iden)){
             $where ['principal_iden']=$principal_iden;
         }
         $column = ['id', 'node_action_id', 'principal_id','principal_iden', 'created_at', 'updated_at'];
-        if (!$principal_list = OaProcessActionPrincipalsRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$pageNum)){
+        if (!$principal_list = OaProcessActionPrincipalsRepository::getList($where,$column,'id','asc',$page,$pageNum)){
             $this->setError('获取失败!');
             return false;
         }
@@ -161,23 +160,21 @@ class ProcessActionPrincipalsService extends BaseService
             return $principal_list;
         }
         //TODO 这里最好改为视图。
-        $employee_ids ='';
-        foreach($principal_list['data'] as $principal){
-            if(!empty($employee_ids)){
-                $employee_ids.=',';
-            }
-            $employee_ids .= $principal['principal_id'];
-        }
-        $employee_list = OaEmployeeRepository::getList(['is'=>['in',$employee_ids]],['id','real_name'],['id'],'asc',1,count($principal_list['data']));
+        $employee_ids = array_column($principal_list['data'],'principal_id');
+        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name'],'id','asc');
         foreach($principal_list['data'] as &$principal){
+            $principal['principal_iden_label']  = ProcessPrincipalsEnum::getPprincipalLabel($principal['principal_iden']);
+            $principal['real_name']             = '';
             foreach($employee_list as $employee){
                 if ($employee['id']== $principal['principal_id']){
                     $principal['real_name'] = $employee['real_name'];
                     break;
                 }
             }
+            $principal['created_at'] = empty($principal['created_at']) ? '' : date('Y-m-d H:i:s',$principal['created_at']);
+            $principal['updated_at'] = empty($principal['updated_at']) ? '' : date('Y-m-d H:i:s',$principal['updated_at']);
         }
-        return $employee_list;
+        return $principal_list;
     }
 
     /**
