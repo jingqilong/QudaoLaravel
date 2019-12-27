@@ -114,11 +114,11 @@ class MemberEnum extends BaseEnum
 
     //pass
     public static $expiration = [
+        0 => 'PERMANENT',
         1 => 'ONEYEAR',
         2 => 'TWOYEAR',
         3 => 'THREEYEAR',
         4 => 'FIVEYEAR',
-        5 => 'PERMANENT',
     ];
 
     // 成员等级
@@ -194,11 +194,11 @@ class MemberEnum extends BaseEnum
     const IDENTITY          = 2;    //身份类型
 
     //通过
+    const PERMANENT         = 0;    //永久有效
     const ONEYEAR           = 1;    //一年
     const TWOYEAR           = 2;    //两年
     const THREEYEAR         = 3;    //三年
     const FIVEYEAR          = 4;    //五年
-    const PERMANENT         = 5;    //永久有效
 
 
     /**

@@ -34,52 +34,6 @@ class OaMemberService extends BaseService
         $this->auth = Auth::guard('oa_api');
     }
 
-
-    /**
-     * 获取成员列表 (拆表后 已修改)
-     * @param array $data
-     * @return mixed
-     */
-    /*public function getMemberList(array $data)
-    {
-        if (empty($data['asc'])) $data['asc'] = 1;
-        $is_home_detail = $data['is_home_detail'] ?? null;
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $keywords       = $data['keywords'] ?? null;
-        $column         = ['id','card_no','ch_name','en_name','is_recommend','is_home_detail','sex','mobile','grade','position','address','employer','img_url','title','category','status','hidden','created_at'];
-        $where          = ['deleted_at' => 0];
-        if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
-        if (!empty($keywords)){
-            $keyword        = [$keywords => ['ch_name','en_name','category','card_no','mobile','grade']];
-            if(!$member_list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)){
-                $this->setMessage('暂无成员信息！');
-                return [];
-            }
-        }else {
-            if(!$member_list = MemberGradeViewRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
-                $this->setMessage('没有查到该成员！');
-                return [];
-            }
-        }
-        $this->removePagingField($member_list);
-        if (empty($member_list['data'])) {
-            $this->setMessage('没有成员!');
-        }
-        foreach ($member_list['data'] as &$value){
-            $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
-            $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
-            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
-            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
-        }
-        $this->setMessage('获取成功！');
-        return $member_list;
-    }*/
-
-
     /**
      * 获取成员列表 (拆表后 已修改) （2）
      * @param array $data
@@ -144,8 +98,8 @@ class OaMemberService extends BaseService
         if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
         if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
-        if (empty($member_preference = MemberPreferenceRepository::getOne(['member_id' => $id]))) $member_preference = [];
-        $member = array_merge($member_base,$member_info,$member_grade,$member_service,$member_preference);
+        $preference['preference'] = MemberPreferenceRepository::getPreference($id);
+        $member = array_merge($member_base,$member_info,$member_grade,$member_service,$preference);
         $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
         $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
         $member['is_recommend']  = $member['is_recommend'] == 0 ? 0 : 1;
@@ -169,11 +123,11 @@ class OaMemberService extends BaseService
      */
     public function delMember(string $id)
     {
-        if (!MemberGradeViewRepository::exists(['id' => $id])){
+        if (!MemberBaseRepository::exists(['id' => $id])){
             $this->setError('用户信息不存在!');
             return false;
         }
-        //检查商品是否为banner展示
+        //检查会员是否为banner展示
         $homeBannerService = new HomeBannersService();
         if ($homeBannerService->deleteBeforeCheck(CommonHomeEnum::MEMBER,$id) == false){
             $this->setError($homeBannerService->error);
@@ -228,7 +182,7 @@ class OaMemberService extends BaseService
             $this->setError('添加失败，请重试！');
             return false;
         }
-        if (!$member_id = MemberInfoRepository::addMemberInfo($request,$member_id)){
+        if (!MemberInfoRepository::addMemberInfo($request,$member_id)){
             DB::rollBack();
             $this->setError('添加失败，请重试！');
             return false;
@@ -443,6 +397,149 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+    /**
+     * 添加成员的基本信息
+     * @param $request
+     * @return bool|null
+     */
+    public function addMemberBase($request)
+    {
+        $add_arr = [
+            'card_no'       => $request['card_no'],
+            'email'         => $request['email'] ?? '',
+            'ch_name'       => $request['ch_name'],
+            'en_name'       => $request['en_name'] ?? '',
+            'sex'           => $request['sex'],
+            'avatar_id'     => $request['avatar_id'] ?? 1516,
+            'id_card'       => $request['id_card'] ?? '',
+            'category'      => $request['category'],
+            'birthplace'    => $request['birthplace'] ?? '',
+            'status'        => $request['status'],
+            'hidden'        => $request['hidden'],
+            'birthday'      => $request['birthday'] ?? '',
+            'zipcode'       => $request['zipcode'] ?? '',
+            'address'       => $request['address'] ?? '',
+            'wechat_no'     => $request['wechat_no'] ?? '',
+            'zodiac'        => $request['zodiac'] ?? '',
+            'constellation' => $request['constellation'] ?? '',
+            'created_at'    => time(),
+            'updated_at'    => time(),
+        ];
+        if ($request['end_at'] == MemberEnum::PERMANENT) $end_at = 0; else $end_at = strtotime('+' . $request['end_at'] . 'year',$add_arr['created_at']);
+        $grade_arr = [
+            'grade'       =>  $request['grade'],
+            'end_at'      =>  $end_at,
+            'status'      =>  MemberEnum::NOSET,
+            'created_at'  =>  $add_arr['created_at'],
+            'update_at'   =>  time(),
+        ];
+        DB::beginTransaction();
+        if (!$member_id = MemberBaseRepository::addUser($request['mobile'],$add_arr)){
+            $this->setError('成员添加失败!');
+            DB::rollBack();
+            return false;
+        }
+        $grade_arr['user_id'] = $member_id;
+        if (!MemberGradeRepository::create([$grade_arr])){
+            $this->setError('成员添加失败!');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('成员基本信息添加成功!');
+        DB::commit();
+        return $member_id;
+    }
+
+    /**
+     * 添加成员简历信息
+     * @param $request
+     * @return bool|null
+     */
+    public function addMemberInfo($request)
+    {
+        $add_arr = [
+            'member_id'       => $request['member_id'],
+            'employer'        => $request['employer'] ?? '',
+            'position'        => $request['position'] ?? '',
+            'title'           => $request['title'] ?? '',
+            'industry'        => $request['industry'] ?? '',
+            'brands'          => $request['brands'] ?? '',
+            'run_wide'        => $request['run_wide'] ?? '',
+            'profile'         => $request['profile'] ?? '',
+            'goodat'          => $request['goodat'] ?? '',
+            'degree'          => $request['degree'] ?? '',
+            'school'          => $request['school'] ?? '',
+            'remarks'         => $request['remarks'] ?? '',
+            'referral_agency' => $request['referral_agency'] ?? '',
+            'info_provider'   => $request['info_provider'] ?? '',
+            'archive'         => $request['archive'],
+            'is_home_detail'  => $request['is_home_detail'],
+        ];
+        if (MemberInfoRepository::exists($add_arr)){
+            $this->setError('成员简历信息已存在!');
+            return false;
+        }
+        $add_arr['is_recommend'] = $request['is_recommend'] == 1 ? time() : 0;
+        $add_arr['created_at']   = time();
+        $add_arr['update_at']    = time();
+        if (!$member_id = MemberInfoRepository::getAddId($add_arr)){
+            $this->setError('成员添加简历信息失败!');
+            return false;
+        }
+        $this->setMessage('成员简历信息添加成功!');
+        return $request['member_id'];
+    }
+
+    /**
+     * 添加会员服务信息 and 成员偏好累别信息
+     * @param $request
+     * @return bool
+     */
+    public function addMemberService($request)
+    {
+        $service_arr = [
+            'member_id'     => $request['member_id'],
+            'publicity'     => $request['publicity'],
+            'protocol'      => $request['protocol'],
+            'nameplate'     => $request['nameplate'],
+            'attendant'     => $request['attendant'] ?? '',
+            'other_server'  => $request['other_server'],
+            'member_attendant'  => $request['member_attendant'] ?? '',
+            'gift'          => $request['gift'] ?? '',
+            ];
+        $preference_arr = [
+            'member_id'    => $request['member_id'],
+            'content'      => $request['content']
+       ];
+        if (MemberPersonalServiceRepository::exists($service_arr)){
+            $this->setError('会员服务信息已存在');
+            return false;
+        }
+        DB::beginTransaction();
+        $service_arr['created_at'] = time();
+        $service_arr['update_at']  = time();
+        if (!MemberPersonalServiceRepository::getAddId($service_arr)){
+            $this->setError('会员服务信息添加失败!');
+            DB::rollBack();
+            return false;
+        }
+        if (MemberPreferenceRepository::exists($preference_arr)){
+            $this->setError('会员偏好类型信息已存在');
+            DB::rollBack();
+            return false;
+        }
+        $preference_arr['created_at'] = time();
+        $preference_arr['update_at']  = time();
+        if (!MemberPreferenceRepository::getAddId($preference_arr)){
+            $this->setError('会员偏好类型信息添加失败');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('添加成功!');
+        DB::commit();
+        return $request['member_id'];
     }
 
 }

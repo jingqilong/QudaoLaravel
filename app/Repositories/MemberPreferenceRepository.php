@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\MemberPreferenceModel;
 use App\Repositories\Traits\RepositoryTrait;
+use Illuminate\Support\Facades\DB;
 
 class MemberPreferenceRepository extends ApiRepository
 {
@@ -28,20 +29,41 @@ class MemberPreferenceRepository extends ApiRepository
      */
     protected function addMemberPreference($request, $member_id)
     {
-        $preference_arr = [
-            'member_id'         => $member_id,
-            'type'              => $request['type'],
-            'content'           => $request['content'],
-            'created_at'        => time(),
-            'update_at'         => time(),
-        ];
-        if ($this->exists($preference_arr)){
+        $preference = json_encode($request['preference']);
+        $preference_arr = [];
+        foreach ($preference as $value){
+            $preference_arr = [
+                'member_id'         => $member_id,
+                'type'              => $value['type'],
+                'content'           => $value['content'],
+                'created_at'        => time(),
+                'update_at'         => time(),
+            ];
+        }
+        DB::beginTransaction();
+        $this->delete(['member_id' => $member_id]);
+        DB::rollBack();
+        if (!$this->create($preference_arr)){
+            DB::rollBack();
             return false;
         }
-        if (!$member_id = $this->getAddId($preference_arr)){
-            return false;
+        DB::commit();
+        return true;
+    }
+
+    /**
+     * 获取会员的偏好属性
+     * @param $member_id
+     * @return array
+     */
+    protected function getPreference($member_id)
+    {
+        if (!$preference  = $this->getList(['member_id' => $member_id],['id','type','content'])){
+            return [];
         }
-        return $member_id;
+        $preference_str = '';
+        foreach($preference as $key=>$val) $preference_str.=$val['content'].',';
+        return explode(',',rtrim($preference_str,','));
     }
 }
             
