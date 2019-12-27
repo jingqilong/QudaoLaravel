@@ -29,7 +29,7 @@ class HomeBannersService extends BaseService
      */
     public static function getHomeBanners($module = CommonHomeEnum::MAINHOME,$count = 4){
         $column = ['id','link_type','related_id','image_id','url'];
-        $where = ['page_space' => $module];
+        $where = ['page_space' => $module,'status' => CommonHomeEnum::SHOW];
         if (!$banners = CommonHomeBannersRepository::getList($where,$column,'sort','asc')){
             return [];
         }
