@@ -159,7 +159,7 @@ class ProcessRecordService extends BaseService
             return [];
         }
         $node_action_result_ids = array_column($recode_list,'node_action_result_id');
-        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getList(['id' => ['in',$node_action_result_ids]]);dd($node_action_result_list);
+        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getList(['id' => ['in',$node_action_result_ids]]);
         $recode_list            = EmployeeService::getListOperationByName($recode_list,['operator_id']);
         foreach ($recode_list as &$recode){
             $recode['action_result_name'] = '';

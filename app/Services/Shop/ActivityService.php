@@ -11,6 +11,7 @@ use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Facades\DB;
 
 class ActivityService extends BaseService
 {
@@ -20,7 +21,7 @@ class ActivityService extends BaseService
      * @return array
      */
     public static function getHomeShow(){
-        if (!$activity_goods = ShopActivityRepository::getOrderOne(['type' => 1,'status' => 2,'stop_time' => 0],'id')){
+        if (!$activity_goods = ShopActivityRepository::getOne(['type' => ShopActivityEnum::HOMESHOW,'status' => ShopActivityEnum::OPEN])){
             return [];
         }
         $res = [
@@ -36,7 +37,9 @@ class ActivityService extends BaseService
      * @return array|mixed
      */
     public static function getHomeRecommendGoods(){
-        if (!$activity_goods = ShopActivityViewRepository::getList(['type' => 2,'status' => 2,'deleted_at' => 0],['goods_id','name','price','banner_ids','labels'])){
+        $where  = ['type' => ShopActivityEnum::GOODRECOMMEND,'status' => ShopActivityEnum::OPEN,'deleted_at' => 0];
+        $column = ['goods_id','name','price','banner_ids','labels'];
+        if (!$activity_goods = ShopActivityViewRepository::getList($where,$column)){
 //            self::setMessage('没有活动商品！');
             return [];
         }
@@ -64,7 +67,7 @@ class ActivityService extends BaseService
             'goods_id'      => $request['goods_id'],
             'type'          => $request['type'],
             'status'        => $request['status'],
-            'show_image'    => $request['show_image'],
+            'show_image'    => $request['show_image'] ?? 0,
         ];
         if (ShopActivityRepository::exists($add_arr)){
             $this->setError('该商品已添加！');
@@ -92,8 +95,7 @@ class ActivityService extends BaseService
         }
         $upd_arr = [
             'status'        => $request['status'],
-            'show_image'    => $request['show_image'],
-            'stop_time'     => $request['stop'] == 1 ? 0 : time(),
+            'show_image'    => $request['show_image'] ?? 0,
             'updated_at'    => time()
         ];
         if (!ShopActivityRepository::getUpdId(['id' => $request['activity_id']],$upd_arr)){
@@ -121,7 +123,7 @@ class ActivityService extends BaseService
         if (!empty($type)){
             $where['type'] = $type;
         }
-        $column = ['id','name','price','type','show_image','stop_time','status','created_at','updated_at'];
+        $column = ['id','name','price','type','show_image','status','created_at','updated_at'];
         if (!empty($keywords)){
             if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$page,$page_num,$order,$desc_asc)){
                 $this->setError('获取失败！');
@@ -141,9 +143,8 @@ class ActivityService extends BaseService
         }
         $list['data'] = ImagesService::getListImages($list['data'],['show_image' => 'single']);
         foreach ($list['data'] as &$value){
-            $value['stop_time']       = !empty($value['stop_time']) ? date('Y-m-d H:m:i',$value['stop_time']) : 0;
-            $value['status_name']     = $value['status'] == 1 ? '禁用' : '展示';
-            $value['type_name']       = $value['type'] == 1 ? '积分兑换' : '好物推荐';
+            $value['status_name']     = ShopActivityEnum::getStatus($value['status']);
+            $value['type_name']       = ShopActivityEnum::getType($value['type']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -181,6 +182,53 @@ class ActivityService extends BaseService
             return false;
         }
         $this->setMessage('删除成功！');
+        return true;
+    }
+
+    /**
+     * 设置活动商品状态
+     * @param $request
+     * @return bool
+     */
+    public function setActivityGoodsStatus($request)
+    {
+        if (!$activity_goods = ShopActivityRepository::getOne(['id' => $request['activity_id']])){
+            $this->setError('商品活动记录不存在！');
+            return false;
+        }
+        //如果是首页展示，则只能存在一个展示商品
+        DB::beginTransaction();
+        if ($activity_goods['type'] == ShopActivityEnum::HOMESHOW){
+            if ($request['status'] == ShopActivityEnum::DISABLE){
+                $this->setError('首页展示商品不能关闭，只能开启或添加另一个，此记录将被关闭！');
+                DB::rollBack();
+                return false;
+            }
+            if ($request['status'] == ShopActivityEnum::OPEN){
+                $where = ['type' => ShopActivityEnum::HOMESHOW,'status' => ShopActivityEnum::OPEN];
+                $upd   = ['status' => ShopActivityEnum::DISABLE,'updated_at' => time()];
+                if (ShopActivityRepository::exists($where)){
+                    if (!ShopActivityRepository::update($where,$upd)){
+                        $this->setError('修改失败！');
+                        DB::rollBack();
+                        return false;
+                    }
+                }
+            }
+        }
+
+        $upd_arr = [
+            'status'        => $request['status'],
+            'updated_at'    => time()
+        ];
+
+        if (!ShopActivityRepository::getUpdId(['id' => $request['activity_id']],$upd_arr)){
+            $this->setError('修改失败！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
+        $this->setMessage('修改成功！');
         return true;
     }
 }

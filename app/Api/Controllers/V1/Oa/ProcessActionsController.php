@@ -435,11 +435,10 @@ class ProcessActionsController extends ApiController
     public function deleteActionResult(){
         $rules = [
             'result_id'     => 'required|integer',
-            'name'          => 'required',
         ];
         $messages = [
-            'action_id.required'    => '结果ID不能为空！',
-            'action_id.integer'     => '结果ID必须为整数！',
+            'result_id.required'    => '结果ID不能为空！',
+            'result_id.integer'     => '结果ID必须为整数！',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
