@@ -289,6 +289,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="departments_id",
+     *         in="query",
+     *         description="预约科室id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="type",
      *         in="query",
      *         description="服务类型 1看病 2手术 3住院",
