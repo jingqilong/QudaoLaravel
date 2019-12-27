@@ -15,8 +15,8 @@ class ImageTypeEnum extends BaseEnum
         'GOODS'         => '商品模块',
         'MEMBER'        => '会员模块',
         'PROJECT'       => '精选生活模块',
-        'NORMAL'        => '?imageView2/1/w/375/h/235/q/72|imageslim',
-        'SMALL'         => '?imageView2/1/w/200/h/200/q/72|imageslim',
+        'NORMAL'        => '?imageView2/1/q/72|imageslim',
+        'SMALL'         => '?imageView2/1/w/375/q/72|imageslim',
     ];
 
     //状态
