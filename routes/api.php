@@ -137,6 +137,8 @@ $api->version('v1',function ($api){
                 $api->post('add_member','OaMemberController@addMember')->name('添加成员');
                 $api->post('upd_member','OaMemberController@updMember')->name('修改完善成员');
                 $api->post('set_member_home_detail','OaMemberController@setMemberHomeDetail')->name('设置成员是否在首页显示');
+                $api->post('add_member_base','OaMemberController@addMemberBase')->name('添加成员基本信息');
+                $api->post('add_member_info','OaMemberController@addMemberInfo')->name('添加成员简历信息');
 
 
                 #OA成员类别管理
