@@ -114,6 +114,15 @@ class GoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="price_sort",
+     *         in="query",
+     *         description="价格排序，1价格从高到低，2价格从低到高",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -138,11 +147,13 @@ class GoodsController extends ApiController
     public function getGoodsList(){
         $rules = [
             'category'          => 'integer',
+            'price_sort'        => 'in:1,2',
             'page'              => 'integer',
             'page_num'          => 'integer',
         ];
         $messages = [
             'category.integer'      => '商品类别必须为整数',
+            'price_sort.integer'    => '价格排序取值有误',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];

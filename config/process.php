@@ -2,6 +2,11 @@
 
 return [
     'start_node' => 1,
+    'link_url' =>[
+        'test'          =>'http://oa.qudaoplus.cn/',
+        'local'         =>'http://oa.qudaoplus.cn/',
+        'production'    =>'http://oa.qudaoplus.cn/'
+    ],
     'getway' =>[
 //        'MEMBER_UPGRADE'         => '成员升级',
             1 => "\\App\\Services\\Member\\GradeOrdersService.NotFound",

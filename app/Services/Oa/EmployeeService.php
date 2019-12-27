@@ -423,10 +423,10 @@ class EmployeeService extends BaseService
     /**
      * OA获取列表中操作人名称
      * @param $list
-     * @param array $columns
+     * @param array $columns        ['字段名' => '别名']
      * @return mixed
      */
-    public static function getListOperationByName($list,$columns = ['created_by','updated_by']){
+    public static function getListOperationByName($list,$columns = ['created_by' => 'created_by_name','updated_by' => 'updated_by_name']){
         if (empty($columns)){
             return $list;
         }
@@ -437,10 +437,10 @@ class EmployeeService extends BaseService
         }
         $employee_list  = OaEmployeeRepository::getList(['id' => ['in',$employee_ids]]);
         foreach ($list as &$datum){
-            foreach ($columns as $column){
-                $datum[$column.'_name'] = '';
+            foreach ($columns as $column => $alias){
+                $datum[$alias] = '';
                 if ($created_by = self::searchArrays($employee_list,'id',$datum[$column])){
-                    $datum[$column.'_name']   = reset($created_by)['real_name'];
+                    $datum[$alias]   = reset($created_by)['real_name'];
                 }
             }
         }

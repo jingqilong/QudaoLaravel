@@ -116,7 +116,7 @@ class ProcessCategoriesService extends BaseService
             $this->setMessage('暂无数据!');
             return $cate_list;
         }
-        $cate_list['data'] = EmployeeService::getListOperationByName($cate_list['data']);
+        $cate_list['data'] = EmployeeService::getListOperationByName($cate_list['data'],['created_by' => 'created_by_name','updated_by' => 'updated_by_name']);
         foreach ($cate_list['data'] as &$value){
             $value['getway_type_title']     = ProcessGetwayTypeEnum::getGetWayType($value['getway_type']);
             $value['status_title']          = ProcessCommonStatusEnum::getLabelByValue($value['status']);

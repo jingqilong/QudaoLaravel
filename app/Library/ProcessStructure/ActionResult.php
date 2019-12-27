@@ -52,6 +52,11 @@ class ActionResult
      * @var array
      */
     public $next_node_id = 0;
+    /**
+     * 下一节点名称
+     * @var array
+     */
+    public $next_node_name = '';
 
     public $parent_node;
 
@@ -100,10 +105,11 @@ class ActionResult
             if($this->exists($transition['next_node'])){
                 $parent_node->back_node_ids[] = $transition['next_node'];
             }else{
-                if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){
-                    $nextNode->setData();
-                }
+                $nextNode->setData();
                 $parent_node->children[] = $nextNode;
+            }
+            if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){
+                $this->next_node_name  = $next_node['name'];
             }
         }
     }
@@ -139,6 +145,7 @@ class ActionResult
         $return_data['transition_status']       = $this->transition_status;
         $return_data['parent_node_id']          = $parent_node_id;
         $return_data['next_node_id']            = $this->next_node_id;
+        $return_data['next_node_name']          = $this->next_node_name;
         return $return_data;
     }
 }
