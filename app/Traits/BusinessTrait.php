@@ -354,5 +354,18 @@ trait BusinessTrait
         return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
 
-
+    /**
+     * 获取业务流程进度，例如：待审核(已审核0步/共3步)
+     * @param $business_id
+     * @param $process_category
+     * @return array
+     */
+    public function getBusinessProgress($business_id, $process_category){
+        $processRecordService = new ProcessRecordService();
+        $recode_list = $processRecordService->getBusinessProgress($business_id,$process_category);
+        if ($recode_list == false){
+            return ['code' => 100,$processRecordService->error];
+        }
+        return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
+    }
 }

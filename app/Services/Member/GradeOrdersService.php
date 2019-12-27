@@ -82,6 +82,7 @@ class GradeOrdersService extends BaseService
      */
     public function getUpgradeApplyList($request)
     {
+        $employee   = Auth::guard('oa_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;

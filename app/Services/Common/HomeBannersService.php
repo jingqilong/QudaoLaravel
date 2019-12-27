@@ -227,7 +227,7 @@ class HomeBannersService extends BaseService
             return $list;
         }
         $list['data']   = $this->getBannerListRelatedInfo($list['data']);
-        $list['data']   = EmployeeService::getListOperationByName($list['data']);
+        $list['data']   = EmployeeService::getListOperationByName($list['data'],['created_by' => 'created_by_name','updated_by' => 'updated_by_name']);
         $list['data']   = ImagesService::getListImages($list['data'],['image_id' => 'single']);
         foreach ($list['data'] as &$datum){
             $datum['page_space_title']  = CommonHomeEnum::getBannerModule($datum['page_space']);

@@ -26,4 +26,13 @@ class BusinessService extends BaseService
         $this->setMessage('获取成功！');
         return $result['data'];
     }
+
+    public function getBusinessListProgress($business_list,$process_category){
+        if (empty($business_list)){
+            return [];
+        }
+        foreach ($business_list as &$business){
+
+        }
+    }
 }
