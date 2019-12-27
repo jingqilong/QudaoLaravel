@@ -45,8 +45,12 @@ class OrdersService extends BaseService
             $this->setError('医院不存在！');
             return false;
         }
-        if (!MedicalDoctorsRepository::getOne(['id' => $request['doctor_id'],'deleted_at' => 0])){
+        if (!MedicalDoctorsRepository::exists(['id' => $request['doctor_id'],'deleted_at' => 0])){
             $this->setError('医生不存在！');
+            return false;
+        }
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+            $this->setError('科室不存在！');
             return false;
         }
         $add_arr = [
@@ -56,6 +60,7 @@ class OrdersService extends BaseService
             'sex'                =>  $request['sex'],
             'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
+            'departments_id'     =>  $request['departments_id'],
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'] ?? '',
             'type'               =>  $request['type'],
@@ -106,6 +111,10 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+            $this->setError('科室不存在！');
+            return false;
+        }
         $upd_arr = [
             'name'               =>  $request['name'],
             'mobile'             =>  $request['mobile'],
@@ -113,6 +122,7 @@ class OrdersService extends BaseService
             'age'                =>  $request['age'],
             'hospital_id'        =>  $request['hospital_id'],
             'doctor_id'          =>  $request['doctor_id'],
+            'departments_id'     =>  $request['departments_id'],
             'description'        =>  $request['description'] ?? '',
             'type'               =>  $request['type'],
             'appointment_at'     =>  strtotime($request['appointment_at']),
@@ -368,13 +378,14 @@ class OrdersService extends BaseService
     }
 
     /**
-     *根据id获取成员自己预约详情
+     * 根据id获取成员自己预约详情
      * @param $request
      * @return bool|null
      */
     public function doctorsOrder($request)
     {
-        if (!$orderInfo = MedicalOrdersViewRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+        $column = ['id','name','mobile','longitude','latitude','sex','age','type','end_time','hospital_id','hospital_name','departments_id','departments_name','doctor_id','doctor_head_url','doctor_name','doctor_title','appointment_at','status','created_at','updated_at'];
+        if (!$orderInfo = MedicalOrdersViewRepository::getOne(['id' => $request['id'],'deleted_at' => 0],$column)){
             $this->setError('没有此订单!');
             return false;
         }
