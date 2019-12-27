@@ -174,6 +174,7 @@ class ProcessActionPrincipalsService extends BaseService
             $principal['created_at'] = empty($principal['created_at']) ? '' : date('Y-m-d H:i:s',$principal['created_at']);
             $principal['updated_at'] = empty($principal['updated_at']) ? '' : date('Y-m-d H:i:s',$principal['updated_at']);
         }
+        $this->setMessage('获取成功！');
         return $principal_list;
     }
 
