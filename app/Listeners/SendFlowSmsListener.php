@@ -10,6 +10,19 @@ class SendFlowSmsListener implements ShouldQueue
 {
     use InteractsWithQueue;
     /**
+     * 任务应该发送到的队列的连接的名称
+     *
+     * @var string|null
+     */
+    public $connection = 'redis';
+
+    /**
+     * 任务应该发送到的队列的名称
+     *
+     * @var string|null
+     */
+    public $queue = 'event_sms';
+    /**
      * Create the event listener.
      *
      * @return void
@@ -29,7 +42,7 @@ class SendFlowSmsListener implements ShouldQueue
     {
         $data = $event->data;
         //TODO 这里要处理相关数据
-        app(SmsService::class)->sendContent($data['mobile'],$data['content']);
+        app(SmsService::class)->sendContent($data['receiver_mobile'],$data['content']);
         return false;
     }
 }

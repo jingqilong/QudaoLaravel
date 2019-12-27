@@ -12,6 +12,8 @@ use App\Services\Message\SendService;
 /**
  * Class ProcessEventListener
  * @package App\Listener
+ * @deprecated true
+ * @desc 目前已将事件放到队列中了，这里暂时保留
  */
 class ProcessEventListener
 {

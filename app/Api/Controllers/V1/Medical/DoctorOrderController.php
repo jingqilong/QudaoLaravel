@@ -101,6 +101,15 @@ class DoctorOrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="departments_id",
+     *         in="query",
+     *         description="预约科室id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="type",
      *         in="query",
      *         description="服务类型 1看病 2手术 3住院",
@@ -150,6 +159,7 @@ class DoctorOrderController extends ApiController
             'sex'               => 'required|integer',
             'age'               => 'required|integer',
             'doctor_id'         => 'required|integer',
+            'departments_id'    => 'required|integer',
             'type'              => 'required|in:1,2,3',
             'description'       => 'string',
             'appointment_at'    => 'required|date',
@@ -173,6 +183,8 @@ class DoctorOrderController extends ApiController
             'type.required'             => '服务类型不能为空',
             'doctor_id.integer'         => '医生ID不是整数',
             'doctor_id.required'        => '医生ID不能为空',
+            'departments_id.integer'    => '科室ID不是整数',
+            'departments_id.required'   => '科室ID不能为空',
             'appointment_at.date'       => '预约时间格式不正确',
             'appointment_at.required'   => '预约时间不能为空',
             'end_time.date'             => '截止时间格式不正确',
@@ -271,6 +283,15 @@ class DoctorOrderController extends ApiController
      *         name="doctor_id",
      *         in="query",
      *         description="预约医生id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="departments_id",
+     *         in="query",
+     *         description="预约科室id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",

@@ -3,6 +3,7 @@ namespace App\Services\Oa;
 
 
 use App\Enums\ProcessPrincipalsEnum;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
@@ -220,13 +221,18 @@ class ProcessActionPrincipalsService extends BaseService
             //如果是发起人，则先获取发起人的相关信息
             $principal_list['receiver_iden'] = $receivers['principal_iden'];
             if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
-                $principal = $this->getStartUserInfo($business_id,$process_category);
+                $principal_id = $this->getStartUserInfo($business_id,$process_category);
+                $principal = MemberBaseRepository::getOne(['id'=>$principal_id],['id','ch_name','mobile','email']);
                 $principal_list['receiver_name'] = $principal['ch_name'];
                 $principal_list['receiver_id'] = $principal['id'];
+                $principal_list['receiver_mobile'] = $principal['mobile'];
+                $principal_list['receiver_email'] = $principal['email'];
             } else {   //获取员工信息
                 $principal = app(OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]));
-                $principal_list['receiver_name'] = $principal['m_cname'];
-                $principal_list['receiver_id'] = $principal['m_id'];
+                $principal_list['receiver_name'] = $principal['real_name'];
+                $principal_list['receiver_id'] = $principal['id'];
+                $principal_list['receiver_mobile'] = $principal['mobile'];
+                $principal_list['receiver_email'] = $principal['email'];
             }
         }
         return $principal_list;

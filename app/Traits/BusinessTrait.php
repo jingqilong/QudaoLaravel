@@ -6,6 +6,7 @@ use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessEventMessageTypeEnum;
 use App\Enums\ProcessPrincipalsEnum;
+use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
@@ -99,19 +100,24 @@ trait BusinessTrait
             $message = $processRecordService->error;
             return ['code'=>100,  'message' => $message ];
         }
-        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
-            0,$process_record_data['node_action_result_id'],ProcessActionEventTypeEnum::ACTION_RESULT_EVENT);
-        //触发流程事件
-        $this->triggerResultEvent($event_list,$process_record_data);
+        //获取结果的流转
         $where['process_id'] = $process_record_data['process_id'];
         $where['node_action_result_id'] = $process_record_data['node_action_result_id'];
-        //获取结果的流转
+
         if(!$transition = app(ProcessTransitionService::class)->getTransitionByResult($where)){
             Loggy::write('error',"获取流转失败！",$where);
             return ['code'=>200,  'message' => "流程发起成功！" ];
         }
+        $process_record_data['action_result_status'] = $transition['status'];
+        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
+            0,$process_record_data['node_action_result_id'],ProcessActionEventTypeEnum::ACTION_RESULT_EVENT);
+        //触发流程事件
+        $this->triggerResultEvent($event_list,$process_record_data);
+
+
         if(1< $transition['status']){ //节点已结束或终止
             return ['code'=>200,  'message' => "流程发起成功！" ];
+
         }
         $next_node_id = $transition['next_node'];
         $next_event_data = $this->addNextProcessRecord($process_record_data,$next_node_id);
@@ -213,6 +219,7 @@ trait BusinessTrait
         //获取所有的参与人  返回具有以下KEY的列表 {receiver_iden:,receiver_name:,receiver_id}
         $stakeholders = app(ProcessActionPrincipalsService::class)->getResultEventPrincipals(
             $event_params['node_action_result_id'],$event_params['business_id'],$event_params['process_category']);
+        //返回的结构'receiver_id','receiver_name','receiver_mobile','receiver_email'
         if(empty($stakeholders)){
             Loggy::write('error',"没有事件参与人,node_id::" .$event_params['node_id'] );
             return false;
@@ -230,11 +237,31 @@ trait BusinessTrait
             'process_id'        	=> $event_params['process_id'],
             'process_category'  	=> $event_params['process_category'],
             'node_id'           	=> $event_params['node_id'],
+            'employee_id'           => $event_params['operator_id'],
         ];
+
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
             $event_params['business_id'],$event_params['node_id']
         );
+        $action_result = OaProcessActionsResultRepository::getOne($event_params['action_result_id']);
+        if (!$action_result){
+            Loggy::write('error',"节action_result_id 数值不对！ ",$event_params['action_result_id'] );
+            //return false;
+            $action_result['name']='';
+        }
+        if($event_params['process_result_status']>1){
+            $send_data['precess_result'] = "已经审絯结束，结果是：".$action_result['name']."。 ";
+        }else{
+            $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['name']."。 ";
+        }
+        //邮件签名
+        $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
+            ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
+        //邮件标题
+        $send_data['title'] = "你的". $send_data['process_full_name'] . "审核进展！";
+        //跳转链接
+        $send_data['link_url'] = '';
         foreach($event_list as $event){
             foreach ($stakeholders as $receiver){
                 $event_data = $send_data;
@@ -291,11 +318,21 @@ trait BusinessTrait
                 'process_id'        	=> $event_params['process_id'],
                 'process_category'  	=> $event_params['process_category'],
                 'node_id'           	=> $event_params['node_id'],
+                'employee_id'           => $event_params['operator_id'],
             ];
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
             $event_params['business_id'],$event_params['node_id']
         );
+        //邮件签名
+        $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
+        ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
+        //邮件标题
+        $send_data['title'] = $send_data['process_full_name'] . "有一项审核要处理！";
+        //跳转链接
+        $send_data['link_url'] = config('process.link_url')[app()['env']];
+
+
         foreach($event_list as $event){
            foreach ($stakeholders as $receiver){
                $event_data = $send_data;
