@@ -333,6 +333,9 @@ class HomeBannersService extends BaseService
         //将相关的信息写入列表
         foreach ($banner_list as &$value){
             $value['related_name'] = '';
+            if (in_array($value['link_type'],[CommonHomeEnum::AD])){//广告是没有相关信息的
+                continue;
+            }
             if ($relate = $this->searchArray($related_infos[$value['link_type']],'id',$value['related_id'])){
                 $value['related_name'] = reset($relate)[$banner_type_to_column[$value['link_type']]];
             }
