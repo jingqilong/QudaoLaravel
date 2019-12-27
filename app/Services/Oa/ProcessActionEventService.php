@@ -5,6 +5,7 @@ namespace App\Services\Oa;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessEventEnum;
+use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaProcessActionEventRepository;
 use App\Repositories\OaProcessEventsRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
@@ -161,6 +162,7 @@ class ProcessActionEventService extends BaseService
         $event_ids  = array_column($process_event_list['data'],'event_id');
         $event_list = OaProcessEventsRepository::getList(['id' => ['in',$event_ids]],['id','name','event_type','status']);
         foreach ($process_event_list['data'] as &$value){
+            $value['principals_type_title'] = ProcessPrincipalsEnum::getPprincipalLabel($value['principals_type']);
             $value['event_name']            = '';
             $value['base_event_type']       = 0;
             $value['base_event_type_title'] = '';
@@ -176,6 +178,8 @@ class ProcessActionEventService extends BaseService
                     break;
                 }
             }
+            $value['created_at'] = empty($value['created_at']) ? '' : date('Y-m-d H:i:s',$value['created_at']);
+            $value['updated_at'] = empty($value['updated_at']) ? '' : date('Y-m-d H:i:s',$value['updated_at']);
         }
         $this->setMessage('获取成功！');
         return $process_event_list;
