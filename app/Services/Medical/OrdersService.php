@@ -228,7 +228,7 @@ class OrdersService extends BaseService
             $this->setError('无此医生!');
             return false;
         }
-        $status = $request['status'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
+        $status = $request['audit'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
         $upd_arr = [
             'status'      => $status,
             'updated_at'  => time(),
@@ -240,7 +240,6 @@ class OrdersService extends BaseService
         #通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $orderInfo['member_id']])){
             $member_name = $orderInfo['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 DoctorEnum::PASS   =>
                     MessageEnum::getTemplate(
@@ -256,9 +255,9 @@ class OrdersService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['mobile'])){
+            if (!empty($orderInfo['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['mobile'],$sms_template[$status]);
+                $smsService->sendContent($orderInfo['mobile'],$sms_template[$status]);
             }
             $title = '医疗预约通知';
             #发送站内信
