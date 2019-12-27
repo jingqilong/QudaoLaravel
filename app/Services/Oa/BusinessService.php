@@ -32,7 +32,11 @@ class BusinessService extends BaseService
             return [];
         }
         foreach ($business_list as &$business){
-
+            $result = $this->getBusinessProgress($business['id'],$process_category);
+            if (200 == $result['code']){
+                $business['process_progress'] = $result['data'];
+            }
         }
+        return $business_list;
     }
 }

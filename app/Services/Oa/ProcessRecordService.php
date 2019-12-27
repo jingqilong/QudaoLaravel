@@ -257,15 +257,48 @@ class ProcessRecordService extends BaseService
         return $target_object->$function($business_ids);
     }
 
-    public function getBusinessProgress($business_id, $process_category)
+    /**
+     * 获取业务流程进度
+     * @param $business_id
+     * @param $process_category
+     * @return mixed
+     */
+    public function getBusinessProgress($business_id, $process_category,$employee_id)
     {
         $where = ['business_id' => $business_id,'process_category' => $process_category];
         $column= ['*'];
         if (!$recode_list = OaProcessRecordRepository::getList($where,$column)){
-            $this->setMessage('此业务未开启流程！');
-            return '此业务未开启流程！';
+            $this->setError('该业务未开启流程！');
+            return false;
         }
         $process_id = reset($recode_list)['process_id'];
+        if (!$process = OaProcessDefinitionRepository::getOne(['id' => $process_id])){
+            $this->setError('该业务流程不存在！');
+            return false;
+        }
+        $completed      = [];#已完成步骤
+        $no_completed   = [];#未完成步骤
+        foreach ($recode_list as $value){
+            if (!empty($value['node_action_result_id'])){
+                $completed[] = $value;continue;
+            }
+            if (empty($value['node_action_result_id'])){
+                $no_completed[] = $value;
+            }
+        }
+        $permission         = 0;#表示当前是否有权限操作，0不能审核，1可以审核
+        $process_record_id  = 0;#需要审核时，审核记录ID
+        foreach ($no_completed as $item){
+            if ($item['operator_id'] == $employee_id){
+                $permission         = 1;
+                $process_record_id  = $item['id'];
+            }
+        }
+        #流程进度
+        $progress = empty($completed) ? '待审核' : (!empty($no_completed) ? '审核中' : '已完成');
+        $progress .= '(已审核 ' . count($completed) . ' 步 / 共 '. $process['step_count'] .' 步)';
+        $this->setMessage('获取成功！');
+        return ['process_progress' => $progress,'permission' => $permission,'process_record_id' => $process_record_id];
     }
 }
             

@@ -360,12 +360,12 @@ trait BusinessTrait
      * @param $process_category
      * @return array
      */
-    public function getBusinessProgress($business_id, $process_category){
+    public function getBusinessProgress($business_id, $process_category,$employee_id){
         $processRecordService = new ProcessRecordService();
-        $recode_list = $processRecordService->getBusinessProgress($business_id,$process_category);
-        if ($recode_list == false){
+        $result = $processRecordService->getBusinessProgress($business_id,$process_category,$employee_id);
+        if ($result == false){
             return ['code' => 100,$processRecordService->error];
         }
-        return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
+        return ['code' => 200,'message' => $processRecordService->message,'data' => $result];
     }
 }
