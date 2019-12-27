@@ -272,12 +272,12 @@ class HomeBannersService extends BaseService
         //如果状态为展示，需要检查编辑的banner相同展示（顺序）位置是否已有展示信息，如果有，关闭之前的展示信息
         $check_where = ['page_space' => $banner['page_space'],'status' => CommonHomeEnum::SHOW];
         if (CommonHomeEnum::HIDDEN == $request['status']){
-            if (1 == CommonHomeBannersRepository::count($check_where)){
+            if (1 == CommonHomeBannersRepository::count(array_merge($check_where))){
                 $this->setError('当前显示位置仅剩一张banner，无法再隐藏！');
                 return false;
             }
         }else{
-            if ($show_banner = CommonHomeBannersRepository::getOne($check_where)){
+            if ($show_banner = CommonHomeBannersRepository::getOne(array_merge($check_where,['sort' => $banner['sort']]))){
                 $upd_show = ['status' => CommonHomeEnum::HIDDEN,'updated_by' => $employee_id,'updated_at' => time()];
                 if (!CommonHomeBannersRepository::getUpdId(['id' => $show_banner['id']],$upd_show)){
                     $this->setError('操作失败！');
