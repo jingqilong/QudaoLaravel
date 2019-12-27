@@ -2,6 +2,7 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterEnum;
 use App\Enums\CollectTypeEnum;
 use App\Repositories\{ActivityCollectRepository,
@@ -454,21 +455,11 @@ class DetailService extends BaseService
         $activity['cover']          = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
         unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code']);
         #获取举办方信息
-        $activity['hosts'] = [];
-        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $id,'type' => 1],['name','type','logo_id'])){
-            foreach ($host_list as &$value){
-                $value['logo'] = CommonImagesRepository::getField(['id' => $value['logo_id']],'img_url');
-            }
-            $activity['hosts'] = $host_list;
-        }
+        $activity['hosts'] = $this->getActivityHosts($id);
+
         #获取相关链接
-        $activity['links'] = [];
-        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $id],['id','title','url','image_id'])){
-            foreach ($link_list as &$value){
-                $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
-            }
-            $activity['links'] = $link_list;
-        }
+        $activity['links'] = $this->getActivityLinks($id);
+
         //判断用户是否已报名
         $activity['register_id'] = 0;
         $activity['register_status'] = 0;
@@ -481,9 +472,15 @@ class DetailService extends BaseService
                 $activity['order_no'] = $register['order_no'];
             }
         }
-        $activity['images'] = $this->suffix($activity['images'],1);
-        $activity['banners'] = $this->suffix($activity['banners'],1);
-        $activity['cover'] = $this->suffix($activity['cover'],1);
+        $activity['images']     = $this->suffix($activity['images'],1);
+        $activity['banners']    = $this->suffix($activity['banners'],1);
+        $activity['cover']      = $this->suffix($activity['cover'],1);
+        $activity['past_activities'] = [];
+        if ($past_activities = ActivityDetailRepository::getList(['status' => ActivityEnum::OPEN,'end_time' => ['<',time()]],['id','cover_id'],'start_time','desc',1,4)){
+            if ($past_activities['data']){
+                $activity['past_activities'] = ImagesService::getListImagesConcise($past_activities['data'],['cover_id' => 'single']);
+            }
+        }
         $this->setMessage('获取成功！');
         return $activity;
     }
@@ -522,6 +519,38 @@ class DetailService extends BaseService
         }
         $this->setMessage('操作成功！');
         return true;
+    }
+
+    /**
+     * 获取活动相关链接
+     * @param $activity_id
+     * @return array|null
+     */
+    public function getActivityLinks($activity_id){
+        $links = [];
+        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $activity_id],['id','title','url','image_id'])){
+            foreach ($link_list as &$value){
+                $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
+            }
+            $links = $link_list;
+        }
+        return $links;
+    }
+
+    /**
+     * 获取活动举办方信息
+     * @param $activity_id
+     * @return array|null
+     */
+    public function getActivityHosts($activity_id){
+        $hosts = [];
+        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $activity_id,'type' => 1],['name','type','logo_id'])){
+            foreach ($host_list as &$value){
+                $value['logo'] = CommonImagesRepository::getField(['id' => $value['logo_id']],'img_url');
+            }
+            $hosts = $host_list;
+        }
+        return $hosts;
     }
 }
             

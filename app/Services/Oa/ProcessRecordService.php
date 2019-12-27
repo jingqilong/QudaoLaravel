@@ -1,12 +1,14 @@
 <?php
 namespace App\Services\Oa;
 
+use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Enums\ProcessCommonStatusEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeRepository;
+use App\Repositories\OaProcessRecordActionsResultViewRepository;
 use App\Repositories\OaProcessRecordRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -261,6 +263,7 @@ class ProcessRecordService extends BaseService
      * 获取业务流程进度
      * @param $business_id
      * @param $process_category
+     * @param int $employee_id  OA员工ID
      * @return mixed
      */
     public function getBusinessProgress($business_id, $process_category,$employee_id)
@@ -286,17 +289,17 @@ class ProcessRecordService extends BaseService
                 $no_completed[] = $value;
             }
         }
-        $permission         = 0;#表示当前是否有权限操作，0不能审核，1可以审核
+        $permission         = ProcessActionPermissionEnum::NO_PERMISSION;#表示当前是否有权限操作，0不能审核，1可以审核
         $process_record_id  = 0;#需要审核时，审核记录ID
         foreach ($no_completed as $item){
             if ($item['operator_id'] == $employee_id){
-                $permission         = 1;
-                $process_record_id  = $item['id'];
+                $permission         = ProcessActionPermissionEnum::PERMISSION;
+                $process_record_id  = $item['id'];break;
             }
         }
         #流程进度
         $progress = empty($completed) ? '待审核' : (!empty($no_completed) ? '审核中' : '已完成');
-        $progress .= '(已审核 ' . count($completed) . ' 步 / 共 '. $process['step_count'] .' 步)';
+        $progress .= '(已审核 ' . count($completed) . ' 步/共 '. $process['step_count'] .' 步)';
         $this->setMessage('获取成功！');
         return ['process_progress' => $progress,'permission' => $permission,'process_record_id' => $process_record_id];
     }

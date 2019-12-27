@@ -938,6 +938,67 @@ class OaGradeController extends ApiController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_apply_detail",
+     *     tags={"会员后台"},
+     *     summary="获取等级申请详情",
+     *     description="sang",
+     *     operationId="get_apply_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="记录ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getApplyDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'       => '记录ID不能为空',
+            'id.integer'        => '记录ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->gradeOrdersService->getApplyDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->gradeOrdersService->error];
+        }
+        return ['code' => 200, 'message' => $this->gradeOrdersService->message, 'data' => $res];
+    }
+
+    /**
      * @OA\Post(
      *     path="/api/v1/member/audit_apply",
      *     tags={"会员后台"},

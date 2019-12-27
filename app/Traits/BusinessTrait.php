@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessEventMessageTypeEnum;
@@ -9,6 +10,7 @@ use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
+use App\Repositories\OaProcessRecordActionsResultViewRepository;
 use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
@@ -159,7 +161,7 @@ trait BusinessTrait
         $processRecordService = new ProcessRecordService();
         $recode_list = $processRecordService->getProcessRecodeList($request);
         if ($recode_list == false){
-            return ['code' => 100,$processRecordService->error];
+            return ['code' => 100,'message' => $processRecordService->error];
         }
         return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
@@ -395,14 +397,35 @@ trait BusinessTrait
      * 获取业务流程进度，例如：待审核(已审核0步/共3步)
      * @param $business_id
      * @param $process_category
+     * @param int $employee_id  OA员工ID
      * @return array
      */
     public function getBusinessProgress($business_id, $process_category,$employee_id){
         $processRecordService = new ProcessRecordService();
         $result = $processRecordService->getBusinessProgress($business_id,$process_category,$employee_id);
-        if ($result == false){
-            return ['code' => 100,$processRecordService->error];
+        #流程进度，例如
+        $progress['process_progress']   = $processRecordService->error;
+        $progress['permission']         = ProcessActionPermissionEnum::NO_PERMISSION;
+        $progress['process_record_id']  = 0;#流程记录ID
+        if ($result !== false){
+            $progress['process_progress']   = $result['process_progress'];
+            $progress['permission']         = $result['permission'];
+            $progress['process_record_id']  = $result['process_record_id'];
         }
-        return ['code' => 200,'message' => $processRecordService->message,'data' => $result];
+        return $progress;
+    }
+
+    /**
+     * 获取操作结果列表
+     * @param $process_record_id
+     * @return array|null
+     */
+    public function getActionResultList($process_record_id){
+        $actions_result_column = ['node_actions_result_id','actions_result_name'];
+        #如果查看的人是操作人，返回这个操作列表
+        if (!$action_result_list = OaProcessRecordActionsResultViewRepository::getList(['record_id' => $process_record_id],$actions_result_column)){
+            $action_result_list = [];
+        }
+        return $action_result_list;
     }
 }

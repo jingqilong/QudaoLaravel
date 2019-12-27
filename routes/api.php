@@ -426,6 +426,7 @@ $api->version('v1',function ($api){
                 $api->get('get_grade_list','OaGradeController@getGradeList')->name('获取等级列表');
                 #等级申请
                 $api->get('get_upgrade_apply_list','OaGradeController@getUpgradeApplyList')->name('获取等级申请列表');
+                $api->get('get_apply_detail','OaGradeController@getApplyDetail')->name('获取等级申请详情');
                 $api->post('audit_apply','OaGradeController@auditApply')->name('审核等级申请');
                 $api->post('set_apply_status','OaGradeController@setApplyStatus')->name('设置等级申请支付状态');
                 $api->get('get_member_grade_list','OaGradeController@getMemberGradeList')->name('获取成员等级列表');

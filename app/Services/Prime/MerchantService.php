@@ -434,7 +434,7 @@ class MerchantService extends BaseService
         $order      = 'id';
         $desc_asc   = 'desc';
         $where      = ['disabled' => 0];
-        $column     = ['id','name','banner_ids','address','star','expect_spend','discount'];
+        $column     = ['id','name','type','banner_ids','address','star','expect_spend','discount'];
         if (!empty($type)){
             $where['type'] = $type;
         }

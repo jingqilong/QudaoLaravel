@@ -120,16 +120,12 @@ class GradeOrdersService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
-            $result = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
-            if (200 == $result['code']){
-                $value['process_progress']   = $result['data']['process_progress'];
-                $value['permission']         = $result['data']['permission'];
-                $value['process_record_id']  = $result['data']['process_record_id'];
-            }
             $value['status_title'] = GradeOrderEnum::getStatus($value['status']);
             $value['audit_title']  = GradeOrderEnum::getAuditStatus($value['audit']);
             $value['created_at']   = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
             $value['payment_amount'] = empty($value['payment_amount']) ? 0 : round($value['payment_amount'] / 100,2);
+            #获取流程信息
+            $value['progress '] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -360,6 +356,33 @@ class GradeOrdersService extends BaseService
             ];
         }
         return $result_list;
+    }
+
+    /**
+     * 获取申请详情
+     * @param $id
+     * @return bool|null
+     */
+    public function getApplyDetail($id)
+    {
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','member_id','mobile','ch_name','sex','previous_grade_title','grade_title','amount','validity','order_no','status','created_at','updated_at','payment_amount'];
+        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('记录不存在！');
+            return false;
+        }
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::MEMBER_UPGRADE]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        $apply['progress'] = $progress['data'];
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
+        $apply['process_permission'] = $process_permission;
+        $apply['action_result_list'] = $this->getActionResultList($process_permission['process_record_id']);
+        $this->setMessage('获取成功！');
+        return $apply;
     }
 }
             
