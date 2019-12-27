@@ -120,16 +120,12 @@ class GradeOrdersService extends BaseService
             return $list;
         }
         foreach ($list['data'] as &$value){
-            $result = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
-            if (200 == $result['code']){
-                $value['process_progress']   = $result['data']['process_progress'];
-                $value['permission']         = $result['data']['permission'];
-                $value['process_record_id']  = $result['data']['process_record_id'];
-            }
             $value['status_title'] = GradeOrderEnum::getStatus($value['status']);
             $value['audit_title']  = GradeOrderEnum::getAuditStatus($value['audit']);
             $value['created_at']   = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
             $value['payment_amount'] = empty($value['payment_amount']) ? 0 : round($value['payment_amount'] / 100,2);
+            #获取流程信息
+            $value['progress '] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -360,6 +356,15 @@ class GradeOrdersService extends BaseService
             ];
         }
         return $result_list;
+    }
+
+    public function getApplyDetail($id)
+    {
+        $column = ['id','member_id','mobile','ch_name','sex','previous_grade_title','grade_title','amount','validity','order_no','status','created_at','updated_at','payment_amount'];
+        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id])){
+            $this->setError('记录不存在！');
+            return false;
+        }
     }
 }
             

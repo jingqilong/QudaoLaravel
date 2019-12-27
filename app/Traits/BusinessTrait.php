@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessEventMessageTypeEnum;
@@ -358,14 +359,21 @@ trait BusinessTrait
      * 获取业务流程进度，例如：待审核(已审核0步/共3步)
      * @param $business_id
      * @param $process_category
+     * @param int $employee_id  OA员工ID
      * @return array
      */
     public function getBusinessProgress($business_id, $process_category,$employee_id){
         $processRecordService = new ProcessRecordService();
         $result = $processRecordService->getBusinessProgress($business_id,$process_category,$employee_id);
-        if ($result == false){
-            return ['code' => 100,$processRecordService->error];
+        #流程进度，例如
+        $progress['process_progress']   = $processRecordService->error;
+        $progress['permission']         = ProcessActionPermissionEnum::NO_PERMISSION;
+        $progress['process_record_id']  = 0;#流程记录ID
+        if ($result !== false){
+            $progress['process_progress']   = $result['process_progress'];
+            $progress['permission']         = $result['permission'];
+            $progress['process_record_id']  = $result['process_record_id'];
         }
-        return ['code' => 200,'message' => $processRecordService->message,'data' => $result];
+        return $progress;
     }
 }
