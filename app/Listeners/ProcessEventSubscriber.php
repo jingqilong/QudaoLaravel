@@ -2,7 +2,12 @@
 
 
 namespace App\Listeners;
-
+/**
+ * Class ProcessEventSubscriber
+ * @package App\Listeners
+ * @deprecated true
+ * @desc 目前已将事件放到队列中了，这里暂时保留
+ */
 class ProcessEventSubscriber
 {
 
