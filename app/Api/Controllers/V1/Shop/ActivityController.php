@@ -331,7 +331,7 @@ class ActivityController extends ApiController
      */
     public function getActivityGoodsList(){
         $rules = [
-            'type'          => 'in:1,2',
+            'type'          => 'in:1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];

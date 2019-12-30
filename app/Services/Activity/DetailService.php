@@ -31,6 +31,10 @@ class DetailService extends BaseService
      */
     public function addActivity($request)
     {
+        if ($request['start_time'] >= $request['end_time']){
+            $this->setError('活动开始时间必须小于结束时间！');
+            return false;
+        }
         $area_codes = explode(',',$request['area_code']);
         if (count($area_codes) != CommonAreaRepository::count(['code' => ['in',$area_codes]])){
             $this->setError('无效的地区代码！');
@@ -207,6 +211,10 @@ class DetailService extends BaseService
      */
     public function editActivity($request)
     {
+        if ($request['start_time'] >= $request['end_time']){
+            $this->setError('活动开始时间必须小于结束时间！');
+            return false;
+        }
         if (!$activity = ActivityDetailRepository::getOne(['id' => $request['id']])){
             $this->setError('活动不存在！');
             return false;

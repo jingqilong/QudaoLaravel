@@ -4,6 +4,7 @@ namespace App\Services\Oa;
 
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\OaDepartmentRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
@@ -43,17 +44,6 @@ class ProcessActionPrincipalsService extends BaseService
     }
 
     /**
-     * @desc 获取部门表列
-     * @param $page
-     * @param $pageNum
-     * @return mixed
-     *
-     */
-    public function getDepartmentList($page,$pageNum){
-        return $this->departmentService->getDepartList($page,$pageNum);
-    }
-
-    /**
      * @desc 获取员工列表
      * @param $department_id
      * @param $page
@@ -61,7 +51,17 @@ class ProcessActionPrincipalsService extends BaseService
      * @return mixed
      */
     public function getEmployeeList($department_id,$page,$pageNum){
-        return OaEmployeeRepository::getList(['department_id'=>$department_id],$page,$pageNum);
+        $column = ['id','real_name','mobile'];
+        if (!$employee_list = OaEmployeeRepository::getList(['department_id'=>$department_id],$column,'id','asc',$page,$pageNum)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $employee_list = $this->removePagingField($employee_list);
+        if (empty($employee_list['data'])){
+            $this->setMessage('该部门暂无员工！');
+            return $employee_list;
+        }
+        return $employee_list;
     }
 
     /**
@@ -99,7 +99,7 @@ class ProcessActionPrincipalsService extends BaseService
      * @return mixed
      */
     public function updatePrincipal($id,$node_action_id,$principal_iden,$principal_id){
-        if (!OaProcessActionPrincipalsRepository::exists(['id' => $id])){
+        if (!OaEmployeeRepository::exists(['id' => $id])){
             $this->setError('参与人不存在！');
             return false;
         }
@@ -110,7 +110,7 @@ class ProcessActionPrincipalsService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (!OaEmployeeRepository::getUpdId(['id' => $id],$upd_arr)){
+        if (!OaProcessActionPrincipalsRepository::getUpdId(['id' => $id],$upd_arr)){
             $this->setError('修改失败！');
             return false;
         }
@@ -161,13 +161,14 @@ class ProcessActionPrincipalsService extends BaseService
         }
         //TODO 这里最好改为视图。
         $employee_ids = array_column($principal_list['data'],'principal_id');
-        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name'],'id','asc');
+        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name','department_id'],'id','asc');
         foreach($principal_list['data'] as &$principal){
             $principal['principal_iden_label']  = ProcessPrincipalsEnum::getPprincipalLabel($principal['principal_iden']);
             $principal['real_name']             = '';
             foreach($employee_list as $employee){
                 if ($employee['id']== $principal['principal_id']){
-                    $principal['real_name'] = $employee['real_name'];
+                    $principal['real_name']             = $employee['real_name'];
+                    $principal['principal_departments'] = OaDepartmentRepository::getDepartmentPath($employee['department_id']);
                     break;
                 }
             }

@@ -284,6 +284,32 @@ trait HelpTrait
               $list['prev_page_url'], $list['to']);
         return $list;
     }
+    /**
+     * @desc 将地区码转换成地区名字符串
+     * @param $codes ,行政区划编码
+     * @param int $from_level  ,从哪个级别开始获取
+     * @param int $max_level  ，最多获取几级
+     * @return string
+     */
+    public function getAreaName($codes,$from_level = 0, $max_level=0){
+        $codes      = trim($codes,',');
+        $area_codes = explode(',',$codes);
+        $where      = ['code' => ['in',$area_codes]];
+        if (!empty($from_level)){
+            $where['level'] = ['>',$from_level];
+        }
+        if (!empty($max_level)){
+            $where['level'] = ['<=',$max_level];
+        }
+        $area_list  = CommonAreaRepository::getList($where,['code','name']);
+        $area_address = '';
+        foreach ($area_codes as $code){
+            if ($area = $this->searchArray($area_list,'code',$code)){
+                $area_address .= reset($area)['name'];
+            }
+        }
+        return $area_address;
+    }
 
     /**
      * 加工房产地址，将地区码转换成详细地址，并获取经纬度
@@ -292,6 +318,7 @@ trait HelpTrait
      * @param null $level
      * @param bool $after   为true表示该等级以下地区
      * @return mixed
+     * @deprecated true
      */
     protected function  makeAddress($codes, $append, $level = null,$after = false){
         $codes      = trim($codes,',');

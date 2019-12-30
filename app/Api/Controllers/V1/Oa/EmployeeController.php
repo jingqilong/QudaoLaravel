@@ -264,6 +264,15 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="department_id",
+     *         in="query",
+     *         description="部门ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -290,10 +299,12 @@ class EmployeeController extends ApiController
      */
     public function userList(){
         $rules = [
+            'department_id' => 'integer',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'department_id.integer'     => '部门ID必须为整数',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
         ];
@@ -301,7 +312,7 @@ class EmployeeController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->employeeService->getPermUserList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->employeeService->getPermUserList($this->request);
         if (!$res){
             return ['code' => 100, 'message' => $this->employeeService->error];
         }

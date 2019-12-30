@@ -47,6 +47,15 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="商品类别",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="name",
      *         in="query",
      *         description="商品名称",
@@ -56,10 +65,28 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="category",
+     *         name="labels",
      *         in="query",
-     *         description="商品类别",
-     *         required=true,
+     *         description="商品标签，使用逗号分隔， 【高端,美食】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="details",
+     *         in="query",
+     *         description="详情介绍",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="stock",
+     *         in="query",
+     *         description="库存，无规格时必须填写",
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -83,54 +110,18 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="details",
-     *         in="query",
-     *         description="详情介绍",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="labels",
-     *         in="query",
-     *         description="商品标签，使用逗号分隔， 【高端,美食】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="banner_ids",
-     *         in="query",
-     *         description="banner图ID串",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="image_ids",
-     *         in="query",
-     *         description="详情图ID串",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="stock",
-     *         in="query",
-     *         description="库存，无规格时必须填写",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="express_price",
      *         in="query",
      *         description="快递费，单位：元",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="score_categories",
+     *         in="query",
+     *         description="可抵扣积分类别串",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -146,18 +137,18 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="score_categories",
-     *         in="query",
-     *         description="可抵扣积分类别串",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="gift_score",
      *         in="query",
      *         description="购买赠积分，默认10",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="score_exchange",
+     *         in="query",
+     *         description="是否展示到‘积分兑换’栏目，0否1是",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -179,6 +170,24 @@ class OaGoodsController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="banner_ids",
+     *         in="query",
+     *         description="banner图ID串",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_ids",
+     *         in="query",
+     *         description="详情图ID串",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -211,6 +220,7 @@ class OaGoodsController extends ApiController
             'is_recommend'      => 'in:1,2',
             'status'            => 'required|in:1,2',
             'spec_json'         => 'json',
+            'score_exchange'    => 'in:0,1',
         ];
         $messages = [
             'name.required'             => '商品名称不能为空',
@@ -234,6 +244,7 @@ class OaGoodsController extends ApiController
             'status.required'           => '状态不能为空',
             'status.in'                 => '状态取值有误',
             'spec_json.json'            => '商品规格必须为json格式',
+            'score_exchange.in'         => '是否展示到‘积分兑换’栏目取值有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -386,9 +397,9 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="name",
+     *         name="id",
      *         in="query",
-     *         description="商品名称",
+     *         description="商品ID",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -404,19 +415,10 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="price",
+     *         name="name",
      *         in="query",
-     *         description="商品价格，单位：元，整数或两位小数",
+     *         description="商品名称",
      *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="details",
-     *         in="query",
-     *         description="详情介绍",
-     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -431,19 +433,10 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="banner_ids",
+     *         name="details",
      *         in="query",
-     *         description="banner图ID串",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="image_ids",
-     *         in="query",
-     *         description="详情图ID串",
-     *         required=true,
+     *         description="详情介绍",
+     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -458,9 +451,36 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="price",
+     *         in="query",
+     *         description="商品价格，单位：元，整数或两位小数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="negotiable",
+     *         in="query",
+     *         description="是否面议，【默认 0无需 1面议】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="express_price",
      *         in="query",
      *         description="快递费，单位：元",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="score_categories",
+     *         in="query",
+     *         description="可抵扣积分类别串",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -476,18 +496,18 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="score_categories",
-     *         in="query",
-     *         description="可抵扣积分类别串",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="gift_score",
      *         in="query",
      *         description="购买赠积分，默认10",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="score_exchange",
+     *         in="query",
+     *         description="是否展示到‘积分兑换’栏目，0否1是",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -509,6 +529,24 @@ class OaGoodsController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="banner_ids",
+     *         in="query",
+     *         description="banner图ID串",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="image_ids",
+     *         in="query",
+     *         description="详情图ID串",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -541,6 +579,7 @@ class OaGoodsController extends ApiController
             'is_recommend'      => 'in:1,2',
             'status'            => 'required|in:1,2',
             'spec_json'         => 'json',
+            'score_exchange'    => 'in:0,1',
         ];
         $messages = [
             'id.required'               => '商品ID不能为空',
@@ -565,6 +604,7 @@ class OaGoodsController extends ApiController
             'status.required'           => '状态不能为空',
             'status.in'                 => '状态取值有误',
             'spec_json.json'            => '商品规格必须为json格式',
+            'score_exchange.in'         => '是否展示到‘积分兑换’栏目取值有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -630,6 +670,15 @@ class OaGoodsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="score_deduction",
+     *         in="query",
+     *         description="积分可抵扣，0不可抵扣，1可抵扣",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -655,12 +704,14 @@ class OaGoodsController extends ApiController
         $rules = [
             'category'          => 'integer',
             'status'            => 'integer',
+            'score_deduction'   => 'in:0,1',
             'page'              => 'integer',
             'page_num'          => 'integer',
         ];
         $messages = [
             'category.integer'      => '商品类别必须为整数',
             'status.integer'        => '上下架必须为整数',
+            'score_deduction.in'    => '积分可抵扣取值有误',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];

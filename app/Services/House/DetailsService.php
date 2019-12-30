@@ -276,11 +276,11 @@ class DetailsService extends BaseService
         }
         foreach ($list['data'] as &$value){
             #处理地址
-            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
-            $value['area_address']  = $area_address;
+            //list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
+            $value['area_address']  = $this->getAreaName($value['area_code'],0,3);
             $value['area_code']     = rtrim($value['area_code'],',');
-            $value['lng']           = $lng;
-            $value['lat']           = $lat;
+//            $value['lng']           = $lng;
+//            $value['lat']           = $lat;
             #处理价格
             $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
 
@@ -556,9 +556,8 @@ class DetailsService extends BaseService
         }
         $list['data'] = ImagesService::getListImages($list['data'],['image_ids' => 'single'],true);
         foreach ($list['data'] as &$value){
-            #处理地址
-            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],'',3);
-            $value['area_address']  = $area_address;
+            #处理区域
+            $value['area_address']  = $this->getAreaName($value['area_code'],3);;
             $value['storey']        = $value['storey'].'层';
             #处理价格
             $value['rent_tenancy']  = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
