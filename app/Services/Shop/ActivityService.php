@@ -21,7 +21,7 @@ class ActivityService extends BaseService
      * @return array
      */
     public static function getHomeShow(){
-        if (!$activity_goods = ShopActivityRepository::getOne(['type' => ShopActivityEnum::HOMESHOW,'status' => ShopActivityEnum::OPEN])){
+        if (!$activity_goods = ShopActivityRepository::getOne(['type' => ShopActivityEnum::HOME_SHOW,'status' => ShopActivityEnum::OPEN])){
             return [];
         }
         $res = [
@@ -37,7 +37,7 @@ class ActivityService extends BaseService
      * @return array|mixed
      */
     public static function getHomeRecommendGoods(){
-        $where  = ['type' => ShopActivityEnum::GOODRECOMMEND,'status' => ShopActivityEnum::OPEN,'deleted_at' => 0];
+        $where  = ['type' => ShopActivityEnum::GOOD_RECOMMEND,'status' => ShopActivityEnum::OPEN,'deleted_at' => 0];
         $column = ['goods_id','name','price','banner_ids','labels'];
         if (!$activity_goods = ShopActivityViewRepository::getList($where,$column)){
 //            self::setMessage('没有活动商品！');
@@ -198,14 +198,14 @@ class ActivityService extends BaseService
         }
         //如果是首页展示，则只能存在一个展示商品
         DB::beginTransaction();
-        if ($activity_goods['type'] == ShopActivityEnum::HOMESHOW){
+        if ($activity_goods['type'] == ShopActivityEnum::HOME_SHOW){
             if ($request['status'] == ShopActivityEnum::DISABLE){
                 $this->setError('首页展示商品不能关闭，只能开启或添加另一个，此记录将被关闭！');
                 DB::rollBack();
                 return false;
             }
             if ($request['status'] == ShopActivityEnum::OPEN){
-                $where = ['type' => ShopActivityEnum::HOMESHOW,'status' => ShopActivityEnum::OPEN];
+                $where = ['type' => ShopActivityEnum::HOME_SHOW,'status' => ShopActivityEnum::OPEN];
                 $upd   = ['status' => ShopActivityEnum::DISABLE,'updated_at' => time()];
                 if (ShopActivityRepository::exists($where)){
                     if (!ShopActivityRepository::update($where,$upd)){

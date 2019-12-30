@@ -12,9 +12,9 @@ class ShopActivityEnum extends BaseEnum
         'DISABLE'       => '禁用',
         'OPEN'          => '开启',
         //类型
-        'SCOREEXCHANGE' => '分类页积分兑换栏目',
-        'GOODRECOMMEND' => '首页的好物推荐列表',
-        'HOMESHOW'      => '首页积分推荐广告位',
+        'SCORE_EXCHANGE'=> '分类页积分兑换栏目',
+        'GOOD_RECOMMEND' => '首页的好物推荐列表',
+        'HOME_SHOW'      => '首页积分推荐广告位',
     ];
 
     public static $status = [
@@ -23,9 +23,9 @@ class ShopActivityEnum extends BaseEnum
     ];
 
     public static $type = [
-        1 => 'SCOREEXCHANGE',
-        2 => 'GOODRECOMMEND',
-        3 => 'HOMESHOW',
+        1 => 'SCORE_EXCHANGE',
+        2 => 'GOOD_RECOMMEND',
+        3 => 'HOME_SHOW',
     ];
 
     //状态
@@ -36,11 +36,11 @@ class ShopActivityEnum extends BaseEnum
 
     //类型
 
-    const SCOREEXCHANGE     = 1;    //积分兑换
+    const SCORE_EXCHANGE    = 1;    //积分兑换
 
-    const GOODRECOMMEND     = 2;    //好物推荐
+    const GOOD_RECOMMEND     = 2;    //好物推荐
 
-    const HOMESHOW          = 3;    //首页展示
+    const HOME_SHOW          = 3;    //首页展示
 
     /**
      * @param int $value        值

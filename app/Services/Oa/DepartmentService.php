@@ -178,7 +178,7 @@ class DepartmentService extends BaseService
         foreach ($all_department_list as $key => &$value){
             if ($parent_id == $value['parent_id']){
                 unset($all_department_list[$key]);
-                $value['sub_departments'] = [];
+//                $value['sub_departments'] = [];//前端不需要空数组
                 if ($this->existsArray($all_department_list,'parent_id',$value['id'])){
                     $value['sub_departments'] = $this->getLayeredDepartmentList($value['id'],$all_department_list);
                 }
