@@ -284,23 +284,22 @@ trait HelpTrait
               $list['prev_page_url'], $list['to']);
         return $list;
     }
-
     /**
      * @desc 将地区码转换成地区名字符串
-     * @param $codes   ,行政区划编码
+     * @param $codes ,行政区划编码
      * @param int $from_level  ,从哪个级别开始获取
+     * @param int $max_level  ，最多获取几级
      * @return string
      */
-    public function getAreaName($codes,$from_level = 0){
+    public function getAreaName($codes,$from_level = 0, $max_level=0){
         $codes      = trim($codes,',');
         $area_codes = explode(',',$codes);
         $where      = ['code' => ['in',$area_codes]];
         if (!empty($from_level)){
-            if ($from_level){
-                $where['level'] = ['>',$from_level];
-            }else{
-                $where['level'] = $from_level;
-            }
+            $where['level'] = ['>',$from_level];
+        }
+        if (!empty($max_level)){
+            $where['level'] = ['<=',$max_level];
         }
         $area_list  = CommonAreaRepository::getList($where,['code','name']);
         $area_address = '';
