@@ -209,9 +209,9 @@ class QiNiuService extends BaseService
         //对传入的文件进行预检
         foreach ($files as $info){
             $file_name = $info->getClientOriginalName();
-            if (preg_match("/[()（）?]/",$file_name)){
-                return ['code' => 0, 'message' => '图片名字中不能包含特殊字符【中英文括号、问号】'];
-            }
+//            if (preg_match("/[()（）?]/",$file_name)){
+//                return ['code' => 0, 'message' => '图片名字中不能包含特殊字符【中英文括号、问号】'];
+//            }
             try {
                 $file_type = $info->getMimeType();
                 $temp = explode('/',$file_type);
