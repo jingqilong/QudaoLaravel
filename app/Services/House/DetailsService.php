@@ -557,7 +557,7 @@ class DetailsService extends BaseService
         $list['data'] = ImagesService::getListImages($list['data'],['image_ids' => 'single'],true);
         foreach ($list['data'] as &$value){
             #处理地址
-            list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],'',3);
+            $area_address = $this->getAreaName($value['area_code'],3);
             $value['area_address']  = $area_address;
             $value['storey']        = $value['storey'].'层';
             #处理价格
