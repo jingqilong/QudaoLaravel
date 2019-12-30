@@ -341,19 +341,5 @@ class CollectService extends BaseService
         return true;
     }
 
-
-    /**
-     * 用户获取渠道平台服务条款
-     * @return bool|null
-     */
-    public function getCommonServiceTerms()
-    {
-        if (!$commonTerms = CommonServiceTermsRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
-            $this->setError('获取失败!');
-            return false;
-        }
-        $this->setMessage('获取成功!');
-        return $commonTerms;
-    }
 }
 
