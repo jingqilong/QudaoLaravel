@@ -26,7 +26,7 @@ class CategoryService extends BaseService
             'title'     => $request['title'],
             'explain'   => $request['explain'],
             'status'    => $request['status'],
-            'view'      => $request['view'],
+            'view'      => $request['view'] ?? '',
             'created_at'=> date('Y-m-d H:i:s'),
             'updated_at'=> date('Y-m-d H:i:s'),
         ];
@@ -84,7 +84,7 @@ class CategoryService extends BaseService
             'title'     => $request['title'],
             'explain'   => $request['explain'],
             'status'    => $request['status'],
-            'view'      => $request['view'],
+            'view'      => $request['view'] ?? '',
             'updated_at'=> date('Y-m-d H:i:s'),
         ];
         if (MessageCategoryRepository::getUpdId(['id' => $request['id']],$add_arr)){
