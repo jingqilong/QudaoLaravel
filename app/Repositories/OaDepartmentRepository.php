@@ -76,5 +76,23 @@ class OaDepartmentRepository extends ApiRepository
         $res = $this->getUpdId(['id' => $info['id']],$department_data);
         return $res;
     }
+
+    /**
+     * 获取部门上下级路径
+     * @param $department_id
+     * @return array
+     */
+    protected function getDepartmentPath($department_id){
+        if (empty($department_id)){
+            return [];
+        }
+        if (!$department = $this->getOne(['id' => $department_id])){
+            return [];
+        }
+        $path = trim($department['path'],',');
+        $path = ltrim($path,'0,');
+        $path = explode(',',$path);
+        return $path;
+    }
 }
             

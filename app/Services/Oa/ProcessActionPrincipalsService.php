@@ -4,6 +4,7 @@ namespace App\Services\Oa;
 
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\OaDepartmentRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
@@ -160,13 +161,14 @@ class ProcessActionPrincipalsService extends BaseService
         }
         //TODO 这里最好改为视图。
         $employee_ids = array_column($principal_list['data'],'principal_id');
-        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name'],'id','asc');
+        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name','department_id'],'id','asc');
         foreach($principal_list['data'] as &$principal){
             $principal['principal_iden_label']  = ProcessPrincipalsEnum::getPprincipalLabel($principal['principal_iden']);
             $principal['real_name']             = '';
             foreach($employee_list as $employee){
                 if ($employee['id']== $principal['principal_id']){
-                    $principal['real_name'] = $employee['real_name'];
+                    $principal['real_name']             = $employee['real_name'];
+                    $principal['principal_departments'] = OaDepartmentRepository::getDepartmentPath($employee['department_id']);
                     break;
                 }
             }
