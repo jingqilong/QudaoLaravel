@@ -270,6 +270,10 @@ class ProcessNodeService extends BaseService
             Loggy::write('error','给流程选择节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
             return false;
         }
+        if ($current_node_id == $request['node_id']){
+            $this->setError('不能选择当前节点为下一节点！');
+            return false;
+        }
         $where = [
             'node_action_result_id' => $request['node_actions_result_id'],
             'process_id'            => $request['process_id']
