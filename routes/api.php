@@ -718,6 +718,8 @@ $api->version('v1',function ($api){
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
                 $api->post('banner_status_switch', 'BannerController@bannerStatusSwitch')->name('banner显示状态开关');
 
+                #渠道平台服务条款
+                $api->post('add_common_service_terms', 'CommonController@addCommonServiceTerms')->name('用户获取渠道平台服务条款');
 
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');

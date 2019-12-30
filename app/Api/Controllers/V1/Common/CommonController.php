@@ -4,6 +4,7 @@
 namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
+use App\Services\Common\CommonServiceTermsService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\HomeService;
 use App\Services\Common\PvService;
@@ -18,6 +19,7 @@ class CommonController extends ApiController
     public $homeService;
     public $homeBannersService;
     public $collectService;
+    public $commonServiceTermsService;
 
     /**
      * QiNiuController constructor.
@@ -26,12 +28,14 @@ class CommonController extends ApiController
      * @param HomeService $homeService
      * @param HomeBannersService $homeBannersService
      * @param CollectService $collectService
+     * @param CommonServiceTermsService $commonServiceTermsService
      */
     public function __construct(SmsService $smsService,
                                 MemberService $memberService,
                                 HomeService $homeService,
                                 HomeBannersService $homeBannersService,
-                                CollectService $collectService)
+                                CollectService $collectService,
+                                CommonServiceTermsService $commonServiceTermsService)
     {
         parent::__construct();
         $this->smsService       = $smsService;
@@ -39,6 +43,7 @@ class CommonController extends ApiController
         $this->homeService      = $homeService;
         $this->homeBannersService      = $homeBannersService;
         $this->collectService      = $collectService;
+        $this->commonServiceTermsService      = $commonServiceTermsService;
         if(request()->path() == 'api/v1/common/home'){
             if (isset($this->request['token'])){
                 $this->middleware('member.jwt.auth');
@@ -771,7 +776,7 @@ class CommonController extends ApiController
      *     path="/api/v1/common/get_common_service_terms",
      *     tags={"公共"},
      *     summary="获取渠道平台服务条款",
-     *     description="sang" ,
+     *     description="jing" ,
      *     operationId="get_common_service_terms",
      *     @OA\Parameter(
      *         name="sign",
@@ -780,6 +785,15 @@ class CommonController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型【1注册登录条款.....】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -800,10 +814,94 @@ class CommonController extends ApiController
      *
      */
     public function getCommonServiceTerms(){
-        $res = $this->collectService->getCommonServiceTerms();
-        if ($res === false){
-            return ['code' => 100,'message' => '获取失败！'];
+        $rules = [
+            'type'        => 'required|in:1',
+        ];
+        $messages = [
+            'type.required'  => '服务条款类型不能为空',
+            'type.in'        => '服务条款类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
         }
-        return ['code' => 200,'message' => '获取成功！','data' => $res];
+        $res = $this->commonServiceTermsService->getCommonServiceTerms($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->commonServiceTermsService->error];
+        }
+        return ['code' => 200,'message' => $this->commonServiceTermsService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/add_common_service_terms",
+     *     tags={"公共"},
+     *     summary="添加渠道平台服务条款",
+     *     description="jing" ,
+     *     operationId="add_common_service_terms",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="类型【1注册登录条款.....】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="value",
+     *         in="query",
+     *         description="服务条款内容",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="100",
+     *         description="获取失败",
+     *         @OA\JsonContent(ref=""),
+     *     )
+     * )
+     *
+     */
+    public function addCommonServiceTerms(){
+        $rules = [
+            'type'        => 'required|in:1',
+            'value'       => 'required',
+        ];
+        $messages = [
+            'type.required'  => '服务条款类型不能为空',
+            'type.in'        => '服务条款类型不存在',
+            'value.required' => '服务条款类型内容不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->commonServiceTermsService->addCommonServiceTerms($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->commonServiceTermsService->error];
+        }
+        return ['code' => 200,'message' => $this->commonServiceTermsService->message,'data' => $res];
     }
 }

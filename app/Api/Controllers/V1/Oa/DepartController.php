@@ -57,10 +57,10 @@ class DepartController extends ApiController
      *     @OA\Parameter(
      *         name="parent_id",
      *         in="query",
-     *         description="上级部门id",
-     *         required=true,
+     *         description="上级部门id [不填写就是一级部门]",
+     *         required=false,
      *         @OA\Schema(
-     *             type="string",
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Response(
@@ -77,12 +77,11 @@ class DepartController extends ApiController
     {
         $rules = [
             'name'          => 'required',
-            'parent_id'     => 'required|Integer',
+            'parent_id'     => 'integer',
         ];
         $messages = [
             'name.required'         => '请输入部门名称',
-            'parent_id.required'    => '请输入上级部门ID',
-            'parent_id.number'      => '请正确输入类型',
+            'parent_id.integer'     => '请正确输入类型',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
