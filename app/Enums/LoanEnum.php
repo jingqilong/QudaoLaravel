@@ -15,7 +15,7 @@ class LoanEnum extends BaseEnum
         'NOPASS'              => '审核驳回',
         'CANCEL'              => '预约取消',
         'ONESELF'             => '本人预约',
-        'OTHERS'              => '推荐他人预约',
+        'OTHERS'              => '他人推荐预约',
         'MILLION'             => '100万 - 200万',
         'TWOMILLION'          => '200万 - 300万',
         'THREEMILLION'        => '300万 - 500万',
