@@ -129,7 +129,7 @@ class LoanController extends ApiController
      *    @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="预约方式[1 本人预约 2 推荐人预约]",
+     *         description="预约方式[1 本人预约 2 他人推荐预约]",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
