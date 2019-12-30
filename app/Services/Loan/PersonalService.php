@@ -71,7 +71,7 @@ class PersonalService extends BaseService
         $status         = $data['status'] ?? null;
         $where          = ['deleted_at' => 0];
         if ($type !== null) $where['type']  = $type;
-        if ($status !== null) $where['status'] = $status;
+        if (!empty($status)) $where['status'] = $status;
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','mobile']];
             if (!$list = LoanPersonalRepository::search($keyword,$where,$column,$page,$page_num,'id',$asc)){
