@@ -158,6 +158,9 @@ class ActivityService extends BaseService
     public function deleteBeforeCheck($goods_id){
         if ($banner_list = ShopActivityRepository::getList(['goods_id' => $goods_id])){
             foreach ($banner_list as $value){
+                if (ShopActivityEnum::SCORE_EXCHANGE == $value['type']){
+                    continue;
+                }
                 $this->setError(ShopActivityEnum::getType($value['type']) . '活动商品，无法删除！');
                 return false;
             }
@@ -229,6 +232,31 @@ class ActivityService extends BaseService
         }
         DB::commit();
         $this->setMessage('修改成功！');
+        return true;
+    }
+
+    /**
+     * 添加或更新“积分兑换”栏目
+     * @param $goods_id
+     * @param int $status
+     * @return bool
+     */
+    public function addOrUpdScoreExchange($goods_id, $status = ShopActivityEnum::OPEN){
+        if ($activity_goods = ShopActivityRepository::getOne(['goods_id' => $goods_id,'type' => ShopActivityEnum::SCORE_EXCHANGE])){
+            $id = $activity_goods['id'];
+        }else{
+            $add_arr = ['goods_id' => $goods_id,'type' => ShopActivityEnum::SCORE_EXCHANGE,'status' => $status,'created_at' => time(),'updated_at' => time()];
+            if (!$id = ShopActivityRepository::getAddId($add_arr)){
+                $this->setError('添加商品至"积分兑换"栏目失败！');
+                return false;
+            }
+        }
+        $upd_arr = ['status' => $status,'updated_at' => time()];
+        if (!ShopActivityRepository::getUpdId(['id' => $id],$upd_arr)){
+            $this->setError('更新“积分兑换”栏目失败！');
+            return false;
+        }
+        $this->setMessage('操作成功！');
         return true;
     }
 }
