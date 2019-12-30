@@ -92,11 +92,23 @@ class DoctorLabelsService extends BaseService
      */
     public function getDoctorLabelsList($request)
     {
+        if (empty($request['sort'])) $request['sort'] = 1;
+        $keywords   = $request['keywords'] ?? null;
+        $sort       = $request['sort'] == 1 ? 'asc' : 'desc';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MedicalDoctorLabelsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        $where      = ['id' => ['<>',0]];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name']];
+            if (!$list = MedicalDoctorLabelsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$sort)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = MedicalDoctorLabelsRepository::getList($where,['*'],'id',$sort,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
