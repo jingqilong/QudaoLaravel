@@ -53,7 +53,7 @@ class MemberGradeEnum extends BaseEnum
 
     const PASS              = 1;    //审核通过
 
-    const NOPASS            = 1;    //审核未通过
+    const NOPASS            = 2;    //审核未通过
 
 
     /**

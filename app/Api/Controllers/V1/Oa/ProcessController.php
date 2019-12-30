@@ -624,7 +624,7 @@ class ProcessController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *     path="/api/v1/oa/process/delete_last_node_transition",
      *     tags={"OA流程"},
      *     summary="删除与上一步节点之间的流转",

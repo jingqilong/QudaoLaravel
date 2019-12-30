@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\GradeOrderEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MemberGradeEnum;
+use App\Enums\MemberGradeOrderStatusEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ProcessCategoryEnum;
@@ -371,6 +372,10 @@ class GradeOrdersService extends BaseService
             $this->setError('记录不存在！');
             return false;
         }
+        $apply['sex']        = MemberEnum::getSex($apply['sex']);
+        $apply['status']     = MemberGradeOrderStatusEnum::getStatus($apply['status']);
+        $apply['created_at'] = empty($apply['created_at']) ? '' : date('Y-m-d H:i:s',$apply['created_at']);
+        $apply['updated_at'] = empty($apply['updated_at']) ? '' : date('Y-m-d H:i:s',$apply['updated_at']);
         #获取流程进度
         $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::MEMBER_UPGRADE]);
         if (100 == $progress['code']){

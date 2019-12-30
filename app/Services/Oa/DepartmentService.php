@@ -5,6 +5,7 @@ namespace App\Services\Oa;
 use App\Repositories\OaDepartmentRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentService extends BaseService
@@ -140,6 +141,51 @@ class DepartmentService extends BaseService
 
         $this->setMessage('获取成功！');
         return $depart_list;
+    }
+
+    /**
+     * 获取部门的联级列表
+     * @return array
+     */
+    public function getDepartmentLinkageList(){
+        $column = ['id','name','parent_id'];
+        //先获取所有部门，联动列表用程序处理，减少数据库访问，部门过多不建议使用此方法
+        if (!$department_list = OaDepartmentRepository::getAll($column)){
+            $this->setMessage('暂无数据！');
+            return [];
+        }
+        #父级部门ID，为0表示最顶级的部门
+        $department_linkage_list = $this->getLayeredDepartmentList(0,$department_list);
+        if (empty($department_linkage_list)){
+            $this->setMessage('暂无数据！');
+            return [];
+        }
+        $this->setMessage('获取成功！');
+        return $department_linkage_list;
+    }
+
+    /**
+     * 获取分层后的部门列表
+     * @param int $parent_id                父级部门ID，为0表示最顶级的部门
+     * @param array $all_department_list    所有的部门列表
+     * @return array
+     */
+    public function getLayeredDepartmentList($parent_id, $all_department_list){
+        if (empty($all_department_list)){
+            return [];
+        }
+        $department_list = [];
+        foreach ($all_department_list as $key => &$value){
+            if ($parent_id == $value['parent_id']){
+                unset($all_department_list[$key]);
+                $value['sub_departments'] = [];
+                if ($this->existsArray($all_department_list,'parent_id',$value['id'])){
+                    $value['sub_departments'] = $this->getLayeredDepartmentList($value['id'],$all_department_list);
+                }
+                $department_list[] = $value;
+            }
+        }
+        return $department_list;
     }
 }
             

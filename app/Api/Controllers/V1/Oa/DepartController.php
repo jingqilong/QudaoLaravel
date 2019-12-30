@@ -313,4 +313,44 @@ class DepartController extends ApiController
         }
         return ['code' => 200,'message' => $this->departmentService->message,'data' => $res];
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_department_linkage_list",
+     *     tags={"OA部门"},
+     *     summary="获取部门联级列表",
+     *     operationId="get_department_linkage_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getDepartmentLinkageList(){
+        $res = $this->departmentService->getDepartmentLinkageList();
+        if ($res == false){
+            return ['coed' => 100, 'message' => $this->departmentService->error];
+        }
+        return ['code' => 200, 'message' => $this->departmentService->message,'data' => $res];
+    }
 }

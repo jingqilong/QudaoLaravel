@@ -131,9 +131,16 @@ class EmployeeService extends BaseService
      * @param $pageNum
      * @return mixed
      */
-    public function getPermUserList($page,$pageNum){
+    public function getPermUserList($request){
+        $page = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $department_id = $request['department_id'] ?? null;
         $column = ['id', 'username', 'real_name','department_id', 'mobile', 'email','work_title', 'status', 'role_ids', 'permission_ids', 'created_at', 'updated_at'];
-        if (!$user_list = OaEmployeeRepository::getList(['id' => ['>',0]],$column,'id','asc',$page,$pageNum)){
+        $where = ['id' => ['>',0]];
+        if (!is_null($department_id)){
+            $where['department_id'] = $department_id;
+        }
+        if (!$user_list = OaEmployeeRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }

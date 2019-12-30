@@ -96,6 +96,7 @@ $api->version('v1',function ($api){
                 $api->post('update_depart','DepartController@updateDepart')->name("修改部门");
                 $api->delete('del_depart','DepartController@delDepart')->name("删除部门");
                 $api->get('get_depart_list','DepartController@getDepartList')->name("获取部门列表");
+                $api->get('get_department_linkage_list','DepartController@getDepartmentLinkageList')->name("获取部门联级列表");
                 #OA员工
                 $api->get('get_employee_list','EmployessController@getEmployeeList')->name('获取OA员工列表');
                 $api->get('get_employee_info','EmployessController@getEmployeeInfo')->name('获取OA员工信息');

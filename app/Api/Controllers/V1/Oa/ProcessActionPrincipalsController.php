@@ -350,4 +350,87 @@ class ProcessActionPrincipalsController extends ApiController
         }
         return ['code' => 100,'message' => $this->processActionPrincipalsService->error];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/process/get_principal_list",
+     *     tags={"OA流程"},
+     *     summary="获取负责人列表",
+     *     description="sang" ,
+     *     operationId="get_principal_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="department_id",
+     *         in="query",
+     *         description="部门ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="添加失败！",),
+     * )
+     *
+     */
+    public function getPrincipalList(){
+        $rules = [
+            'department_id'             => 'required|integer',
+            'page'                      => 'integer',
+            'page_num'                  => 'integer',
+        ];
+        $messages = [
+            'department_id.required'            => '部门ID不能为空！',
+            'department_id.integer'             => '部门ID必须为整数！',
+            'page.integer'                      => '页码必须为整数',
+            'page_num.integer'                  => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processActionPrincipalsService->getEmployeeList(
+            $this->request['department_id'],
+            $this->request['page'] ?? 1,
+            $this->request['page_num'] ?? 20
+        );
+        if ($res == false){
+            return ['code' => 100,'message' => $this->processActionPrincipalsService->error];
+        }
+        return ['code' => 200,'message' => $this->processActionPrincipalsService->message,'data' => $res];
+    }
 }
