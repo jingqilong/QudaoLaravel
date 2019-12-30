@@ -12,11 +12,11 @@ class HouseEnum extends BaseEnum
 
     public static $labels=[
         //租期
-        'HOUR'          => '小时',
-        'DAY'           => '天',
-        'WEEK'          => '周',
-        'MONTH'         => '月',
-        'YEAR'          => '年',
+        'HOUR'          => '时租',
+        'DAY'           => '日租',
+        'WEEK'          => '周租',
+        'MONTH'         => '月租',
+        'YEAR'          => '年租',
         //装修
         'GENERAL'       => '普装',
         'DELICATE'      => '精装',
