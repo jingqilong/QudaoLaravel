@@ -80,7 +80,7 @@ class OaDepartmentRepository extends ApiRepository
     /**
      * 获取部门上下级路径
      * @param $department_id
-     * @return array
+     * @return mixed
      */
     protected function getDepartmentPath($department_id){
         if (empty($department_id)){
@@ -92,6 +92,9 @@ class OaDepartmentRepository extends ApiRepository
         $path = trim($department['path'],',');
         $path = ltrim($path,'0,');
         $path = explode(',',$path);
+        foreach ($path as &$v){
+            $v = (int)$v;
+        }
         return $path;
     }
 }
