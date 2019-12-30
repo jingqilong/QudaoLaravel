@@ -34,7 +34,7 @@ class OrdersService extends BaseService
 
 
     /**
-     * 添加预约
+     * 添加医疗预约信息
      * @param $request
      * @return array|bool
      */
@@ -89,7 +89,7 @@ class OrdersService extends BaseService
     }
 
     /**
-     * 修改预约订单
+     * 修改医疗预约信息
      * @param $request
      * @return array|bool
      */
