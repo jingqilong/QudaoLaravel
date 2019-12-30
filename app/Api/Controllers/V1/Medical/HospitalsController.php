@@ -230,7 +230,7 @@ class HospitalsController extends ApiController
             'id'          => 'required',
         ];
         $messages = [
-            'id.required'         => '医疗医院ID不能为空',
+            'id.required' => '医疗医院ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

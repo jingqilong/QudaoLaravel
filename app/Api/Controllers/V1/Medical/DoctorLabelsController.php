@@ -109,7 +109,7 @@ class DoctorLabelsController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="医生标签id",
+     *         description="标签id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -127,7 +127,7 @@ class DoctorLabelsController extends ApiController
             'id'          => 'required',
         ];
         $messages = [
-            'id.required'         => '医生标签ID不能为空',
+            'id.required' => '标签ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

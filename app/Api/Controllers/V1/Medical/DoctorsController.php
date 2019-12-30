@@ -241,7 +241,7 @@ class DoctorsController extends ApiController
             'id'          => 'required',
         ];
         $messages = [
-            'id.required'         => '医生ID不能为空',
+            'id.required' => '医生ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
