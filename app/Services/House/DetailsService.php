@@ -277,7 +277,7 @@ class DetailsService extends BaseService
         foreach ($list['data'] as &$value){
             #处理地址
             //list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
-            $value['area_address']  = $this->getAreaName($value['area_code'],3);
+            $value['area_address']  = $this->getAreaName($value['area_code'],0,3);
             $value['area_code']     = rtrim($value['area_code'],',');
 //            $value['lng']           = $lng;
 //            $value['lat']           = $lat;
