@@ -34,7 +34,7 @@ class OrdersService extends BaseService
 
 
     /**
-     * 添加预约
+     * 添加医疗预约信息
      * @param $request
      * @return array|bool
      */
@@ -49,7 +49,7 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
-        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在！');
             return false;
         }
@@ -89,7 +89,7 @@ class OrdersService extends BaseService
     }
 
     /**
-     * 修改预约订单
+     * 修改医疗预约信息
      * @param $request
      * @return array|bool
      */
@@ -111,7 +111,7 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
-        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在！');
             return false;
         }
@@ -156,9 +156,7 @@ class OrdersService extends BaseService
      */
     public function getDoctorOrderList($data)
     {
-        if (empty($data['asc'])){
-            $data['asc']  = 1;
-        }
+        if (empty($data['asc'])) $data['asc']  = 1;
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $data['page_num'] ?? 20;
@@ -167,12 +165,8 @@ class OrdersService extends BaseService
         $type           = $data['type'] ?? null;
         $column         = ['*'];
         $where          = ['deleted_at' => 0];
-        if ($status !== null){
-            $where['status'] = $status;
-        }
-        if ($type !== null){
-            $where['type'] = $type;
-        }
+        if ($status !== null) $where['status'] = $status;
+        if ($type !== null) $where['type'] = $type;
         if (!empty($keywords)) {
             $keyword = [$keywords => ['name', 'mobile']];
             if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
@@ -208,7 +202,6 @@ class OrdersService extends BaseService
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
             $value['type_name']         =  DoctorEnum::getType($value['type']);
         }
-
         $this->setMessage('获取成功！');
         return $list;
     }
@@ -221,11 +214,11 @@ class OrdersService extends BaseService
     public function setDoctorOrder($request)
     {
         if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $request['id']])){
-            $this->setError('无此订单!');
+            $this->setError('查询不到预约信息!');
             return false;
         }
         if (!$doctor = MedicalDoctorsRepository::getOne(['id' => $orderInfo['doctor_id']])){
-            $this->setError('无此医生!');
+            $this->setError('预约医生不存在!');
             return false;
         }
         $status = $request['audit'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
@@ -269,37 +262,22 @@ class OrdersService extends BaseService
     }
 
     /**
-     * 获取成员自己预约列表状态
+     * 获取成员自己预约列表状态（修改）
      * @return array|bool|null
      */
     public function doctorsOrderList()
     {
         $member    = $this->auth->user();
         $where     = ['member_id' => $member->id, 'deleted_at' => 0];
-        if (!$list = MedicalOrdersViewRepository::getList($where,['*'],'id','desc')) {
+        $column    = ['id','name','mobile','longitude','latitude','sex','age','type','end_time','hospital_name','departments_name','doctor_head_url','doctor_name','doctor_title','appointment_at','status','created_at'];
+        if (!$list = MedicalOrdersViewRepository::getList($where,$column,'id','desc')) {
             $this->setMessage('暂时没有预约订单');
             return [];
         }
-        if (empty($list)) {
-            $this->setError('暂时没有预约订单');
-            return false;
-        }
-        $doctor_ids = array_column($list, 'doctor_id');
-        $doctors_list = MedicalDoctorsRepository::getAssignList($doctor_ids, ['id', 'department_ids']);
-        $department_ids = array_column($doctors_list, 'department_ids');
-        $department_list = MedicalDepartmentsRepository::getAssignList($department_ids, ['id', 'name']);
         foreach ($list as &$value) {
-            $value['department_name'] = '';
-            if ($department = $this->searchArray($department_list, 'id', $value['id'])) {
-                $value['department_name'] = reset($department)['name'];
-            }
             $value['sex_name']    = DoctorEnum::getSex($value['sex']);
             $value['status_name'] = DoctorEnum::getStatus($value['status']);
             $value['type_name']   = DoctorEnum::getType($value['type']);
-            unset($value['hospital_id'], $value['img_id'], $value['doctor_id'], $value['member_id'],
-                $value['type'], $value['department_ids'], $value['member_name'],$value['sex'],
-                $value['created_at'], $value['updated_at'], $value['deleted_at']
-            );
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -383,7 +361,7 @@ class OrdersService extends BaseService
      */
     public function doctorsOrder($request)
     {
-        $column = ['id','name','mobile','longitude','latitude','sex','age','type','end_time','hospital_id','hospital_name','departments_id','departments_name','doctor_id','doctor_head_url','doctor_name','doctor_title','appointment_at','status','created_at','updated_at'];
+        $column = ['id','name','mobile','longitude','latitude','sex','age','type','description','end_time','hospital_id','hospital_name','departments_id','departments_name','doctor_id','doctor_head_url','doctor_name','doctor_title','appointment_at','status','created_at','updated_at'];
         if (!$orderInfo = MedicalOrdersViewRepository::getOne(['id' => $request['id'],'deleted_at' => 0],$column)){
             $this->setError('没有此订单!');
             return false;

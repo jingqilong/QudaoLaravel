@@ -307,7 +307,7 @@ class GoodsService extends BaseService
     {
         $result['banners']          = HomeBannersService::getHomeBanners(CommonHomeEnum::SHOPHOME);
         $result['announce']         = AnnounceService::getHomeAnnounce();
-        $result['recommend_goods']  = $this->getRecommendGoodsList(null,16);
+        $result['recommend_goods']  = $this->getRecommendGoodsList(null);
         $this->setMessage('获取成功！');
         return $result;
     }

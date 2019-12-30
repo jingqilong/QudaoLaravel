@@ -5,6 +5,7 @@ namespace App\Services\Member;
 use App\Enums\CommentsEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
+use App\Repositories\CommonServiceTermsRepository;
 use App\Repositories\PrimeMerchantRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopOrderRelateRepository;
@@ -338,6 +339,21 @@ class CollectService extends BaseService
         }
         $this->setMessage('设置成功!');
         return true;
+    }
+
+
+    /**
+     * 用户获取渠道平台服务条款
+     * @return bool|null
+     */
+    public function getCommonServiceTerms()
+    {
+        if (!$commonTerms = CommonServiceTermsRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $this->setMessage('获取成功!');
+        return $commonTerms;
     }
 }
 

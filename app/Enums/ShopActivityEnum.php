@@ -12,9 +12,9 @@ class ShopActivityEnum extends BaseEnum
         'DISABLE'       => '禁用',
         'OPEN'          => '开启',
         //类型
-        'SCOREEXCHANGE' => '积分兑换',
-        'GOODRECOMMEND' => '好物推荐',
-        'HOMESHOW'      => '首页展示',
+        'SCOREEXCHANGE' => '分类页积分兑换栏目',
+        'GOODRECOMMEND' => '首页的好物推荐列表',
+        'HOMESHOW'      => '首页积分推荐广告位',
     ];
 
     public static $status = [

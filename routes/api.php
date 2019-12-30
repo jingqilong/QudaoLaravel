@@ -710,6 +710,7 @@ $api->version('v1',function ($api){
             $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
+            $api->get('get_common_service_terms', 'CommonController@getCommonServiceTerms')->name('用户获取渠道平台服务条款');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 #首页banner设置
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');

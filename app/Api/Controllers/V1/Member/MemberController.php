@@ -284,21 +284,21 @@ class MemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="category",
-     *         in="query",
-     *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="token",
      *         in="query",
      *         description="用户 TOKEN",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="成员类别[ 1 商政名流 2 企业精英 3 名医专家 4 文艺雅仕]",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(

@@ -165,7 +165,7 @@ class DoctorOrderController extends ApiController
             'appointment_at'    => 'required|date',
             'end_time'          => 'date',
             'hospital_id'       => 'required|integer',
-            'department_ids'    => 'string',
+            'department_ids'    => 'integer',
         ];
         $messages = [
             'name.required'             => '预约人姓名不能为空',
@@ -353,7 +353,7 @@ class DoctorOrderController extends ApiController
             'appointment_at'    => 'required|date',
             'end_time'          => 'date',
             'hospital_id'       => 'required|integer',
-            'department_ids'    => 'string',
+            'departments_id'    => 'integer',
         ];
         $messages = [
             'id.required'               => '预约订单ID不能为空',
@@ -369,6 +369,8 @@ class DoctorOrderController extends ApiController
             'description.string'        => '病情描述详情必须为字符串',
             'hospital_id.integer'       => '医院ID不是整数',
             'hospital_id.required'      => '医院ID不能为空',
+            'departments_id.integer'    => '科室ID不是整数',
+            'departments_id.required'   => '科室ID不能为空',
             'type.in'                   => '服务类型存在',
             'type.required'             => '服务类型不能为空',
             'doctor_id.integer'         => '医生ID不是整数',
