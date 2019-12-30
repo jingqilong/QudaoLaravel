@@ -255,5 +255,6 @@ class PreferenceService extends BaseService
         $this->setMessage('获取成功!');
         return $list;
     }
+
 }
             

@@ -57,12 +57,12 @@ class OaMemberService extends BaseService
         if (!empty($category)) $where['category'] = $category;
         if (!empty($keywords)) {
             $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'grade', 'category']];
-            if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
+            if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = MemberOaListViewRepository::getList($where, $column, 'created_at', $asc, $page, $page_num)) {
+            if (!$list = MemberOaListViewRepository::getList($where, $column, 'id', $asc, $page, $page_num)) {
                 $this->setError('获取失败!');
                 return false;
             }
@@ -493,7 +493,7 @@ class OaMemberService extends BaseService
     }
 
     /**
-     * 添加会员服务信息 and 成员偏好累别信息
+     * 添加会员服务信息 and 成员偏好类别信息
      * @param $request
      * @return bool
      */
@@ -525,15 +525,15 @@ class OaMemberService extends BaseService
             DB::rollBack();
             return false;
         }
-        if (MemberPreferenceRepository::exists($preference_arr)){
-            $this->setError('会员偏好类型信息已存在');
+        if (MemberPreferenceRepository::exists(['member_id' => $request['member_id']])) if (!MemberPreferenceRepository::delete($request['member_id'])){
+            $this->setError('会员偏好类型信息添加失败!');
             DB::rollBack();
             return false;
         }
         $preference_arr['created_at'] = time();
         $preference_arr['update_at']  = time();
         if (!MemberPreferenceRepository::getAddId($preference_arr)){
-            $this->setError('会员偏好类型信息添加失败');
+            $this->setError('会员偏好类型信息添加失败!');
             DB::rollBack();
             return false;
         }

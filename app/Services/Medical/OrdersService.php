@@ -49,7 +49,7 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
-        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在！');
             return false;
         }
@@ -111,7 +111,7 @@ class OrdersService extends BaseService
             $this->setError('医生不存在！');
             return false;
         }
-        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id'],'deleted_at' => 0])){
+        if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在！');
             return false;
         }
