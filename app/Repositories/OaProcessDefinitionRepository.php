@@ -34,5 +34,15 @@ class OaProcessDefinitionRepository extends ApiRepository
         }
         return ['code'=>200,'message'=>"此流程存在且可用！"];
     }
+
+    /**
+     * 刷新流程总步骤数
+     * @param $process_id
+     * @return |null
+     */
+    protected function updateStepCount($process_id){
+        $node = OaProcessNodeRepository::getOrderOne(['process_id' => $process_id],'position','desc');
+        return $this->update(['id' => $process_id],['step_count' => $node['position'],'updated_at' => time()]);
+    }
 }
             

@@ -84,9 +84,10 @@ class ProcessNodeService extends BaseService
             DB::rollBack();
             return false;
         }
-        if (!OaProcessDefinitionRepository::increment(['id' => $request['process_id']],'step_count')){
+        #刷新流程总步骤数
+        if (!OaProcessDefinitionRepository::updateStepCount($request['process_id'])){
             $this->setError('添加失败！');
-            Loggy::write('error','给流程添加节点：流程定义表步骤自增失败！');
+            Loggy::write('error','给流程添加节点：流程定义表步骤刷新失败！');
             DB::rollBack();
             return false;
         }

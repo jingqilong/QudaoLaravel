@@ -367,7 +367,7 @@ class GradeOrdersService extends BaseService
     public function getApplyDetail($id)
     {
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','member_id','mobile','ch_name','sex','previous_grade_title','grade_title','amount','validity','order_no','status','created_at','updated_at','payment_amount'];
+        $column = ['id','mobile','ch_name','sex','previous_grade_title','grade_title','amount','validity','order_no','status','created_at','payment_amount'];
         if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id],$column)){
             $this->setError('记录不存在！');
             return false;
@@ -375,7 +375,6 @@ class GradeOrdersService extends BaseService
         $apply['sex']        = MemberEnum::getSex($apply['sex']);
         $apply['status']     = MemberGradeOrderStatusEnum::getStatus($apply['status']);
         $apply['created_at'] = empty($apply['created_at']) ? '' : date('Y-m-d H:i:s',$apply['created_at']);
-        $apply['updated_at'] = empty($apply['updated_at']) ? '' : date('Y-m-d H:i:s',$apply['updated_at']);
         #获取流程进度
         $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::MEMBER_UPGRADE]);
         if (100 == $progress['code']){
