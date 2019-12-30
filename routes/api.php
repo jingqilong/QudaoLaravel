@@ -141,6 +141,7 @@ $api->version('v1',function ($api){
                 $api->post('add_member_base','OaMemberController@addMemberBase')->name('添加成员基本信息');
                 $api->post('add_member_info','OaMemberController@addMemberInfo')->name('添加成员简历信息');
                 $api->post('add_member_service','OaMemberController@addMemberService')->name('添加成员服务信息');
+                $api->post('edit_member_base','OaMemberController@editMemberBase')->name('修改成员基本信息');
 
 
                 #OA成员类别管理

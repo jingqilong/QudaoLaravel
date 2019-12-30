@@ -542,4 +542,47 @@ class OaMemberService extends BaseService
         return $request['member_id'];
     }
 
+    /**
+     * 修改成员基本信息
+     * @param $request
+     * @return bool|null
+     */
+    public function editMemberBase($request)
+    {
+        if (!$member_base = MemberBaseRepository::getOne(['id' => $request['id']])){
+            $this->setError('没有该会员信息!');
+            return false;
+        }
+        $base_upd  = [];
+        $grade_upd = [];
+        if (empty($member_grade  = MemberGradeRepository::getOne(['user_id' => $member_base['id']]))) $member_grade = [];
+        $member_base_fields  = MemberBaseRepository::getFields();
+        $member_grade_fields = MemberGradeRepository::getFields();
+        if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime('+' . $request['end_at'] . 'year',$member_base['created_at']);
+        foreach($member_base_fields as $v){
+            if (isset($request[$v]) && $member_base[$v] !== $request[$v]){
+                $base_upd[$v] = $request[$v];
+            }
+        }
+        foreach($member_grade_fields as $v){
+            if (isset($request[$v]) && $member_grade[$v] !== $request[$v]){
+                $grade_upd[$v] = $request[$v];
+            }
+        }
+        DB::beginTransaction();
+        if (!$member_id = MemberBaseRepository::getUpdId(['id' => $request['id']],$base_upd)){
+            $this->setError('成员修改失败!');
+            DB::rollBack();
+            return false;
+        }
+        if (!MemberGradeRepository::getUpdId(['member_id' => $request['id']],$grade_upd)){
+            $this->setError('成员修改失败!');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('成员基本信息修改成功!');
+        DB::commit();
+        return $member_id;
+    }
+
 }

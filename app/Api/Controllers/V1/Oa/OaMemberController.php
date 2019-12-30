@@ -163,31 +163,13 @@ class OaMemberController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *      @OA\Parameter(
+     *     @OA\Parameter(
      *         name="card_no",
      *         in="query",
      *         description="成员卡号",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
-     *         )
-     *     ),
-     *      @OA\Parameter(
-     *         name="mobile",
-     *         in="query",
-     *         description="成员手机号",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *      @OA\Parameter(
-     *         name="email",
-     *         in="query",
-     *         description="成员邮箱",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
      *         )
      *     ),
      *      @OA\Parameter(
@@ -209,6 +191,24 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *      @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="成员手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="成员等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
      *         name="sex",
      *         in="query",
      *         description="成员性别【1男，2女】",
@@ -227,6 +227,15 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *      @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="成员邮箱",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
      *         name="category",
      *         in="query",
      *         description="成员类别",
@@ -242,6 +251,15 @@ class OaMemberController extends ApiController
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="zipcode",
+     *         in="query",
+     *         description="成员邮编",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -272,15 +290,6 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="birthday",
-     *         in="query",
-     *         description="成员生日【2018-12-19】",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="wechat_no",
      *         in="query",
      *         description="微信号",
@@ -290,12 +299,12 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="zipcode",
+     *         name="birthday",
      *         in="query",
-     *         description="成员邮编",
+     *         description="成员生日【2018-12-19】",
      *         required=false,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -317,15 +326,6 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="grade",
-     *         in="query",
-     *         description="成员等级",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
      *         name="end_at",
      *         in="query",
      *         description="等级到期时间",
@@ -343,7 +343,7 @@ class OaMemberController extends ApiController
         $rules = [
             'card_no'         => 'required|integer|unique:member_base',
             'mobile'          => 'required|mobile',
-            'email'           => 'email',
+            'email'           => 'email|unique:member_base',
             'ch_name'         => 'required',
             'sex'             => 'required|in:1,2',
             'avatar_id'       => 'required|integer',
@@ -362,6 +362,7 @@ class OaMemberController extends ApiController
             'mobile.required'    => '成员手机号码不能为空',
             'mobile.mobile'      => '成员手机号码格式不正确',
             'email.email'        => '成员邮箱格式不正确',
+            'email.unique'       => '成员邮箱已存在',
             'sex.required'       => '成员性别不能为空',
             'sex.in'             => '性别不存在',
             'avatar_id.required' => '成员头像不能为空',
@@ -394,7 +395,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/add_member_info",
      *     tags={"OA成员管理"},
-     *     summary="添加成员简历信息",
+     *     summary="成员风采展示信息",
      *     operationId="add_member_info",
      *     @OA\Parameter(
      *          name="sign",
@@ -477,15 +478,6 @@ class OaMemberController extends ApiController
      *             type="string",
      *         )
      *     ),
-     *      @OA\Parameter(
-     *         name="profile",
-     *         in="query",
-     *         description="个人简介",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
      *     @OA\Parameter(
      *         name="good_at",
      *         in="query",
@@ -508,15 +500,6 @@ class OaMemberController extends ApiController
      *         name="school",
      *         in="query",
      *         description="毕业院校",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="remarks",
-     *         in="query",
-     *         description="备注",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -565,6 +548,24 @@ class OaMemberController extends ApiController
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="remarks",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="profile",
+     *         in="query",
+     *         description="个人简介",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
      *         )
      *     ),
      *     @OA\Response(response=100,description="添加成员简历信息失败",),
@@ -740,6 +741,633 @@ class OaMemberController extends ApiController
         }
         return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_member_base",
+     *     tags={"OA成员管理"},
+     *     summary="编辑成员基本信息",
+     *     operationId="edit_member_base",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="成员id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="card_no",
+     *         in="query",
+     *         description="成员卡号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="ch_name",
+     *         in="query",
+     *         description="成员中文名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="en_name",
+     *         in="query",
+     *         description="成员英文名",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="成员手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="grade",
+     *         in="query",
+     *         description="成员等级",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="sex",
+     *         in="query",
+     *         description="成员性别【1男，2女】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="avatar_id",
+     *         in="query",
+     *         description="成员头像",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="成员邮箱",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="成员类别",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="birthplace",
+     *         in="query",
+     *         description="籍贯",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="zipcode",
+     *         in="query",
+     *         description="成员邮编",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="成员身份【默认0成员、1官员】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="hidden",
+     *         in="query",
+     *         description="成员是否隐藏【0显示、默认1隐藏】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address",
+     *         in="query",
+     *         description="成员地址",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="wechat_no",
+     *         in="query",
+     *         description="微信号",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="birthday",
+     *         in="query",
+     *         description="成员生日【2018-12-19】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="zodiac",
+     *         in="query",
+     *         description="成员生肖",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="constellation",
+     *         in="query",
+     *         description="成员星座",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="end_at",
+     *         in="query",
+     *         description="等级到期时间",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="添加成员基本信息失败",),
+     * )
+     *
+     */
+    public function editMemberBase()
+    {
+        $rules = [
+            'id'              => 'required|integer',
+            'card_no'         => 'required|integer|unique:member_base',
+            'mobile'          => 'required|mobile',
+            'email'           => 'email|unique:member_base',
+            'ch_name'         => 'required',
+            'sex'             => 'required|in:1,2',
+            'avatar_id'       => 'required|integer',
+            'id_card'         => 'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/|unique:member_base',
+            'category'        => 'required|integer',
+            'status'          => 'required|in:0,1',
+            'hidden'          => 'required|in:0,1',
+            'zipcode'         => 'regex:/\d{6}/',
+            'grade'           => 'required|integer',
+            'end_at'          => 'required|in:0,1,2,3,4',
+        ];
+        $messages = [
+            'id.required'        => '成员ID不能为空',
+            'id.integer'         => '成员ID不能为空',
+            'card_no.required'   => '成员卡号不能为空',
+            'card_no.integer'    => '成员卡号不是整数',
+            'card_no.unique'     => '成员卡号已存在',
+            'mobile.required'    => '成员手机号码不能为空',
+            'mobile.mobile'      => '成员手机号码格式不正确',
+            'email.email'        => '成员邮箱格式不正确',
+            'email.unique'       => '成员邮箱已存在',
+            'sex.required'       => '成员性别不能为空',
+            'sex.in'             => '性别不存在',
+            'avatar_id.required' => '成员头像不能为空',
+            'avatar_id.integer'  => '成员头像不是整数',
+            'category.required'  => '成员类别不能为空',
+            'category.integer'   => '成员类别不是整数',
+            'status.required'    => '成员身份不能为空',
+            'status.in'          => '成员身份不存在',
+            'hidden.required'    => '成员是否隐藏不能为空',
+            'hidden.in'          => '成员是否隐藏格式不存在',
+            'zipcode.regex'      => '成员邮编格式不正确',
+            'grade.required'     => '成员等级不能为空',
+            'grade.integer'      => '成员等级格式不正确',
+            'end_at.required'    => '成员等级结束时间不能为空',
+            'end_at.in'          => '成员等级结束时间格式不正确',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->editMemberBase($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_ember_info",
+     *     tags={"OA成员管理"},
+     *     summary="修改成员风采展示信息",
+     *     operationId="edit_ember_info",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="member_id",
+     *         in="query",
+     *         description="成员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="employer",
+     *         in="query",
+     *         description="工作单位名称",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="position",
+     *         in="query",
+     *         description="工作单位职务",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         description="社会职务（头衔）",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="industry",
+     *         in="query",
+     *         description="从事行业【IT，互联网】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="brands",
+     *         in="query",
+     *         description="品牌",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="run_wide",
+     *         in="query",
+     *         description="经营范围",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="good_at",
+     *         in="query",
+     *         description="个人擅长",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="degree",
+     *         in="query",
+     *         description="最高学历",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="school",
+     *         in="query",
+     *         description="毕业院校",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="referral_agency",
+     *         in="query",
+     *         description="推荐机构",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="info_provider",
+     *         in="query",
+     *         description="会员信息提供者",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="archive",
+     *         in="query",
+     *         description="是否有存档，默认0无，1有",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_recommend",
+     *         in="query",
+     *         description="是否推荐【0不推荐 1推荐】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="is_home_detail",
+     *         in="query",
+     *         description="设置成员是否在首页显示【默认0不显示 1显示】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="remarks",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="profile",
+     *         in="query",
+     *         description="个人简介",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="添加成员简历信息失败",),
+     * )
+     *
+     */
+   /* public function addMemberInfo()
+    {
+        $rules = [
+            'member_id'       => 'required|integer|unique:member_info',
+            'archive'         => 'required|in:0,1',
+            'is_recommend'    => 'required|in:0,1',
+            'is_home_detail'  => 'required|in:0,1',
+        ];
+        $messages = [
+            'member_id.required'        => '成员ID不能为空',
+            'member_id.integer'         => '成员ID不是整数',
+            'member_id.unique'          => '成员ID已存在',
+            'archive.required'          => '成员是否有存档不能为空',
+            'archive.in'                => '成员是否有存档类型不存在',
+            'is_recommend.required'     => '成员是否推荐不能为空',
+            'is_recommend.in'           => '成员是否推荐类型不存在',
+            'is_home_detail.required'   => '成员是否首页推荐不能为空',
+            'is_home_detail.in'         => '成员是否首页推荐类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->addMemberInfo($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
+    }*/
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_member_service",
+     *     tags={"OA成员管理"},
+     *     summary="添加成员服务信息",
+     *     operationId="edit_member_service",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="member_id",
+     *         in="query",
+     *         description="成员ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="publicity",
+     *         in="query",
+     *         description="是否需要宣传，默认0不需要，1需要",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="protocol",
+     *         in="query",
+     *         description="是否签署天朝上品微代理协议，默认0否，1是",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="nameplate",
+     *         in="query",
+     *         description="铭牌状态，默认0未制作，1已制作未送，2已送",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="other_server",
+     *         in="query",
+     *         description="其他服务 [0需要 1不需要]",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="attendant",
+     *         in="query",
+     *         description="服务经理",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="member_attendant",
+     *         in="query",
+     *         description="会籍服务人员",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="gift",
+     *         in="query",
+     *         description="伴手礼",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="content",
+     *         in="query",
+     *         description="成员偏好类型【1,2,3,4,5,6】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="添加成员服务信息失败",),
+     * )
+     *
+     */
+    /*public function addMemberService()
+    {
+        $rules = [
+            'member_id'     => 'required|integer|unique:member_personal_service|unique:member_preference',
+            'protocol'      => 'required|in:0,1',
+            'nameplate'     => 'required|in:0,1,2',
+            'other_server'  => 'required|in:0,1',
+        ];
+        $messages = [
+            'member_id.required'    => '成员ID不能为空',
+            'member_id.integer'     => '成员ID不是整数',
+            'member_id.unique'      => '成员ID已存在',
+            'protocol.required'     => '成员是否需要宣传不能为空',
+            'protocol.in'           => '成员是否需要宣传类型不存在',
+            'nameplate.required'    => '成员铭牌状态不能为空',
+            'nameplate.in'          => '成员铭牌状态类型不存在',
+            'other_server.required' => '成员其他服务不能为空',
+            'other_server.in'       => '成员其他服务类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->OaMemberService->addMemberService($this->request);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->OaMemberService->error];
+        }
+        return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
+    }*/
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * @OA\Get(

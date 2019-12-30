@@ -77,7 +77,6 @@ class DepartmentService extends BaseService
             $this->setError('父级部门不存在！');
             return false;
         }
-
         $upd_arr = [
             'name'        => $data['name'],
             'path'        => $parentInfo['path'].$data['id'].',',
