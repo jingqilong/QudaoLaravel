@@ -159,7 +159,7 @@ class ReservationService extends BaseService
                     MessageEnum::getTemplate(
                         MessageEnum::HOUSEBOOKING,
                         'auditPass',
-                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['start_time'])]
+                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
                     ),
                 HouseEnum::NOPASS       =>
                     MessageEnum::getTemplate(
