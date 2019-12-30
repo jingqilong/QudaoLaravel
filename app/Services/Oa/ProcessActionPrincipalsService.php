@@ -99,7 +99,7 @@ class ProcessActionPrincipalsService extends BaseService
      * @return mixed
      */
     public function updatePrincipal($id,$node_action_id,$principal_iden,$principal_id){
-        if (!OaEmployeeRepository::exists(['id' => $id])){
+        if (!OaEmployeeRepository::exists(['id' => $principal_id])){
             $this->setError('参与人不存在！');
             return false;
         }
