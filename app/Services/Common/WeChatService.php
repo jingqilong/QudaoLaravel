@@ -227,6 +227,7 @@ class WeChatService extends BaseService
             $memberService = new MemberService();
             if (false == $memberService->checkTestUser($user_id)){
                 $this->setError($memberService->error);
+                DB::rollBack();
                 return ['code' => 0];
             }
         }else{#如果手机号未注册，进行注册，必须要推荐码，创建推荐关系
