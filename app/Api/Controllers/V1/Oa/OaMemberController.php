@@ -941,10 +941,10 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="end_at",
      *         in="query",
-     *         description="等级到期时间[会员加入时间算起年限]",
+     *         description="等级截止时间",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      *     @OA\Response(response=100,description="添加成员基本信息失败",),
@@ -967,7 +967,7 @@ class OaMemberController extends ApiController
             'hidden'          => 'required|in:0,1',
             'zipcode'         => 'regex:/\d{6}/',
             'grade'           => 'required|integer',
-            'end_at'          => 'required|in:0,1,2,3,4',
+            'end_at'          => 'required|date',
         ];
         $messages = [
             'id.required'        => '成员ID不能为空',
@@ -990,8 +990,8 @@ class OaMemberController extends ApiController
             'zipcode.regex'      => '成员邮编格式不正确',
             'grade.required'     => '成员级别不能为空',
             'grade.integer'      => '成员级别格式不正确',
-            'end_at.required'    => '成员等级结束时间不能为空',
-            'end_at.in'          => '成员等级结束时间格式不正确',
+            'end_at.required'    => '成员等级截止时间不能为空',
+            'end_at.date'        => '成员等级截止时间格式不正确',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -1562,6 +1562,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/add_member",
      *     tags={"OA成员管理"},
+     *     deprecated=true,
      *     summary="添加成员基本信息",
      *     operationId="add_member",
      *     @OA\Parameter(
@@ -1643,6 +1644,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/upd_member",
      *     tags={"OA成员管理"},
+     *     deprecated=true,
      *     summary="更新完善 成员信息",
      *     operationId="upd_member",
      *     @OA\Parameter(

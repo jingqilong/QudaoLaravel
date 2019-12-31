@@ -58,7 +58,7 @@ class MemberPreferenceRepository extends ApiRepository
      */
     protected function getPreference($member_id)
     {
-        if (!$preference  = $this->getList(['member_id' => $member_id],['id','type','content'])){
+        if (!$preference  = $this->getList(['member_id' => $member_id],['id','content'])){
             return [];
         }
         $preference_str = '';

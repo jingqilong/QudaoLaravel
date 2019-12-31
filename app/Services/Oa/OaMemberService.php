@@ -49,7 +49,7 @@ class OaMemberService extends BaseService
         $page_num       = $data['page_num'] ?? 20;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
-        $where          = ['deleted_at' => 0];
+        $where          = ['deleted_at' => 0,'is_test' => 0];
         $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','img_url',
             'end_at','is_recommend','is_home_detail','grade','title','category'];
         if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
@@ -99,6 +99,7 @@ class OaMemberService extends BaseService
         if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
         $preference['preference'] = MemberPreferenceRepository::getPreference($id);
+        $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
         $member = array_merge($member_base,$member_info,$member_grade,$member_service,$preference);
         $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
         $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
@@ -109,7 +110,7 @@ class OaMemberService extends BaseService
         $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
         $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
         if (empty($member['birthday'])) $member['birthday'] = '';
-        if (0 == $member['end_at']) $member['end_at_name'] = MemberEnum::getExpiration(MemberEnum::PERMANENT,'永久有效'); else{
+        if (0 == $member['end_at']) $member['end_at_name'] = 0; else{
             $member['end_at_name']    = date('Y-m-d H:i:s',$member['end_at']);
         }
         $this->setMessage('获取用户信息成功');
@@ -166,7 +167,7 @@ class OaMemberService extends BaseService
 
 
     /**
-     * 添加成员 (拆表后 已修改) （优化）
+     * 添加成员 (拆表后 已修改)
      * @param $request
      * @return bool|null
      */
@@ -514,7 +515,7 @@ class OaMemberService extends BaseService
             'content'      => $request['content']
        ];
         if (MemberPersonalServiceRepository::exists($service_arr)){
-            $this->setError('会员需求喜好类型信息添加失败');
+            $this->setError('会员需求喜好类型信息已经存在');
             return false;
         }
         DB::beginTransaction();
@@ -559,7 +560,7 @@ class OaMemberService extends BaseService
         $member_grade        = MemberGradeRepository::getOne(['user_id' => $member_base['id']]);
         $member_base_fields  = MemberBaseRepository::getFields();
         $member_grade_fields = MemberGradeRepository::getFields();
-        if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime('+' . $request['end_at'] . 'year',$member_base['created_at']);
+        if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime($request['end_at']);
         foreach($member_base_fields as $v){
             if (isset($request[$v]) && $member_base[$v] !== $request[$v]){
                 $base_upd[$v] = $request[$v];

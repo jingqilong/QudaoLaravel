@@ -61,7 +61,7 @@ class OrderService extends BaseService
     }
 
 
- /**
+    /**
      * 获取项目对接订单列表  （后端使用）
      * @param array $data
      * @return mixed
@@ -76,12 +76,8 @@ class OrderService extends BaseService
         $where          = ['deleted_at' => 0];
 
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
-        if ($type !== null){
-            $where['service_type'] = $type;
-        }
-        if ($status !== null){
-            $where['status'] = $status;
-        }
+        if (empty($type)) $where['service_type'] = $type;
+        if (empty($status)) $where['status'] = $status;
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
             if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at','desc')){
@@ -95,7 +91,6 @@ class OrderService extends BaseService
             }
         }
         $list = $this->removePagingField($list);
-
         if (empty($list['data'])){
             $this->setMessage('没有获取到数据！');
             return $list;
