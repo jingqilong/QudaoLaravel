@@ -131,7 +131,6 @@ class WeChatService extends BaseService
                     if (!$grade = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]])){
                         $grade = MemberEnum::DEFAULT;
                     }
-                    Loggy::write('error','mysql语句查询',['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]]);
                     Loggy::write('error','成员等级打印信息',$grade);
                     $member['grade']        = $grade;
                     $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
