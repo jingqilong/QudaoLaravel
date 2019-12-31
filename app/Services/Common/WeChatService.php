@@ -128,11 +128,12 @@ class WeChatService extends BaseService
                         return ['code' => 0];
                     }
                     $this->setMessage('登录成功！');
-                    if (!$grade = MemberGradeRepository::getField(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
-                        $grade = MemberEnum::DEFAULT;
+                    $grade = MemberEnum::DEFAULT;
+                    if ($grade_info = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1])){
+                        $grade = $memberService->getCurrentMemberGrade($bind['user_id']);
                     }
                     $member['grade']        = $grade;
-                    $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+                    $member['grade_title']  = MemberEnum::getGrade($member['grade'],'普通成员');
                     $member['sex']          = MemberEnum::getSex($member['sex']);
                     $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
                     unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);

@@ -209,7 +209,6 @@ class MemberService extends BaseService
     public function getMemberList($data)
     {
         if (empty($data['sort'])) $data['sort']  = 1;
-        if ($data['sort'] == MemberEnum::RECOMMEND)  $data['sort']  = 1;
         $member      = $this->auth->user();
         $member_info = MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
         $keywords    = $data['keywords'] ?? null;
@@ -217,9 +216,8 @@ class MemberService extends BaseService
         $page        = $data['page'] ?? 1;
         $page_num    = $data['page_num'] ?? 20;
         $asc         = $data['sort'] == 1 ? 'asc' : 'desc';
-        $where       = ['deleted_at' => 0 ,'hidden' => 0];
-        $temporary   = $data['sort'];
-        if(MemberEnum::RECOMMEND  == $temporary) $sort = 'is_recommend'; else $sort = 'created_at';
+        $where       = ['deleted_at' => 0 ,'hidden' => 0,'is_test' => 0];
+        if(MemberEnum::RECOMMEND  == $data['sort']) $sort = 'is_recommend'; else $sort = 'id';
         if(MemberEnum::TEMPORARY  == $member_info['grade']) $where['status'] =  MemberEnum::MEMBER;
         if(!empty($category)) $where['category'] = $category;
         $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
@@ -270,34 +268,6 @@ class MemberService extends BaseService
         $this->setMessage('获取成功!');
         return $member_info;
     }
-
-
-    /**
-     * 获取自己的成员信息 (拆表后  已修改)
-     * Get user info.
-     * @return mixed
-     */
-    /*public function getMemberInfoByUser(){
-        $user = $this->auth->user();
-        $member_id = $user->id;
-        $info_column            = ['grade','employer','title','industry','brands','category','position','profile','birthday','address'];
-        $base_column            = ['card_no','ch_name','mobile','email','sex','avatar_id'];
-        $member_info            = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column);
-        $member_base            = MemberBaseRepository::getOne(['id' => $member_id],$base_column);
-        $member                 = array_merge($member_base,$member_info);
-        $member['sex_name']     = MemberEnum::getSex($member['sex'],$member['sex']);
-        $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
-        $member['grade']        = MemberEnum::getGrade($member['grade'],$member['grade']);
-        $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
-        $member['profile']      = strip_tags($member['profile']);
-        $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
-        foreach ($member as &$value){
-            $value = $value ?? '';
-        }
-        $this->setMessage('获取成功!');
-        return $member;
-    }*/
-
 
     /**
      * 获取自己的成员信息 (拆表后  已修改) (2)
@@ -1054,5 +1024,29 @@ class MemberService extends BaseService
         return true;
     }
 
+    /**
+     * 成员登录检查等级并且更新
+     * @param $user_id
+     * @return int
+     */
+    public function getCurrentMemberGrade($user_id)
+    {
+        $grade = MemberEnum::DEFAULT;
+        if (!$grade_info = MemberGradeRepository::getOne(['user_id' => $user_id,'status' => 1])){
+            return $grade;
+        }
+        if (0 == $grade_info['end_at'] || $grade_info['end_at'] > time()){
+            return $grade = $grade_info['grade'];
+        }
+        $upd_arr = [
+            'grade'      => MemberEnum::DEFAULT,
+            'update_at'  => time(),
+            'end_at' => 0
+        ];
+        if (!MemberGradeRepository::getUpdId(['user_id' => $user_id],$upd_arr)){
+            Loggy::write('error','成员更新等级更新失败,成员id' ,$user_id );
+        }
+        return $grade;
+    }
 
 }

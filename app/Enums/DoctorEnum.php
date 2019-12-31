@@ -49,38 +49,31 @@ class DoctorEnum extends BaseEnum
 
     //审核状态
 
-    const PASS              = 1;    //审核通过
+    const PASS        = 1;    //审核通过
 
-    const NOPASS            = 2;    //审核失败
+    const NOPASS      = 2;    //审核失败
 
-    const SUBMIT            = 0;    //待审核
+    const SUBMIT      = 0;    //待审核
 
     //type  类型
-    const SEEDOCTOR              = 1;    //看病
+    const SEEDOCTOR   = 1;    //看病
 
-    const SURGERY                = 2;    //手术
+    const SURGERY     = 2;    //手术
 
-    const INHOSPATIL             = 3;    //住院
-
-
+    const INHOSPATIL  = 3;    //住院
 
      //category  类型
-    const PUBLICS                    = 1;    //公立
 
-    const PRIVATES                   = 2;    //私立
+    const PUBLICS     = 1;    //公立
 
-    const SYNTHESIS                  = 3;    //综合
+    const PRIVATES    = 2;    //私立
+
+    const SYNTHESIS   = 3;    //综合
 
     //sex  类型
-    const MAN                    = 1;    //男
+    const MAN         = 1;    //男
 
-    const WOMAN                  = 2;    //女
-
-
-
-
-
-
+    const WOMAN       = 2;    //女
 
     /**
      * 获取状态label
