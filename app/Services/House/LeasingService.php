@@ -47,7 +47,7 @@ class LeasingService extends BaseService
             return false;
         }
         if (HouseDetailsRepository::exists(['leasing_id' => $id])){
-            $this->setError('该租赁方式正在使用，无法删除！');
+            $this->setError('该租赁方式已使用，无法删除！');
             return false;
         }
         if (HouseLeasingRepository::delete(['id' => $id])){

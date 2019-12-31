@@ -50,7 +50,7 @@ class ProcessActionResultsService extends BaseService
             return false;
         }
         if (OaProcessNodeActionsResultRepository::exists(['action_result_id' => $result_id])){
-            $this->setError('无法删除正在使用的动作结果！');
+            $this->setError('无法删除已使用的动作结果！');
             return false;
         }
         if (!OaProcessActionsResultRepository::delete(['id' => $result_id])){

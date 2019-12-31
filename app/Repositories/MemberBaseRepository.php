@@ -56,7 +56,7 @@ class MemberBaseRepository extends ApiRepository
     /**
      * 添加新用户
      * @param $mobile
-     * @param array $sub_data
+     * @param array $sub_data   附加信息
      * @return mixed
      */
     protected function addUser($mobile, $sub_data = [])

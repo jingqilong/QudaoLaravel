@@ -300,7 +300,7 @@ class RegisterService extends BaseService
             }
             $title   = '活动报名通知';
             #发送站内信
-            SendService::sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$sms_template[$status],$register_id);
+            SendService::sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$sms_template[$status],$register['activity_id']);
         }
         $this->setMessage('审核成功！');
         DB::commit();

@@ -19,6 +19,12 @@ class BaseService
     public $message;
 
     /**
+     * 状态码
+     * @var string
+     */
+    public $code;
+
+    /**
      * @param $method
      * @param $parameters
      * @return mixed
@@ -42,18 +48,30 @@ class BaseService
     }
 
     /**
-     * 添加错误信息
+     * 设置错误信息
      * @param $error
+     * @param int $code
      */
-    public function setError($error){
+    public function setError($error,$code = 100){
         $this->error = $error;
+        $this->code = $code;
     }
 
     /**
-     * 添加提示信息
+     * 设置提示信息
      * @param $message
+     * @param int $code
      */
-    public function setMessage($message){
+    public function setMessage($message,$code = 200){
         $this->message = $message;
+        $this->code = $code;
+    }
+
+    /**
+     * 设置状态码
+     * @param $code
+     */
+    public function setCode($code){
+        $this->code = $code;
     }
 }

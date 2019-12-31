@@ -47,7 +47,7 @@ class UnitService extends BaseService
             return false;
         }
         if (HouseDetailsRepository::exists(['unit_id' => $id])){
-            $this->setError('该户型正在使用，无法删除！');
+            $this->setError('该户型已使用，无法删除！');
             return false;
         }
         if (HouseUnitRepository::delete(['id' => $id])){

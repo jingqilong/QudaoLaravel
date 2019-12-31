@@ -128,7 +128,7 @@ class HomeBannersService extends BaseService
             return false;
         }
         if ($banner['status'] == CommonHomeEnum::SHOW){
-            $this->setError('当前信息正在展示，无法删除！');
+            $this->setError('当前信息已展示，无法删除！');
             return false;
         }
         if (CommonHomeBannersRepository::count(['page_space' => $banner['page_space']]) == 1){
@@ -248,7 +248,7 @@ class HomeBannersService extends BaseService
     public function deleteBeforeCheck($type, $related_id){
         if ($banner_list = CommonHomeBannersRepository::getList(['link_type' => $type,'related_id' => $related_id])){
             foreach ($banner_list as $value){
-                $this->setError('当前数据正在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
+                $this->setError('当前数据已在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
                 return false;
             }
         }
