@@ -42,19 +42,19 @@ class DoctorLabelsService extends BaseService
     public function deleteDoctorLabels($id)
     {
         if (!MedicalDoctorLabelsRepository::exists(['id' => $id])){
-            $this->setError('标签已删除！');
+            $this->setError('医生标签已删除！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['label_ids' => ['like','%'.$id.',']])){
-            $this->setError('该标签正在使用，无法删除！');
+        if (MedicalDoctorsRepository::exists(['department_ids' => ['like','%'.$id.',']])){
+            $this->setError('该医生标签已使用，无法删除！');
             return false;
         }
-        if (!MedicalDoctorLabelsRepository::delete(['id' => $id])){
-            $this->setError('删除失败！');
-            return false;
+        if (MedicalDoctorLabelsRepository::delete(['id' => $id])){
+            $this->setMessage('删除成功！');
+            return true;
         }
-        $this->setMessage('删除成功！');
-        return true;
+        $this->setError('删除失败！');
+        return false;
     }
 
 
@@ -92,23 +92,11 @@ class DoctorLabelsService extends BaseService
      */
     public function getDoctorLabelsList($request)
     {
-        if (empty($request['sort'])) $request['sort'] = 1;
-        $keywords   = $request['keywords'] ?? null;
-        $sort       = $request['sort'] == 1 ? 'asc' : 'desc';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $where      = ['id' => ['<>',0]];
-        if (!empty($keywords)){
-            $keyword = [$keywords => ['name']];
-            if (!$list = MedicalDoctorLabelsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$sort)){
-                $this->setError('获取失败！');
-                return false;
-            }
-        }else{
-            if (!$list = MedicalDoctorLabelsRepository::getList($where,['*'],'id',$sort,$page,$page_num)){
-                $this->setError('获取失败！');
-                return false;
-            }
+        if (!$list = MedicalDoctorLabelsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){

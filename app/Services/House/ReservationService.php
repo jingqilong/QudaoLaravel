@@ -311,7 +311,7 @@ class ReservationService extends BaseService
             return false;
         }
         if ($reservation['state'] !== HouseEnum::RESERVATION){
-            $this->setError('只有正在预约状态才能修改！');
+            $this->setError('只有待审核状态才能修改！');
             return false;
         }
         $request['time'] = str_replace('/','',$request['time']);

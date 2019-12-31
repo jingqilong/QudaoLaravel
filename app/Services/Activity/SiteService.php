@@ -56,7 +56,7 @@ class SiteService extends BaseService
             return false;
         }
         if (ActivityDetailRepository::exists(['site_id' => $id])){
-            $this->setError('该场地正在使用中，无法删除，只能修改！');
+            $this->setError('该场地已使用，无法删除，只能修改！');
             return false;
         }
         if (ActivitySiteRepository::delete(['id' => $id])){

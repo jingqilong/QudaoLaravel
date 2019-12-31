@@ -47,7 +47,7 @@ class TowardService extends BaseService
             return false;
         }
         if (HouseDetailsRepository::exists(['toward_id' => $id])){
-            $this->setError('该朝向正在使用，无法删除！');
+            $this->setError('该朝向已使用，无法删除！');
             return false;
         }
         if (HouseTowardRepository::delete(['id' => $id])){

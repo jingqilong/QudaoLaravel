@@ -9,7 +9,7 @@ class TradeEnum extends BaseEnum
 {
     //交易状态
     public static $labels = [
-        'STATUSTRADING'     => '正在交易',
+        'STATUSTRADING'     => '待支付',
         'STATUSSUCCESS'     => '交易成功',
         'STATUSFAIL'        => '交易失败',
         #交易方式

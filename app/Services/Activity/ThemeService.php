@@ -20,7 +20,7 @@ class ThemeService extends BaseService
     public function addTheme($request)
     {
         if (ActivityThemeRepository::exists(['name' => $request['name']])){
-            $this->setError('主题已存在！');
+            $this->setError('分类已存在！');
             return false;
         }
         $add_arr = [
@@ -45,13 +45,13 @@ class ThemeService extends BaseService
     public function deleteTheme($id)
     {
         if (!ActivityThemeRepository::exists(['id' => $id])){
-            $this->setError('主题不存在！');
+            $this->setError('分类不存在！');
             return false;
         }
         if (ActivityDetailRepository::exists(['theme_id' => $id])
             || ActivitySiteRepository::exists(['theme_id' => $id])
             || ActivitySuppliesRepository::exists(['theme_id' => $id])){
-            $this->setError('该主题正在使用中，无法删除，只能修改！');
+            $this->setError('该分类已使用，无法删除，只能修改！');
             return false;
         }
         if (ActivityThemeRepository::delete(['id' => $id])){
@@ -71,11 +71,11 @@ class ThemeService extends BaseService
     public function editTheme($request)
     {
         if (!ActivityThemeRepository::exists(['id' => $request['id']])){
-            $this->setError('主题不存在！');
+            $this->setError('分类不存在！');
             return false;
         }
         if (ActivityThemeRepository::exists(['name' => $request['name'],'id' => ['<>',$request['id']]])){
-            $this->setError('主题名称已被使用！');
+            $this->setError('分类名称已被使用！');
             return false;
         }
         $upd_arr = [

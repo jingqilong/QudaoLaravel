@@ -150,7 +150,7 @@ class DetailsService extends BaseService
             return false;
         }
         if (HouseEnum::PASS == $house['status']){
-            $this->setError('该房源正在上架，无法删除！');
+            $this->setError('该房源已上架，无法删除！');
             return false;
         }
         //检查商品是否为banner展示

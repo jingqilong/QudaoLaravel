@@ -58,7 +58,7 @@ class ProcessEventsService extends BaseService
             return false;
         }
         if (OaProcessActionEventRepository::exists(['event_id' => $event_id])){
-            $this->setError('无法删除正在使用的事件！');
+            $this->setError('无法删除已使用的事件！');
             return false;
         }
         if (!OaProcessEventsRepository::delete(['id' => $event_id])){

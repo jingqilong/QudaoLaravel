@@ -83,7 +83,7 @@ class SuppliesService extends BaseService
             return false;
         }
         if (ActivityDetailRepository::exists(['supplies_ids' => ['like','%'.$id.',%']])){
-            $this->setError('该用品正在使用中，无法删除，只能修改！');
+            $this->setError('该用品已使用，无法删除，只能修改！');
             return false;
         }
         if (ActivitySuppliesRepository::delete(['id' => $id])){
