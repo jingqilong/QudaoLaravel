@@ -1024,5 +1024,29 @@ class MemberService extends BaseService
         return true;
     }
 
+    /**
+     * 成员登录检查等级并且更新
+     * @param $user_id
+     * @return int
+     */
+    public function getCurrentMemberGrade($user_id)
+    {
+        $grade = MemberEnum::DEFAULT;
+        if (!$grade_info = MemberGradeRepository::getOne(['user_id' => $user_id,'status' => 1])){
+            return $grade;
+        }
+        if (0 == $grade_info['end_at'] || $grade_info['end_at'] > time()){
+            return $grade = $grade_info['grade'];
+        }
+        $upd_arr = [
+            'grade'      => MemberEnum::DEFAULT,
+            'update_at'  => time(),
+            'end_at' => 0
+        ];
+        if (!MemberGradeRepository::getUpdId(['user_id' => $user_id],$upd_arr)){
+            Loggy::write('error','成员更新等级更新失败,成员id' ,$user_id );
+        }
+        return $grade;
+    }
 
 }

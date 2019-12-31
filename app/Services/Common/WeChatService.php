@@ -129,8 +129,8 @@ class WeChatService extends BaseService
                     }
                     $this->setMessage('登录成功！');
                     $grade = MemberEnum::DEFAULT;
-                    if ($grade_info = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]])){
-                        $grade = $grade_info['grade'];
+                    if ($grade_info = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1])){
+                        $grade = $memberService->getCurrentMemberGrade($bind['user_id']);
                     }
                     $member['grade']        = $grade;
                     $member['grade_title']  = MemberEnum::getGrade($member['grade'],'普通成员');
