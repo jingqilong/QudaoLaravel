@@ -39,7 +39,7 @@ class OaMemberService extends BaseService
      * @param array $data
      * @return mixed
      */
-    public function getMemberList(array $data)
+    public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;

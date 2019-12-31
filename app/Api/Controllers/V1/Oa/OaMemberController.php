@@ -130,7 +130,7 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->getMemberList($this->request);
+        $res = $this->OaMemberService->memberList($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->OaMemberService->error];
         }

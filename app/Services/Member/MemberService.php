@@ -200,32 +200,20 @@ class MemberService extends BaseService
      */
     public function getMemberList($data)
     {
-        if (empty($data['sort'])){
-            $data['sort']  = 1;
-        }
-        $temporary = $data['sort'];
-        if ($data['sort'] == MemberEnum::RECOMMEND){
-            $data['sort']  = 1;
-        }
-        $member       =   $this->auth->user();
-        $member_info  =   MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
-        $keywords     =   $data['keywords'] ?? null;
-        $category     =   $data['category'] ?? null;
-        $page         =   $data['page'] ?? 1;
-        $page_num     =   $data['page_num'] ?? 20;
-        $asc          =   $data['sort'] == 1 ? 'asc' : 'desc';
-        $where        =   ['deleted_at' => 0 ,'hidden' => 0];
-        if(MemberEnum::RECOMMEND  == $temporary){
-            $sort = 'is_recommend';
-        }else{
-            $sort = 'created_at';
-        }
-        if (MemberEnum::TEMPORARY == $member_info['grade']){
-            $where['status'] =  MemberEnum::MEMBER;
-        }
-        if (!empty($category)){
-            $where['category'] = $category;
-        }
+        if (empty($data['sort'])) $data['sort']  = 1;
+        if ($data['sort'] == MemberEnum::RECOMMEND)  $data['sort']  = 1;
+        $member      = $this->auth->user();
+        $member_info = MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
+        $keywords    = $data['keywords'] ?? null;
+        $category    = $data['category'] ?? null;
+        $page        = $data['page'] ?? 1;
+        $page_num    = $data['page_num'] ?? 20;
+        $asc         = $data['sort'] == 1 ? 'asc' : 'desc';
+        $where       = ['deleted_at' => 0 ,'hidden' => 0];
+        $temporary   = $data['sort'];
+        if(MemberEnum::RECOMMEND  == $temporary) $sort = 'is_recommend'; else $sort = 'created_at';
+        if(MemberEnum::TEMPORARY  == $member_info['grade']) $where['status'] =  MemberEnum::MEMBER;
+        if(!empty($category)) $where['category'] = $category;
         $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
         if (!empty($keywords)){
             $keyword  = [$keywords => ['ch_name','category','mobile']];
