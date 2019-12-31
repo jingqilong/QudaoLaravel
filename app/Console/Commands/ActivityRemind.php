@@ -69,7 +69,7 @@ class ActivityRemind extends Command
                 if (isset($register['mobile']))
                 $SmsService->sendContent($register['mobile'],$content);
                 //站内信通知
-                $MessageService->sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$content);
+                $MessageService->sendMessage($register['member_id'],MessageEnum::ACTIVITYENROLL,$title,$content,$activity['id']);
             }
         }
         return true;
