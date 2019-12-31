@@ -35,7 +35,7 @@ class HouseEnum extends BaseEnum
         'NOPASS'        => '未过审',
         'RENTED'        => '已出租',
         //预约状态
-        'RESERVATION'   => '正在预约',
+        'RESERVATION'   => '待审核',
         'RESERVATIONOK' => '预约成功',
         'RESERVATIONNO' => '预约失败',
         'CANCELRESERVATION' => '预约取消',
@@ -110,13 +110,13 @@ class HouseEnum extends BaseEnum
     const PLATFORM      = 2;    //平台
 
     // 状态
-    const PENDING       = 1;    //审核中
+    const PENDING       = 1;    //待审核
     const PASS          = 2;    //通过
     const NOPASS        = 3;    //未通过
     const RENTED        = 4;    //已出租
 
     // 预约状态
-    const RESERVATION   = 1;    //预约中
+    const RESERVATION   = 1;    //待审核
     const RESERVATIONOK = 2;    //预约成功
     const RESERVATIONNO = 3;    //预约失败
     const CANCELRESERVATION = 4;    //预约取消

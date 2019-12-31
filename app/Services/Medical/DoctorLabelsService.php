@@ -46,7 +46,7 @@ class DoctorLabelsService extends BaseService
             return false;
         }
         if (MedicalDoctorsRepository::exists(['department_ids' => ['like','%'.$id.',']])){
-            $this->setError('该医生标签正在使用，无法删除！');
+            $this->setError('该医生标签已使用，无法删除！');
             return false;
         }
         if (MedicalDoctorLabelsRepository::delete(['id' => $id])){

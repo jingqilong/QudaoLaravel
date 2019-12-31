@@ -13,7 +13,7 @@ class PrimeTypeEnum extends BaseEnum
         'DINING'    => '餐饮',
         'HOTEL'     => '宾馆',
         //预约状态
-        'RESERVATION'       => '正在预约',
+        'RESERVATION'       => '待审核',
         'RESERVATIONOK'     => '预约成功',
         'RESERVATIONNO'     => '预约失败',
         'RESERVATIONCANCEL' => '预约取消',
@@ -40,7 +40,7 @@ class PrimeTypeEnum extends BaseEnum
 
     const HOTEL         = 3;
     // 预约状态
-    const RESERVATION       = 1;    //预约中
+    const RESERVATION       = 1;    //待审核
     const RESERVATIONOK     = 2;    //预约成功
     const RESERVATIONNO     = 3;    //预约失败
     const RESERVATIONCANCEL = 4;    //预约取消

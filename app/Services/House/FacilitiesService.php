@@ -49,7 +49,7 @@ class FacilitiesService extends BaseService
             return false;
         }
         if (HouseDetailsRepository::exists(['facilities_ids' => ['like','%'.$id.',%']])){
-            $this->setError('该设施正在使用，无法删除！');
+            $this->setError('该设施已使用，无法删除！');
             return false;
         }
         if (HouseFacilitiesRepository::delete(['id' => $id])){

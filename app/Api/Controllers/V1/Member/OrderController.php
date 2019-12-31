@@ -313,7 +313,7 @@ class OrderController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="交易状态，0、正在交易，1、成功，2、失败",
+     *         description="交易状态，0、待审核，1、成功，2、失败",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"

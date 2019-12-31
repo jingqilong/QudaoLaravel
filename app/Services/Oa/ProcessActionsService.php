@@ -60,7 +60,7 @@ class ProcessActionsService extends BaseService
             return false;
         }
         if (OaProcessNodeActionRepository::exists(['action_id' => $action_id])){
-            $this->setError('无法删除正在使用的动作！');
+            $this->setError('无法删除已使用的动作！');
             return false;
         }
         if (!OaProcessActionsRepository::delete(['id' => $action_id])){
