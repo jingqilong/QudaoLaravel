@@ -39,7 +39,7 @@ class OaMemberService extends BaseService
      * @param array $data
      * @return mixed
      */
-    public function getMemberList(array $data)
+    public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;
@@ -402,7 +402,7 @@ class OaMemberService extends BaseService
     /**
      * 添加成员的基本信息
      * @param $request
-     * @return bool|null
+     * @return mixed
      */
     public function addMemberBase($request)
     {
@@ -449,13 +449,13 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('成员基本信息添加成功!');
         DB::commit();
-        return $member_id;
+        return ['member_id' => $member_id];
     }
 
     /**
      * 添加成员简历信息
      * @param $request
-     * @return bool|null
+     * @return bool|null|mixed
      */
     public function addMemberInfo($request)
     {
@@ -489,13 +489,13 @@ class OaMemberService extends BaseService
             return false;
         }
         $this->setMessage('成员简历信息添加成功!');
-        return $request['member_id'];
+        return ['member_id' => $request['member_id']];
     }
 
     /**
      * 添加会员服务信息 and 成员偏好类别信息
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function addMemberService($request)
     {
@@ -514,48 +514,49 @@ class OaMemberService extends BaseService
             'content'      => $request['content']
        ];
         if (MemberPersonalServiceRepository::exists($service_arr)){
-            $this->setError('会员服务信息已存在');
+            $this->setError('会员需求喜好类型信息添加失败');
             return false;
         }
         DB::beginTransaction();
         $service_arr['created_at'] = time();
         $service_arr['update_at']  = time();
         if (!MemberPersonalServiceRepository::getAddId($service_arr)){
-            $this->setError('会员服务信息添加失败!');
+            $this->setError('会员需求喜好类型信息添加失败!');
             DB::rollBack();
             return false;
         }
         if (MemberPreferenceRepository::exists(['member_id' => $request['member_id']])) if (!MemberPreferenceRepository::delete($request['member_id'])){
-            $this->setError('会员偏好类型信息添加失败!');
+            $this->setError('会员需求喜好类型信息添加失败!');
             DB::rollBack();
             return false;
         }
         $preference_arr['created_at'] = time();
         $preference_arr['update_at']  = time();
         if (!MemberPreferenceRepository::getAddId($preference_arr)){
-            $this->setError('会员偏好类型信息添加失败!');
+            $this->setError('会员需求喜好类型信息添加失败!');
             DB::rollBack();
             return false;
         }
         $this->setMessage('添加成功!');
         DB::commit();
-        return $request['member_id'];
+        return ['member_id' => $request['member_id']];
     }
 
     /**
-     * 修改成员基本信息
+     * 编辑成员风采展示信息
      * @param $request
-     * @return bool|null
+     * @return mixed
      */
     public function editMemberBase($request)
     {
+        $request['updated_at'] = time();
         if (!$member_base = MemberBaseRepository::getOne(['id' => $request['id']])){
             $this->setError('没有该会员信息!');
             return false;
         }
         $base_upd  = [];
         $grade_upd = [];
-        if (empty($member_grade  = MemberGradeRepository::getOne(['user_id' => $member_base['id']]))) $member_grade = [];
+        $member_grade        = MemberGradeRepository::getOne(['user_id' => $member_base['id']]);
         $member_base_fields  = MemberBaseRepository::getFields();
         $member_grade_fields = MemberGradeRepository::getFields();
         if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime('+' . $request['end_at'] . 'year',$member_base['created_at']);
@@ -564,25 +565,112 @@ class OaMemberService extends BaseService
                 $base_upd[$v] = $request[$v];
             }
         }
-        foreach($member_grade_fields as $v){
-            if (isset($request[$v]) && $member_grade[$v] !== $request[$v]){
-                $grade_upd[$v] = $request[$v];
+        foreach($member_grade_fields as $value){
+            if (isset($request[$value]) && $member_grade[$value] !== $request[$value]){
+                $grade_upd[$value] = $request[$value];
             }
         }
         DB::beginTransaction();
-        if (!$member_id = MemberBaseRepository::getUpdId(['id' => $request['id']],$base_upd)){
-            $this->setError('成员修改失败!');
-            DB::rollBack();
-            return false;
+        if (!empty($base_upd)){
+            if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_upd)){
+                $this->setError('成员修改失败!');
+                DB::rollBack();
+                return false;
+            }
         }
-        if (!MemberGradeRepository::getUpdId(['member_id' => $request['id']],$grade_upd)){
-            $this->setError('成员修改失败!');
-            DB::rollBack();
-            return false;
+        if (!empty($grade_upd)) {
+            if (!MemberGradeRepository::getUpdId(['user_id' => $member_base['id']],$grade_upd)) {
+                $this->setError('成员修改失败!');
+                DB::rollBack();
+                return false;
+            }
         }
         $this->setMessage('成员基本信息修改成功!');
         DB::commit();
-        return $member_id;
+        return $member_base['id'];
+    }
+
+    /**
+     * 修改成员简历信息
+     * @param $request
+     * @return mixed
+     */
+    public function editMemberInfo($request)
+    {
+        $request['updated_at'] = time();
+        if (!$member_info = MemberInfoRepository::getOne(['member_id' => $request['member_id']])){
+            if (!$this->addMemberInfo($request)){
+                $this->setError('添加成员风采展示信息失败!');
+            }
+            $this->setMessage('添加成员风采展示信息成功!');
+            return $request['member_id'];
+        }
+        $info_upd = [];
+        $member_info_fields = MemberInfoRepository::getFields();
+        foreach($member_info_fields as $v){
+            if (isset($request[$v]) && $member_info[$v] !== $request[$v]){
+                $info_upd[$v] = $request[$v];
+            }
+        }
+        if (!empty($info_upd)){
+            if (!MemberInfoRepository::getUpdId(['member_id' => $member_info['member_id']],$info_upd)){
+                $this->setError('成员简历信息修改失败!');
+                return false;
+            }
+        }
+        $this->setMessage('成员简历信息修改成功!');
+        return ['member_id' => $member_info['member_id']];
+    }
+
+    /**
+     * 编辑会员喜好需求信息展示
+     * @param $request
+     * @return bool
+     */
+    public function editMemberService($request)
+    {
+        $request['updated_at'] = time();
+        if (!$member_service = MemberPersonalServiceRepository::getOne(['member_id' => $request['member_id']])){
+            if (!$this->addMemberService($request)){
+                $this->setError('会员需求喜好类型信息添加失败!');
+                return false;
+            }
+            $this->setMessage('会员需求喜好类型信息添加成功!');
+            return $request['member_id'];
+        }
+        $member_preference        = MemberPreferenceRepository::getOne(['member_id' => $member_service['id']]);
+        $member_service_fields    = MemberPersonalServiceRepository::getFields();
+        $member_preference_fields = MemberPreferenceRepository::getFields();
+        $service_upd    = [];
+        $preference_upd = [];
+        foreach($member_service_fields as $v){
+            if (isset($request[$v]) && $member_service[$v] !== $request[$v]){
+                $service_upd[$v] = $request[$v];
+            }
+        }
+        foreach($member_preference_fields as $value){
+            if (isset($request[$value]) && $member_preference[$value] !== $request[$value]){
+                $preference_upd[$value] = $request[$value];
+            }
+        }
+        DB::beginTransaction();
+        if (!empty($service_upd)){
+            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['member_id']],$service_upd)){
+                $this->setError('成员修改失败!');
+                DB::rollBack();
+                return false;
+            }
+        }
+        if (!empty($preference_upd)) {
+            if (!MemberPreferenceRepository::getUpdId(['member_id' => $request['member_id']],$preference_upd)) {
+                $this->setError('成员修改失败!');
+                DB::rollBack();
+                return false;
+            }
+        }
+        $this->setMessage('成员基本信息修改成功!');
+        DB::commit();
+        return $request['member_id'];
     }
 
 }
