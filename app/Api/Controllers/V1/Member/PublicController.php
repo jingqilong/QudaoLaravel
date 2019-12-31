@@ -63,4 +63,45 @@ class PublicController extends ApiController
         }
         return ['code' => 200, 'message' => $this->publicService->message, 'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_test_qr_code",
+     *     tags={"会员"},
+     *     summary="获取测试二维码",
+     *     description="用于给外部人员测试使用,sang",
+     *     operationId="get_test_qr_code",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getTestQrCode()
+    {
+        $res = $this->publicService->getTestQrCode();
+        if (!$res){
+            return ['code' => 100, 'message' => $this->publicService->error];
+        }
+        return ['code' => 200, 'message' => $this->publicService->message, 'data' => $res];
+    }
 }

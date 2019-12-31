@@ -50,6 +50,39 @@ class PublicService extends BaseService
             $this->setMessage('获取成功！');
             return $res;
         }
+        if (false == $this->buildQrCode($url, $image_path)){
+            $this->setError('生成失败！');
+            return false;
+        }
+        return $res;
+    }
+
+    /**
+     * 获取获取测试二维码，用于给外部人员测试使用
+     * @return array|bool
+     */
+    public function getTestQrCode()
+    {
+        $referral_code = config('common.test_referral_code');
+        $url        = config('url.'.env('APP_ENV').'_url').'?referral_code='.$referral_code;
+        $image_path = public_path('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png');
+        $res = [
+            'url'           => $url,
+            'referral_code' => $referral_code,
+            'qrcode_url'    => url('qrcode'.DIRECTORY_SEPARATOR.$referral_code.'.png')
+        ];
+        if (file_exists($image_path)){
+            $this->setMessage('获取成功！');
+            return $res;
+        }
+        if (false == $this->buildQrCode($url, $image_path)){
+            $this->setError('生成失败！');
+            return false;
+        }
+        return $res;
+    }
+
+    public function buildQrCode($url, $image_path){
         $qr_code = new BaconQrCodeGenerator();
         $qr_code->format('png')
             ->size(300)
@@ -58,10 +91,9 @@ class PublicService extends BaseService
             ->generate($url, $image_path);
         $this->setMessage('获取成功！');
         if (!file_exists($image_path)){
-            $this->setError('生成失败！');
             return false;
         }
-        return $res;
+        return true;
     }
 }
             

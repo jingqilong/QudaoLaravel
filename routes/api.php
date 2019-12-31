@@ -388,6 +388,7 @@ $api->version('v1',function ($api){
                 $api->post('sign','MemberController@sign')->name('每日签到');
                 $api->get('sign_details','MemberController@signDetails')->name('签到页详情');
                 $api->get('promote_qr_code','PublicController@promoteQrCode')->name('获取推广二维码');
+                $api->get('get_test_qr_code','PublicController@getTestQrCode')->name('获取测试二维码');
                 $api->post('perfect_member_info','MemberController@perfectMemberInfo')->name('手机号码注册完善用户信息');
                 #用户地址管理
                 $api->post('add_address','AddressController@addAddress')->name('用户添加地址');
