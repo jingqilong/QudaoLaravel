@@ -1047,8 +1047,7 @@ class MemberService extends BaseService
         }
         $register_time = $user['created_at'];
         $test_user_ssl = config('common.test_user_ssl');
-//        if (time() > ($register_time + $test_user_ssl * 3600)){
-        if (time() > 0){
+        if (time() > ($register_time + $test_user_ssl * 3600)){
             $this->setError('你的测试权限已过期!',405);
             return false;
         }
