@@ -362,7 +362,7 @@ class GradeOrdersService extends BaseService
     /**
      * 获取申请详情
      * @param $id
-     * @return bool|null
+     * @return bool|null|array
      */
     public function getApplyDetail($id)
     {
@@ -381,14 +381,16 @@ class GradeOrdersService extends BaseService
             $this->setError($progress['message']);
             return false;
         }
-        $apply['progress'] = $progress['data'];
         #获取流程权限
         $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
-        $apply['process_permission'] = $process_permission;
-        #获取可操作的动作结果列表
-        $apply['action_result_list'] = $this->getActionResultList($process_permission['process_record_id']);
         $this->setMessage('获取成功！');
-        return $apply;
+        return [
+            'details'               => $apply,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 }
             

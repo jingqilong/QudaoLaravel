@@ -95,13 +95,13 @@ class ActionResult
         $this->transition_id            = $transition['id'];
         $this->transition_status        = $transition['status'];
         $this->transition_status_label  = ProcessTransitionStatusEnum::getLabelByValue($transition['status']);
-        if (empty($transition['next_node'])){
+        if (empty($transition['next_node']) || $transition['current_node'] == $transition['next_node']){
             return;
         }
         $nextNode = new Node($transition['next_node']);
         if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])){
             $this->next_node_id = $transition['next_node'];
-            #如果下一节点是当前节点之前，则不能继续创建
+            #如果下一节点已经创建，则不能继续创建
             if($this->exists($transition['next_node'])){
                 if (!in_array($transition['next_node'],$parent_node->back_node_ids))
                 $parent_node->back_node_ids[] = $transition['next_node'];
