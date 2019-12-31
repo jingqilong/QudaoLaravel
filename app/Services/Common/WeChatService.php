@@ -132,12 +132,10 @@ class WeChatService extends BaseService
                     if ($grade_info = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]])){
                         $grade = $grade_info['grade'];
                     }
-                    Loggy::write('error','成员等级打印信息',$grade);
                     $member['grade']        = $grade;
                     $member['grade_title']  = MemberEnum::getGrade($member['grade'],'普通成员');
                     $member['sex']          = MemberEnum::getSex($member['sex']);
                     $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
-                    Loggy::write('error','成员信息打印',$member);
                     unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
                     return [
                         'code'  => 1,
