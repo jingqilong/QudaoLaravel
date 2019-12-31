@@ -128,10 +128,11 @@ class WeChatService extends BaseService
                         return ['code' => 0];
                     }
                     $this->setMessage('登录成功！');
-                    if (!$grade = MemberGradeRepository::getField(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+                    if (!$grade = MemberGradeRepository::getOne(['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]])){
                         $grade = MemberEnum::DEFAULT;
                     }
-                    Loggy::write('error','成员等级打印信息' . $grade);
+                    Loggy::write('error','mysql语句查询',['user_id' => $bind['user_id'],'status' => 1,'end_at' => ['notIn',[1,time()]]]);
+                    Loggy::write('error','成员等级打印信息',$grade);
                     $member['grade']        = $grade;
                     $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
                     $member['sex']          = MemberEnum::getSex($member['sex']);
