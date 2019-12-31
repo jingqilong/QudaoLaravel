@@ -189,6 +189,7 @@ class WeChatService extends BaseService
      * @return mixed
      */
     public function bindMobile($mobile, $referral_code, $cacheData){
+        DB::beginTransaction();
         //用户头像ID
         $avatar_id = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
         //如果用户是通过测试推荐码进来的，设置用户为测试用户
@@ -200,7 +201,6 @@ class WeChatService extends BaseService
             'updated_at'    => time()
         ];
         $relationService = new RelationService();
-        DB::beginTransaction();
         #如果手机号已经注册，直接进行绑定
         if ($member = MemberBaseRepository::getOne(['mobile' => $mobile])){
             $user_id = $member['id'];
@@ -258,7 +258,6 @@ class WeChatService extends BaseService
             return false;
         }
         $this->setMessage('绑定成功！');
-        DB::commit();
         if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
             $grade = MemberEnum::DEFAULT;
         }
@@ -267,6 +266,7 @@ class WeChatService extends BaseService
         $member['sex']          = MemberEnum::getSex($member['sex']);
         $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
+        DB::commit();
         return [
             'code'  => 1,
             'data'  => [
