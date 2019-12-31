@@ -3,6 +3,7 @@ namespace App\Services\Member;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\MemberIsTestEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
@@ -21,6 +22,7 @@ use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
+use App\Services\Common\WeChatService;
 use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
 use EasyWeChat\Factory;
@@ -67,23 +69,21 @@ class MemberService extends BaseService
             $account_type = 'email';
         }
         if (!MemberBaseRepository::exists([$account_type => $account])){
-            return '用户不存在！';
+            $this->setError('用户不存在！');
+            return false;
         }
         $token = MemberBaseRepository::login([$account_type => $account, 'password' => $password]);
         if (is_array($token)){
-            return $token['message'];
+            $this->setError($token['message']);
+            return false;
         }
         $user           = $this->auth->user();
-        $user           = $user->toArray();
-        if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
-            $grade = MemberEnum::DEFAULT;
+        //测试用户检查,如果测试时间已过，则登录失败
+        if (false == $this->checkTestUser($user->id)){
+            return false;
         }
-        $user['grade']        = $grade;
-        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
-        $user['sex']    = MemberEnum::getSex($user['sex']);
-        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
-        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
-        return ['user' => $user, 'token' => $token];
+        $this->setMessage('登录成功！');
+        return $this->loginGetUserInfo($user->id);
     }
 
 
@@ -94,67 +94,69 @@ class MemberService extends BaseService
      */
     public function register($data)
     {
-        if (MemberBaseRepository::exists(['mobile' => $data['mobile']])){
-            $this->setError('该手机号码已注册过!');
-            return false;
-        }
         $referral_code = $data['referral_code'] ?? '';
         //添加用户
         DB::beginTransaction();
-        if (!$user_id = MemberBaseRepository::addUser($data['mobile'])) {
+        //如果用户是通过测试推荐码进来的，设置用户为测试用户
+        $test_referral_code = config('common.test_referral_code');
+        $user_info = [
+            'is_test'   => $test_referral_code == $referral_code ? MemberIsTestEnum::TEST : MemberIsTestEnum::NO_TEST
+        ];
+        $relationService = new RelationService();
+        if ($user = MemberBaseRepository::getOne(['mobile' => $data['mobile']])){
+            //如果此手机号已经注册过，且是测试账户，如果现在是正常注册，需要刷新账户状态为非注册，并且更新账户推荐关系
+            if (MemberIsTestEnum::TEST == $user['is_test'] && MemberIsTestEnum::NO_TEST == $user_info['is_test']){
+                if (!MemberBaseRepository::getUpdId(['id' => $user['id']],['is_test' => MemberIsTestEnum::NO_TEST,'updated_at' => time()])){
+                    DB::rollBack();
+                    $this->setError('注册失败！');
+                    return false;
+                }
+                //更新推荐关系
+                if (false == $relationService->updateRelation($user['id'],$referral_code)){
+                    DB::rollBack();
+                    $this->setError('注册失败！');
+                    return false;
+                }
+                $this->setMessage('注册成功');
+                return $this->loginGetUserInfo($user['id']);
+            }
+            $this->setError('该手机号码已注册过!');
+            return false;
+        }
+        if (!$user_id = MemberBaseRepository::addUser($data['mobile'],$user_info)) {
             DB::rollBack();
             $this->setError('注册失败!');
             Loggy::write('error', '手机号注册创建用户失败，手机号：' . $data['mobile'] . '  推荐人推荐码：' . $referral_code);
             return false;
         }
         //建立用户推荐关系
-        $relation_data['member_id']     = $user_id;
-        $relation_data['created_at']    = time();
-        if (empty($referral_code)) {
-            $relation_data['parent_id'] = 0;
-            $relation_data['path']      = '0,' . $user_id . ',';
-            $relation_data['level']     = 1;
-        } else {
-            if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])) {
-                DB::rollBack();
-                $this->setError('无效的推荐码!');
-                return false;
-            }
-            if (!$relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['id']])) {
-                $relation_user = [
-                    'member_id'     => $referral_user['id'],
-                    'parent_id'     => 0,
-                    'path'          => '0,' . $referral_user['id'] . ',',
-                    'level'         => 1,
-                    'created_at'    => time(),
-                    'updated_at'    => time(),
-                ];
-                if (!MemberRelationRepository::getAddId($relation_user)){
-                    DB::rollBack();
-                    $this->setError('注册失败!');
-                    Loggy::write('error', '手机号注册创建推荐关系失败，推荐人id：' . $referral_user['id'] . '  推荐人推荐码：' . $referral_code);
-                    return false;
-                }
-            }
-            $relation_data['parent_id'] = $referral_user['id'];
-            $relation_data['path']      = $relation_user['path'] . $user_id . ',';
-            $relation_data['level']     = $relation_user['level'] + 1;
-        }
-        if (!MemberRelationRepository::getAddId($relation_data)) {
+        if (false == $relationService->createdRelation($user_id,$referral_code)){
+            $this->setError('注册失败！');
             DB::rollBack();
-            Loggy::write('error', '推荐关系建立失败，用户id：' . $user_id . '  推荐人id：' . $relation_data['parent_id']);
-            $this->setError('注册失败!');
             return false;
         }
+        DB::commit();
+        $this->setMessage('注册成功');
+        return $this->loginGetUserInfo($user_id);
+    }
+
+    /**
+     * 登录后需要返回的信息
+     * @param $user_id
+     * @return array
+     */
+    public function loginGetUserInfo($user_id){
         $token          = MemberBaseRepository::getToken($user_id);
         $user_info      = MemberBaseRepository::getUser();
         $user           = $user_info->toArray();
-        $user['sex']    = MemberEnum::getSex($user['sex']);
-        $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
-        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
-        DB::commit();
-
-        $this->setMessage('注册成功');
+        if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
+            $grade  = MemberEnum::DEFAULT;
+        }
+        $member['grade']        = $grade;
+        $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $user['sex']            = MemberEnum::getSex($user['sex']);
+        $user                   = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
+        unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at'],$user['is_test']);
         return ['user' => $user,'token' => $token];
     }
 
@@ -181,9 +183,14 @@ class MemberService extends BaseService
      */
     public function refresh($token){
         try {
-            if ($token = MemberBaseRepository::refresh($token)){
+            if ($token = MemberBaseRepository::refresh()){
                 $this->setMessage('刷新成功！');
                 return $token;
+            }
+            $user      = MemberBaseRepository::getUser();
+            //测试用户检查,如果测试时间已过，则登录失败
+            if (false == $this->checkTestUser($user->id)){
+                return false;
             }
             $this->setError('刷新失败！');
             return false;
@@ -761,7 +768,7 @@ class MemberService extends BaseService
      */
     public function mobileExists($mobile)
     {
-        if (MemberBaseRepository::exists(['mobile' => $mobile])){
+        if (MemberBaseRepository::exists(['mobile' => $mobile,'is_test' => MemberIsTestEnum::NO_TEST])){
             $this->setMessage('已被注册!');
             return ['is_register' => 1];
         }
@@ -1035,4 +1042,28 @@ class MemberService extends BaseService
         $this->setMessage('获取成功！');
         return $res;
     }
+
+    /**
+     * 检查测试用户
+     * @param $user_id
+     * @return bool
+     */
+    public function checkTestUser($user_id){
+        if (!$user = MemberBaseRepository::getOne(['id' => $user_id])){
+            $this->setError('用户信息不存在！');
+            return false;
+        }
+        if (MemberIsTestEnum::NO_TEST == $user['is_test']){
+            return true;
+        }
+        $register_time = $user['created_at'];
+        $test_user_ssl = config('common.test_user_ssl');
+        if (time() > ($register_time + $test_user_ssl * 3600)){
+            $this->setError('你的测试权限已过期!');
+            return false;
+        }
+        return true;
+    }
+
+
 }
