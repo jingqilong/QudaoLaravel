@@ -51,6 +51,7 @@ class RelationService extends BaseService
             return false;
         }
         $this->setMessage('推荐关系创建成功！');
+        DB::commit();
         return true;
     }
 
