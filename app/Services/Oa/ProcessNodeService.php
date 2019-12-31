@@ -286,7 +286,7 @@ class ProcessNodeService extends BaseService
                 return false;
             }
             if (!OaProcessTransitionRepository::getUpdId(['id' => $transition['id']],
-                ['next_node' => $current_node_id,'status' => ProcessTransitionStatusEnum::GO_ON,'updated_at' => time()])){
+                ['next_node' => $request['node_id'],'status' => ProcessTransitionStatusEnum::GO_ON,'updated_at' => time()])){
                 $this->setError('添加失败！');
                 return false;
             }

@@ -103,6 +103,7 @@ class ActionResult
             $this->next_node_id = $transition['next_node'];
             #如果下一节点是当前节点之前，则不能继续创建
             if($this->exists($transition['next_node'])){
+                if (!in_array($transition['next_node'],$parent_node->back_node_ids))
                 $parent_node->back_node_ids[] = $transition['next_node'];
             }else{
                 $nextNode->setData();

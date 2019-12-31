@@ -425,7 +425,7 @@ class ProcessController extends ApiController
         if ($res === false){
             return ['code' => 100,'message' => $this->processDefinitionService->error];
         }
-        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => $res];
+        return ['code' => 200,'message' => $this->processDefinitionService->message,'data' => [$res]];
     }
 
 
