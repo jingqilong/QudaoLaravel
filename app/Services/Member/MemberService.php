@@ -118,6 +118,7 @@ class MemberService extends BaseService
                     return false;
                 }
                 $this->setMessage('注册成功');
+                DB::commit();
                 return $this->loginGetUserInfo($user['id']);
             }
             $this->setError('该手机号码已注册过!');

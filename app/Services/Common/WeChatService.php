@@ -191,7 +191,7 @@ class WeChatService extends BaseService
     public function bindMobile($mobile, $referral_code, $cacheData){
         DB::beginTransaction();
         //用户头像ID
-        $avatar_id = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
+        $avatar_id          = CommonImagesRepository::getAddId(['type' => CommonImagesEnum::MEMBER,'img_url' => $cacheData['avatar'],'create_at' => time()]);
         //如果用户是通过测试推荐码进来的，设置用户为测试用户
         $test_referral_code = config('common.test_referral_code');
         $user_info = [
@@ -213,22 +213,25 @@ class WeChatService extends BaseService
             if (MemberIsTestEnum::TEST == $member['is_test'] && MemberIsTestEnum::NO_TEST == $user_info['is_test']){
                 if (!MemberBaseRepository::getUpdId(['id' => $user_id],$user_info)){
                     DB::rollBack();
-                    $this->setError('注册失败！');
+                    $this->setError('绑定失败！');
+                    Loggy::write('error','微信绑定手机号，用户信息更新失败！手机号：'.$mobile);
                     return false;
                 }
                 //更新推荐关系
                 if (false == $relationService->updateRelation($user_id,$referral_code)){
                     DB::rollBack();
-                    $this->setError('注册失败！');
+                    $this->setError('绑定失败！');
+                    Loggy::write('error','微信绑定手机号，更新新用户推荐关系失败！手机号：'.$mobile);
                     return false;
                 }
-            }
-            //测试用户检查,如果测试时间已过，则绑定失败
-            $memberService = new MemberService();
-            if (false == $memberService->checkTestUser($user_id)){
-                $this->setError($memberService->error);
-                DB::rollBack();
-                return false;
+            }else{
+                //测试用户检查,如果测试时间已过，则绑定失败
+                $memberService = new MemberService();
+                if (false == $memberService->checkTestUser($user_id)){
+                    $this->setError($memberService->error);
+                    DB::rollBack();
+                    return false;
+                }
             }
         }else{#如果手机号未注册，进行注册，必须要推荐码，创建推荐关系
             if (empty($referral_code)){

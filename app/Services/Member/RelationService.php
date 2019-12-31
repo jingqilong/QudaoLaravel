@@ -39,6 +39,7 @@ class RelationService extends BaseService
                     $this->setError('创建推荐关系失败!');
                     return false;
                 }
+                $relation_user = MemberRelationRepository::getOne(['member_id' => $referral_user['id']]);
             }
             $relation_data['parent_id'] = $referral_user['id'];
             $relation_data['path']      = $relation_user['path'] . $user_id . ',';
@@ -62,16 +63,16 @@ class RelationService extends BaseService
      * @return bool
      */
     public function updateRelation($user_id, $referral_code = null){
+        DB::beginTransaction();
         //如果当前用户还没有推荐关系，则去创建
         if (!$relation = MemberRelationRepository::getOne(['member_id' => $user_id])){
             return $this->createdRelation($user_id,$referral_code);
         }
-        DB::beginTransaction();
         $relation_data['updated_at']    = time();
         if (empty($referral_code)) {
-            $relation_data['parent_id'] = 0;
-            $relation_data['path']      = '0,' . $user_id . ',';
-            $relation_data['level']     = 1;
+            $relation_data['parent_id'] = $relation['parent_id'];
+            $relation_data['path']      = $relation['parent_id'];
+            $relation_data['level']     = $relation['level'];
         } else {
             if (!$referral_user = MemberBaseRepository::getOne(['referral_code' => $referral_code])) {
                 DB::rollBack();
@@ -98,6 +99,7 @@ class RelationService extends BaseService
             return false;
         }
         $this->setMessage('推荐关系更新成功！');
+        DB::commit();
         return true;
     }
 }

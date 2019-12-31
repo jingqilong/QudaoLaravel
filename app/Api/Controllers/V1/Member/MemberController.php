@@ -168,7 +168,7 @@ class MemberController extends ApiController
         //短信验证
         $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::REGISTER, $this->request['code']);
         if (is_string($check_sms)){
-            return ['code' => 100, 'message' => $check_sms];
+//            return ['code' => 100, 'message' => $check_sms];
         }
         $res = $this->memberService->register($this->request);
         if (!$res){
