@@ -747,7 +747,7 @@ class OaMemberController extends ApiController
      * @OA\Post(
      *     path="/api/v1/oa/edit_member_base",
      *     tags={"OA成员管理"},
-     *     summary="编辑成员基本信息",
+     *     summary="编辑成员基础展示信息",
      *     operationId="edit_member_base",
      *     @OA\Parameter(
      *          name="sign",
@@ -941,7 +941,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="end_at",
      *         in="query",
-     *         description="等级到期时间",
+     *         description="等级到期时间[会员加入时间算起年限]",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -955,9 +955,9 @@ class OaMemberController extends ApiController
     {
         $rules = [
             'id'              => 'required|integer',
-            'card_no'         => 'required|integer|unique:member_base',
+            'card_no'         => 'required|integer',
             'mobile'          => 'required|mobile',
-            'email'           => 'email|unique:member_base',
+            'email'           => 'email',
             'ch_name'         => 'required',
             'sex'             => 'required|in:1,2',
             'avatar_id'       => 'required|integer',
@@ -974,11 +974,9 @@ class OaMemberController extends ApiController
             'id.integer'         => '成员ID不能为空',
             'card_no.required'   => '成员卡号不能为空',
             'card_no.integer'    => '成员卡号不是整数',
-            'card_no.unique'     => '成员卡号已存在',
             'mobile.required'    => '成员手机号码不能为空',
             'mobile.mobile'      => '成员手机号码格式不正确',
             'email.email'        => '成员邮箱格式不正确',
-            'email.unique'       => '成员邮箱已存在',
             'sex.required'       => '成员性别不能为空',
             'sex.in'             => '性别不存在',
             'avatar_id.required' => '成员头像不能为空',
@@ -990,8 +988,8 @@ class OaMemberController extends ApiController
             'hidden.required'    => '成员是否隐藏不能为空',
             'hidden.in'          => '成员是否隐藏格式不存在',
             'zipcode.regex'      => '成员邮编格式不正确',
-            'grade.required'     => '成员等级不能为空',
-            'grade.integer'      => '成员等级格式不正确',
+            'grade.required'     => '成员级别不能为空',
+            'grade.integer'      => '成员级别格式不正确',
             'end_at.required'    => '成员等级结束时间不能为空',
             'end_at.in'          => '成员等级结束时间格式不正确',
         ];
@@ -1009,10 +1007,10 @@ class OaMemberController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/oa/edit_ember_info",
+     *     path="/api/v1/oa/edit_member_info",
      *     tags={"OA成员管理"},
-     *     summary="修改成员风采展示信息",
-     *     operationId="edit_ember_info",
+     *     summary="编辑成员风采展示信息",
+     *     operationId="edit_member_info",
      *     @OA\Parameter(
      *          name="sign",
      *          in="query",
@@ -1188,10 +1186,10 @@ class OaMemberController extends ApiController
      * )
      *
      */
-   /* public function addMemberInfo()
+    public function editMemberInfo()
     {
         $rules = [
-            'member_id'       => 'required|integer|unique:member_info',
+            'member_id'       => 'required|integer',
             'archive'         => 'required|in:0,1',
             'is_recommend'    => 'required|in:0,1',
             'is_home_detail'  => 'required|in:0,1',
@@ -1199,7 +1197,6 @@ class OaMemberController extends ApiController
         $messages = [
             'member_id.required'        => '成员ID不能为空',
             'member_id.integer'         => '成员ID不是整数',
-            'member_id.unique'          => '成员ID已存在',
             'archive.required'          => '成员是否有存档不能为空',
             'archive.in'                => '成员是否有存档类型不存在',
             'is_recommend.required'     => '成员是否推荐不能为空',
@@ -1211,19 +1208,19 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->addMemberInfo($this->request);
+        $res = $this->OaMemberService->editMemberInfo($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->OaMemberService->error];
         }
         return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
-    }*/
+    }
 
 
     /**
      * @OA\Post(
      *     path="/api/v1/oa/edit_member_service",
      *     tags={"OA成员管理"},
-     *     summary="添加成员服务信息",
+     *     summary="编辑会员喜好需求信息展示",
      *     operationId="edit_member_service",
      *     @OA\Parameter(
      *          name="sign",
@@ -1328,10 +1325,10 @@ class OaMemberController extends ApiController
      * )
      *
      */
-    /*public function addMemberService()
+    public function editMemberService()
     {
         $rules = [
-            'member_id'     => 'required|integer|unique:member_personal_service|unique:member_preference',
+            'member_id'     => 'required|integer',
             'protocol'      => 'required|in:0,1',
             'nameplate'     => 'required|in:0,1,2',
             'other_server'  => 'required|in:0,1',
@@ -1339,7 +1336,6 @@ class OaMemberController extends ApiController
         $messages = [
             'member_id.required'    => '成员ID不能为空',
             'member_id.integer'     => '成员ID不是整数',
-            'member_id.unique'      => '成员ID已存在',
             'protocol.required'     => '成员是否需要宣传不能为空',
             'protocol.in'           => '成员是否需要宣传类型不存在',
             'nameplate.required'    => '成员铭牌状态不能为空',
@@ -1351,12 +1347,12 @@ class OaMemberController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OaMemberService->addMemberService($this->request);
+        $res = $this->OaMemberService->editMemberService($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->OaMemberService->error];
         }
         return ['code' => 200,'message' => $this->OaMemberService->message,'data' => $res];
-    }*/
+    }
 
 
 

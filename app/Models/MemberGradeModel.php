@@ -27,7 +27,7 @@ class MemberGradeModel extends Model
     protected $primaryKey = 'user_id';
 
 
-    protected $fillable = ['user_id','grade','status','created_at','update_at'];
+    protected $fillable = ['user_id','grade','status','end_at','created_at','update_at'];
 
 
 
