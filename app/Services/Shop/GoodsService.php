@@ -5,12 +5,14 @@ namespace App\Services\Shop;
 use App\Enums\CollectTypeEnum;
 use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
+use App\Enums\ShopActivityEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Models\MemberGradeViewModel;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
+use App\Repositories\ShopActivityRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
@@ -95,6 +97,16 @@ class GoodsService extends BaseService
                 return false;
             }
         }
+        #如果该商品被展示到‘积分兑换’栏目，添加记录
+        if (isset($request['score_exchange']) && $request['score_exchange'] == 1){
+            $score_exchange_status = $request['status'] == ShopGoodsEnum::PUTAWAY ? ShopActivityEnum::OPEN : ShopActivityEnum::DISABLE;
+            $shopActivityService = new ActivityService();
+            if (!$shopActivityService->addOrUpdScoreExchange($goods_id,$score_exchange_status)){
+                $this->setError($shopActivityService->error);
+                DB::rollBack();
+                return false;
+            }
+        }
         DB::commit();
         $this->setMessage('添加成功！');
         return true;
@@ -122,6 +134,8 @@ class GoodsService extends BaseService
             $this->setError($shopActivityService->error);
             return false;
         }
+        //删除积分栏目展示记录
+        ShopActivityRepository::delete(['goods_id' => $id,'type' => ShopActivityEnum::SCORE_EXCHANGE]);
         if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
             $this->setError('删除失败！');
             return false;
@@ -213,6 +227,16 @@ class GoodsService extends BaseService
                 return false;
             }
         }
+        #同步修改“积分兑换”栏目页数据
+        if (isset($request['score_exchange'])){
+            $score_exchange_status = $request['score_exchange'] == 1 ? ShopActivityEnum::OPEN : ShopActivityEnum::DISABLE;
+            $shopActivityService = new ActivityService();
+            if (!$shopActivityService->addOrUpdScoreExchange($goods_id,$score_exchange_status)){
+                $this->setError($shopActivityService->error);
+                DB::rollBack();
+                return false;
+            }
+        }
         DB::commit();
         $this->setMessage('修改成功！');
         return true;
@@ -229,15 +253,19 @@ class GoodsService extends BaseService
         $keywords = $request['keywords'] ?? null;
         $category = $request['category'] ?? null;
         $status   = $request['status'] ?? null;
+        $score_deduction   = $request['score_deduction'] ?? null;
         $order      = 'id';
         $asc_desc   = 'desc';
         $where = ['deleted_at' => 0];
-        $column = ['id','name','category','price','banner_ids','stock','negotiable','is_recommend','status','created_at','updated_at'];
+        $column = ['id','name','category','price','banner_ids','stock','negotiable','score_deduction','is_recommend','status','created_at','updated_at'];
         if (!empty($category)){
             $where['category'] = $category;
         }
         if (!empty($status)){
             $where['status'] = $status;
+        }
+        if (!empty($score_deduction)){
+            $where['score_deduction'] = $score_deduction == 1 ? ['>',0] : 0;
         }
         if (!empty($keywords)){
             if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
@@ -295,6 +323,7 @@ class GoodsService extends BaseService
         $goods['is_recommend']   = $goods['is_recommend'] == 0 ? 2 : 1;
         $goods['status_title']   = ShopGoodsEnum::getStatus($goods['status']);
         $goods['spec_json']      = GoodsSpecRelateService::getGoodsSpecJson($id);
+        $goods['score_exchange'] = ShopActivityRepository::exists(['goods_id' => $id,'type' => ShopActivityEnum::SCORE_EXCHANGE,'status' => ShopActivityEnum::OPEN]) ? 1 : 0;
         $this->setMessage('获取成功！');
         return $goods;
     }

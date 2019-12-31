@@ -109,7 +109,7 @@ class DoctorLabelsController extends ApiController
      *     @OA\Parameter(
      *         name="id",
      *         in="query",
-     *         description="医生标签id",
+     *         description="标签id",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -127,7 +127,7 @@ class DoctorLabelsController extends ApiController
             'id'          => 'required',
         ];
         $messages = [
-            'id.required'         => '医生标签ID不能为空',
+            'id.required' => '标签ID不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -238,6 +238,24 @@ class DoctorLabelsController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="关键字搜索【标签名】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="排序方式【默认1正序 2倒叙】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -264,12 +282,14 @@ class DoctorLabelsController extends ApiController
      */
     public function doctorLabelsList(){
         $rules = [
+            'sort'          => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
+            'sort.in'          => '页码必须为整数',
+            'page.integer'     => '页码必须为整数',
+            'page_num.integer' => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

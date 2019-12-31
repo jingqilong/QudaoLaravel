@@ -89,10 +89,10 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->memberService->login($this->request['account'],$this->request['password']);
-        if (is_string($res)){
-            return ['code' => 100, 'message' => $res];
+        if (false == $res){
+            return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'message' => '登录成功！', 'data' => $res];
+        return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
     }
 
 

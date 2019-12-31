@@ -246,7 +246,7 @@ class HomeBannersService extends BaseService
      * @return bool
      */
     public function deleteBeforeCheck($type, $related_id){
-        if ($banner_list = CommonHomeBannersRepository::getList(['type' => $type,'related_id' => $related_id])){
+        if ($banner_list = CommonHomeBannersRepository::getList(['link_type' => $type,'related_id' => $related_id])){
             foreach ($banner_list as $value){
                 $this->setError('当前数据已在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
                 return false;

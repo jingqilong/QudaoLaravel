@@ -84,9 +84,10 @@ class ProcessNodeService extends BaseService
             DB::rollBack();
             return false;
         }
-        if (!OaProcessDefinitionRepository::increment(['id' => $request['process_id']],'step_count')){
+        #刷新流程总步骤数
+        if (!OaProcessDefinitionRepository::updateStepCount($request['process_id'])){
             $this->setError('添加失败！');
-            Loggy::write('error','给流程添加节点：流程定义表步骤自增失败！');
+            Loggy::write('error','给流程添加节点：流程定义表步骤刷新失败！');
             DB::rollBack();
             return false;
         }
@@ -268,6 +269,10 @@ class ProcessNodeService extends BaseService
         if (!$current_node_id = OaProcessNodeActionRepository::getField(['id' => $node_actions_result['node_action_id']],'node_id')){
             $this->setError('数据异常！');
             Loggy::write('error','给流程选择节点：数据异常，节点动作丢失！节点动作记录ID：'.$node_actions_result['action_related_id']);
+            return false;
+        }
+        if ($current_node_id == $request['node_id']){
+            $this->setError('不能选择当前节点为下一节点！');
             return false;
         }
         $where = [

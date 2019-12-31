@@ -74,16 +74,16 @@ class HospitalsService extends BaseService
             $this->setError('医院已删除！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['id' => $id])){
+        if (MedicalDoctorsRepository::exists(['hospitals_id' => $id])){
             $this->setError('该医院下有医生，无法删除！');
             return false;
         }
-        if (MediclaHospitalsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
-            $this->setMessage('删除成功！');
-            return true;
+        if (!MediclaHospitalsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+            $this->setError('删除失败！');
+            return false;
         }
-        $this->setError('删除失败！');
-        return false;
+        $this->setMessage('删除成功！');
+        return true;
     }
 
 

@@ -78,6 +78,15 @@ class MessageCategoryController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="view",
+     *         in="query",
+     *         description="跳转页面",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
      *     @OA\Response(response=100,description="添加失败",),
      * )
      *

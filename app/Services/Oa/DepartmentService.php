@@ -22,6 +22,7 @@ class DepartmentService extends BaseService
         $path       = '0,';
         $parent_id  = 0;
         $level      = 0;
+        if (empty($data['parent_id'])) $data['parent_id'] = 0;
         if (isset($data['parent_id']) && (0 != $data['parent_id'])){
             if (!$parent_info = OaDepartmentRepository::getOne(['id' => $data['parent_id']])){
                 $this->setError('父级部门不存在！');
@@ -31,7 +32,6 @@ class DepartmentService extends BaseService
             $parent_id  = $parent_info['id'];
             $level      = $parent_info['level'];
         }
-
         if (OaDepartmentRepository::exists(['name' => $data['name'],'level' => $level + 1,'path' => ['like',$path.'%']])){
             $this->setError('部门名称已存在！');
             return false;
@@ -77,7 +77,6 @@ class DepartmentService extends BaseService
             $this->setError('父级部门不存在！');
             return false;
         }
-
         $upd_arr = [
             'name'        => $data['name'],
             'path'        => $parentInfo['path'].$data['id'].',',
@@ -178,7 +177,7 @@ class DepartmentService extends BaseService
         foreach ($all_department_list as $key => &$value){
             if ($parent_id == $value['parent_id']){
                 unset($all_department_list[$key]);
-                $value['sub_departments'] = [];
+//                $value['sub_departments'] = [];//前端不需要空数组
                 if ($this->existsArray($all_department_list,'parent_id',$value['id'])){
                     $value['sub_departments'] = $this->getLayeredDepartmentList($value['id'],$all_department_list);
                 }

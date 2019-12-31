@@ -141,9 +141,12 @@ $api->version('v1',function ($api){
                 $api->post('add_member_base','OaMemberController@addMemberBase')->name('添加成员基本信息');
                 $api->post('add_member_info','OaMemberController@addMemberInfo')->name('添加成员简历信息');
                 $api->post('add_member_service','OaMemberController@addMemberService')->name('添加成员服务信息');
+                $api->post('edit_member_base','OaMemberController@editMemberBase')->name('编辑成员基本信息');
+                $api->post('edit_member_info','OaMemberController@editMemberInfo')->name('编辑成员风采展示信息');
+                $api->post('edit_member_service','OaMemberController@editMemberService')->name('编辑会员喜好需求信息展示');
 
 
-                #OA成员类别管理
+                #OA成员需求爱好管理
                 $api->get('get_preference_list','MemberPreferenceController@getPreferenceList')->name('获取成员类别列表');
                 $api->get('get_preference_info','MemberPreferenceController@getPreferenceInfo')->name('根据ID 获取成员类别信息');
                 $api->delete('del_preference_type','MemberPreferenceController@delPreferenceType')->name('删除成员活动偏好类别');
@@ -719,6 +722,8 @@ $api->version('v1',function ($api){
                 $api->get('get_banner_list', 'BannerController@getBannerList')->name('获取首页banner图列表');
                 $api->post('banner_status_switch', 'BannerController@bannerStatusSwitch')->name('banner显示状态开关');
 
+                #渠道平台服务条款
+                $api->post('add_common_service_terms', 'CommonController@addCommonServiceTerms')->name('用户获取渠道平台服务条款');
 
                 $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
