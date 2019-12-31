@@ -50,7 +50,7 @@ class MemberAuthJWT extends BaseMiddleware
         //测试用户检查,如果测试时间已过，则登录失败
         $memberService = new MemberService();
         if (false == $memberService->checkTestUser($user->id)){
-            return new Response(json_encode(['code' => 100, 'message' => $memberService->error]));
+            return new Response(json_encode(['code' => $memberService->code, 'message' => $memberService->error]));
         }
 
         return $next($request);

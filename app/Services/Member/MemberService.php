@@ -1039,7 +1039,7 @@ class MemberService extends BaseService
      */
     public function checkTestUser($user_id){
         if (!$user = MemberBaseRepository::getOne(['id' => $user_id])){
-            $this->setError('用户信息不存在！');
+            $this->setError('用户信息不存在！',100);
             return false;
         }
         if (MemberIsTestEnum::NO_TEST == $user['is_test']){
@@ -1049,7 +1049,7 @@ class MemberService extends BaseService
         $test_user_ssl = config('common.test_user_ssl');
 //        if (time() > ($register_time + $test_user_ssl * 3600)){
         if (time() > 0){
-            $this->setError('你的测试权限已过期!');
+            $this->setError('你的测试权限已过期!',405);
             return false;
         }
         return true;

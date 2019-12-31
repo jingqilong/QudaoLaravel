@@ -286,6 +286,9 @@ class WeChatController extends ApiController
         }else{
             $result = $this->weChatService->officialAccountLogin($this->request['code']);
         }
+        if(405 == $this->weChatService->code) {
+            return ['code' => 405, 'message' => $this->weChatService->error];
+        }
         if($result['code'] == 0) {
             return ['code' => 100, 'message' => $this->weChatService->error];
         }
@@ -345,8 +348,8 @@ class WeChatController extends ApiController
         }else{
             $result = $this->weChatService->officialAccountBindMobile($this->request);
         }
-        if($result === false) {
-            return ['code' => 100, 'message' => $this->weChatService->error];
+        if($this->weChatService->code !== 200) {
+            return ['code' => $this->weChatService->code, 'message' => $this->weChatService->error];
         }
         return ['code' => 200, 'message' => $this->weChatService->message,'data' => $result];
     }

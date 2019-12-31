@@ -89,8 +89,8 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->memberService->login($this->request['account'],$this->request['password']);
-        if (false == $res){
-            return ['code' => 100, 'message' => $this->memberService->error];
+        if (200 !== $this->memberService->code){
+            return ['code' => $this->memberService->code, 'message' => $this->memberService->error];
         }
         return ['code' => 200, 'message' => $this->memberService->message, 'data' => $res];
     }
@@ -264,7 +264,7 @@ class MemberController extends ApiController
         if ($token = $this->memberService->refresh($this->request['token'])){
             return ['code' => 200, 'message' => $this->memberService->message, 'data' => ['token' => $token]];
         }
-        return ['code' => 100, 'message' => $this->memberService->error];
+        return ['code' => $this->memberService->code, 'message' => $this->memberService->error];
     }
 
 

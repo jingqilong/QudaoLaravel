@@ -124,7 +124,7 @@ class WeChatService extends BaseService
                     //测试用户检查,如果测试时间已过，则登录失败
                     $memberService = new MemberService();
                     if (false == $memberService->checkTestUser($member['id'])){
-                        $this->setError($memberService->error);
+                        $this->setError($memberService->error,$memberService->code);
                         return ['code' => 0];
                     }
                     $this->setMessage('登录成功！');
@@ -228,7 +228,7 @@ class WeChatService extends BaseService
                 //测试用户检查,如果测试时间已过，则绑定失败
                 $memberService = new MemberService();
                 if (false == $memberService->checkTestUser($user_id)){
-                    $this->setError($memberService->error);
+                    $this->setError($memberService->error,$memberService->code);
                     DB::rollBack();
                     return false;
                 }
