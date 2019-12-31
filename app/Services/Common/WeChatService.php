@@ -137,6 +137,7 @@ class WeChatService extends BaseService
                     $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
                     $member['sex']          = MemberEnum::getSex($member['sex']);
                     $member                 = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
+                    Loggy::write('error','成员信息打印',$member);
                     unset($member['avatar_id'],$member['status'],$member['hidden'],$member['created_at'],$member['updated_at'],$member['deleted_at']);
                     return [
                         'code'  => 1,
