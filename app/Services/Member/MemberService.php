@@ -215,9 +215,15 @@ class MemberService extends BaseService
         $category    = $data['category'] ?? null;
         $page        = $data['page'] ?? 1;
         $page_num    = $data['page_num'] ?? 20;
-        $asc         = $data['sort'] == 1 ? 'asc' : 'desc';
+        //$asc         = $data['sort'] == 1 ? 'asc' : 'desc';
         $where       = ['deleted_at' => 0 ,'hidden' => 0,'is_test' => 0];
-        if(MemberEnum::RECOMMEND  == $data['sort']) $sort = 'is_recommend'; else $sort = 'id';
+        if(MemberEnum::RECOMMEND  == $data['sort']){
+            $sort = ['is_recommend','id'];
+            $asc        = ['desc','desc'];
+        } else{
+            $sort = ['id'];
+            $asc  = ['desc'];
+        }
         if(MemberEnum::TEMPORARY  == $member_info['grade']) $where['status'] =  MemberEnum::MEMBER;
         if(!empty($category)) $where['category'] = $category;
         $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
