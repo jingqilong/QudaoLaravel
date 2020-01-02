@@ -121,14 +121,14 @@ class DepartmentsService extends BaseService
      */
     public function getDepartmentsList($request)
     {
-        $keywords   = $request['keywords'] ?? '';
+        $keywords   = $request['keywords'] ?? null;
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon'];
         $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name']];
-            if ($list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
+            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }
