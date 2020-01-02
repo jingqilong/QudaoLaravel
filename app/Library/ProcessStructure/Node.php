@@ -6,6 +6,7 @@ namespace App\ProcessStructure;
 
 use App\Repositories\OaProcessNodeActionRepository;
 use App\Repositories\OaProcessNodeRepository;
+use Tolawho\Loggy\Facades\Loggy;
 
 class Node
 {
