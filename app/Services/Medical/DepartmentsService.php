@@ -102,8 +102,8 @@ class DepartmentsService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
-        $list = $this->removePagingField($list);
-        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
+        $list         = $this->removePagingField($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
@@ -117,7 +117,7 @@ class DepartmentsService extends BaseService
     /**
      * 用户 获取医疗科室列表
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function getDepartmentsList($request)
     {
@@ -132,13 +132,14 @@ class DepartmentsService extends BaseService
                 $this->setError('获取失败！');
                 return false;
             }
+        }else{
+            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
-        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
-        }
-        $list = $this->removePagingField($list);
-        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
+        $list         = $this->removePagingField($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
