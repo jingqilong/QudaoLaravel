@@ -324,12 +324,12 @@ class ProcessNodeService extends BaseService
         }
         //如果存在下一节点，需要判断下一节点是往上个步骤走还是往下一步走，如果是往下一步走，则不能删除，需要先删除下一节点，如果是往上一步走，则删除流转
         if (0 != $transition['next_node']){
-            if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])
-                && $next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])
-            ){#如果下一节点是当前节点之前，则不能删除流转
-                if ($next_node['position'] > $current_node['position']){
-                    $this->setError('当前流转不能删除，需要先删除下一节点！');
-                    return false;
+            if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])){#如果下一节点是当前节点之前，则不能删除流转
+                if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){
+                    if ($next_node['position'] > $current_node['position']){
+                        $this->setError('当前流转不能删除，需要先删除下一节点！');
+                        return false;
+                    }
                 }
             }
         }

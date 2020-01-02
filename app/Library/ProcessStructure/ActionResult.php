@@ -8,6 +8,7 @@ use App\Enums\ProcessTransitionStatusEnum;
 use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessTransitionRepository;
+use Tolawho\Loggy\Facades\Loggy;
 
 class ActionResult
 {
@@ -98,15 +99,19 @@ class ActionResult
         if (empty($transition['next_node']) || $transition['current_node'] == $transition['next_node']){
             return;
         }
-        $nextNode = new Node($transition['next_node']);
-        if ($current_node = OaProcessNodeRepository::getOne(['id' => $transition['current_node']])){
+        if (OaProcessNodeRepository::exists(['id' => $transition['current_node']])){
             $this->next_node_id = $transition['next_node'];
             #如果下一节点已经创建，则不能继续创建
             if($this->exists($transition['next_node'])){
                 if (!in_array($transition['next_node'],$parent_node->back_node_ids))
                 $parent_node->back_node_ids[] = $transition['next_node'];
             }else{
-                $nextNode->setData();
+                $nextNode = new Node($transition['next_node']);
+                $nextNode->setData();#如果下一节点在父节点步骤之前，则给下一节点添加动作及动作结果
+                if ($nextNode->position > $parent_node->position){
+                    $nextNode->buildAction();
+                    $nextNode->is_parent = true;
+                }
                 $parent_node->children[] = $nextNode;
             }
             if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){

@@ -3,12 +3,9 @@ namespace App\Services\Oa;
 
 use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessCategoryEnum;
-use App\Enums\ProcessCommonStatusEnum;
-use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeRepository;
-use App\Repositories\OaProcessRecordActionsResultViewRepository;
 use App\Repositories\OaProcessRecordRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -132,6 +129,7 @@ class ProcessRecordService extends BaseService
             return $action_list;
         }
         foreach ($action_list['data'] as &$value){
+            $value['operation_at']  = empty($value['operation_at']) ? '' : date('Y-m-d H:m:s',$value['operation_at']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }
@@ -155,7 +153,7 @@ class ProcessRecordService extends BaseService
             return false;
         }
         $where = ['business_id' => $request['business_id'],'process_category' => $request['process_category']];
-        $column= ['id','node_id','node_action_result_id','operator_id','note','updated_at'];
+        $column= ['id','node_id','node_action_result_id','operator_id','note','operation_at'];
         if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc')){
             $this->setMessage('暂无数据！');
             return [];
@@ -177,7 +175,7 @@ class ProcessRecordService extends BaseService
                     $recode['node_action_result_label']   = $value['action_result_name'];break;
                 }
             }
-            $recode['updated_at'] = empty($recode['updated_at']) ? '' : date('Y-m-d H:i:s',$recode['updated_at']);
+            $recode['operation_at'] = empty($recode['operation_at']) ? '' : date('Y-m-d H:i:s',$recode['operation_at']);
             unset($recode['node_action_result_id'],$recode['node_id'],$recode['operator_id']);
         }
         $this->setMessage('记录列表获取成功！');

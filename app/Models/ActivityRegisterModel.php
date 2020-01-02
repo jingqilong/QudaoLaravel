@@ -27,7 +27,7 @@ class ActivityRegisterModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','activity_id','member_id','order_no','name','mobile','activity_price','member_price','status','is_register','sign_in_code','created_at','updated_at'];
+    protected $fillable = ['id','activity_id','member_id','order_no','name','mobile','activity_price','member_price','status','audit','is_register','sign_in_code','created_at','updated_at'];
 
 
 

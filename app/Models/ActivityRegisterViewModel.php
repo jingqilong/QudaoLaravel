@@ -42,6 +42,7 @@ class ActivityRegisterViewModel extends Model
         'member_id',
         'order_no',
         'register_status',
+        'register_audit',
         'is_register',
         'sign_in_code',
         'created_at',

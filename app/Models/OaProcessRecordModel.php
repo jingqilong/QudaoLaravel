@@ -27,7 +27,7 @@ class OaProcessRecordModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','business_id','process_id','process_category','position','node_id','path','action_result_id','operator_id','note','created_at','updated_at'];
+    protected $fillable = ['id','business_id','process_id','process_category','position','node_id','path','action_result_id','operator_id','note','operation_at','created_at','updated_at'];
 
 
 

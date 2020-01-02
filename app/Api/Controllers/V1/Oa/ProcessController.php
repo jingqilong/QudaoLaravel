@@ -420,7 +420,7 @@ class ProcessController extends ApiController
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
-        }set_time_limit(2000);
+        }
         $res = $this->processDefinitionService->getProcessDetail($this->request['process_id']);
         if ($res === false){
             return ['code' => 100,'message' => $this->processDefinitionService->error];

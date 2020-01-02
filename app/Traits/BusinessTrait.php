@@ -160,7 +160,7 @@ trait BusinessTrait
     public function getProcessRecordList($request){
         $processRecordService = new ProcessRecordService();
         $recode_list = $processRecordService->getProcessRecodeList($request);
-        if ($recode_list == false){
+        if ($recode_list === false){
             return ['code' => 100,'message' => $processRecordService->error];
         }
         return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ActivityEnum;
-use App\Enums\ActivityRegisterEnum;
+use App\Enums\ActivityRegisterStatusEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
@@ -57,7 +57,7 @@ class ActivityRemind extends Command
         $MessageService = new SendService();
         foreach ($activity_list as $activity){
             //获取已经参加活动的用户
-            if (!$register_list = ActivityRegisterRepository::getList(['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterEnum::EVALUATION]]])){
+            if (!$register_list = ActivityRegisterRepository::getList(['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::EVALUATION]]])){
                 continue;
             }
             list($area) = $this->makeAddress($activity['area_code'],$activity['address'],3);

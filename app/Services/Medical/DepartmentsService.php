@@ -5,6 +5,7 @@ namespace App\Services\Medical;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use function Sodium\add;
 
@@ -21,7 +22,8 @@ class DepartmentsService extends BaseService
     {
         $add_arr = [
             'name'       => $request['name'],
-            'describe'   => $request['describe'],
+            'describe'   => $request['describe'] ?? '',
+            'icon'       => $request['icon'],
             'created_at' => time(),
             'updated_at' => time(),
         ];
@@ -29,7 +31,6 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已存在！');
             return false;
         }
-
         if (MedicalDepartmentsRepository::getAddId($add_arr)){
             $this->setMessage('添加成功！');
             return true;
@@ -49,7 +50,7 @@ class DepartmentsService extends BaseService
             return false;
         }
         if (MedicalDoctorsRepository::exists(['department_ids' => $id])){
-            $this->setError('该医疗科室已使用，无法删除！');
+            $this->setError('该医疗科室已被医生使用，无法删除！');
             return false;
         }
         if (MedicalDepartmentsRepository::delete(['id' => $id])){
@@ -69,12 +70,13 @@ class DepartmentsService extends BaseService
     public function editDepartments($request)
     {
         if (!MedicalDepartmentsRepository::exists(['id' => $request['id']])){
-            $this->setError('医疗科室信息不存在！');
+            $this->setError('科室信息不存在！');
             return false;
         }
         $upd_arr = [
             'name'       => $request['name'],
-            'describe'   => $request['describe'],
+            'describe'   => $request['describe'] ?? '',
+            'icon'       => $request['icon'],
             'updated_at' => time(),
         ];
         if (MedicalDepartmentsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -86,26 +88,61 @@ class DepartmentsService extends BaseService
     }
 
     /**
-     * 获取医疗科室列表
+     * 获取医疗科室列表 OA
      * @param $request
-     * @return bool
+     * @return mixed
      */
-    public function getDepartmentsList($request)
+    public function departmentsList($request)
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MedicalDepartmentsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        $column     = ['id','name','describe','icon','created_at'];
+        $where      = ['id' => ['>',0]];
+        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-        $list = $this->removePagingField($list);
+        $list         = $this->removePagingField($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
-        foreach ($list['data'] as &$value){
-            $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
+        foreach ($list['data'] as &$value) $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+
+    /**
+     * 用户 获取医疗科室列表
+     * @param $request
+     * @return mixed
+     */
+    public function getDepartmentsList($request)
+    {
+        $keywords   = $request['keywords'] ?? null;
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $column     = ['id','name','describe','icon'];
+        $where      = ['id' => ['>',0]];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name']];
+            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list         = $this->removePagingField($list);
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
         }
         $this->setMessage('获取成功！');
         return $list;

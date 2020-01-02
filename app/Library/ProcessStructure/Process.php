@@ -50,6 +50,8 @@ class Process
             $first_node_id = $first_node['id'];
             $node = new Node($first_node_id);
             $node->setData();
+            $node->buildAction();
+            $node->is_parent = true;
             $this->node = $node;
         }
     }

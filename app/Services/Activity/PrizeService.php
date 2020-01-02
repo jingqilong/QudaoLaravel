@@ -2,7 +2,8 @@
 namespace App\Services\Activity;
 
 
-use App\Enums\ActivityRegisterEnum;
+use App\Enums\ActivityRegisterAuditEnum;
+use App\Enums\ActivityRegisterStatusEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
@@ -195,7 +196,11 @@ class PrizeService extends BaseService
             $this->setError('您还没有报名，不能参与抽奖！');
             return false;
         }
-        if (!in_array($register['status'],[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED])){
+        if ($register['status'] == ActivityRegisterStatusEnum::CANCELED){
+            $this->setError('您还没有报名，不能参与抽奖！');
+            return false;
+        }
+        if ($register['audit'] != ActivityRegisterAuditEnum::PASS || $register['status'] == ActivityRegisterStatusEnum::SUBMIT){
             $this->setError('您的报名还没有完成，不能参与抽奖！');
             return false;
         }
