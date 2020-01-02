@@ -294,6 +294,76 @@ class DepartmentsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
+        $res = $this->departmentsServices->departmentsList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->departmentsServices->error];
+        }
+        return ['code' => 200, 'message' => $this->departmentsServices->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/medical/get_departments_list",
+     *     tags={"医疗医院前端"},
+     *     summary="获取科室列表",
+     *     description="jing" ,
+     *     operationId="get_departments_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function getDepartmentsList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         $res = $this->departmentsServices->getDepartmentsList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->departmentsServices->error];
