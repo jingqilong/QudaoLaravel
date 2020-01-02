@@ -83,7 +83,7 @@ class Node
      */
     public function exists($node_id){
         if($node_id == $this->node_id){
-            return true;
+//            return true;
         }
        foreach($this->children as $node ){
             if($node->exists($node_id)) {
