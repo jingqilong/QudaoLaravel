@@ -126,7 +126,7 @@ class GradeOrdersService extends BaseService
             $value['created_at']   = $value['created_at'] == 0 ? '' : date('Y-m_d H:i:s',$value['created_at']);
             $value['payment_amount'] = empty($value['payment_amount']) ? 0 : round($value['payment_amount'] / 100,2);
             #获取流程信息
-            $value['progress '] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_UPGRADE,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;

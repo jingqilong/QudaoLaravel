@@ -107,7 +107,7 @@ class ActionResult
                 $parent_node->back_node_ids[] = $transition['next_node'];
             }else{
                 $nextNode = new Node($transition['next_node']);
-                $nextNode->setData();
+                $nextNode->setData();#如果下一节点在父节点步骤之前，则给下一节点添加动作及动作结果
                 if ($nextNode->position > $parent_node->position){
                     $nextNode->buildAction();
                     $nextNode->is_parent = true;
