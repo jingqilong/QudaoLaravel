@@ -44,6 +44,12 @@ class Node
     public $back_node_ids = [];
 
     /**
+     * 是不是父级节点，false表示当前节点为返回节点
+     * @var bool
+     */
+    public $is_parent = false;
+
+    /**
      * 需要返回的数据
      * @var array
      */
@@ -68,7 +74,13 @@ class Node
             $this->position     = $process['position'];
             $this->description  = $process['description'];
         }
-        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $id])){
+    }
+
+    /**
+     *生成动作
+     */
+    public function buildAction(){
+        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $this->node_id])){
             foreach ($node_actions as $node_action){
                 $action = new Action($node_action['action_id'],$node_action['id'],$this);
                 $action->setData();
@@ -82,8 +94,8 @@ class Node
      * @return bool
      */
     public function exists($node_id){
-        if($node_id == $this->node_id){
-//            return true;
+        if(false == $this->is_parent){
+            return false;
         }
        foreach($this->children as $node ){
             if($node->exists($node_id)) {
