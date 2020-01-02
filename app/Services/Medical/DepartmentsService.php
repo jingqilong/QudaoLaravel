@@ -121,15 +121,24 @@ class DepartmentsService extends BaseService
      */
     public function getDepartmentsList($request)
     {
+        $keywords   = $request['keywords'] ?? '';
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon'];
         $where      = ['id' => ['>',0]];
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name']];
+            if ($list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
         if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
         $list = $this->removePagingField($list);
+        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
