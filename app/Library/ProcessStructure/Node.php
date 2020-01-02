@@ -116,6 +116,7 @@ class Node
         $return_data['position']    = $this->position;
         $return_data['description'] = $this->description;
         $return_data['back_node_ids'] = $this->back_node_ids;
+        $return_data['editable']    = $this->is_parent ? true : false;
         $return_data['node_actions']= [];
         foreach ($this->node_actions as $action){
             $return_data['node_actions'][]= $action->buildData();
