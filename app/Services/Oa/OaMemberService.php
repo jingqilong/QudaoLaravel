@@ -512,7 +512,7 @@ class OaMemberService extends BaseService
             ];
         $preference_arr = [
             'member_id'    => $request['member_id'],
-            'content'      => $request['content']
+            'content'      => $request['content'] ?? ''
        ];
         if (MemberPersonalServiceRepository::exists($service_arr)){
             $this->setError('会员需求喜好类型信息已经存在');
