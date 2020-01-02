@@ -60,7 +60,7 @@ class DepartmentsController extends ApiController
      *         name="describe",
      *         in="query",
      *         description="医疗科室描述",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -84,12 +84,10 @@ class DepartmentsController extends ApiController
     public function addDepartments(){
         $rules = [
             'name'         => 'required',
-            'describe'     => 'required',
             'icon'         => 'required|integer',
         ];
         $messages = [
             'name.required'        => '医疗科室标题不能为空',
-            'describe.required'    => '医疗科室描述不能为空',
             'icon.required'        => '医疗科室icon不能为空',
             'icon.integer'         => '医疗科室icon不是整数',
         ];

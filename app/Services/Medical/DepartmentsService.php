@@ -22,7 +22,7 @@ class DepartmentsService extends BaseService
     {
         $add_arr = [
             'name'       => $request['name'],
-            'describe'   => $request['describe'],
+            'describe'   => $request['describe'] ?? '',
             'icon'       => $request['icon'],
             'created_at' => time(),
             'updated_at' => time(),
@@ -31,7 +31,6 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已存在！');
             return false;
         }
-
         if (MedicalDepartmentsRepository::getAddId($add_arr)){
             $this->setMessage('添加成功！');
             return true;
@@ -51,7 +50,7 @@ class DepartmentsService extends BaseService
             return false;
         }
         if (MedicalDoctorsRepository::exists(['department_ids' => $id])){
-            $this->setError('该医疗科室已使用，无法删除！');
+            $this->setError('该医疗科室已被医生使用，无法删除！');
             return false;
         }
         if (MedicalDepartmentsRepository::delete(['id' => $id])){
@@ -71,12 +70,12 @@ class DepartmentsService extends BaseService
     public function editDepartments($request)
     {
         if (!MedicalDepartmentsRepository::exists(['id' => $request['id']])){
-            $this->setError('医疗科室信息不存在！');
+            $this->setError('科室信息不存在！');
             return false;
         }
         $upd_arr = [
             'name'       => $request['name'],
-            'describe'   => $request['describe'],
+            'describe'   => $request['describe'] ?? '',
             'icon'       => $request['icon'],
             'updated_at' => time(),
         ];
@@ -104,7 +103,7 @@ class DepartmentsService extends BaseService
             return false;
         }
         $list = $this->removePagingField($list);
-        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'several']);
+        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'single']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
