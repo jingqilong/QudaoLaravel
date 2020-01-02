@@ -87,7 +87,7 @@ trait RepositoryTrait
     protected function getList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null, $page=null, $pageNum=null){
         $model = self::addWhere($this->model,$where);
         if ($order!=null && $desc_asc!=null){
-            $model = $model->orderBy($order,$desc_asc);
+            $model = $this->addOrderBy($model,$order,$desc_asc);
         }
         if (null!=$page && null!=$pageNum){
             $model = $model->paginate($pageNum,$column,'*',$page);
@@ -295,7 +295,7 @@ trait RepositoryTrait
             });
         }
         if ($order!=null && $desc_asc!=null){
-            $model = $model->orderBy($order,$desc_asc);
+            $model = $this->addOrderBy($model,$order,$desc_asc);
         }
         if (null!=$page && null!=$pageNum){
             $model = $model->paginate($pageNum,$column,'*',$page);
@@ -346,5 +346,20 @@ trait RepositoryTrait
     protected function increment($where,$column,$number = 1){
         $model = self::addWhere($this->model,$where);
         return $model->increment($column,$number);
+    }
+
+    protected function addOrderBy(&$model,$order=null, $desc_asc=null){
+        if (empty($order) || empty($desc_asc)){
+            return $model;
+        }
+        if (is_string($order) && is_string($desc_asc)){
+            $model->orderBy($order,$desc_asc);
+        }
+        if (is_array($order) && is_array($desc_asc)){
+            foreach ($order as $key => $value){
+                $model->orderBy($value,$desc_asc[$key]);
+            }
+        }
+        return $model;
     }
 }

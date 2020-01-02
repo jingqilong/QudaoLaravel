@@ -9,6 +9,7 @@ use App\Enums\CommonImagesEnum;
 use App\Enums\CollectTypeEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPrizeRepository;
@@ -25,6 +26,7 @@ use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +38,8 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class RegisterService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
+
     public $auth;
 
     /**
@@ -156,6 +159,7 @@ class RegisterService extends BaseService
      */
     public function getRegisterList($request)
     {
+        $employee   = Auth::guard('oa_api')->user();
         $keywords       = $request['keywords'] ?? '';
         $status         = $request['status'] ?? '';
         $audit          = $request['audit'] ?? '';
@@ -218,9 +222,19 @@ class RegisterService extends BaseService
             $value['audited_at']    = $value['audited_at'] != 0 ? date('Y-m-d H:m:i',$value['audited_at']) : '';
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::ACTIVITY_REGISTER,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    public function getRegisterDetails($register_id){
+        $column = ['id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
+        if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
+            $this->setError('报名信息不存在！');
+            return false;
+        }
     }
 
     /**

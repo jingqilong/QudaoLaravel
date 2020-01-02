@@ -126,6 +126,71 @@ class RegisterController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/activity/get_register_details",
+     *     tags={"精选活动后台"},
+     *     summary="获取活动报名详情",
+     *     description="sang" ,
+     *     operationId="get_register_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="报名ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getRegisterDetails(){
+        $rules = [
+            'status'        => 'in:1,2,3,4',
+            'audit'         => 'in:0,1,2',
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+        ];
+        $messages = [
+            'status.in'             => '报名状态不存在',
+            'audit.in'              => '审核状态不存在',
+            'page.integer'          => '页码必须为整数',
+            'page_num.integer'      => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->registerService->getRegisterDetails($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->registerService->error];
+        }
+        return ['code' => 200, 'message' => $this->registerService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/activity/get_sign_list",
      *     tags={"精选活动后台"},
      *     summary="获取活动签到列表",
