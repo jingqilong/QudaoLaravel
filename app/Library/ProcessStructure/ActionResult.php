@@ -108,6 +108,10 @@ class ActionResult
             }else{
                 $nextNode = new Node($transition['next_node']);
                 $nextNode->setData();
+                if ($nextNode->position > $parent_node->position){
+                    $nextNode->buildAction();
+                    $nextNode->is_parent = true;
+                }
                 $parent_node->children[] = $nextNode;
             }
             if ($next_node = OaProcessNodeRepository::getOne(['id' => $transition['next_node']])){
