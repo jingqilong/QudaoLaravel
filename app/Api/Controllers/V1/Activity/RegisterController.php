@@ -167,16 +167,11 @@ class RegisterController extends ApiController
      */
     public function getRegisterDetails(){
         $rules = [
-            'status'        => 'in:1,2,3,4',
-            'audit'         => 'in:0,1,2',
-            'page'          => 'integer',
-            'page_num'      => 'integer',
+            'id'        => 'required|integer',
         ];
         $messages = [
-            'status.in'             => '报名状态不存在',
-            'audit.in'              => '审核状态不存在',
-            'page.integer'          => '页码必须为整数',
-            'page_num.integer'      => '每页显示条数必须为整数',
+            'id.required'             => '报名ID不能为空！',
+            'id.integer'              => '报名ID必须为整数！',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

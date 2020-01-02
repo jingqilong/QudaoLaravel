@@ -305,6 +305,7 @@ $api->version('v1',function ($api){
                 $api->get('get_winning_list','PrizeController@getWinningList')->name('获取中奖列表');
 
                 $api->get('get_register_list','RegisterController@getRegisterList')->name('获取活动报名列表');
+                $api->get('get_register_details','RegisterController@getRegisterDetails')->name('获取活动报名详情');
                 $api->get('get_sign_list','RegisterController@getSignList')->name('获取活动签到列表');
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
 
