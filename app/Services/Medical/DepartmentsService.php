@@ -86,11 +86,11 @@ class DepartmentsService extends BaseService
     }
 
     /**
-     * 获取医疗科室列表
+     * 获取医疗科室列表 OA
      * @param $request
      * @return bool
      */
-    public function getDepartmentsList($request)
+    public function departmentsList($request)
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
@@ -106,6 +106,31 @@ class DepartmentsService extends BaseService
         foreach ($list['data'] as &$value){
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+
+    /**
+     * 用户 获取医疗科室列表
+     * @param $request
+     * @return bool
+     */
+    public function getDepartmentsList($request)
+    {
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $column     = ['id','name','describe'];
+        $where      = ['id' => ['>',0]];
+        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败！');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
         }
         $this->setMessage('获取成功！');
         return $list;
