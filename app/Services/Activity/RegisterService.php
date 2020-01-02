@@ -15,6 +15,7 @@ use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPrizeRepository;
 use App\Repositories\ActivityRegisterRepository;
 use App\Repositories\ActivityRegisterViewRepository;
+use App\Repositories\ActivityThemeRepository;
 use App\Repositories\ActivityWinningRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\MemberGradeRepository;
@@ -63,8 +64,8 @@ class RegisterService extends BaseService
         }
         $member         = $this->auth->user();
         $member_price   = $activity['price'];
-        if ($activity['is_member'] == ActivityEnum::NOTALLOW){
-            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member->id,'grade' => ['in',[1,2,3,4,5,6,7,8,9]]])){
+        if ($activity['is_member'] == ActivityEnum::NO_ALLOW){
+            if (!$grade = MemberGradeRepository::getOne(['user_id' => $member->id,'grade' => ['in',[2,3,4,5,6,7,8,9]]])){
                 $this->setError('本次活动仅限渠道PLUS成员参加，请升级为渠道PLUS成员！');
                 return false;
             }
@@ -229,12 +230,54 @@ class RegisterService extends BaseService
         return $list;
     }
 
+    /**
+     * 获取报名详情
+     * @param $register_id
+     * @return array|bool
+     */
     public function getRegisterDetails($register_id){
-        $column = ['id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
-        if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id])){
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
+        if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id],$column)){
             $this->setError('报名信息不存在！');
             return false;
         }
+        $activity_column = ['id','name','address','theme_id','start_time','end_time','cover_id','status','is_member'];
+        if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id'],'deleted_at' => '0'],$activity_column)){
+            $this->setError('报名活动不存在！');
+        }
+        $activity['theme_name'] = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');
+        if ($activity['start_time'] > time()){
+            $activity['status_title'] = '报名中';
+        }
+        if ($activity['start_time'] < time() && $activity['end_time'] > time()){
+            $activity['status_title'] = '进行中';
+        }
+        if ($activity['end_time'] < time()){
+            $activity['status_title'] = '已结束';
+        }
+        $activity['start_time'] = date('Y年m月d日 H点i分',$activity['start_time']);
+        $activity['end_time']   = date('Y年m月d日 H点i分',$activity['end_time']);
+        $activity               = ImagesService::getOneImagesConcise($activity,['cover_id' => 'single'],true);
+        $activity['status']     = ActivityRegisterStatusEnum::getStatus($activity['status']);
+        $activity['is_member']  = ActivityEnum::getIsMember($activity['is_member']);
+        $register['activity_info'] = $activity;
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $register_id,'process_category' => ProcessCategoryEnum::ACTIVITY_REGISTER]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($register_id,ProcessCategoryEnum::ACTIVITY_REGISTER,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $register,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
