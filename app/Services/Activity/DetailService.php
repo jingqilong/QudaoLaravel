@@ -3,9 +3,10 @@ namespace App\Services\Activity;
 
 
 use App\Enums\ActivityEnum;
-use App\Enums\ActivityRegisterEnum;
+use App\Enums\ActivityRegisterAuditEnum;
+use App\Enums\ActivityRegisterStatusEnum;
 use App\Enums\CollectTypeEnum;
-use App\Repositories\{ActivityCollectRepository,
+use App\Repositories\{
     ActivityDetailRepository,
     ActivityGuestRepository,
     ActivityHostsRepository,
@@ -472,11 +473,16 @@ class DetailService extends BaseService
         $activity['register_id'] = 0;
         $activity['register_status'] = 0;
         $activity['order_no'] = '';
-        $activity_where = ['member_id' => $member->id,'activity_id' => $id,'status' => ['in',[ActivityRegisterEnum::PENDING,ActivityRegisterEnum::SUBMIT,ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]];
+        $activity_where = [
+            'member_id'     => $member->id,
+            'activity_id'   => $id,
+            'audit'         => ['<>',ActivityRegisterAuditEnum::TURN_DOWN],
+            'status'        => ['<>',ActivityRegisterStatusEnum::CANCELED]];
         if ($register = ActivityRegisterRepository::getOrderOne($activity_where,'created_at')){
             $activity['register_id']     = $register['id'];
             $activity['register_status'] = $register['status'];
-            if ($register['status'] != ActivityRegisterEnum::PENDING){
+            $activity['register_audit']  = $register['audit'];
+            if ($register['status'] == ActivityRegisterStatusEnum::EVALUATION || $register['status'] == ActivityRegisterStatusEnum::COMPLETED ){
                 $activity['order_no'] = $register['order_no'];
             }
         }

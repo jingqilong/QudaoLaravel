@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ActivityEnum;
-use App\Enums\ActivityRegisterEnum;
+use App\Enums\ActivityRegisterStatusEnum;
 use App\Enums\MessageEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityRegisterRepository;
@@ -58,7 +58,7 @@ class ActivityRegister extends Command
                 continue;
             }
             //获取已经参加活动的用户
-            $activity_where = ['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]];
+            $activity_where = ['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::EVALUATION,ActivityRegisterStatusEnum::COMPLETED]]];
             if (!$register_list = ActivityRegisterRepository::getList($activity_where)){
                 continue;
             }

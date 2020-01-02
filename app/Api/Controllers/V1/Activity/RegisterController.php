@@ -5,7 +5,7 @@ namespace App\Api\Controllers\V1\Activity;
 
 
 use App\Api\Controllers\ApiController;
-use App\Enums\ActivityRegisterEnum;
+use App\Enums\ActivityRegisterStatusEnum;
 use App\Services\Activity\RegisterService;
 
 class RegisterController extends ApiController
@@ -60,7 +60,16 @@ class RegisterController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="报名状态：1、待审核，2、待支付，3、待评价，4、已完成，5、未通过，6、已取消",
+     *         description="报名状态：1、待支付，2、待评价，3、已完成，4、已取消",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="audit",
+     *         in="query",
+     *         description="审核状态：0、待审核，1、已通过，2、已驳回",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -93,12 +102,14 @@ class RegisterController extends ApiController
      */
     public function getRegisterList(){
         $rules = [
-            'status'        => 'in:1,2,3,4,5,6',
+            'status'        => 'in:1,2,3,4',
+            'audit'         => 'in:0,1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'status.in'             => '报名状态不存在',
+            'audit.in'              => '审核状态不存在',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
@@ -207,7 +218,7 @@ class RegisterController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->registerService->getRegisterList(array_merge($this->request,['status_arr' => [ActivityRegisterEnum::EVALUATION,ActivityRegisterEnum::COMPLETED]]));
+        $res = $this->registerService->getRegisterList(array_merge($this->request,['status_arr' => [ActivityRegisterStatusEnum::EVALUATION,ActivityRegisterStatusEnum::COMPLETED]]));
         if ($res === false){
             return ['code' => 100, 'message' => $this->registerService->error];
         }
