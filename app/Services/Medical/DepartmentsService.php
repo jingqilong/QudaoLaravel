@@ -5,6 +5,7 @@ namespace App\Services\Medical;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use function Sodium\add;
 
@@ -22,6 +23,7 @@ class DepartmentsService extends BaseService
         $add_arr = [
             'name'       => $request['name'],
             'describe'   => $request['describe'],
+            'icon'       => $request['icon'],
             'created_at' => time(),
             'updated_at' => time(),
         ];
@@ -75,6 +77,7 @@ class DepartmentsService extends BaseService
         $upd_arr = [
             'name'       => $request['name'],
             'describe'   => $request['describe'],
+            'icon'       => $request['icon'],
             'updated_at' => time(),
         ];
         if (MedicalDepartmentsRepository::getUpdId(['id' => $request['id']],$upd_arr)){
@@ -88,25 +91,25 @@ class DepartmentsService extends BaseService
     /**
      * 获取医疗科室列表 OA
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function departmentsList($request)
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MedicalDepartmentsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        $column     = ['id','name','describe','icon','created_at'];
+        $where      = ['id' => ['>',0]];
+        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
         $list = $this->removePagingField($list);
+        $list = ImagesService::getListImagesConcise($list['data'],['icon' => 'several']);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
-        foreach ($list['data'] as &$value){
-            $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
-        }
+        foreach ($list['data'] as &$value) $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
         $this->setMessage('获取成功！');
         return $list;
     }
@@ -121,7 +124,7 @@ class DepartmentsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $column     = ['id','name','describe'];
+        $column     = ['id','name','describe','icon'];
         $where      = ['id' => ['>',0]];
         if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败！');

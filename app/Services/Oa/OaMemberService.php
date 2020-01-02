@@ -494,7 +494,7 @@ class OaMemberService extends BaseService
     }
 
     /**
-     * 添加会员服务信息 and 成员偏好类别信息
+     * 添加会员服务信息 and 成员喜好需求信息
      * @param $request
      * @return mixed
      */
@@ -588,7 +588,7 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('成员基本信息修改成功!');
         DB::commit();
-        return $member_base['id'];
+        return ['member_id' => $member_base['id']];
     }
 
     /**
@@ -626,7 +626,7 @@ class OaMemberService extends BaseService
     /**
      * 编辑会员喜好需求信息展示
      * @param $request
-     * @return bool
+     * @return mixed
      */
     public function editMemberService($request)
     {
@@ -671,7 +671,7 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('成员基本信息修改成功!');
         DB::commit();
-        return $request['member_id'];
+        return ['member_id' => $request['member_id']];
     }
 
 }

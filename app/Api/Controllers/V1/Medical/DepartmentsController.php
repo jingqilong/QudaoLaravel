@@ -65,6 +65,15 @@ class DepartmentsController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="icon",
+     *         in="query",
+     *         description="科室icon",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -75,9 +84,14 @@ class DepartmentsController extends ApiController
     public function addDepartments(){
         $rules = [
             'name'         => 'required',
+            'describe'     => 'required',
+            'icon'         => 'required|integer',
         ];
         $messages = [
             'name.required'        => '医疗科室标题不能为空',
+            'describe.required'    => '医疗科室描述不能为空',
+            'icon.required'        => '医疗科室icon不能为空',
+            'icon.integer'         => '医疗科室icon不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -203,6 +217,15 @@ class DepartmentsController extends ApiController
      *             type="string"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="icon",
+     *         in="query",
+     *         description="科室icon",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -212,13 +235,16 @@ class DepartmentsController extends ApiController
      */
     public function editDepartments(){
         $rules = [
-            'id'            => 'required|integer',
-            'name'          => 'required',
+            'id'    => 'required|integer',
+            'name'  => 'required',
+            'icon'  => 'required|integer',
         ];
         $messages = [
-            'id.required'           => '医疗科室ID不能为空',
-            'id.integer'            => '医疗科室ID必须为整数',
-            'name.required'         => '医疗科室标题不能为空',
+            'id.required'    => '医疗科室ID不能为空',
+            'id.integer'     => '医疗科室ID必须为整数',
+            'name.required'  => '医疗科室标题不能为空',
+            'icon.required'  => '医疗科室icon不能为空',
+            'icon.integer'   => '医疗科室icon不是整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
