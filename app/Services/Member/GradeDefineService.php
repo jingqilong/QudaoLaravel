@@ -116,7 +116,7 @@ class GradeDefineService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        $where      = ['amount' => 0];
+        $where      = ['id' => ['<>',0]];
         if (!$list = MemberGradeDefineRepository::getList($where,['*'],'id','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return true;
