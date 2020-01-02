@@ -236,7 +236,7 @@ class RegisterService extends BaseService
             $this->setError('报名信息不存在！');
             return false;
         }
-        if ($register['status'] != ActivityRegisterAuditEnum::PENDING_REVIEW){
+        if ($register['audit'] != ActivityRegisterAuditEnum::PENDING_REVIEW){
             $this->setError('报名申请已处理！');
             return false;
         }
