@@ -419,6 +419,15 @@ class OaGradeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="free",
+     *         in="query",
+     *         description="是否是可更改等级【 默认0不可已更改   1可以更改 】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -445,12 +454,14 @@ class OaGradeController extends ApiController
      */
     public function getGradeList(){
         $rules = [
+            'free'          => 'in:0,1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'page.integer'          => '页码必须为整数',
-            'page_num.integer'      => '每页显示条数必须为整数',
+            'free.in'           => '是否可以购买类型不正确',
+            'page.integer'      => '页码必须为整数',
+            'page_num.integer'  => '每页显示条数必须为整数',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
