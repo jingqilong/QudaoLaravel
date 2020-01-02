@@ -137,12 +137,12 @@ class DoctorsService extends BaseService
         $where          = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['name','sex','department_ids']];
-            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'created_at',$asc)){
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'created_at',$asc,$page,$page_num)){
+            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'id',$asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }

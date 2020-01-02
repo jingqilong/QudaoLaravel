@@ -188,12 +188,12 @@ class HospitalsService extends BaseService
         $where      = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','address']];
-            if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'recommend','desc')){
+            if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MediclaHospitalsRepository::getList($where,$column,'recommend','desc',$page,$page_num)){
+            if (!$list = MediclaHospitalsRepository::getList($where,$column,'id','desc',$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }

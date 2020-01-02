@@ -53,12 +53,12 @@ class OaProjectService extends BaseService
         }
         if (!empty($keywords)){
             $keyword     =   [$keywords => ['name','mobile','project_name']];
-            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at',$asc)) {
+            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'id',$asc)) {
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-                if (!$list = OaProjectOrderRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
+                if (!$list = OaProjectOrderRepository::getList($where,$column,'id',$asc,$page,$page_num)){
                     $this->setError('获取失败！');
                     return false;
                 }

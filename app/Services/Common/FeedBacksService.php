@@ -61,12 +61,12 @@ class FeedBacksService extends BaseService
         $where      = ['id' => ['>',1]];
         if (!empty($keywords)){
             $keyword   = [$keywords => ['ch_name','mobile','content']];
-            if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],$page,$page_num,'created_at','desc')){
+            if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = CommonFeedBacksViewRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
+            if (!$list = CommonFeedBacksViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
                 $this->setError('获取失败!');
                 return false;
             }

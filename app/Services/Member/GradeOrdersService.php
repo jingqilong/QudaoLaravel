@@ -105,12 +105,12 @@ class GradeOrdersService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['mobile','ch_name']];
-            if (!$list = MemberGradeOrdersViewRepository::search($keyword,$where,$column,$page,$page_num,'created_at','desc')){
+            if (!$list = MemberGradeOrdersViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MemberGradeOrdersViewRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
+            if (!$list = MemberGradeOrdersViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }

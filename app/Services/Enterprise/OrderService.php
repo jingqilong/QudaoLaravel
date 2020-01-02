@@ -80,12 +80,12 @@ class OrderService extends BaseService
         if (empty($status)) $where['status'] = $status;
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
-            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'created_at','desc')){
+            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
                 $this->setMessage('没有数据！');
                 return [];
             }
         }else{
-            if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
+            if (!$list = EnterpriseOrderRepository::getList($where,$column,'id','desc',$page,$page_num)){
                 $this->setError('没有数据！');
                 return false;
             }

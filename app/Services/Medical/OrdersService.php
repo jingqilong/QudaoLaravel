@@ -169,12 +169,12 @@ class OrdersService extends BaseService
         if ($type !== null) $where['type'] = $type;
         if (!empty($keywords)) {
             $keyword = [$keywords => ['name', 'mobile']];
-            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'created_at', $asc)) {
+            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = MedicalOrdersRepository::getList($where,$column,'created_at',$asc,$page,$page_num)){
+            if (!$list = MedicalOrdersRepository::getList($where,$column,'id',$asc,$page,$page_num)){
                 $this->setError('获取失败!');
                 return false;
             }

@@ -32,6 +32,7 @@ use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use EasyWeChat\Kernel\Exceptions\RuntimeException;
 use EasyWeChatComposer\Exceptions\DecryptException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -209,24 +210,25 @@ class MemberService extends BaseService
     public function getMemberList($data)
     {
         if (empty($data['sort'])) $data['sort']  = 1;
-        $member      = $this->auth->user();
-        $member_info = MemberGradeViewRepository::getOne(['id' => $member->id,'deleted_at' => 0,'hidden' => 0]);
-        $keywords    = $data['keywords'] ?? null;
-        $category    = $data['category'] ?? null;
-        $page        = $data['page'] ?? 1;
-        $page_num    = $data['page_num'] ?? 20;
-        //$asc         = $data['sort'] == 1 ? 'asc' : 'desc';
-        $where       = ['deleted_at' => 0 ,'hidden' => 0,'is_test' => 0];
+        $member    = $this->auth->user();
+        $keywords  = $data['keywords'] ?? null;
+        $category  = $data['category'] ?? null;
+        $page      = $data['page'] ?? 1;
+        $page_num  = $data['page_num'] ?? 20;
+        $where     = ['deleted_at' => 0 ,'hidden' => 0,'is_test' => 0];
+        if(!empty($category)) $where['category'] = $category;
+        $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
         if(MemberEnum::RECOMMEND  == $data['sort']){
             $sort = ['is_recommend','id'];
-            $asc        = ['desc','desc'];
+            $asc  = ['desc','desc'];
         } else{
             $sort = ['id'];
             $asc  = ['desc'];
         }
-        if(MemberEnum::TEMPORARY  == $member_info['grade']) $where['status'] =  MemberEnum::MEMBER;
-        if(!empty($category)) $where['category'] = $category;
-        $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
+        $member_grade = $this->getCurrentMemberGrade($member->id);
+        $grade_where = ['grade' => $member_grade];
+        $show_grade = Arr::flatten(OaGradeViewRepository::getList($grade_where,['value']));
+        if (is_array($show_grade)) $where['grade'] = ['in',$show_grade];
         if (!empty($keywords)){
             $keyword  = [$keywords => ['ch_name','category','mobile']];
             if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
