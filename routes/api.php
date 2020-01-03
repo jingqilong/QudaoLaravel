@@ -604,6 +604,7 @@ $api->version('v1',function ($api){
                 $api->get('get_order_enterprise_list', 'EnterpriseController@getOrderEnterpriseList')->name('获取企业咨询订单列表');
                 $api->post('set_enterprise_order', 'EnterpriseController@setEnterpriseOrder')->name('设置企业咨询订单状态');
                 $api->get('get_enterprise_order_list', 'EnterpriseController@getEnterpriseOrderList')->name('获取本人企业咨询订单列表(后端)');
+                $api->get('get_enterprise_detail', 'EnterpriseController@getEnterpriseDetail')->name('获取企业咨询订单详情');
             });
         });
 

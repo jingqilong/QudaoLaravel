@@ -6,19 +6,21 @@ namespace App\Services\Enterprise;
 use App\Enums\EnterEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\EnterpriseOrderRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class OrderService extends BaseService
 {
 
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     public $auth;
 
     /**
@@ -68,16 +70,20 @@ class OrderService extends BaseService
      */
     public function getEnterpriseOrderList(array $data)
     {
+        $employee = Auth::guard('oa_api')->user();
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $type           = $data['type'] ?? null;
         $status         = $data['status'] ?? null;
         $where          = ['deleted_at' => 0];
-
-        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
-        if (empty($type)) $where['service_type'] = $type;
-        if (empty($status)) $where['status'] = $status;
+        $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at'];
+        if (!empty($type)) {
+            $where['service_type'] = $type;
+        }
+        if (!empty($status)) {
+            $where['status'] = $status;
+        }
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
             if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
@@ -102,9 +108,47 @@ class OrderService extends BaseService
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::ENTERPRISE_CONSULT,$employee->id);
         }
         $this->setMessage('查找成功');
         return $list;
+    }
+
+    /**
+     * 获取企业咨询订单详情 OA
+     * @param string $id
+     * @return mixed
+     */
+    public function getEnterpriseDetail($id)
+    {
+        $employee = Auth::guard('oa_api')->user();
+        if (!$info = EnterpriseOrderRepository::getOne(['id' => $id,'deleted_at' => 0])){
+            $this->setError('查询不到该条数据！');
+            return false;
+        }
+        $info['service_type']       =   EnterEnum::getType($info['service_type']);
+        $info['status']             =   EnterEnum::getStatus($info['status']);
+        $info['reservation_at']     =   empty($info['reservation_at']) ? '' : date('Y-m-d H:m:s',$info['reservation_at']);
+        $info['created_at']         =   empty($info['created_at']) ? '' : date('Y-m-d H:m:s',$info['created_at']);
+        $info['updated_at']         =   empty($info['updated_at']) ? '' : date('Y-m-d H:m:s',$info['updated_at']);
+        unset($info['deleted_at']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::ENTERPRISE_CONSULT]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::ENTERPRISE_CONSULT,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $info,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
