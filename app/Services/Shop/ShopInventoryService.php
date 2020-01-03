@@ -48,7 +48,7 @@ class ShopInventoryService extends BaseService
             1,
             1);
         if($inventory){
-            return $inventory['data']['remain'];
+            return $inventory['data']['0']['remain'];
         }
         return 0;
     }
