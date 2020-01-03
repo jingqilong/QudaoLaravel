@@ -1168,4 +1168,83 @@ class MemberController extends ApiController
         }
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/add_member_contact",
+     *     tags={"会员"},
+     *     summary="添加成员联系请求",
+     *     operationId="add_member_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="contact_id",
+     *         in="query",
+     *         description="需求联系人id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="needs_value",
+     *         in="query",
+     *         description="联系需求说明",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【默认0 已提交 1已审核 2审核驳回】",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function addMemberContact(){
+        $rules = [
+            'contact_id'       => 'required|integer',
+            'needs_value'      => 'required',
+        ];
+        $messages = [
+            'contact_id.required'    => '需求联系人id不能为空',
+            'contact_id.integer'     => '需求联系人id不是整数',
+            'needs_value.required'   => '需求内容不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->addMemberContact($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
 }
