@@ -9,6 +9,7 @@ use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberContactRequestRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
@@ -1057,4 +1058,102 @@ class MemberService extends BaseService
         return $grade;
     }
 
+    /**
+     * 添加成员联系请求
+     * @param $request
+     * @return bool
+     */
+    public function addMemberContact($request)
+    {
+        $member = $this->auth->user();
+        if (!MemberBaseRepository::exists(['id' => $request['contact_id']])){
+            $this->setError('请核实请求的联系人是否正确!');
+            return false;
+        }
+        $add_arr = [
+            'proposer_id' => $member->id,
+            'contact_id'  => $request['contact_id'],
+            'needs_value' => $request['needs_value'],
+        ];
+        if (MemberContactRequestRepository::exists($add_arr)){
+            $this->setError('您已申请过该联系人,请到预约中心查看当前进度!');
+            return false;
+        }
+        $add_arr['status']     = MemberEnum::SUBMIT;
+        $add_arr['created_at'] = time();
+        $add_arr['updated_at'] = time();
+        if (!MemberContactRequestRepository::getAddId($add_arr)){
+            $this->setError('提交申请失败!');
+            return false;
+        }
+        $this->setMessage('提交申请成功!');
+        return true;
+    }
+
+    /**
+     * 编辑修改成员联系请求
+     * @param $request
+     * @return bool
+     */
+    public function editMemberContact($request)
+    {
+        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $request['id']])){
+            $this->setError('预约请求不存在!');
+            return false;
+        }
+        if ($contact_info['status'] > MemberEnum::SUBMIT){
+            $this->setError('您的请求已被审核,不能被修改!');
+            return false;
+        }
+        if (!MemberBaseRepository::exists(['id' => $request['contact_id']])){
+            $this->setError('请核实请求的联系人是否正确!');
+            return false;
+        }
+        $upd_arr = [
+            'contact_id'  => $request['contact_id'],
+            'needs_value' => $request['needs_value'],
+        ];
+        if (MemberContactRequestRepository::exists($upd_arr)){
+            $this->setError('您已申请过该联系人,请到预约中心查看当前进度!');
+            return false;
+        }
+        $add_arr['status']     = MemberEnum::ACTIVITEMEMBER;
+        $add_arr['created_at'] = time();
+        $add_arr['updated_at'] = time();
+        if (!MemberContactRequestRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+            $this->setError('提交申请失败!');
+            return false;
+        }
+        $this->setMessage('提交申请成功!');
+        return true;
+    }
+
+    /**
+     * 删除成员联系请求
+     * @param $request
+     * @return bool
+     */
+    public function delMemberContact($request)
+    {
+        if (!MemberContactRequestRepository::exists(['id' => $request['id']])){
+            $this->setError('您的请求查看成员不存在或已被删除!');
+            return false;
+        }
+        if (!MemberContactRequestRepository::delete(['id' => $request['id']])){
+            $this->setError('删除失败!');
+            return false;
+        }
+        $this->setMessage('删除成功!');
+        return true;
+    }
+
+    public function getMemberContactList()
+    {
+        $member = $this->auth->user();
+        if ($list = MemberContactRequestRepository::getList(['proposer_id' => $member->id])){
+            $this->setError('获取失败!');
+            return false;
+        }
+
+    }
 }

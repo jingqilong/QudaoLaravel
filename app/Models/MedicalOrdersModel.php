@@ -29,20 +29,6 @@ class MedicalOrdersModel extends Model
 
     protected $fillable = ['id','member_id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','appointment_at','status','created_at','updated_at','deleted_at'];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'appointment_at' => 'datetime',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
-        'deleted_at'     => 'datetime',
-        'end_time'       => 'datetime',
-    ];
-
-
 }
 
  

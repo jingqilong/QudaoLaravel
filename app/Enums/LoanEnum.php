@@ -84,33 +84,38 @@ class LoanEnum extends BaseEnum
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getStatus(int $value){
-        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : '';
+    public static function getStatus($value, $default = ''){
+        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : $default;
     }
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getType(int $value){
-        return isset(self::$type[$value]) ? self::$labels[self::$type[$value]] : '';
+    public static function getType($value, $default = ''){
+        return isset(self::$type[$value]) ? self::$labels[self::$type[$value]] : $default;
     }
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getPrice(int $value){
-        return isset(self::$price[$value]) ? self::$labels[self::$price[$value]] : '';
+    public static function getPrice($value, $default = ''){
+        return isset(self::$price[$value]) ? self::$labels[self::$price[$value]] : $default;
     }
+
     /**
      * 获取状态label
      * @param int $value
+     * @param string $default
      * @return mixed|string
      */
-    public static function getAppointment(int $value){
-        return isset(self::$appointment[$value]) ? self::$appointment[self::$price[$value]] : '';
+    public static function getAppointment($value, $default = ''){
+        return isset(self::$appointment[$value]) ? self::$labels[self::$appointment[$value]] : $default;
     }
 }

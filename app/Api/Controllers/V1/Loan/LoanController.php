@@ -293,7 +293,7 @@ class LoanController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $list = $this->personalService->getLoanOrderInfo($this->request);
+        $list = $this->personalService->getLoanOrderInfo($this->request['id']);
         if (!$list){
             return ['code' => 100, 'message' => $this->personalService->error];
         }

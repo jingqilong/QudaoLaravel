@@ -1168,4 +1168,255 @@ class MemberController extends ApiController
         }
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/add_member_contact",
+     *     tags={"会员"},
+     *     summary="添加成员查看成员联系请求",
+     *     operationId="add_member_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="contact_id",
+     *         in="query",
+     *         description="需求联系人id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="needs_value",
+     *         in="query",
+     *         description="联系需求说明",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function addMemberContact(){
+        $rules = [
+            'contact_id'       => 'required|integer',
+            'needs_value'      => 'required',
+        ];
+        $messages = [
+            'contact_id.required'    => '需求联系人id不能为空',
+            'contact_id.integer'     => '需求联系人id不是整数',
+            'needs_value.required'   => '需求内容不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->addMemberContact($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/edit_member_contact",
+     *     tags={"会员"},
+     *     summary="修改成员查看成员的联系请求",
+     *     operationId="edit_member_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="contact_id",
+     *         in="query",
+     *         description="需求联系人id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="needs_value",
+     *         in="query",
+     *         description="联系需求说明",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMemberContact(){
+        $rules = [
+            'id'            => 'required|integer',
+            'contact_id'    => 'required|integer',
+            'needs_value'   => 'required',
+        ];
+        $messages = [
+            'id.required'           => 'id不能为空',
+            'id.integer'            => 'id不是整数',
+            'contact_id.required'   => '需求联系人id不能为空',
+            'contact_id.integer'    => '需求联系人id不是整数',
+            'needs_value.required'  => '需求内容不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->editMemberContact($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/member/del_member_contact",
+     *     tags={"会员"},
+     *     summary="删除成员查看成员的联系请求",
+     *     operationId="del_member_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function delMemberContact(){
+        $rules = [
+            'id'  => 'required|integer',
+        ];
+        $messages = [
+            'id.required' => 'id不能为空',
+            'id.integer'  => 'id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->delMemberContact($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/member/get_member_contact_list",
+     *     tags={"会员"},
+     *     summary="获取成员查看成员的联系列表",
+     *     operationId="get_member_contact_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberContactList(){
+        $res = $this->memberService->getMemberContactList();
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
+    }
 }

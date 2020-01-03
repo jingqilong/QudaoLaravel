@@ -396,8 +396,16 @@ $api->version('v1',function ($api){
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
                 $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
-
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
+
+
+                #成员联系请求
+                $api->post('add_member_contact','MemberController@addMemberContact')->name('添加成员联系请求');
+                $api->post('edit_member_contact','MemberController@editMemberContact')->name('编辑修改成员联系请求');
+                $api->delete('del_member_contact','MemberController@delMemberContact')->name('删除成员联系请求');
+                $api->get('get_member_contact_list','MemberController@getMemberContactList')->name('查看成员联系请求列表');
+
+
                 #会员等级
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
                 $api->get('get_grade_card_list','GradeController@getGradeCardList')->name('获取等级卡片列表');
@@ -479,6 +487,7 @@ $api->version('v1',function ($api){
             #获取医疗订单列表
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->get('doctor_order_list', 'DoctorOrderController@doctorOrderList')->name('获取医疗预约列表');
+                $api->get('get_order_detail', 'DoctorOrderController@getOrderDetail')->name('获取预约详情');
                 $api->post('set_doctor_order', 'DoctorOrderController@setDoctorOrder')->name('审核预约列表状态');
             });
             #添加医院
@@ -567,6 +576,7 @@ $api->version('v1',function ($api){
                 $api->get('lease_list', 'LeaseController@leaseList')->name('获取房产租赁方式列表');
                 #预约
                 $api->get('all_reservation_list', 'ReservationController@allReservationList')->name('预约列表');
+                $api->get('reservation_detail', 'ReservationController@reservationDetail')->name('预约详情');
                 $api->post('audit_reservation', 'ReservationController@auditReservation')->name('审核预约');
             });
         });

@@ -94,8 +94,8 @@ class ProcessRecordService extends BaseService
             $this->setError('该流程记录不存在！');
             return false;
         }
-        $process_record_data['created_at']    = time();
-        $process_record_data['updated_at']    = time();
+        $process_record_data['operation_at']    = time();
+        $process_record_data['updated_at']      = time();
         if (OaProcessRecordRepository::getUpdId(['id' => $process_record_id],$process_record_data)){
             $this->setMessage('修改成功！');
             return true;
