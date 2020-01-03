@@ -5,18 +5,20 @@ namespace App\Services\Project;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ProjectEnum;
 use App\Repositories\MemberRepository;
 use App\Repositories\OaProjectOrderRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class OaProjectService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     protected $auth;
 
@@ -36,6 +38,7 @@ class OaProjectService extends BaseService
      */
     public function getProjectOrderList(array $data)
     {
+        $employee = Auth::guard('oa_api')->user();
         if (empty($data['asc'])){
             $data['asc'] = 1;
         }
@@ -71,9 +74,11 @@ class OaProjectService extends BaseService
         foreach ($list['data'] as &$value)
         {
             $value['status_name']       =   ProjectEnum::getStatus($value['status']);
-            $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
-            $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
-            $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            $value['reservation_at']    =   empty($value['reservation_at']) ? '' : date('Y-m-d H:m:s',$value['reservation_at']);
+            $value['created_at']        =   empty($value['created_at']) ? '' : date('Y-m-d H:m:s',$value['created_at']);
+            $value['updated_at']        =   empty($value['updated_at']) ? '' : date('Y-m-d H:m:s',$value['updated_at']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::PROJECT_DOCKING,$employee->id);
         }
         $this->setMessage('查找成功');
         return $list;
@@ -86,22 +91,32 @@ class OaProjectService extends BaseService
      */
     public function getProjectOrderById($id)
     {
-        if (!$orderInfo = OaProjectOrderRepository::exists(['id' => $id])){
-            $this->setError('无此订单!');
-            return false;
-        }
-
-        if (!$orderInfo = OaProjectOrderRepository::getOne(['id' => $id])){
+        $employee = Auth::guard('oa_api')->user();
+        if (!$info = OaProjectOrderRepository::getOne(['id' => $id])){
             $this->setError('没有查到该订单信息!');
             return false;
         }
-        $orderInfo['status_name']       =   ProjectEnum::getStatus($orderInfo['status']);
-        $orderInfo['reservation_at']    =   date('Y-m-d H:m:s',$orderInfo['reservation_at']);
-        $orderInfo['created_at']        =   date('Y-m-d H:m:s',$orderInfo['created_at']);
-        $orderInfo['updated_at']        =   date('Y-m-d H:m:s',$orderInfo['updated_at']);
-
-        $this->setMessage('获取订单成功！');
-        return $orderInfo;
+        $info['status']            =   ProjectEnum::getStatus($info['status']);
+        $info['reservation_at']    =   empty($info['reservation_at']) ? '' : date('Y-m-d H:m:s',$info['reservation_at']);
+        $info['created_at']        =   empty($info['created_at']) ? '' : date('Y-m-d H:m:s',$info['created_at']);
+        $info['updated_at']        =   empty($info['updated_at']) ? '' : date('Y-m-d H:m:s',$info['updated_at']);
+        unset($info['deleted_at']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::PROJECT_DOCKING]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::PROJECT_DOCKING,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $info,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
