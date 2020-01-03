@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 
 use App\Enums\CollectTypeEnum;
+use App\Enums\ShopGoodsEnum;
 use App\Models\ShopGoodsModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Services\Common\ImagesService;
@@ -55,7 +56,7 @@ class ShopGoodsRepository extends ApiRepository
      */
     protected function getCollectList($request)
     {
-        $column = ['id', 'name', 'category', 'banner_ids', 'price', 'score_deduction', 'score_categories'];
+        $column = ['id', 'name','negotiable', 'category', 'banner_ids', 'price', 'score_deduction', 'score_categories'];
         if (!$list = $this->getList(['id' => ['in', $request['collect_ids']], 'deleted_at' => 0], $column,'id','desc',$request['page'],$request['page_num'])) {
             return [];
         }
@@ -65,10 +66,14 @@ class ShopGoodsRepository extends ApiRepository
         }
         $list['data'] = ImagesService::getListImages($list['data'], ['banner_ids' => 'single']);
         foreach ($list['data'] as &$value) {
-            $value['price']     = empty($value['price']) ? '0.00' : sprintf('%.2f',round($value['price'] / 100,2));
+            if (ShopGoodsEnum::NEGOTIABLE == $value['negotiable']){
+                $value['price'] = '面议';
+            }else{
+                $value['price']     = empty($value['price']) ? '0.00' : sprintf('%.2f',round($value['price'] / 100,2));
+            }
             $value['type']      = $request['type'];
             $value['type_name'] = CollectTypeEnum::getType($request['type'],'');
-            unset($value['banner_ids'],$value['score_categories'],$value['category']);
+            unset($value['banner_ids'],$value['score_categories'],$value['category'],$value['negotiable']);
         }
         return $list;
     }

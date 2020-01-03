@@ -14,6 +14,7 @@ use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PersonalService extends BaseService
 {
@@ -157,11 +158,21 @@ class PersonalService extends BaseService
             return false;
         }
         $add_arr['created_at']     =  time();
-        if (!$res = LoanPersonalRepository::getAddId($add_arr)){
-            $this->setError('预约失败,请重试！');
+        DB::beginTransaction();
+        if (!$id = LoanPersonalRepository::getAddId($add_arr)){
+            $this->setError('预约失败,请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        DB::rollBack();
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::LOAN_RESERVATION);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
             return false;
         }
         $this->setMessage('恭喜你，预约成功');
+        DB::commit();
         return true;
     }
 
