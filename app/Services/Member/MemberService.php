@@ -1150,10 +1150,12 @@ class MemberService extends BaseService
     public function getMemberContactList()
     {
         $member = $this->auth->user();
-        if ($list = MemberContactRequestRepository::getList(['proposer_id' => $member->id])){
+        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id])){
             $this->setError('获取失败!');
             return false;
         }
+        foreach ($list as $value){
 
+        }
     }
 }

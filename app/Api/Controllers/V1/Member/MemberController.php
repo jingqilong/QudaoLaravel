@@ -1382,7 +1382,7 @@ class MemberController extends ApiController
     }
 
     /**
-     * @OA\Delete(
+     * @OA\Get(
      *     path="/api/v1/member/get_member_contact_list",
      *     tags={"会员"},
      *     summary="获取成员查看成员的联系列表",
