@@ -65,6 +65,21 @@ trait RepositoryTrait
     }
 
     /**
+     * @param array $where
+     * @param array $order
+     * @param array $desc
+     * @param array $column
+     * @return array
+     */
+    protected function getFirst(array $where,array $order,array $desc,array $column=['*']){
+        $result = $this->getList($where,$column,$order, $desc,1,1);
+        if(isset($result['data'][0])){
+            return $result['data'][0];
+        }
+        return [];
+    }
+
+    /**
      * 获取所有数据
      * @param array $column
      * @return null
