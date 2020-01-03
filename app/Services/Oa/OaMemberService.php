@@ -98,20 +98,23 @@ class OaMemberService extends BaseService
         if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
         if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
-        $preference['preference'] = MemberPreferenceRepository::getPreference($id);
+        $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
-        $member = array_merge($member_base,$member_info,$member_grade,$member_service,$preference);
-        $member['grade_name']    = MemberEnum::getGrade($member['grade'],'普通成员');
-        $member['category_name'] = MemberEnum::getCategory($member['category'],'普通成员');
-        $member['is_recommend']  = $member['is_recommend'] == 0 ? 0 : 1;
-        $member['sex_name']      = MemberEnum::getSex($member['sex'],'未设置');
-        $member['status_name']   = MemberEnum::getStatus($member['status'],'成员');
-        $member['hidden_name']   = MemberEnum::getHidden($member['hidden'],'显示');
-        $member['created_at']    = date('Y-m-d H:i:s',$member['created_at']);
-        $member['birthday']      = date('Y-m-d',strtotime($member['birthday']));
-        if (empty($member['birthday'])) $member['birthday'] = '';
-        if (0 == $member['end_at']) $member['end_at_name'] = 0; else{
-            $member['end_at_name']    = date('Y-m-d H:i:s',$member['end_at']);
+        $base    = array_merge($member_base,$member_grade);
+        $info    = $member_info;
+        $service = array_merge($preference,$member_service);
+        $member  = ['base' => $base,'info' => $info,'service' => $service];
+        $member['base']['grade_name']    = MemberEnum::getGrade($member['base']['grade'],'普通成员');
+        $member['base']['category_name'] = MemberEnum::getCategory($member['base']['category'],'普通成员');
+        $member['info']['is_recommend']  = $member['info']['is_recommend'] == 0 ? 0 : 1;
+        $member['base']['sex_name']      = MemberEnum::getSex($member['base']['sex'],'未设置');
+        $member['base']['status_name']   = MemberEnum::getStatus($member['base']['status'],'成员');
+        $member['base']['hidden_name']   = MemberEnum::getHidden($member['base']['hidden'],'显示');
+        $member['base']['created_at']    = date('Y-m-d H:i:s',$member['base']['created_at']);
+        $member['base']['birthday']      = date('Y-m-d',strtotime($member['base']['birthday']));
+        if (empty($member['birthday'])) $member['base']['birthday'] = '';
+        if (0 == $member['base']['end_at']) $member['base']['end_at_name'] = 0; else{
+            $member['base']['end_at_name']    = date('Y-m-d H:i:s',$member['base']['end_at']);
         }
         $this->setMessage('获取用户信息成功');
         return $member;
