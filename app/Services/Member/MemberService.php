@@ -1092,7 +1092,7 @@ class MemberService extends BaseService
     }
 
     /**
-     * 获取游客token
+     * 访客登录
      * @return array
      */
     public function guestLogin()
