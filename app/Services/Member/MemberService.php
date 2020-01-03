@@ -1091,7 +1091,6 @@ class MemberService extends BaseService
     }
 
     /**
-<<<<<<< HEAD
      * 获取游客token
      * @return array
      */
