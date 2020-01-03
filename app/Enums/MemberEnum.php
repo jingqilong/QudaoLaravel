@@ -295,5 +295,14 @@ class MemberEnum extends BaseEnum
     public static function getIdentity(int $value,$default = ''){
         return isset(self::$identity[$value]) ? self::$labels[self::$identity[$value]] : $default;
     }
+    /**
+     * 获取状态label
+     * @param int $value
+     * @param string $default
+     * @return mixed|string
+     */
+    public static function getAuditStatus(int $value,$default = ''){
+        return isset(self::$audit_status[$value]) ? self::$labels[self::$audit_status[$value]] : $default;
+    }
 
 }
