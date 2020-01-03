@@ -291,6 +291,66 @@ class ReservationController extends ApiController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/v1/house/reservation_detail",
+     *     tags={"房产租赁后台"},
+     *     summary="预约详情",
+     *     description="sang",
+     *     operationId="reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function reservationDetail(){
+        $rules = [
+            'id'        => 'required|integer',
+        ];
+        $messages = [
+            'id.required'       => '预约ID不能为空！',
+            'id.integer'        => '预约ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->reservationDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+    /**
      * @OA\Post(
      *     path="/api/v1/house/audit_reservation",
      *     tags={"房产租赁后台"},

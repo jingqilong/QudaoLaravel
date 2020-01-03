@@ -5,6 +5,8 @@ namespace App\Services\House;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
+use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
@@ -14,12 +16,13 @@ use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ReservationService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     /**
      * 添加预约
@@ -67,6 +70,7 @@ class ReservationService extends BaseService
      */
     public function reservationList($request, $member_id = 0)
     {
+        $employee = Auth::guard('oa_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
@@ -123,10 +127,56 @@ class ReservationService extends BaseService
                 $value['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
             }
             $value['state_title']= HouseEnum::getReservationStatus($value['state']);
-            $value['time']  = date('Y-m-d H:i:s',$value['time']);
+            $value['time']  = date('Y-m-d H:i:s',$value['time']);#获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::HOUSE_RESERVATION,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * OA获取预约详情
+     * @param $id
+     * @return array|bool
+     */
+    public function reservationDetail($id){
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','house_id','name','mobile','time','memo','state'];
+        if (!$reservation = HouseReservationRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约不存在！');
+            return false;
+        }
+        $reservation['state'] = HouseEnum::getReservationStatus($reservation['state']);
+        $weekday = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+        $reservation['time']        = date('Y年m月d日 H点i分 ',$reservation['time']) . $weekday[date('w',$reservation['time'])];
+        $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy'];
+        if (!$house = HouseDetailsRepository::getOne(['id' => $reservation['house_id']],$house_column)){
+            $this->setError('预约房产已下架！');
+            return false;
+        }
+        $house = ImagesService::getOneImagesConcise($house,['image_ids' => 'single'],true);
+        $house['decoration']            = HouseEnum::getDecoration($house['decoration'],'');
+        $house['category']              = HouseEnum::getCategory($house['category']);
+        $house['area_address']          = CommonAreaRepository::codeTransName($house['area_code']) . $house['address'];
+        $house['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
+        unset($house['area_code'],$house['address'],$house['tenancy'],$reservation['house_id']);
+        $reservation['house_info']      = $house;
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::HOUSE_RESERVATION]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::HOUSE_RESERVATION,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $reservation,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
@@ -252,7 +302,7 @@ class ReservationService extends BaseService
             return false;
         }
         $reservation['state_title'] = HouseEnum::getReservationStatus($reservation['state']);
-        $reservation['time']        = date('Y.m.d / H:i');
+        $reservation['time']        = date('Y.m.d / H:i',$reservation['time']);
         $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy','longitude','latitude'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $reservation['house_id']],$house_column)){
             $this->setError('预约房产已下架！');

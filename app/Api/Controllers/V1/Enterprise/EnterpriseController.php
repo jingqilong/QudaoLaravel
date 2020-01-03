@@ -153,6 +153,65 @@ class EnterpriseController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/enterprise/get_enterprise_detail",
+     *     tags={"企业咨询(后端页面)"},
+     *     summary="获取企业咨询订单详情",
+     *     operationId="get_enterprise_detail",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取失败",),
+     * )
+     *
+     */
+    public function getEnterpriseDetail()
+    {
+        $rules = [
+            'id'              => 'required|integer',
+        ];
+        $messages = [
+            'id.required'             => 'ID不能为空！',
+            'id.integer'              => 'ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $id   = $this->request['id'];
+        $res = $this->enterpriseService->getEnterpriseDetail($id);
+        if (!$res){
+            return ['code' => 100, 'message' => $this->enterpriseService->error];
+        }
+        return ['code' => 200, 'message' => $this->enterpriseService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/enterprise/get_enterprise_info",
      *     tags={"企业咨询(前端页面)"},
      *     summary="获取企业咨询订单",
