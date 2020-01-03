@@ -27,7 +27,7 @@ class MemberInfoModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','employer','position','is_recommend','is_home_detail','title','industry','brands','run_wide','profile','goodat','degree','school','constellation','remarks','referral_agency','info_provider','archive','created_at','update_at'];
+    protected $fillable = ['id','member_id','employer','position','is_recommend','is_home_detail','title','industry','brands','run_wide','profile','good_at','degree','school','constellation','remarks','referral_agency','info_provider','archive','created_at','update_at'];
 
 
 

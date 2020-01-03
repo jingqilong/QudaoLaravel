@@ -471,7 +471,7 @@ class OaMemberService extends BaseService
             'brands'          => $request['brands'] ?? '',
             'run_wide'        => $request['run_wide'] ?? '',
             'profile'         => $request['profile'] ?? '',
-            'goodat'          => $request['goodat'] ?? '',
+            'good_at'          => $request['good_at'] ?? '',
             'degree'          => $request['degree'] ?? '',
             'school'          => $request['school'] ?? '',
             'remarks'         => $request['remarks'] ?? '',
