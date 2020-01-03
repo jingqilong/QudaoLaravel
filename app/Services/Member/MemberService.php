@@ -9,6 +9,7 @@ use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
+use App\Repositories\MemberContactRequestRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
@@ -1057,4 +1058,35 @@ class MemberService extends BaseService
         return $grade;
     }
 
+    /**
+     * 添加成员联系请求
+     * @param $request
+     * @return bool
+     */
+    public function addMemberContact($request)
+    {
+        $member = $this->auth->user();
+        if (!MemberBaseRepository::exists(['id' => $request['contact_id']])){
+            $this->setError('请核实请求的联系人是否正确!');
+            return false;
+        }
+        $add_arr = [
+            'proposer_id' => $member->id,
+            'contact_id'  => $request['contact_id'],
+            'needs_value' => $request['needs_value'],
+        ];
+        if (MemberContactRequestRepository::exists($add_arr)){
+            $this->setError('您已申请过该联系人,请到预约中心查看当前进度!');
+            return false;
+        }
+        $add_arr['status']     = MemberEnum::ACTIVITEMEMBER;
+        $add_arr['created_at'] = time();
+        $add_arr['updated_at'] = time();
+        if (!MemberContactRequestRepository::getAddId($add_arr)){
+            $this->setError('提交申请失败!');
+            return false;
+        }
+        $this->setMessage('提交申请成功!');
+        return true;
+    }
 }
