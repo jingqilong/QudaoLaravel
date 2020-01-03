@@ -42,12 +42,17 @@ class MemberEnum extends BaseEnum
         //等级 身份
         'GRADE'               => '成员等级',
         'IDENTITY'            => '身份类型',
-        //通过
+        //有效期
         'ONEYEAR'             => '一年',
         'TWOYEAR'             => '两年',
         'THREEYEAR'           => '三年',
         'FIVEYEAR'            => '五年',
         'PERMANENT'           => '永久有效',
+        //审核状态
+        'SUBMIT'              => '待审核',
+        'EXAMINATIONPASS'     => '审核通过',
+        'EXAMINATIONNOPASS'   => '审核驳回',
+        'CANCEL'              => '预约取消',
     ];
 
 
@@ -119,6 +124,14 @@ class MemberEnum extends BaseEnum
         2 => 'TWOYEAR',
         3 => 'THREEYEAR',
         4 => 'FIVEYEAR',
+    ];
+
+    //审核状态
+    public static $audit_status = [
+        0 => 'SUBMIT',            //待审核
+        1 => 'EXAMINATIONPASS',   //审核通过
+        2 => 'EXAMINATIONNOPASS', //审核驳回
+        3 => 'CANCEL',            //取消预约
     ];
 
     // 成员等级
@@ -193,12 +206,22 @@ class MemberEnum extends BaseEnum
     const GRADE             = 1;    //成员等级
     const IDENTITY          = 2;    //身份类型
 
-    //通过
+    //有效期
     const PERMANENT         = 0;    //永久有效
     const ONEYEAR           = 1;    //一年
     const TWOYEAR           = 2;    //两年
     const THREEYEAR         = 3;    //三年
     const FIVEYEAR          = 4;    //五年
+
+    //贷款 审核状态
+
+    const SUBMIT            = 0;    //待审核
+
+    const EXAMINATIONPASS   = 1;    //审核通过
+
+    const EXAMINATIONNOPASS = 2;    //审核驳回
+
+    const CANCEL            = 3;    //取消预约
 
 
     /**

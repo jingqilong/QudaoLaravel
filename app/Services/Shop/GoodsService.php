@@ -136,7 +136,7 @@ class GoodsService extends BaseService
         }
         //删除积分栏目展示记录
         ShopActivityRepository::delete(['goods_id' => $id,'type' => ShopActivityEnum::SCORE_EXCHANGE]);
-        if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+        if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time(),'is_recommend' => 0])){
             $this->setError('删除失败！');
             return false;
         }
@@ -349,7 +349,7 @@ class GoodsService extends BaseService
      */
     public function getRecommendGoodsList($where = null,$count = null){
         if (is_null($where)){
-            $where = ['is_recommend' => ['<>',0]];
+            $where = ['is_recommend' => ['<>',0],'deleted_at' => 0];
         }
         $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (is_null($count)){
@@ -403,6 +403,7 @@ class GoodsService extends BaseService
         $goods_detail['collect']        = MemberCollectRepository::exists(['type' => CollectTypeEnum::SHOP,'target_id' => $request['id'],'member_id' => $member_id,'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
         $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        $goods_detail['stock']          = ShopGoodsSpecRelateRepository::getStockCount($goods_detail['id'],$goods_detail['stock']);
         foreach ($goods_detail['recommend'] as &$value){
             $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
