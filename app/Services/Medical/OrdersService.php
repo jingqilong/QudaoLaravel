@@ -3,25 +3,25 @@ namespace App\Services\Medical;
 
 
 use App\Enums\DoctorEnum;
-use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\MedicalDepartmentsRepository;
 use App\Repositories\MedicalDoctorsRepository;
 use App\Repositories\MedicalOrdersRepository;
 use App\Repositories\MedicalOrdersViewRepository;
 use App\Repositories\MediclaHospitalsRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class OrdersService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     protected $auth;
 
     /**
@@ -156,6 +156,7 @@ class OrdersService extends BaseService
      */
     public function getDoctorOrderList($data)
     {
+        $employee = Auth::guard('oa_api')->user();
         if (empty($data['asc'])) $data['asc']  = 1;
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
@@ -201,9 +202,56 @@ class OrdersService extends BaseService
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
             $value['type_name']         =  DoctorEnum::getType($value['type']);
+            $value['appointment_at']    = empty($value['appointment_at']) ? '' : date('Y-m-d',$value['appointment_at']);
+            $value['created_at']        = empty($value['created_at']) ? '' : date('Y-m-d H:i:s',$value['created_at']);
+            $value['updated_at']        = empty($value['updated_at']) ? '' : date('Y-m-d H:i:s',$value['updated_at']);
+            $value['end_time']          = empty($value['end_time']) ? '' : date('Y-m-d H:i:s',$value['end_time']);
+            unset($value['deleted_at']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::HOSPITAL_RESERVATION,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 获取预约详情
+     * @param $id
+     * @return array|bool
+     */
+    public function getOrderDetail($id){
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','appointment_at','status','created_at','updated_at'];
+        if (!$info = MedicalOrdersRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约信息不存在!');
+            return false;
+        }
+        $info['doctor_name']        = MedicalDoctorsRepository::getField(['id' => $info['doctor_id']],'name');
+        $info['hospital_name']      = MediclaHospitalsRepository::getField(['id' => $info['hospital_id']],'name');
+        $info['status']             = DoctorEnum::getStatus($info['status']);
+        $info['sex']                = DoctorEnum::getSex($info['sex']);
+        $info['type']               = DoctorEnum::getType($info['type']);
+        $info['appointment_at']     = empty($info['appointment_at']) ? '' : date('Y-m-d',$info['appointment_at']);
+        $info['created_at']         = empty($info['created_at']) ? '' : date('Y-m-d H:i:s',$info['created_at']);
+        $info['updated_at']         = empty($info['updated_at']) ? '' : date('Y-m-d H:i:s',$info['updated_at']);
+        $info['end_time']           = empty($info['end_time']) ? '' : date('Y-m-d H:i:s',$info['end_time']);
+        unset($info['doctor_id'],$info['hospital_id']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::HOSPITAL_RESERVATION]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::HOSPITAL_RESERVATION,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $info,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**

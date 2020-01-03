@@ -479,6 +479,7 @@ $api->version('v1',function ($api){
             #获取医疗订单列表
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']], function ($api) {
                 $api->get('doctor_order_list', 'DoctorOrderController@doctorOrderList')->name('获取医疗预约列表');
+                $api->get('get_order_detail', 'DoctorOrderController@getOrderDetail')->name('获取预约详情');
                 $api->post('set_doctor_order', 'DoctorOrderController@setDoctorOrder')->name('审核预约列表状态');
             });
             #添加医院
