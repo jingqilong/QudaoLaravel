@@ -1419,4 +1419,33 @@ class MemberController extends ApiController
         }
         return ['code' => 200, 'message' => $this->memberService->message];
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/guest_login",
+     *     tags={"会员"},
+     *     summary="访客登录",
+     *     operationId="guest_login",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function guestLogin(){
+        $res = $this->memberService->guestLogin();
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
 }

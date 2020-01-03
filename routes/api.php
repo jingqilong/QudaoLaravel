@@ -373,6 +373,7 @@ $api->version('v1',function ($api){
 
         //成员模块
         $api->group(['prefix' => 'member','namespace' => 'Member'],function ($api){
+            $api->get('guest_login','MemberController@guestLogin')->name('访客登录');
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->post('logout','MemberController@logout')->name('退出');
                 $api->get('get_member_by_user','MemberController@getMemberInfoByUser')->name('获取自己成员信息');

@@ -1092,7 +1092,17 @@ class MemberService extends BaseService
     }
 
     /**
-     * 编辑修改成员联系请求
+     * 获取游客token
+     * @return array
+     */
+    public function guestLogin()
+    {
+        $ip = request()->getClientIp();
+        $token = auth()->guard('member_api')->claims(['aud' => 'guest'])->tokenById(1);
+        $this->setMessage('获取成功！');
+        return ['token' => $token];
+    }
+    /** 编辑修改成员联系请求
      * @param $request
      * @return bool
      */

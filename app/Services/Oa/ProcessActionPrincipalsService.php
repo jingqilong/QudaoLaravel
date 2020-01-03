@@ -230,7 +230,7 @@ class ProcessActionPrincipalsService extends BaseService
                 $principal_list['receiver_mobile'] = $principal['mobile'];
                 $principal_list['receiver_email'] = $principal['email'];
             } else {   //获取员工信息
-                $principal = app(OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]));
+                $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
                 $principal_list['receiver_name'] = $principal['real_name'];
                 $principal_list['receiver_id'] = $principal['id'];
                 $principal_list['receiver_mobile'] = $principal['mobile'];
