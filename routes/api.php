@@ -567,6 +567,7 @@ $api->version('v1',function ($api){
                 $api->get('lease_list', 'LeaseController@leaseList')->name('获取房产租赁方式列表');
                 #预约
                 $api->get('all_reservation_list', 'ReservationController@allReservationList')->name('预约列表');
+                $api->get('reservation_detail', 'ReservationController@reservationDetail')->name('预约详情');
                 $api->post('audit_reservation', 'ReservationController@auditReservation')->name('审核预约');
             });
         });
