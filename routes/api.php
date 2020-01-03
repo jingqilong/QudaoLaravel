@@ -396,8 +396,13 @@ $api->version('v1',function ($api){
                 $api->delete('del_address','AddressController@delAddress')->name('用户删除地址');
                 $api->post('edit_address','AddressController@editAddress')->name('用户编辑修改地址');
                 $api->get('address_list','AddressController@addressList')->name('用户获取地址');
-
                 $api->post('place_order','OrderController@placeOrder')->name('支付下单');
+
+
+                #成员联系请求
+                $api->post('add_member_contact','MemberController@addMemberContact')->name('添加成员联系请求');
+
+
                 #会员等级
                 $api->get('get_grade_service','GradeController@getGradeService')->name('获取等级下的服务详情');
                 $api->get('get_grade_card_list','GradeController@getGradeCardList')->name('获取等级卡片列表');
