@@ -16,7 +16,7 @@ return [
     ],
 
     //测试用户测试权限有效期，单位：小时
-    'test_user_ssl' => 24,
+    'test_user_ttl' => 24,
 
     //测试使用的推荐码
     'test_referral_code' => 'DAICHIPLUS'
