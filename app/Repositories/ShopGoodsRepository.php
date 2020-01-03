@@ -65,7 +65,7 @@ class ShopGoodsRepository extends ApiRepository
         }
         $list['data'] = ImagesService::getListImages($list['data'], ['banner_ids' => 'single']);
         foreach ($list['data'] as &$value) {
-            $value['price']     = empty($value['price']) ? 0 : round($value['price'] / 100,2);
+            $value['price']     = empty($value['price']) ? '0.00' : sprintf('%.2f',round($value['price'] / 100,2));
             $value['type']      = $request['type'];
             $value['type_name'] = CollectTypeEnum::getType($request['type'],'');
             unset($value['banner_ids'],$value['score_categories'],$value['category']);
