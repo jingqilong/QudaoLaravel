@@ -1089,4 +1089,16 @@ class MemberService extends BaseService
         $this->setMessage('提交申请成功!');
         return true;
     }
+
+    /**
+     * 获取游客token
+     * @return array
+     */
+    public function guestLogin()
+    {
+        $ip = request()->getClientIp();
+        $token = auth()->guard('member_api')->claims(['aud' => 'guest'])->tokenById(1);
+        $this->setMessage('获取成功！');
+        return ['token' => $token];
+    }
 }
