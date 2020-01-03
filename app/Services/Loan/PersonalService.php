@@ -5,18 +5,20 @@ namespace App\Services\Loan;
 use App\Enums\LoanEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\LoanPersonalRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 
 class PersonalService extends BaseService
 {
 
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     public $auth;
 
     /**
@@ -61,6 +63,7 @@ class PersonalService extends BaseService
      */
     public function getLoanOrderList(array $data)
     {
+        $employee = Auth::guard('oa_api')->user();
         if (empty($data['asc']))  $data['asc'] = 1;
         $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
@@ -97,6 +100,8 @@ class PersonalService extends BaseService
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']        =   date('Y-m-d H:m:s',$value['updated_at']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::LOAN_RESERVATION,$employee->id);
         }
         $this->setMessage('查找成功');
         return $list;
@@ -292,26 +297,40 @@ class PersonalService extends BaseService
 
     /**
      * 根据ID查找贷款订单信息
-     * @param array $data
-     * @return bool|null
+     * @param $id
+     * @return mixed
      */
-    public function getLoanOrderInfo(array $data)
+    public function getLoanOrderInfo($id)
     {
-        if (!LoanPersonalRepository::exists(['id' => $data['id']])){
+        $employee = Auth::guard('oa_api')->user();
+        if (!$info = LoanPersonalRepository::getOne(['id' => $id])){
             $this->setError('该订单不存在！');
             return false;
         }
-        if (!$list = LoanPersonalRepository::getOne(['id' => $data['id']])){
-            $this->setError('没有查到该订单信息！');
+        $info['type']           =  LoanEnum::getType($info['type']);
+        $info['appointment']    =  LoanEnum::getAppointment($info['appointment']);
+        $info['status']         =  LoanEnum::getStatus($info['status']);
+        $info['price']          =  LoanEnum::getPrice($info['price']);
+        $info['reservation_at'] =  empty($info['reservation_at']) ? '' : date('Y-m-d',$info['reservation_at']);
+        $info['created_at']     =  empty($info['created_at']) ? '' : date('Y-m-d H:i:s',$info['created_at']);
+        $info['updated_at']     =  empty($info['updated_at']) ? '' : date('Y-m-d H:i:s',$info['updated_at']);
+        unset($info['deleted_at']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::LOAN_RESERVATION]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
             return false;
         }
-        $list['type_name']       =  empty($list['type']) ? '' : LoanEnum::getType($list['type']);
-        $list['status_name']     =  empty($list['status']) ? '' : LoanEnum::getStatus($list['status']);
-        $list['price_name']      =  empty($list['price']) ? '' : LoanEnum::getPrice($list['price']);
-        $list['reservation_at']  =  date('Y-m-d',$list['reservation_at']);
-        $list['created_at']      =  date('Y-m-d',$list['created_at']);
-        $this->setMessage('查找成功');
-        return $list;
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::LOAN_RESERVATION,$employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $info,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
