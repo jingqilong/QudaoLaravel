@@ -24,7 +24,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/add_preference_type",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="添加成员活动偏好类别",
      *     operationId="add_preference_type",
      *     @OA\Parameter(
@@ -91,7 +91,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/oa/del_preference_type",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="删除成员活动偏好类别",
      *     operationId="del_preference_type",
      *     @OA\Parameter(
@@ -150,7 +150,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/edit_preference_type",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="修改成员活动偏好类别",
      *     operationId="edit_preference_type",
      *     @OA\Parameter(
@@ -228,7 +228,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_preference_info",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="根据ID 获取成员类别信息",
      *     operationId="get_preference_info",
      *     @OA\Parameter(
@@ -287,7 +287,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_preference_list",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="获取成员类别列表",
      *     operationId="get_preference_list",
      *     @OA\Parameter(
@@ -327,7 +327,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/add_preference_value",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="成员类别属性添加",
      *     operationId="add_preference_value",
      *     @OA\Parameter(
@@ -405,7 +405,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Delete(
      *     path="/api/v1/oa/del_preference_value",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="成员类别属性删除",
      *     operationId="del_preference_value",
      *     @OA\Parameter(
@@ -464,7 +464,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/oa/edit_preference_value",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="成员活动偏好类别属性修改",
      *     operationId="edit_preference_value",
      *     @OA\Parameter(
@@ -543,7 +543,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_preference_value_info",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="根据ID获取成员类别属性信息",
      *     operationId="get_preference_value_info",
      *     @OA\Parameter(
@@ -603,7 +603,7 @@ class MemberPreferenceController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/oa/get_preference_value_list",
-     *     tags={"OA成员类别管理"},
+     *     tags={"OA成员喜好需求管理"},
      *     summary="获取成员类别属性列表",
      *     operationId="get_preference_value_list",
      *     @OA\Parameter(
