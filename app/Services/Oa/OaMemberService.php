@@ -667,12 +667,12 @@ class OaMemberService extends BaseService
         }
         if (!empty($preference_upd)) {
             if (!MemberPreferenceRepository::getUpdId(['member_id' => $request['member_id']],$preference_upd)) {
-                $this->setError('成员修改失败!');
+                $this->setError('成员信息修改失败!');
                 DB::rollBack();
                 return false;
             }
         }
-        $this->setMessage('成员基本信息修改成功!');
+        $this->setMessage('成员信息修改成功!');
         DB::commit();
         return ['member_id' => $request['member_id']];
     }
