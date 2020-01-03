@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\ShopInventoryRepository;
+use App\Repositories\ShopGoodsSpecViewRepository;
 
 class ShopInventoryService extends BaseService
 {
@@ -52,6 +53,18 @@ class ShopInventoryService extends BaseService
             return $inventory['data']['0']['remain'];
         }
         return 0;
+    }
+
+    /**
+     * @desc 获取商品或SKU的库存列表
+     * @param $request
+     */
+    public function getInventoryList($request){
+        $where = Arr::only($request,['entry_id','goods_id','spec_id','page','page_num']);
+        $page = $request['page'];
+        $page_num = $request['page_num'];
+        $list = ShopGoodsSpecViewRepository::getList();
+
     }
 
 }
