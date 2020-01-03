@@ -120,13 +120,14 @@ class CommonUserSurveyService extends BaseService
             $this->setMessage('暂无信息！');
             return $list;
         }
+        $list['data'] = EmployeeService::getListOperationByName($list['data'],['updated_by' => 'updated_by_name']);
         foreach ($list['data'] as &$value){
             $value['gender']        = CommonGenderEnum::getLabel($value['gender']);
             $value['hear_from']     = UserSurveyHearFromEnum::getLabel($value['hear_from']);
             $value['created_at']    = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:i:s',$value['updated_at']);
+            unset($value['updated_by']);
         }
-        $list['data'] = EmployeeService::getListOperationByName($list['data'],['updated_by' => 'updated_by_name']);
         $this->setMessage('获取成功！');
         return $list;
     }
