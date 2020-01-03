@@ -27,7 +27,7 @@ class MemberOaListViewModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','card_no','mobile','email','ch_name','sex','status','hidden','grade','title','position','category','address','is_recommend','is_home_detail','img_url','created_at','end_at','updated_at','deleted_at'];
+    protected $fillable = ['id','card_no','mobile','email','ch_name','sex','status','hidden','grade','employer','title','position','category','address','is_recommend','is_home_detail','img_url','created_at','end_at','updated_at','deleted_at'];
 
     /**
      * The attributes that should be cast to native types.
