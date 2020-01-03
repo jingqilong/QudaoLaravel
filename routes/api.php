@@ -750,6 +750,17 @@ $api->version('v1',function ($api){
             $api->get('get_jsapi_ticket', 'WeChatPayController@getJsapiTicket')->name('微信微信获取授权签名');
             $api->get('select_pay_status', 'WeChatPayController@selectPayStatus')->name('微信支付结果查询');
         });
+        //用户调研模块
+        $api->group(['prefix' => 'common/user_survey', 'namespace' => 'Common'], function ($api){
+            $api->post('submit', 'UserSurveyController@submitUserSurvey')->name('提交用户调研');
+            $api->get('get_hear_from_list', 'UserSurveyController@getHearFromList')->name('获取获知渠道');
+            #OA用户调研管理
+            $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
+                $api->delete('delete', 'UserSurveyController@deleteUserSurvey')->name('删除用户调研');
+                $api->post('set_status', 'UserSurveyController@setStatus')->name('设置用户调研记录状态');
+                $api->get('get_user_survey_list', 'UserSurveyController@getUserSurveyList')->name('获取用户调研列表');
+            });
+        });
     });
 });
 
