@@ -112,8 +112,8 @@ class OaMemberService extends BaseService
         $member['base']['created_at']    = date('Y-m-d H:i:s',$member['base']['created_at']);
         $member['base']['birthday']      = date('Y-m-d',strtotime($member['base']['birthday']));
         if (empty($member['base']['birthday'])) $member['base']['birthday'] = '';
-        if (0 == $member['base']['end_at']) $member['base']['end_at_name'] = 0; else{
-            $member['base']['end_at_name']    = date('Y-m-d H:i:s',$member['base']['end_at']);
+        if (0 == $member['base']['end_at']) $member['base']['end_at'] = 0; else{
+            $member['base']['end_at']    = date('Y-m-d H:i:s',$member['base']['end_at']);
         }
         $this->setMessage('获取用户信息成功');
         return $member;

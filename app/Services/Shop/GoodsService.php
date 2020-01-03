@@ -136,7 +136,7 @@ class GoodsService extends BaseService
         }
         //删除积分栏目展示记录
         ShopActivityRepository::delete(['goods_id' => $id,'type' => ShopActivityEnum::SCORE_EXCHANGE]);
-        if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time()])){
+        if (!ShopGoodsRepository::getUpdId(['id' => $id],['deleted_at' => time(),'is_recommend' => 0])){
             $this->setError('删除失败！');
             return false;
         }
