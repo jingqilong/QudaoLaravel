@@ -261,7 +261,7 @@ class MemberService extends BaseService
      * @return array|bool
      */
     public function getMemberInfo($request){
-        $column = ['id','ch_name','title','status','employer','position','profile','img_url'];
+        $column = ['id','ch_name','title','status','grade','employer','position','profile','img_url'];
         if (!$member_info = MemberGradeViewRepository::getOne(['id' => $request['id']],$column)){
             $this->setError('获取失败!');
             return false;
@@ -271,6 +271,7 @@ class MemberService extends BaseService
             return false;
         }
         foreach ($member_info as &$value) $value = $value ?? '';
+        $member_info['grade'] = MemberEnum::getGrade($member_info['grade'],'普通成员');
         $member_info['profile'] = strip_tags($member_info['profile']);
         $member_info['avatar_url'] = $member_info['img_url'];//为了和前端统一数据
         unset($member_info['status'],$member_info['img_url']);
