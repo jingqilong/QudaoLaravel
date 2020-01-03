@@ -18,6 +18,7 @@ use App\Repositories\{CommonCommentsRepository,
     MemberOrdersRepository,
     MemberBaseRepository,
     MemberTradesRepository,
+    ScoreCategoryRepository,
     ShopCartRepository,
     ShopGoodsRepository,
     ShopGoodsSpecRelateRepository,
@@ -438,6 +439,7 @@ class OrderRelateService extends BaseService
             $this->setError('订单不存在！');
             return false;
         }
+        $order['score_type']    = empty($order['score_type']) ? '' : ScoreCategoryRepository::getField(['id' => $order['score_type']],'name');
         $order['status_title']  = ShopOrderEnum::getStatus($order['status']);
         $order['receive_method']= ShopOrderEnum::getReceiveMethod($order['receive_method']);
         $order['express_price'] = sprintf('%.2f',round($order['express_price'] / 100,2));
@@ -597,7 +599,7 @@ class OrderRelateService extends BaseService
         }
         #通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $order_relate['member_id']])){
-            $member_name = $member['m_cname'];
+            $member_name = $member['ch_name'];
             $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['sex']);
             $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
             $sms_template =
@@ -636,7 +638,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         $expressDetail = ExpressService::getExpressDetails($code, $number);
-        if ($expressDetail['status'] != 200){
+        if ($expressDetail['message'] != 'ok'){
             $this->setError($expressDetail['message']);
             return false;
         }
