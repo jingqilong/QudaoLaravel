@@ -40,14 +40,15 @@ trait BusinessTrait
      */
     public function addNewProcessRecord($business_id,$process_category){
         //获取流程定义ID
-        $process_id = OaProcessDefinitionRepository::getOne(['category_id'=>$process_category],['id',]);
+        $process_id = OaProcessDefinitionRepository::getField(['category_id'=>$process_category],'id');
         if(!$process_id){
             $message = "此类流程未定义，请联系系统管理员，定义后再处理";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
         //获取第一个流程节点ID
-        $start_node = OaProcessNodeRepository::getOne([['process_id' => $process_id],['position' => Config::get('process.start_node')]]);
+        $start_node = Config::get('process.start_node');
+        $start_node = OaProcessNodeRepository::getOne(['process_id' => $process_id,'position' => $start_node]);
         if(!$start_node){
             $message = "获取开始节点失败";
             Loggy::write("error",$message);
