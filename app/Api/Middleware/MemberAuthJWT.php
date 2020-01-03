@@ -61,7 +61,7 @@ class MemberAuthJWT extends BaseMiddleware
     }
 
     /**
-     * 检查访客
+     * 检查访客权限
      * @param $path
      * @return bool
      */
@@ -71,7 +71,11 @@ class MemberAuthJWT extends BaseMiddleware
             return true;
         }
         if ('guest' == $aud){
-            //检查白名单
+            $path  = '/'.$path;
+            $greenlight_routes = config('guest.greenlight_routes');
+            if (!in_array($path,$greenlight_routes)){
+                return false;
+            }
         }
         return true;
     }
