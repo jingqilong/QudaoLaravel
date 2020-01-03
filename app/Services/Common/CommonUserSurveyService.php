@@ -27,7 +27,9 @@ class CommonUserSurveyService extends BaseService
             'gender'    => $request['gender'],
             'mobile'    => $request['mobile'],
             'hear_from' => $request['hear_from'],
-            'request'   => $request['request']
+            'request'   => $request['request'],
+            'created_at'=> time(),
+            'updated_at'=> time()
         ];
         if (!CommonUserSurveyRepository::getAddId($add_arr)){
             $this->setError('提交失败！');
