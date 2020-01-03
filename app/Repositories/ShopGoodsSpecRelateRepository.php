@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Models\ShopGoodsSpecRelateModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Services\Common\ImagesService;
+use Illuminate\Support\Arr;
 
 class ShopGoodsSpecRelateRepository extends ApiRepository
 {
@@ -22,16 +23,15 @@ class ShopGoodsSpecRelateRepository extends ApiRepository
     }
 
     /**
-     * 获取商品 库存
+     * 获取规格的库存数量 没有规格返回传进来的参数
      * @param $goods_id
-     * @return int|null
+     * @param $stock
+     * @return float|int
      */
-    protected function getStock($goods_id)
+    protected function getStockCount($goods_id, $stock)
     {
-        if ($this->exists(['goods_id' => $goods_id])){
-            $stock = empty($this->getOne(['goods_id' => $goods_id],['stock'])) ? 0 : $this->getOne(['goods_id' => $goods_id],['stock']);
-        }else{
-            $stock = empty(ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_id], 'stock')) ? 0 : ShopGoodsSpecRelateRepository::sum(['goods_id' => $goods_id], 'stock');
+        if ($spec_stock_arr = $this->getList(['goods_id' => $goods_id],['stock'])){
+            return array_sum(Arr::flatten($spec_stock_arr));
         }
         return $stock;
     }

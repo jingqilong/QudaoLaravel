@@ -401,6 +401,9 @@ $api->version('v1',function ($api){
 
                 #成员联系请求
                 $api->post('add_member_contact','MemberController@addMemberContact')->name('添加成员联系请求');
+                $api->post('edit_member_contact','MemberController@editMemberContact')->name('编辑修改成员联系请求');
+                $api->delete('del_member_contact','MemberController@delMemberContact')->name('删除成员联系请求');
+                $api->get('get_member_contact_list','MemberController@getMemberContactList')->name('查看成员联系请求列表');
 
 
                 #会员等级
