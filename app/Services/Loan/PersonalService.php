@@ -166,8 +166,6 @@ class PersonalService extends BaseService
             return false;
         }
         DB::rollBack();
-        Redis::set('lala','123');
-        dd(Redis::get('lala'));
         $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::LOAN_RESERVATION);
         if (100 == $start_process_result['code']){
             $this->setError('预约失败，请稍后重试！');
