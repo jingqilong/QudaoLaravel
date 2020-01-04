@@ -339,16 +339,17 @@ trait BusinessTrait
            foreach ($stakeholders as $receiver){
                $event_data = $send_data;
                $event_data['receiver'] = $receiver;
-               $event_data['event_type'] =  $event['event_type'];
+               $event_data['event_type'] =  $event['event_defined_type'];
                //所以，到这里，还是要具体获取这些人的ID
-               if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_type']){
+               if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_defined_type']){
                    event(new SendDingTalkEmail($event_data));
                }
-               if(ProcessEventEnum::SMS ==  $event['event_type']){
-                   event(new SendSiteMessage($event_data));
-               }
-               if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_type']){
+               if(ProcessEventEnum::SMS ==  $event['event_defined_type']){
+                   Loggy::write('process',date('Y-m-d H:i:s').' 触发了发送短信事件！');
                    event(new SendFlowSms($event_data));
+               }
+               if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_defined_type']){
+                   event(new SendSiteMessage($event_data));
                }
 //               if(ProcessEventEnum::WECHAT_PUSH ==  $event['event_type']){
 //                   //后续加上
