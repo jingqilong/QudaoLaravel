@@ -25,13 +25,13 @@ class MemberAuthJWT extends BaseMiddleware
     public function handle($request, Closure $next)
     {
         $auth       = Auth::guard('member_api');
-        if (!$this->checkGuest($request->path())){
-            return new Response(json_encode(['code' => 405, 'message' => '权限不足！']));
-        }
         try {
             if (! $token = $auth->setRequest($request)->getToken()) {
-                return new Response(json_encode(['code' => 401, 'message' => '非法token或token为空']));
+                return new Response(json_encode(['code' => 405, 'message' => '非法token或token为空']));
 //                return ['code' => 401, 'message' => '非法token或token为空'];
+            }
+            if (!$this->checkGuest($request->path())){
+                return new Response(json_encode(['code' => 405, 'message' => '权限不足！']));
             }
             $auth = $auth->setToken($token);
             $user = $auth->user();

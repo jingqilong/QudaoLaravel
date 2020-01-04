@@ -230,9 +230,6 @@ class ProcessActionEventService extends BaseService
                 }
             }
         }
-
-        foreach ($event_list['data'] as &$value){
-        }
         return $event_list['data'];
     }
 

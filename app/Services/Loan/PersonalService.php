@@ -15,6 +15,7 @@ use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class PersonalService extends BaseService
 {
@@ -165,7 +166,8 @@ class PersonalService extends BaseService
             return false;
         }
         DB::rollBack();
-
+        Redis::set('lala','123');
+        dd(Redis::get('lala'));
         $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::LOAN_RESERVATION);
         if (100 == $start_process_result['code']){
             $this->setError('预约失败，请稍后重试！');
