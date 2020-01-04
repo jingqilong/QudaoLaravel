@@ -30,7 +30,7 @@ class ShopGoodsSpecRelateRepository extends ApiRepository
      */
     protected function getStockCount($goods_id, $stock)
     {
-        if ($spec_stock_arr = $this->getList(['goods_id' => $goods_id],['stock'])){
+        if ($spec_stock_arr = $this->getList(['goods_id' => $goods_id,'deleted_at' => 0],['stock'])){
             return array_sum(Arr::flatten($spec_stock_arr));
         }
         return $stock;
