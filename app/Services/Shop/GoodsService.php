@@ -349,7 +349,7 @@ class GoodsService extends BaseService
      */
     public function getRecommendGoodsList($where = null,$count = null){
         if (is_null($where)){
-            $where = ['is_recommend' => ['<>',0],'deleted_at' => 0];
+            $where = ['is_recommend' => ['<>',0],'status' => ShopGoodsEnum::PUTAWAY,'deleted_at' => 0];
         }
         $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (is_null($count)){
