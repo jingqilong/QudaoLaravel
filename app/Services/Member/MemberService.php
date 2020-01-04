@@ -1204,12 +1204,17 @@ class MemberService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $contact_ids  = array_column($list['data'],'contact_id');
-        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
-        $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        $contact_ids   = array_column($list['data'],'contact_id');
+        $proposer_id   = array_column($list['data'],'proposer_id');
+        $contact_list  = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $proposer_list = MemberBaseRepository::getAssignList($proposer_id,['id','ch_name']);
+        $grade_list    = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
         foreach ($list['data'] as &$value){
             if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
                 $value['contact_name'] = reset($contacts)['ch_name'];
+            }
+            if ($contacts = $this->searchArray($proposer_list,'id',$value['proposer_id'])){
+                $value['proposer_name'] = reset($contacts)['ch_name'];
             }
             if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
                 $value['grades'] = reset($grades)['grade'];
