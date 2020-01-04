@@ -484,7 +484,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         $expressDetail = ExpressService::getExpressDetails($code, $number);
-        if ($expressDetail['status'] != 200){
+        if ($expressDetail['message'] != 'ok'){
             $this->setError($expressDetail['message']);
             return false;
         }

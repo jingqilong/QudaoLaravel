@@ -293,8 +293,8 @@ class MemberService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column))) $member_info = [];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $member_id],['grade'])))  $member_grade = [];
+        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column))) $member_info = ['profile' => ''];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $member_id],['grade'])))  $member_grade = ['grade' => MemberEnum::DEFAULT];
         $member = array_merge($member_base,$member_info,$member_grade);
         $member = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['sex_name']     = MemberEnum::getSex($member['sex'],'未设置');
