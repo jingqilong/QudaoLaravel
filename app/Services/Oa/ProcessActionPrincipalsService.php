@@ -221,21 +221,22 @@ class ProcessActionPrincipalsService extends BaseService
         $principal_list = [];
         foreach ($stakeholders as $receivers) {
             //如果是发起人，则先获取发起人的相关信息
-            $principal_list['receiver_iden'] = $receivers['principal_iden'];
+            $event_principal['receiver_iden'] = $receivers['principal_iden'];
             if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
                 $principal_id = $this->getStartUserInfo($business_id,$process_category);
                 $principal = MemberBaseRepository::getOne(['id'=>$principal_id],['id','ch_name','mobile','email']);
-                $principal_list['receiver_name'] = $principal['ch_name'];
-                $principal_list['receiver_id'] = $principal['id'];
-                $principal_list['receiver_mobile'] = $principal['mobile'];
-                $principal_list['receiver_email'] = $principal['email'];
+                $event_principal['receiver_name'] = $principal['ch_name'];
+                $event_principal['receiver_id'] = $principal['id'];
+                $event_principal['receiver_mobile'] = $principal['mobile'];
+                $event_principal['receiver_email'] = $principal['email'];
             } else {   //获取员工信息
                 $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
-                $principal_list['receiver_name'] = $principal['real_name'];
-                $principal_list['receiver_id'] = $principal['id'];
-                $principal_list['receiver_mobile'] = $principal['mobile'];
-                $principal_list['receiver_email'] = $principal['email'];
+                $event_principal['receiver_name'] = $principal['real_name'];
+                $event_principal['receiver_id'] = $principal['id'];
+                $event_principal['receiver_mobile'] = $principal['mobile'];
+                $event_principal['receiver_email'] = $principal['email'];
             }
+            $principal_list[] = $event_principal;
         }
         return $principal_list;
     }
