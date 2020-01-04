@@ -90,6 +90,23 @@ trait RepositoryTrait
     }
 
     /**
+     * @desc 查询所有列表数据
+     * @param array $where
+     * @param array $column
+     * @param null $order
+     * @param null $desc_asc
+     * @return  array|null
+     */
+    protected function getAllList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null){
+        $model = self::addWhere($this->model,$where);
+        if ($order!=null && $desc_asc!=null){
+            $model = $this->addOrderBy($model,$order,$desc_asc);
+        }
+        $result = $model->get($column);
+        return $result ? $result->toArray() : null;
+    }
+
+    /**
      * 获取数据列表
      * @param array $where
      * @param array $column
@@ -324,9 +341,10 @@ trait RepositoryTrait
      * 获取指定列表
      * @param array $ids
      * @param array $column
+     * @param string $where_id
      * @return array|null
      */
-    protected function getAssignList(array $ids, $column=['*']){
+    protected function getAssignList(array $ids,$column=['*'],$where_id='id'){
         if (empty($ids)){
             return [];
         }
@@ -336,7 +354,7 @@ trait RepositoryTrait
             $all_ids = array_merge($all_ids,$str_arr);
         }
         $all_ids = array_unique($all_ids);
-        $list = $this->getList(['id' => ['in',$all_ids]],$column);
+        $list = $this->getList([$where_id => ['in',$all_ids]],$column);
         return $list;
     }
 

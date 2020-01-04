@@ -1161,12 +1161,25 @@ class MemberService extends BaseService
     public function getMemberContactList()
     {
         $member = $this->auth->user();
-        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id])){
+        $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
+        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id],$column)){
             $this->setError('获取失败!');
             return false;
         }
-        foreach ($list as $value){
-
+        $contact_ids  = array_column($list,'contact_id');
+        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        foreach ($list as &$value){
+            if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
+                $value['contact_name'] = reset($contacts)['ch_name'];
+            }
+            if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
+                $value['grades'] = reset($grades)['grade'];
+            }
+            $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
+            $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
         }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 }
