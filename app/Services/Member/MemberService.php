@@ -1204,18 +1204,28 @@ class MemberService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $contact_ids  = array_column($list['data'],'contact_id');
-        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
-        $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        $contact_ids   = array_column($list['data'],'contact_id');
+        $proposer_id   = array_column($list['data'],'proposer_id');
+        $contact_list  = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $proposer_list = MemberBaseRepository::getAssignList($proposer_id,['id','ch_name']);
+        $contact_grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        $proposer_grade_list  = MemberGradeRepository::getAssignList($proposer_id,['user_id','grade'],'user_id');
         foreach ($list['data'] as &$value){
             if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
                 $value['contact_name'] = reset($contacts)['ch_name'];
             }
-            if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
-                $value['grades'] = reset($grades)['grade'];
+            if ($contacts = $this->searchArray($proposer_list,'id',$value['proposer_id'])){
+                $value['proposer_name'] = reset($contacts)['ch_name'];
+            }
+            if ($contact_grades = $this->searchArray($contact_grade_list,'user_id',$value['contact_id'])){
+                $value['contact_grades'] = reset($contact_grades)['grade'];
+            }
+            if ($proposer_grades = $this->searchArray($proposer_grade_list,'user_id',$value['proposer_id'])){
+                $value['proposer_grades'] = reset($proposer_grades)['grade'];
             }
             $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
-            $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
+            $value['contact_grades_name']  = MemberEnum::getGrade($value['contact_grades'],'普通成员');
+            $value['proposer_grades_name'] = MemberEnum::getGrade($value['proposer_grades'],'普通成员');
         }
         $this->setMessage('获取成功!');
         return $list;
