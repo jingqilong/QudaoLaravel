@@ -90,6 +90,23 @@ trait RepositoryTrait
     }
 
     /**
+     * @desc 查询所有列表数据
+     * @param array $where
+     * @param array $column
+     * @param null $order
+     * @param null $desc_asc
+     * @return  array|null
+     */
+    protected function getAllList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null){
+        $model = self::addWhere($this->model,$where);
+        if ($order!=null && $desc_asc!=null){
+            $model = $this->addOrderBy($model,$order,$desc_asc);
+        }
+        $result = $model->get($column);
+        return $result ? $result->toArray() : null;
+    }
+
+    /**
      * 获取数据列表
      * @param array $where
      * @param array $column
