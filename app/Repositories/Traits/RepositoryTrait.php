@@ -341,9 +341,10 @@ trait RepositoryTrait
      * 获取指定列表
      * @param array $ids
      * @param array $column
+     * @param string $where_id
      * @return array|null
      */
-    protected function getAssignList(array $ids, $column=['*']){
+    protected function getAssignList(array $ids,$column=['*'],$where_id='id'){
         if (empty($ids)){
             return [];
         }
@@ -353,7 +354,7 @@ trait RepositoryTrait
             $all_ids = array_merge($all_ids,$str_arr);
         }
         $all_ids = array_unique($all_ids);
-        $list = $this->getList(['id' => ['in',$all_ids]],$column);
+        $list = $this->getList([$where_id => ['in',$all_ids]],$column);
         return $list;
     }
 

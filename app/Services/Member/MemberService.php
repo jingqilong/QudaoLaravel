@@ -261,7 +261,7 @@ class MemberService extends BaseService
      * @return array|bool
      */
     public function getMemberInfo($request){
-        $column = ['id','ch_name','title','status','employer','position','profile','img_url'];
+        $column = ['id','ch_name','title','status','grade','employer','position','profile','img_url'];
         if (!$member_info = MemberGradeViewRepository::getOne(['id' => $request['id']],$column)){
             $this->setError('获取失败!');
             return false;
@@ -271,6 +271,7 @@ class MemberService extends BaseService
             return false;
         }
         foreach ($member_info as &$value) $value = $value ?? '';
+        $member_info['grade'] = MemberEnum::getGrade($member_info['grade'],'普通成员');
         $member_info['profile'] = strip_tags($member_info['profile']);
         $member_info['avatar_url'] = $member_info['img_url'];//为了和前端统一数据
         unset($member_info['status'],$member_info['img_url']);
@@ -1091,7 +1092,17 @@ class MemberService extends BaseService
     }
 
     /**
-     * 编辑修改成员联系请求
+     * 访客登录
+     * @return array
+     */
+    public function guestLogin()
+    {
+        $ip = request()->getClientIp();
+        $token = auth()->guard('member_api')->claims(['aud' => 'guest'])->tokenById(1);
+        $this->setMessage('获取成功！');
+        return ['token' => $token];
+    }
+    /** 编辑修改成员联系请求
      * @param $request
      * @return bool
      */
@@ -1150,10 +1161,25 @@ class MemberService extends BaseService
     public function getMemberContactList()
     {
         $member = $this->auth->user();
-        if ($list = MemberContactRequestRepository::getList(['proposer_id' => $member->id])){
+        $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
+        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id],$column)){
             $this->setError('获取失败!');
             return false;
         }
-
+        $contact_ids  = array_column($list,'contact_id');
+        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        foreach ($list as &$value){
+            if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
+                $value['contact_name'] = reset($contacts)['ch_name'];
+            }
+            if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
+                $value['grades'] = reset($grades)['grade'];
+            }
+            $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
+            $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
+        }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 }

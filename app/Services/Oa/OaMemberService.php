@@ -109,12 +109,13 @@ class OaMemberService extends BaseService
         $member['base']['sex_name']      = MemberEnum::getSex($member['base']['sex'],'未设置');
         $member['base']['status_name']   = MemberEnum::getStatus($member['base']['status'],'成员');
         $member['base']['hidden_name']   = MemberEnum::getHidden($member['base']['hidden'],'显示');
-        $member['base']['created_at']    = date('Y-m-d H:i:s',$member['base']['created_at']);
         $member['base']['birthday']      = date('Y-m-d',strtotime($member['base']['birthday']));
         if (empty($member['base']['birthday'])) $member['base']['birthday'] = '';
         if (0 == $member['base']['end_at']) $member['base']['end_at'] = 0; else{
             $member['base']['end_at']    = date('Y-m-d H:i:s',$member['base']['end_at']);
         }
+        unset($member['base']['created_at'],$member['info']['created_at'],$member['service']['created_at'],
+              $member['base']['update_at'],$member['base']['updated_at'],$member['info']['update_at'],$member['service']['update_at']);
         $this->setMessage('获取用户信息成功');
         return $member;
     }
@@ -666,12 +667,12 @@ class OaMemberService extends BaseService
         }
         if (!empty($preference_upd)) {
             if (!MemberPreferenceRepository::getUpdId(['member_id' => $request['member_id']],$preference_upd)) {
-                $this->setError('成员修改失败!');
+                $this->setError('成员信息修改失败!');
                 DB::rollBack();
                 return false;
             }
         }
-        $this->setMessage('成员基本信息修改成功!');
+        $this->setMessage('成员信息修改成功!');
         DB::commit();
         return ['member_id' => $request['member_id']];
     }

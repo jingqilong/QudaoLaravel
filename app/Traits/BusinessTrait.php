@@ -324,13 +324,13 @@ trait BusinessTrait
             ];
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
-            $event_params['business_id'],$event_params['node_id']
+            $event_params['process_id'],$event_params['node_id']
         );
         //邮件签名
         $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
         ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
         //邮件标题
-        $send_data['title'] = $send_data['process_full_name'] . "有一项审核要处理！";
+        $send_data['title'] = $send_data['process_full_name']['process_name'] . "有一项审核要处理！";
         //跳转链接
         $send_data['link_url'] = config('process.link_url')[app()['env']];
 

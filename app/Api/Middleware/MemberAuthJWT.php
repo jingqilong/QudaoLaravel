@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class MemberAuthJWT extends BaseMiddleware
@@ -23,7 +24,10 @@ class MemberAuthJWT extends BaseMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $auth = Auth::guard('member_api');
+        $auth       = Auth::guard('member_api');
+        if (!$this->checkGuest($request->path())){
+            return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
+        }
         try {
             if (! $token = $auth->setRequest($request)->getToken()) {
                 return new Response(json_encode(['code' => 401, 'message' => '非法token或token为空']));
@@ -54,5 +58,25 @@ class MemberAuthJWT extends BaseMiddleware
         }
 
         return $next($request);
+    }
+
+    /**
+     * 检查访客权限
+     * @param $path
+     * @return bool
+     */
+    public function checkGuest($path){
+        $payload    = JWTAuth::parseToken()->getPayload();
+        if (is_null($aud = $payload->get('aud'))){
+            return true;
+        }
+        if ('guest' == $aud){
+            $path  = '/'.$path;
+            $greenlight_routes = config('guest.greenlight_routes');
+            if (!in_array($path,$greenlight_routes)){
+                return false;
+            }
+        }
+        return true;
     }
 }
