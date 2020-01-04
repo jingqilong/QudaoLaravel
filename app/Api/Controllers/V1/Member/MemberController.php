@@ -1383,10 +1383,10 @@ class MemberController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/member/get_member_contact_list",
+     *     path="/api/v1/member/get_member_contact",
      *     tags={"会员"},
      *     summary="获取成员查看成员的联系列表",
-     *     operationId="get_member_contact_list",
+     *     operationId="get_member_contact",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",
@@ -1412,12 +1412,161 @@ class MemberController extends ApiController
      * )
      *
      */
-    public function getMemberContactList(){
-        $res = $this->memberService->getMemberContactList();
+    public function getMemberContact(){
+        $res = $this->memberService->getMemberContact();
         if ($res == false){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_contact_list",
+     *     tags={"OA"},
+     *     summary="成员查看成员的联系列表",
+     *     operationId="get_member_contact_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="审核类型【0 已提交 1已审核 2审核驳回 3取消预约】",
+     *         required=false,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberContactList(){
+        $rules = [
+            'page'          => 'integer',
+            'page_num'      => 'integer',
+            'status'        => 'in:0,1,2,3',
+        ];
+        $messages = [
+            'page.integer'      => '页码不是整数',
+            'page_num.integer'  => '每页显示条数不是整数',
+            'status.in'         => '审核类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->getMemberContactList($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/member/set_member_contact",
+     *     tags={"OA"},
+     *     summary="审核成员查看成员的联系",
+     *     operationId="set_member_contact",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="审核类型【 1已审核 2审核驳回】",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function setMemberContact(){
+        $rules = [
+            'status'        => 'in:1,2',
+        ];
+        $messages = [
+            'status.in'     => '审核类型不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->setMemberContact($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message];
     }
     /**
      * @OA\Get(

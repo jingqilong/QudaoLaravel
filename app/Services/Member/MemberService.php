@@ -1158,7 +1158,11 @@ class MemberService extends BaseService
         return true;
     }
 
-    public function getMemberContactList()
+    /**
+     * 获取成员查看成员的联系列表
+     * @return bool|null
+     */
+    public function getMemberContact()
     {
         $member = $this->auth->user();
         $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
@@ -1181,5 +1185,62 @@ class MemberService extends BaseService
         }
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+    /**
+     * OA 获取成员查看成员的联系列表
+     * @param $request
+     * @return bool|null
+     */
+    public function getMemberContactList($request)
+    {
+        $status    = $request['status'] ?? null;
+        $page      = $request['page'] ?? 1;
+        $page_num  = $request['page_num'] ?? 20;
+        $where  = ['id' => ['<>',0]];
+        $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
+        if (!empty($status)) $where['status'] = $status;
+        if (!$list = MemberContactRequestRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $contact_ids  = array_column($list['data'],'contact_id');
+        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        foreach ($list['data'] as &$value){
+            if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
+                $value['contact_name'] = reset($contacts)['ch_name'];
+            }
+            if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
+                $value['grades'] = reset($grades)['grade'];
+            }
+            $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
+            $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
+        }
+        $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * OA 审核成员联系成员预约
+     * @param $request
+     * @return bool
+     */
+    public function setMemberContact($request)
+    {
+        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $request['id']])){
+            $this->setError('没有预约!');
+            return false;
+        }
+        if ($contact_info['status'] > MemberEnum::SUBMIT){
+            $this->setError('审核类型已被审核');
+            return false;
+        }
+        if (!MemberContactRequestRepository::getUpdId(['id' => $request['id']],['status' => $request['status']])){
+            $this->setError('审核失败!');
+            return false;
+        }
+        $this->setMessage('审核成功!');
+        return true;
     }
 }
