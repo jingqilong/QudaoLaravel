@@ -3,8 +3,10 @@
 namespace Tolawho\Loggy\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Tolawho\Loggy\Stream\Writer;
 
 /**
+ * @method static Writer  write($channel, $message, array $context = [])  Write out message by channel
  * Class Loggy
  * @package Tolawho\Loggy\Facades
  */

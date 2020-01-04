@@ -5,6 +5,7 @@ namespace App\Listeners;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\Common\SmsService;
+use Tolawho\Loggy\Facades\Loggy;
 
 class SendFlowSmsListener implements ShouldQueue
 {
@@ -41,6 +42,7 @@ class SendFlowSmsListener implements ShouldQueue
     public function handle($event)
     {
         $data = $event->data;
+        Loggy::write('process',date('Y-m-d H:i:s').'执行了发送短信事件！',$event);
         //TODO 这里要处理相关数据
         app(SmsService::class)->sendContent($data['receiver_mobile'],$data['content']);
         return false;

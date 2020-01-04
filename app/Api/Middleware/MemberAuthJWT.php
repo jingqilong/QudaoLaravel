@@ -26,7 +26,7 @@ class MemberAuthJWT extends BaseMiddleware
     {
         $auth       = Auth::guard('member_api');
         if (!$this->checkGuest($request->path())){
-            return new Response(json_encode(['code' => 401, 'message' => '登录失效，请重新登录']));
+            return new Response(json_encode(['code' => 405, 'message' => '权限不足！']));
         }
         try {
             if (! $token = $auth->setRequest($request)->getToken()) {

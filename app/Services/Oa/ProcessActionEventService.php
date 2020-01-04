@@ -215,13 +215,24 @@ class ProcessActionEventService extends BaseService
         if(0==$event_type){
             unset($where['node_action_id']);
         }
-        if(0==$event_type){
-            unset($where['node_id']);
-        }
         $where['event_type']=$event_type;
         $page = 1;
         $pageNum= 100;
         $event_list = OaProcessActionEventRepository::getList($where,['*'],'id','asc',$page,$pageNum);
+        $event_ids  = array_column($event_list['data'],'event_id');
+        if ($event_ids){
+            $event_defined_list = OaProcessEventsRepository::getAssignList($event_ids);
+            foreach ($event_list['data'] as &$value){
+                foreach ($event_defined_list as $event){
+                    if ($value['event_id'] == $event['id']){
+                        $value['event_defined_type'] = $event['event_type'];break;
+                    }
+                }
+            }
+        }
+
+        foreach ($event_list['data'] as &$value){
+        }
         return $event_list['data'];
     }
 
