@@ -260,12 +260,13 @@ class OrderService extends BaseService
 
     /**
      * 审核预约列表状态(oa)
-     * @param $request
+     * @param $id
+     * @param $audit
      * @return bool|null
      */
-    public function setEnterpriseOrder($request)
+    public function setEnterpriseOrder($id, $audit)
     {
-        if (!$orderInfo = EnterpriseOrderRepository::getOne(['id' => $request['id'],'deleted_at' => 0])){
+        if (!$orderInfo = EnterpriseOrderRepository::getOne(['id' => $id,'deleted_at' => 0])){
             $this->setError('无此订单!');
             return false;
         }
@@ -274,11 +275,11 @@ class OrderService extends BaseService
             return false;
         }
         $upd_arr = [
-            'status'      => $request['status'] == 1 ? EnterEnum::PASS : EnterEnum::NOPASS,
+            'status'      => $audit == 1 ? EnterEnum::PASS : EnterEnum::NOPASS,
             'updated_at'  => time(),
         ];
 
-        if (!$updOrder = EnterpriseOrderRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+        if (!$updOrder = EnterpriseOrderRepository::getUpdId(['id' => $id],$upd_arr)){
             $this->setError('审核失败，请重试!');
             return false;
         }
@@ -308,7 +309,7 @@ class OrderService extends BaseService
             }
             $title = '企业咨询预约通知';
             #发送站内信
-            SendService::sendMessage($orderInfo['user_id'],MessageEnum::CONSULTRESERVE,$title,$sms_template[$status],$request['id']);
+            SendService::sendMessage($orderInfo['user_id'],MessageEnum::CONSULTRESERVE,$title,$sms_template[$status],$id);
         }
         $this->setMessage('审核成功！');
         return true;

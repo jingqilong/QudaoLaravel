@@ -17,6 +17,8 @@ class ProcessCategoryEnum extends BaseEnum
         'HOUSE_RESERVATION'      => '看房预约',
         'HOSPITAL_RESERVATION'   => '医疗预约',
         'PRIME_RESERVATION'      => '精选生活预约',
+        'HOUSE_RELEASE'          => '房源发布',
+        'MEMBER_CONTACT_REQUEST' => '成员联系请求',
     ];
 
     public static $data_map = [
@@ -28,6 +30,8 @@ class ProcessCategoryEnum extends BaseEnum
         6 => 'HOUSE_RESERVATION',
         7 => 'HOSPITAL_RESERVATION',
         8 => 'PRIME_RESERVATION',
+        9 => 'HOUSE_RELEASE',
+        10 => 'MEMBER_CONTACT_REQUEST',
     ];
     // constants
 
@@ -46,6 +50,10 @@ class ProcessCategoryEnum extends BaseEnum
     const HOSPITAL_RESERVATION     = 7;
 
     const PRIME_RESERVATION        = 8;
+
+    const HOUSE_RELEASE            = 9;
+
+    const MEMBER_CONTACT_REQUEST   = 10;
 
     /**
      * 获取状态label

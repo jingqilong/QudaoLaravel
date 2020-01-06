@@ -121,18 +121,18 @@ class OaProjectService extends BaseService
 
     /**
      * 审核订单状态
-     * @param array $data
+     * @param $id
+     * @param $audit
      * @return bool|null
      */
-    public function setProjectOrderStatusById(array $data)
+    public function setProjectOrderStatusById($id,$audit)
     {
-        $id = $data['id'];
         if (!$order_info = OaProjectOrderRepository::getOne(['id' => $id])){
             $this->setError('无此订单!');
             return false;
         }
         $upd_arr = [
-            'status'      => $data['status'] == 1 ? ProjectEnum::PASS : ProjectEnum::NOPASS,
+            'status'      => $audit == 1 ? ProjectEnum::PASS : ProjectEnum::NOPASS,
             'updated_at'  => time(),
         ];
 

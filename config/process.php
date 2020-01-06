@@ -1,5 +1,6 @@
 <?php
 
+
 return [
     'start_node' => 1,
     'link_url' =>[
@@ -46,6 +47,10 @@ return [
         7 => [ App\Services\Medical\OrdersService::class,'getCreatedUser'],
 //        'PRIME_RESERVATION'     => '精选生活预约',
         8 => [ App\Services\Prime\ReservationService::class,'getCreatedUser'],
+//        'HOUSE_RELEASE'     => '房源发布',
+        9 => [ App\Services\House\DetailsService::class,'getCreatedUser'],
+//        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
+        10 => [ App\Services\Member\MemberService::class,'getCreatedUser'],
     ],
 
 
@@ -66,5 +71,44 @@ return [
         7 => [ App\Services\Medical\OrdersService::class,'getProcessBusinessList'],
 //        'PRIME_RESERVATION'     => '精选生活预约',
         8 => [ App\Services\Prime\ReservationService::class,'getProcessBusinessList'],
+//        'HOUSE_RELEASE'     => '房源发布',
+        9 => [ App\Services\House\DetailsService::class,'getProcessBusinessList'],
+//        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
+        10 => [ App\Services\Member\MemberService::class,'getProcessBusinessList'],
+    ],
+
+
+    'process_perform_list' => [//获取每个流程分类对应的业务审核方法列表
+//        'MEMBER_UPGRADE'         => '成员升级',
+        1 => [ App\Services\Member\GradeOrdersService::class,'auditApply'],
+//        'ACTIVITY_REGISTER'      => '活动报名',
+        2 => [ App\Services\Activity\RegisterService::class,'auditRegister'],
+//        'PROJECT_DOCKING'        => '项目对接',
+        3 => [ App\Services\Project\OaProjectService::class,'setProjectOrderStatusById'],
+//        'LOAN_RESERVATION'       => '贷款预约',
+        4 => [ App\Services\Loan\PersonalService::class,'auditLoan'],
+//        'ENTERPRISE_CONSULT'     => '企业咨询',
+        5 => [ App\Services\Enterprise\OrderService::class,'setEnterpriseOrder'],
+//        'HOUSR_RESERVATION'     => '看房预约',
+        6 => [ App\Services\House\ReservationService::class,'auditReservation'],
+//        'HOSPITAL_RESERVATION'     => '医疗预约',
+        7 => [ App\Services\Medical\OrdersService::class,'setDoctorOrder'],
+//        'PRIME_RESERVATION'     => '精选生活预约',
+        8 => [ App\Services\Prime\ReservationService::class,'auditReservation'],
+//        'HOUSE_RELEASE'     => '房源发布',
+        9 => [ App\Services\House\DetailsService::class,'auditHouse'],
+//        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
+        10 => [ App\Services\Member\MemberService::class,'setMemberContact'],
+    ],
+
+    'business_audit_result_control' => [
+        1 => [
+            \App\Enums\CommonAuditStatusEnum::PASS      => \App\Enums\GradeOrderEnum::PASS,
+            \App\Enums\CommonAuditStatusEnum::NO_PASS   => \App\Enums\GradeOrderEnum::NOPASS,
+        ],
+        1 => [
+            \App\Enums\CommonAuditStatusEnum::PASS      => \App\Enums\GradeOrderEnum::PASS,
+            \App\Enums\CommonAuditStatusEnum::NO_PASS   => \App\Enums\GradeOrderEnum::NOPASS,
+        ],
     ],
 ];

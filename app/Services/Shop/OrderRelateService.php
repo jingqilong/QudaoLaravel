@@ -52,7 +52,9 @@ class OrderRelateService extends BaseService
         $member = Auth::guard('member_api')->user();
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_ids          = array_column($goods_param,'goods_id');
+        $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
         $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
         #购买所得积分
         $buy_score          = 0;
         #邮费
@@ -64,6 +66,9 @@ class OrderRelateService extends BaseService
             if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $buy_score          += reset($goods)['gift_score'];
                 $express_price      += reset($goods)['express_price'];
+                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
+                    $total_price        += (reset($spec_relate)['price'] * $value['number']);continue;
+                }
                 $total_price        += (reset($goods)['price'] * $value['number']);
             }
         }

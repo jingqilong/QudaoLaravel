@@ -262,12 +262,13 @@ class OrdersService extends BaseService
 
     /**
      * 审核预约列表状态(oa)
-     * @param $request
+     * @param $id
+     * @param $audit
      * @return bool|null
      */
-    public function setDoctorOrder($request)
+    public function setDoctorOrder($id,$audit)
     {
-        if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $request['id']])){
+        if (!$orderInfo = MedicalOrdersRepository::getOne(['id' => $id])){
             $this->setError('查询不到预约信息!');
             return false;
         }
@@ -275,12 +276,12 @@ class OrdersService extends BaseService
             $this->setError('预约医生不存在!');
             return false;
         }
-        $status = $request['audit'] == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
+        $status = $audit == 1 ? DoctorEnum::PASS : DoctorEnum::NOPASS;
         $upd_arr = [
             'status'      => $status,
             'updated_at'  => time(),
         ];
-        if (!$updOrder = MedicalOrdersRepository::getUpdId(['id' => $request['id']],$upd_arr)){
+        if (!$updOrder = MedicalOrdersRepository::getUpdId(['id' => $id],$upd_arr)){
             $this->setError('审核失败，请重试!');
             return false;
         }
@@ -308,7 +309,7 @@ class OrdersService extends BaseService
             }
             $title = '医疗预约通知';
             #发送站内信
-            SendService::sendMessage($orderInfo['member_id'],MessageEnum::MEDICALBOOKING,$title,$sms_template[$status],$request['id']);
+            SendService::sendMessage($orderInfo['member_id'],MessageEnum::MEDICALBOOKING,$title,$sms_template[$status],$id);
         }
         $this->setMessage('审核成功！');
         return true;

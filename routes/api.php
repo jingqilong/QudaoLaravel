@@ -164,6 +164,9 @@ $api->version('v1',function ($api){
                 $api->post('edit_member_grade_view','OaMemberController@editMemberGradeView')->name('修改等级可查看等级服务');
                 $api->get('get_member_grade_view_list','OaMemberController@getMemberGradeViewList')->name('获取等级可查看等级服务列表');
 
+                #流程提交审核结果
+                $api->post('submit_operation_result','ProcessPerformController@submitOperationResult')->name('提交流程操作（审核）结果');
+
 
                 #OA流程
                 $api->group(['prefix' => 'process'],function ($api){

@@ -73,18 +73,18 @@ class HouseEnum extends BaseEnum
 
     #状态
     public static $status = [
-        1 => 'PENDING',
-        2 => 'PASS',
-        3 => 'NOPASS',
-        4 => 'RENTED',
+        0 => 'PENDING',
+        1 => 'PASS',
+        2 => 'NOPASS',
+        3 => 'RENTED',
     ];
 
     #预约状态
     public static $reservation_status = [
-        1 => 'RESERVATION',
-        2 => 'RESERVATIONOK',
-        3 => 'RESERVATIONNO',
-        4 => 'CANCELRESERVATION',
+        0 => 'RESERVATION',
+        1 => 'RESERVATIONOK',
+        2 => 'RESERVATIONNO',
+        3 => 'CANCELRESERVATION',
     ];
 
     // 租期
@@ -110,16 +110,16 @@ class HouseEnum extends BaseEnum
     const PLATFORM      = 2;    //平台
 
     // 状态
-    const PENDING       = 1;    //待审核
-    const PASS          = 2;    //通过
-    const NOPASS        = 3;    //未通过
-    const RENTED        = 4;    //已出租
+    const PENDING       = 0;    //待审核
+    const PASS          = 1;    //通过
+    const NOPASS        = 2;    //未通过
+    const RENTED        = 3;    //已出租
 
     // 预约状态
-    const RESERVATION   = 1;    //待审核
-    const RESERVATIONOK = 2;    //预约成功
-    const RESERVATIONNO = 3;    //预约失败
-    const CANCELRESERVATION = 4;    //预约取消
+    const RESERVATION       = 0;    //待审核
+    const RESERVATIONOK     = 1;    //预约成功
+    const RESERVATIONNO     = 2;    //预约失败
+    const CANCELRESERVATION = 3;    //预约取消
 
 
     /**

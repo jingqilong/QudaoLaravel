@@ -1075,7 +1075,7 @@ class OaGradeController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->gradeOrdersService->auditApply($this->request);
+        $res = $this->gradeOrdersService->auditApply($this->request['id'],$this->request['audit']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->gradeOrdersService->error];
         }

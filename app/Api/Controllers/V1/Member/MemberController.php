@@ -1538,7 +1538,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="审核类型【 1已审核 2审核驳回】",
+     *         description="审核结果【 1通过 2驳回】",
      *         required=true,
      *         @OA\Schema(
      *              type="integer",
@@ -1553,16 +1553,20 @@ class MemberController extends ApiController
      */
     public function setMemberContact(){
         $rules = [
-            'status'        => 'in:1,2',
+            'id'            => 'required|integer',
+            'status'        => 'required|in:1,2',
         ];
         $messages = [
-            'status.in'     => '审核类型不存在',
+            'id.required'       => 'ID不能为空',
+            'id.integer'        => 'ID必须为整数',
+            'status.required'   => '审核结果不能为空',
+            'status.in'         => '审核结果不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->memberService->setMemberContact($this->request);
+        $res = $this->memberService->setMemberContact($this->request['id'],$this->request['status']);
         if ($res == false){
             return ['code' => 100, 'message' => $this->memberService->error];
         }

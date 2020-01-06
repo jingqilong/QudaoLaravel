@@ -234,7 +234,7 @@ class OaProjectController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
 
-        $list = $this->OaProjectService->setProjectOrderStatusById($this->request);
+        $list = $this->OaProjectService->setProjectOrderStatusById($this->request['id'],$this->request['status']);
         if (!$list){
             return ['code' => 100, 'message' => $this->OaProjectService->error];
         }

@@ -1233,12 +1233,13 @@ class MemberService extends BaseService
 
     /**
      * OA 审核成员联系成员预约
-     * @param $request
+     * @param $id
+     * @param $audit
      * @return bool
      */
-    public function setMemberContact($request)
+    public function setMemberContact($id, $audit)
     {
-        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $request['id']])){
+        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $id])){
             $this->setError('没有预约!');
             return false;
         }
@@ -1246,7 +1247,7 @@ class MemberService extends BaseService
             $this->setError('审核类型已被审核');
             return false;
         }
-        if (!MemberContactRequestRepository::getUpdId(['id' => $request['id']],['status' => $request['status']])){
+        if (!MemberContactRequestRepository::getUpdId(['id' => $id],['status' => $audit])){
             $this->setError('审核失败!');
             return false;
         }

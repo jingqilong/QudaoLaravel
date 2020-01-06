@@ -616,18 +616,19 @@ class DoctorOrderController extends ApiController
     public function setDoctorOrder(){
         $rules = [
             'id'            => 'required|integer',
-            'status'        => 'in:0,1,2',
+            'status'        => 'required|in:0,1,2',
         ];
         $messages = [
             'id.required'               => '预约id不能为空',
             'id.integer'                => '预约id不是整数',
-            'status.in'                 => '审核类型不存在',
+            'status.required'           => '审核状态不能为空',
+            'status.in'                 => '审核状态不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->OrdersService->setDoctorOrder($this->request);
+        $res = $this->OrdersService->setDoctorOrder($this->request['id'],$this->request['status']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->OrdersService->error];
         }

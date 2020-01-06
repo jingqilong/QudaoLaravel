@@ -30,9 +30,9 @@ class SendFlowSmsListener implements ShouldQueue
     public function handle(SendFlowSms $event)
     {
         $data = $event->data;
-        Loggy::write('process','执行了发送短信事件223！');
+        Loggy::write('process',$data['receiver_mobile'].'执行了发送短信事件！');
         //TODO 这里要处理相关数据
-        app(SmsService::class)->sendContent($data['receiver_mobile'],'队列事件测试');
+        app(SmsService::class)->sendContent($data['receiver_mobile'],'队列事件测试2');
         return false;
     }
 

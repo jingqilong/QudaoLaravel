@@ -85,7 +85,7 @@ trait BusinessTrait
      * @return array
      */
     public function updateProcessRecord($process_record_id, $process_record_data){
-        if(!isset($process_record_data['action_result_id'])){
+        if(!isset($process_record_data['node_actions_result_id'])){
             $message = "缺少节点动作结果id！";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
@@ -117,8 +117,8 @@ trait BusinessTrait
         $this->triggerResultEvent($event_list,$process_record_data);
 
 
-        if(1< $transition['status']){ //节点已结束或终止
-            return ['code'=>200,  'message' => "流程发起成功！" ];
+        if(1< $transition['status'] || $transition['next_node'] == 0){ //节点已结束或终止
+            return ['code'=>202,  'message' => "流程发起成功！" ];
 
         }
         $next_node_id = $transition['next_node'];
@@ -270,13 +270,13 @@ trait BusinessTrait
                 $event_data['receiver'] = $receiver;
                 $event_data['event_type'] =  $event['event_type'];
                 //所以，到这里，还是要具体获取这些人的ID
-                if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_type']){
+                if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_defined_type']){
                     event(new SendDingTalkEmail($event_data));
                 }
-                if(ProcessEventEnum::SMS ==  $event['event_type']){
+                if(ProcessEventEnum::SMS ==  $event['event_defined_type']){
                     event(new SendSiteMessage($event_data));
                 }
-                if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_type']){
+                if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_defined_type']){
                     event(new SendFlowSms($event_data));
                 }
 //                if(ProcessEventEnum::WECHAT_PUSH ==  $event['event_type']){
@@ -432,5 +432,32 @@ trait BusinessTrait
             $action_result_list = [];
         }
         return $action_result_list;
+    }
+
+    /**
+     * 更新业务审核状态
+     * @param $business_id
+     * @param $audit_status
+     * @param $process_category
+     * @return array|bool
+     */
+    public function updateBusinessAuditStatus($business_id, $audit_status, $process_category){
+        $config_data  = config('process.process_perform_list');
+        if (!isset($process_category)){
+            return [];
+        }
+        list($class,$function) = $config_data[$process_category];
+        try{
+            $target_object = app()->make($class);
+        }catch (\Exception $e){
+            Loggy::write('error',$e->getMessage());
+            $this->setError('获取失败!');
+            return false;
+        }
+        if(!method_exists($target_object,$function)){
+            $this->setError('函数'.$target_object ."->".$function. '不存在，获取失败!');
+            return false;
+        }
+        return $target_object->$function($business_id,$audit_status);
     }
 }

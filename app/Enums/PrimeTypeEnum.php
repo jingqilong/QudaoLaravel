@@ -26,10 +26,10 @@ class PrimeTypeEnum extends BaseEnum
     ];
     #预约状态
     public static $reservation_status = [
-        1 => 'RESERVATION',
-        2 => 'RESERVATIONOK',
-        3 => 'RESERVATIONNO',
-        4 => 'RESERVATIONCANCEL',
+        0 => 'RESERVATION',
+        1 => 'RESERVATIONOK',
+        2 => 'RESERVATIONNO',
+        3 => 'RESERVATIONCANCEL',
     ];
 
     // constants
@@ -40,10 +40,10 @@ class PrimeTypeEnum extends BaseEnum
 
     const HOTEL         = 3;
     // 预约状态
-    const RESERVATION       = 1;    //待审核
-    const RESERVATIONOK     = 2;    //预约成功
-    const RESERVATIONNO     = 3;    //预约失败
-    const RESERVATIONCANCEL = 4;    //预约取消
+    const RESERVATION       = 0;    //待审核
+    const RESERVATIONOK     = 1;    //预约成功
+    const RESERVATIONNO     = 2;    //预约失败
+    const RESERVATIONCANCEL = 3;    //预约取消
 
     /**
      * @param int $value        值

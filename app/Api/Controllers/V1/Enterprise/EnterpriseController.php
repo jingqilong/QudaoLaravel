@@ -750,18 +750,19 @@ class EnterpriseController extends ApiController
     public function setEnterpriseOrder(){
         $rules = [
             'id'            => 'required|integer',
-            'status'        => 'in:0,1,2',
+            'status'        => 'required|in:0,1,2',
         ];
         $messages = [
             'id.required'               => '预约id不能为空',
             'id.integer'                => '预约id不是整数',
+            'status.required'           => '审核类型不能为空',
             'status.in'                 => '审核类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->enterpriseService->setEnterpriseOrder($this->request);
+        $res = $this->enterpriseService->setEnterpriseOrder($this->request['id'],$this->request['status']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->enterpriseService->error];
         }

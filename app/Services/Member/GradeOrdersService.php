@@ -134,12 +134,13 @@ class GradeOrdersService extends BaseService
 
     /**
      * 会员升级申请审核
-     * @param $request
+     * @param $id
+     * @param $audit
      * @return bool
      */
-    public function auditApply($request)
+    public function auditApply($id,$audit)
     {
-        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $request['id']])){
+        if (!$apply = MemberGradeOrdersViewRepository::getOne(['id' => $id])){
             $this->setError('申请记录不存在！');
             return false;
         }
@@ -147,13 +148,13 @@ class GradeOrdersService extends BaseService
             $this->setError('该申请已审核完成，请勿重复审核！');
             return false;
         }
-        $upd = ['audit' => $request['audit'],'updated_at' => time()];
-        if (!MemberGradeOrdersRepository::getUpdId(['id' => $request['id']],$upd)){
+        $upd = ['audit' => $audit,'updated_at' => time()];
+        if (!MemberGradeOrdersRepository::getUpdId(['id' => $id],$upd)){
             $this->setError('审核失败！');
             return false;
         }
         //如果审核未通过，设置订单状态为已关闭
-        if ($request['audit'] == GradeOrderEnum::NOPASS){
+        if ($audit == GradeOrderEnum::NOPASS){
             MemberOrdersRepository::getUpdId(['order_no' => $apply['order_no']],['status' => OrderEnum::STATUSCLOSE,'updated_at' => time()]);
         }
         //通知用户
@@ -165,11 +166,11 @@ class GradeOrdersService extends BaseService
         #短信通知
         if (!empty($apply['mobile'])){
             $smsService = new SmsService();
-            $smsService->sendContent($apply['mobile'],$sms_template[$request['audit']]);
+            $smsService->sendContent($apply['mobile'],$sms_template[$audit]);
         }
         $title = '会员等级申请通知';
         #发送站内信
-        SendService::sendMessage($apply['member_id'],MessageEnum::SYSTEMNOTICE,$title,$sms_template[$request['audit']],$request['id']);
+        SendService::sendMessage($apply['member_id'],MessageEnum::SYSTEMNOTICE,$title,$sms_template[$audit],$id);
         $this->setMessage('审核成功！');
         return true;
     }
