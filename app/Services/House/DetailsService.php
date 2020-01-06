@@ -292,6 +292,7 @@ class DetailsService extends BaseService
             $value['publisher_name']      = $this->getPublisherName($value['publisher'],$value['publisher_id']);
             $value['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$value['facilities_ids']),['id','title','icon_id']);
             $value['facilities_ids']     = rtrim($value['facilities_ids'],',');
+            $value['status_title']        = HouseEnum::getStatus($value['status']);
             $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
             $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
             $value['deleted_at'] = $value['deleted_at'] ==0 ? '':date('Y-m-d H:i:s',$value['deleted_at']);
