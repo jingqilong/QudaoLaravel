@@ -369,4 +369,64 @@ class GoodsController extends ApiController
         }
         return ['code' => 200, 'message' => $this->goodsSpecRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_goods_spec_list",
+     *     tags={"商城"},
+     *     summary="获取商品规格",
+     *     description="sang" ,
+     *     operationId="get_goods_spec_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="商品id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getGoodsSpecList(){
+        $rules = [
+            'id'        => 'required|integer',
+        ];
+        $messages = [
+            'id.required'     => '请输入商品id',
+            'id.integer'      => '商品id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->goodsSpecRelateService->getGoodsSpecList($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->goodsSpecRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->goodsSpecRelateService->message,'data' => $res];
+    }
 }

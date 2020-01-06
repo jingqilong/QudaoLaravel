@@ -4,12 +4,14 @@ namespace App\Services\Shop;
 
 use App\Repositories\ScoreCategoryRepository;
 use App\Repositories\ShopCartRepository;
+use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class GoodsSpecRelateService extends BaseService
@@ -195,7 +197,7 @@ class GoodsSpecRelateService extends BaseService
      */
     public function getGoodsSpec($goods_id)
     {
-        if (!$spec_related = ShopGoodsSpecRelateRepository::getList(['goods_id' => $goods_id,'deleted_at' => 0],['id','spec_ids','stock','price'])){
+        if (!$spec_related = ShopGoodsSpecRelateRepository::getList(['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],['id','spec_ids','stock','price'])){
             $this->setMessage('暂无规格！');
             return [];
         }
@@ -208,6 +210,7 @@ class GoodsSpecRelateService extends BaseService
         $spec_str   = trim($spec_str,',');
         $spec_ids   = array_unique(explode(',',$spec_str));
         $spec_list  = ShopGoodsSpecRepository::getAssignList($spec_ids,['id','image_id','spec_name','spec_value']);
+
         $spec_list  = ImagesService::getListImages($spec_list,['image_id' => 'single']);
         $res['spec_arr']   = [];
         foreach ($spec_list as $item){
@@ -249,6 +252,43 @@ class GoodsSpecRelateService extends BaseService
         $res['spec_relate'] = $spec_arr;
         $this->setMessage('获取成功！');
         return $res;
+    }
+
+    /**
+     * H5获取商品规格
+     * @param $goods_id
+     * @return array|null
+     */
+    public function getGoodsSpecList($goods_id)
+    {
+        //从视图中取出记录
+        if (!$spec_list = ShopGoodSpecListViewRepository::getAllList(
+                ['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],
+                ['id','goods_id','price','stock','spec_ids','attribute_id','image_id','spec_name','spec_value'],
+                ['id','attribute_id'],
+                ['asc','asc']
+        )){
+            $this->setMessage('暂无规格！');
+            return [];
+        }
+        $result = $last_item = $new_item =  $attributes = [];
+        $last_id = 0;
+        //因为视图是联表查询，所以，这里要合并记录
+        foreach ($spec_list as $item){
+            if($last_id != $item['id']){
+                $new_item['attributes'] = implode('； ',$attributes);
+                $last_id = $item['id'];
+                $new_item = & $result[];
+                $new_item = Arr::only($item,['id','goods_id','price','stock','image_id']);
+                $attributes = array_flip(explode(',',trim($item['spec_ids'],','))) ;
+            }
+            $attributes[$item['attribute_id']]  =  $item['spec_name'] ."：" .$item['spec_value'] ;
+        }
+        $new_item['attributes'] = implode('； ',$attributes);
+        //获取图片
+        $result  = ImagesService::getListImages($result,['image_id' => 'single']);
+        $this->setMessage('获取成功！');
+        return $result;
     }
 
 
