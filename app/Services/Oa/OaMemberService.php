@@ -122,7 +122,7 @@ class OaMemberService extends BaseService
             return false;
         }
         if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
         $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
