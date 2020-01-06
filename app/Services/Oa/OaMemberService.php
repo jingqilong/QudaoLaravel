@@ -50,7 +50,7 @@ class OaMemberService extends BaseService
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
         $keywords       = $data['keywords'] ?? null;
         $where          = ['deleted_at' => 0,'is_test' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','category'];
+        $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
         if (!empty($category)) $where['category'] = $category;
         if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
             $this->setError('获取失败!');

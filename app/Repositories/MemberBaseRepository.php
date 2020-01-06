@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Enums\MemberEnum;
 use App\Models\MemberBaseModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +51,7 @@ class MemberBaseRepository extends ApiRepository
                 return false;
             }
         }
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['avatar_id' => 'single']);
         $member_ids  = array_column($list['data'],'id');
         if (empty($member_info_list  = MemberInfoRepository::getList(['member_id' => ['in',$member_ids]],['member_id','is_recommend','is_home_detail','employer']))){
             $member_info_list = [
@@ -75,13 +77,14 @@ class MemberBaseRepository extends ApiRepository
                 $member_grade_arr = reset($member_grade);
             }
             $value = array_merge($value,$member_info_arr,$member_grade_arr);
-            unset($value['member_id'],$value['user_id']);
             if (empty($list['is_recommend'])) $value['is_recommend'] = '0'; else $value['is_recommend'] == 0 ? 0 : 1;
             if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
             $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
             $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['img_url']       = $value['avatar_url']; #前端适配字段名
+            unset($value['member_id'],$value['user_id'],$value['avatar_url']);
         }
         return $list;
     }
