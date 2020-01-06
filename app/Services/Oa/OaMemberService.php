@@ -42,8 +42,7 @@ class OaMemberService extends BaseService
     public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
-        //$is_home_detail = $data['is_home_detail'] ?? null;
-        //$grade          = $data['grade'] ?? null;
+        $is_home_detail = $data['is_home_detail'] ?? null;
         $category       = $data['category'] ?? null;
         $page           = $data['page'] ?? 1;
         $page_num       = $data['page_num'] ?? 20;
@@ -52,6 +51,17 @@ class OaMemberService extends BaseService
         $where          = ['deleted_at' => 0,'is_test' => 0];
         $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
         if (!empty($category)) $where['category'] = $category;
+        /*if (!empty($is_home_detail)){
+            if (!$list = MemberInfoRepository::getScreenMemberList($is_home_detail, $column, $page, $page_num, 'id', $asc)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else{
+            if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }*/
         if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
             $this->setError('获取失败!');
             return false;

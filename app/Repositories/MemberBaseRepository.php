@@ -26,8 +26,6 @@ class MemberBaseRepository extends ApiRepository
     {
         $this->model = $model;
     }
-
-
     /**
      * 获取OA列表
      * @param $keywords
@@ -41,8 +39,9 @@ class MemberBaseRepository extends ApiRepository
      */
     protected function getMemberList($keywords, $where, $column, $page, $page_num, $order, $asc)
     {
+        $where['id'] = ['>',1];
         if (!empty($keywords)){
-            $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'grade', 'category']];
+            $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'category']];
             if (!$list = $this->search($keyword, $where, $column, $page, $page_num, $order, $asc)) {
                  return false;
             }
