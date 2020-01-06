@@ -40,9 +40,24 @@ class GoodsSpecRelateService extends BaseService
         $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
         $result             = [];
         foreach ($goods_spec_arr as $key => $value){
+            $spec_str       = '件';
+            $price          = 0;
+            if (isset($value['spec_relate_id'])){
+                $spec_str = '';
+                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
+                    $price = reset($spec_relate)['price'];
+                    $value_spec_ids = explode(',',trim(reset($spec_relate)['spec_ids'],','));
+                    foreach ($value_spec_ids as $value_spec_id){
+                        if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
+                            $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
+                        }
+                    }
+                }
+            }
+
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $goods  =  reset($goods);
-                $price  =  $goods['price'];
+                $price  =  ($price ? $price : $goods['price']) * $value['number'];
                 $result[$key] = [
                     'goods_name'      => $goods['name'],
                     'goods_price'     => sprintf('%.2f',round($price / 100,2)),
@@ -56,18 +71,6 @@ class GoodsSpecRelateService extends BaseService
                             $price
                         )
                 ];
-            }
-            $spec_str       = '件';
-            if (isset($value['spec_relate_id'])){
-                $spec_str = '';
-                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                    $value_spec_ids = explode(',',trim(reset($spec_relate)['spec_ids'],','));
-                    foreach ($value_spec_ids as $value_spec_id){
-                        if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
-                            $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
-                        }
-                    }
-                }
             }
             if (isset($value['order_relate_id'])){
                 $result[$key]['order_relate_id'] = $value['order_relate_id'];
