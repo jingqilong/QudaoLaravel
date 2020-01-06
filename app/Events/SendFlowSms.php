@@ -9,8 +9,10 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Tolawho\Loggy\Facades\Loggy;
 
-class SendFlowSms implements ShouldBroadcast
+class SendFlowSms
+//    implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,24 +28,25 @@ class SendFlowSms implements ShouldBroadcast
         //
         $this->data = $data;
     }
-
-    /**
-     * Get the data to broadcast.
-     *
-     * @return array
-     */
-    public function broadcastWith()
-    {
-        return $this->data;
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+//
+//    /**
+//     * Get the data to broadcast.
+//     *
+//     * @return array
+//     */
+//    public function broadcastWith()
+//    {
+//        return $this->data;
+//    }
+//
+//    /**
+//     * Get the channels the event should broadcast on.
+//     *
+//     * @return \Illuminate\Broadcasting\Channel|array
+//     */
+//    public function broadcastOn()
+//    {
+//        Loggy::write('process','执行了broadcastOn()！');
+//        return new PrivateChannel('event_sms');
+//    }
 }
