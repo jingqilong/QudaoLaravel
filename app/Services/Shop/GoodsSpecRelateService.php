@@ -280,7 +280,7 @@ class GoodsSpecRelateService extends BaseService
                 $last_id = $item['id'];
                 $new_item = & $result[];
                 $new_item = Arr::only($item,['id','goods_id','price','stock','image_id']);
-                $new_item['price']  /=100;
+                $new_item['price']  = number_format($new_item['price']/100,2 );
                 $attributes = array_flip(explode(',',trim($item['spec_ids'],','))) ;
             }
             $attributes[$item['attribute_id']]  =  $item['spec_name'] ."：" .$item['spec_value'] ;
