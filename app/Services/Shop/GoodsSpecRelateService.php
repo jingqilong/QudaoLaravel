@@ -280,9 +280,15 @@ class GoodsSpecRelateService extends BaseService
                 $last_id = $item['id'];
                 $new_item = & $result[];
                 $new_item = Arr::only($item,['id','goods_id','price','stock','image_id']);
+                $new_item['price']  /=100;
                 $attributes = array_flip(explode(',',trim($item['spec_ids'],','))) ;
             }
             $attributes[$item['attribute_id']]  =  $item['spec_name'] ."：" .$item['spec_value'] ;
+            if($new_item['image_id'] == 0){
+                if( $item['image_id']!=0){
+                    $new_item['image_id'] = $item['image_id'];
+                }
+            }
         }
         $new_item['attributes'] = implode('； ',$attributes);
         //获取图片
