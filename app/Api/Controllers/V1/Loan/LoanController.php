@@ -374,7 +374,7 @@ class LoanController extends ApiController
      *          name="price",
      *          in="query",
      *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="integer",
      *          )
@@ -415,7 +415,7 @@ class LoanController extends ApiController
         $rules = [
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
-            'price'             => 'required|in:1,2,3,4,5',
+            'price'             => 'in:1,2,3,4,5',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
@@ -425,7 +425,7 @@ class LoanController extends ApiController
             'name.required'             => '请输入预约姓名',
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
-            'price.required'            => '请正确填写贷款金额',
+//            'price.required'            => '请正确填写贷款金额',
             'price.in'                  => '贷款金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
@@ -502,7 +502,7 @@ class LoanController extends ApiController
      *          name="price",
      *          in="query",
      *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
-     *          required=true,
+     *          required=false,
      *          @OA\Schema(
      *              type="integer",
      *          )
@@ -543,7 +543,7 @@ class LoanController extends ApiController
         $rules = [
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
-            'price'             => 'required|in:1,2,3,4,5',
+            'price'             => 'in:1,2,3,4,5',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
@@ -553,7 +553,7 @@ class LoanController extends ApiController
             'name.required'             => '请输入预约姓名',
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
-            'price.required'            => '请正确填写贷款金额',
+//            'price.required'            => '请正确填写贷款金额',
             'price.in'                  => '贷款金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',

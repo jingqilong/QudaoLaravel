@@ -59,7 +59,7 @@ class ReservationController extends ApiController
      *         name="name",
      *         in="query",
      *         description="预约人姓名",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -68,7 +68,7 @@ class ReservationController extends ApiController
      *         name="mobile",
      *         in="query",
      *         description="预约人手机号",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -77,7 +77,7 @@ class ReservationController extends ApiController
      *         name="time",
      *         in="query",
      *         description="预约时间 （例如：2019-10-01 08:30）",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -86,7 +86,7 @@ class ReservationController extends ApiController
      *         name="memo",
      *         in="query",
      *         description="备注",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -101,28 +101,28 @@ class ReservationController extends ApiController
     public function reservation(){
         $rules = [
             'house_id'          => 'required|integer',
-            'name'              => 'required',
-            'mobile'            => 'required|regex:/^1[35678][0-9]{9}$/',
+            'mobile'            => 'mobile',
             'time'              => [
-                'required',
+//                'required',
                 'regex:/^[1-9][0-9]{3}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-2])\s([0-1][0-9]|2[0-4])[:][0-5][0-9]$/'
             ],
+            'memo'              => 'required'
         ];
         $messages = [
             'house_id.required'     => '房产ID不能为空',
             'house_id.integer'      => '房产ID必须为整数',
-            'name.required'         => '预约人姓名不能为空',
-            'mobile.required'       => '预约人手机号不能为空',
+//            'name.required'         => '预约人姓名不能为空',
+//            'mobile.required'       => '预约人手机号不能为空',
             'mobile.regex'          => '预约人手机号格式有误',
-            'time.required'         => '预约时间不能为空',
+//            'time.required'         => '预约时间不能为空',
             'time.regex'            => '预约时间格式有误',
+            'memo.required'         => '备注不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $member = Auth::guard('member_api')->user();
-        $res = $this->reservationService->reservation($this->request,$member->id);
+        $res = $this->reservationService->reservation($this->request);
         if ($res){
             return ['code' => 200, 'message' => $this->reservationService->message];
         }

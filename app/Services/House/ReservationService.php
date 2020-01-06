@@ -27,26 +27,26 @@ class ReservationService extends BaseService
     /**
      * 添加预约
      * @param $request
-     * @param $member_id
      * @return bool
      */
-    public function reservation($request, $member_id)
+    public function reservation($request)
     {
+        $member = Auth::guard('member_api')->user();
         if (!HouseDetailsRepository::exists(['id' => $request['house_id'],'status' => HouseEnum::PASS,'deleted_at' => 0])){
             $this->setError('房产信息不存在！');
             return false;
         }
-        if (strtotime($request['time']) < time()){
+        if (isset($request['time']) && strtotime($request['time']) < time()){
             $this->setError('不能预约过去的时间！');
             return false;
         }
         $add_arr = [
             'house_id'      => $request['house_id'],
-            'name'          => $request['name'],
-            'mobile'        => $request['mobile'],
-            'time'          => strtotime($request['time']),
+            'name'          => $request['name'] ?? $member->ch_name,
+            'mobile'        => $request['mobile'] ?? $member->mobile,
+            'time'          => isset($request['time']) ? strtotime($request['time']) : '0',
             'memo'          => $request['memo'] ?? '',
-            'member_id'     => $member_id,
+            'member_id'     => $member->id,
         ];
         if (HouseReservationRepository::exists(array_merge(['state' => HouseEnum::RESERVATION],$add_arr))){
             $this->setError('已预约，请勿重复预约！');
