@@ -42,6 +42,32 @@ class OaMemberService extends BaseService
     public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
+        //$is_home_detail = $data['is_home_detail'] ?? null;
+        //$grade          = $data['grade'] ?? null;
+        $category       = $data['category'] ?? null;
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
+        $keywords       = $data['keywords'] ?? null;
+        $where          = ['deleted_at' => 0,'is_test' => 0];
+        $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
+        if (!empty($category)) $where['category'] = $category;
+        if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('获取成功!');
+            return [];
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /*public function memberList(array $data)
+    {
+        if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;
         $grade          = $data['grade'] ?? null;
         $category       = $data['category'] ?? null;
@@ -82,7 +108,7 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
-    }
+    }*/
 
     /**
      * 获取成员信息 (拆表后 已修改)
@@ -95,8 +121,8 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在或别删除!');
             return false;
         }
-        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = [];
+        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = ['is_recommend' => 0];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0,'end_at' => 0];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
         $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
@@ -109,8 +135,8 @@ class OaMemberService extends BaseService
         $member['base']['sex_name']      = MemberEnum::getSex($member['base']['sex'],'未设置');
         $member['base']['status_name']   = MemberEnum::getStatus($member['base']['status'],'成员');
         $member['base']['hidden_name']   = MemberEnum::getHidden($member['base']['hidden'],'显示');
-        $member['base']['birthday']      = date('Y-m-d',strtotime($member['base']['birthday']));
-        if (empty($member['base']['birthday'])) $member['base']['birthday'] = '';
+        if (empty($member['base']['birthday'])) $member['base']['birthday'] = ''; else
+            $member['base']['birthday']  = date('Y-m-d',strtotime($member['base']['birthday']));
         if (0 == $member['base']['end_at']) $member['base']['end_at'] = 0; else{
             $member['base']['end_at']    = date('Y-m-d H:i:s',$member['base']['end_at']);
         }
@@ -294,8 +320,8 @@ class OaMemberService extends BaseService
      */
     public function setMemberHomeDetail($request)
     {
-        if (!MemberGradeViewRepository::exists(['id' => $request['id']])){
-            $this->setError('成员不存在!');
+        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
+            $this->setError('成员信息未完善,请先完善成员信息!');
             return false;
         }
         if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],['is_home_detail' => $request['exhibition']])){

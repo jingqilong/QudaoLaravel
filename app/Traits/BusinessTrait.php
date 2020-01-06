@@ -334,9 +334,12 @@ trait BusinessTrait
         //跳转链接
         $send_data['link_url'] = config('process.link_url')[app()['env']];
 
-
+        //此处为节点事件的执行，只针对事件通知的人群
         foreach($event_list as $event){
            foreach ($stakeholders as $receiver){
+               if ($receiver['receiver_iden'] != $event['principals_type']){
+                   continue;
+               }
                $event_data = $send_data;
                $event_data['receiver'] = $receiver;
                $event_data['event_type'] =  $event['event_defined_type'];
@@ -345,7 +348,7 @@ trait BusinessTrait
                    event(new SendDingTalkEmail($event_data));
                }
                if(ProcessEventEnum::SMS ==  $event['event_defined_type']){
-                   Loggy::write('process',date('Y-m-d H:i:s').' 触发了发送短信事件！');
+                   Loggy::write('process',' 触发了发送短信事件！发送人：'.$receiver['receiver_name']);
                    event(new SendFlowSms($event_data));
                }
                if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_defined_type']){

@@ -187,17 +187,22 @@ class OrdersService extends BaseService
         }
         $doctor_ids      = array_column($list['data'],'doctor_id');
         $hospitals_ids   = array_column($list['data'],'hospital_id');
+        $departments_ids = array_column($list['data'],'departments_id');
         $doctor_list     = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-
+        $departments_list= MedicalDepartmentsRepository::getAssignList($departments_ids,['id','name']);
         foreach ($list['data'] as &$value){
             $value['doctor_name']    = '';
             $value['hospital_name']  = '';
+            $value['departments_name']  = '';
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospital_name'] = reset($hospitals)['name'];
             }
             if ($doctor = $this->searchArray($doctor_list,'id',$value['doctor_id'])){
                 $value['doctor_name'] = reset($doctor)['name'];
+            }
+            if ($departments = $this->searchArray($departments_list,'id',$value['departments_id'])){
+                $value['departments_name'] = reset($departments)['name'];
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
@@ -221,13 +226,14 @@ class OrdersService extends BaseService
      */
     public function getOrderDetail($id){
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','appointment_at','status','created_at','updated_at'];
+        $column = ['id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','departments_id','appointment_at','status','created_at','updated_at'];
         if (!$info = MedicalOrdersRepository::getOne(['id' => $id],$column)){
             $this->setError('预约信息不存在!');
             return false;
         }
         $info['doctor_name']        = MedicalDoctorsRepository::getField(['id' => $info['doctor_id']],'name');
         $info['hospital_name']      = MediclaHospitalsRepository::getField(['id' => $info['hospital_id']],'name');
+        $info['departments_name']   = MedicalDepartmentsRepository::getField(['id' => $info['departments_id']],'name');
         $info['status']             = DoctorEnum::getStatus($info['status']);
         $info['sex']                = DoctorEnum::getSex($info['sex']);
         $info['type']               = DoctorEnum::getType($info['type']);

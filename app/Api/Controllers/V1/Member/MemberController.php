@@ -1420,6 +1420,65 @@ class MemberController extends ApiController
         return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_contact_info",
+     *     tags={"会员"},
+     *     summary="获取成员查看成员的联系详情",
+     *     operationId="get_member_contact_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="用户 token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="id",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberContactInfo(){
+        $rules = [
+            'id'  => 'required|integer',
+        ];
+        $messages = [
+            'id.required' => 'id不能为空',
+            'id.integer'  => 'id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->getMemberContactInfo($this->request['id']);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
+
 
     /**
      * @OA\Get(
