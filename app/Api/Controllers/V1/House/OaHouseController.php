@@ -640,7 +640,7 @@ class OaHouseController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="状态，1待审核，2通过，3未通过，4已出租",
+     *         description="状态，0待审核，1通过，2未通过，3已出租",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",

@@ -100,15 +100,4 @@ return [
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberService::class,'setMemberContact'],
     ],
-
-    'business_audit_result_control' => [
-        1 => [
-            \App\Enums\CommonAuditStatusEnum::PASS      => \App\Enums\GradeOrderEnum::PASS,
-            \App\Enums\CommonAuditStatusEnum::NO_PASS   => \App\Enums\GradeOrderEnum::NOPASS,
-        ],
-        1 => [
-            \App\Enums\CommonAuditStatusEnum::PASS      => \App\Enums\GradeOrderEnum::PASS,
-            \App\Enums\CommonAuditStatusEnum::NO_PASS   => \App\Enums\GradeOrderEnum::NOPASS,
-        ],
-    ],
 ];

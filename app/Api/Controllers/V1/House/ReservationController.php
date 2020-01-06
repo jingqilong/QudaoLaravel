@@ -236,7 +236,7 @@ class ReservationController extends ApiController
      *     @OA\Parameter(
      *         name="state",
      *         in="query",
-     *         description="状态，默认1待审核，2预约成功，3预约失败",
+     *         description="状态，默认0待审核，1预约成功，2预约失败,3取消预约",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -270,7 +270,7 @@ class ReservationController extends ApiController
     public function allReservationList(){
         $rules = [
             'keywords'      => 'string',
-            'state'         => 'in:1,2,3',
+            'state'         => 'in:0,1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];

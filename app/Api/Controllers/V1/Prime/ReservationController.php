@@ -183,7 +183,7 @@ class ReservationController extends ApiController
      *     @OA\Parameter(
      *         name="状态",
      *         in="query",
-     *         description="状态，默认1待审核，2预约成功，3预约失败，预约取消",
+     *         description="状态，默认0待审核，1预约成功，2预约失败，3预约取消",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -217,7 +217,7 @@ class ReservationController extends ApiController
     protected function getReservationList(){
         $rules = [
             'keywords'      => 'string',
-            'state'         => 'in:1,2,3,4',
+            'state'         => 'in:0,1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -278,7 +278,7 @@ class ReservationController extends ApiController
      *     @OA\Parameter(
      *         name="state",
      *         in="query",
-     *         description="状态，默认1待审核，2预约成功，3预约失败，4预约取消",
+     *         description="状态，默认0待审核，1预约成功，2预约失败，3预约取消",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
@@ -312,7 +312,7 @@ class ReservationController extends ApiController
     protected function reservationList(){
         $rules = [
             'keywords'      => 'string',
-            'state'         => 'in:1,2,3,4',
+            'state'         => 'in:0,1,2,3',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
