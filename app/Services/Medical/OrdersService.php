@@ -226,13 +226,14 @@ class OrdersService extends BaseService
      */
     public function getOrderDetail($id){
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','appointment_at','status','created_at','updated_at'];
+        $column = ['id','name','mobile','sex','age','type','end_time','hospital_id','doctor_id','departments_id','appointment_at','status','created_at','updated_at'];
         if (!$info = MedicalOrdersRepository::getOne(['id' => $id],$column)){
             $this->setError('预约信息不存在!');
             return false;
         }
         $info['doctor_name']        = MedicalDoctorsRepository::getField(['id' => $info['doctor_id']],'name');
         $info['hospital_name']      = MediclaHospitalsRepository::getField(['id' => $info['hospital_id']],'name');
+        $info['departments_name']   = MedicalDepartmentsRepository::getField(['id' => $info['departments_id']],'name');
         $info['status']             = DoctorEnum::getStatus($info['status']);
         $info['sex']                = DoctorEnum::getSex($info['sex']);
         $info['type']               = DoctorEnum::getType($info['type']);
