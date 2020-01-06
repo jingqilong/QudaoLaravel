@@ -121,8 +121,8 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在或别删除!');
             return false;
         }
-        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = [];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0];
+        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = ['is_recommend' => 0];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0,'end_at' => 0];
         if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
         $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
@@ -135,8 +135,8 @@ class OaMemberService extends BaseService
         $member['base']['sex_name']      = MemberEnum::getSex($member['base']['sex'],'未设置');
         $member['base']['status_name']   = MemberEnum::getStatus($member['base']['status'],'成员');
         $member['base']['hidden_name']   = MemberEnum::getHidden($member['base']['hidden'],'显示');
-        $member['base']['birthday']      = date('Y-m-d',strtotime($member['base']['birthday']));
-        if (empty($member['base']['birthday'])) $member['base']['birthday'] = '';
+        if (empty($member['base']['birthday'])) $member['base']['birthday'] = ''; else
+            $member['base']['birthday']  = date('Y-m-d',strtotime($member['base']['birthday']));
         if (0 == $member['base']['end_at']) $member['base']['end_at'] = 0; else{
             $member['base']['end_at']    = date('Y-m-d H:i:s',$member['base']['end_at']);
         }
