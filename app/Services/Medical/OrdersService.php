@@ -187,17 +187,22 @@ class OrdersService extends BaseService
         }
         $doctor_ids      = array_column($list['data'],'doctor_id');
         $hospitals_ids   = array_column($list['data'],'hospital_id');
+        $departments_ids = array_column($list['data'],'departments_id');
         $doctor_list     = MedicalDoctorsRepository::getAssignList($doctor_ids,['id','name']);
         $hospitals_list  = MediclaHospitalsRepository::getAssignList($hospitals_ids,['id','name']);
-
+        $departments_list= MedicalDepartmentsRepository::getAssignList($departments_ids,['id','name']);
         foreach ($list['data'] as &$value){
             $value['doctor_name']    = '';
             $value['hospital_name']  = '';
+            $value['departments_name']  = '';
             if ($hospitals = $this->searchArray($hospitals_list,'id',$value['hospital_id'])){
                 $value['hospital_name'] = reset($hospitals)['name'];
             }
             if ($doctor = $this->searchArray($doctor_list,'id',$value['doctor_id'])){
                 $value['doctor_name'] = reset($doctor)['name'];
+            }
+            if ($departments = $this->searchArray($departments_list,'id',$value['departments_id'])){
+                $value['departments_name'] = reset($departments)['name'];
             }
             $value['status_name']       =  DoctorEnum::getStatus($value['status']);
             $value['sex_name']          =  DoctorEnum::getSex($value['sex']);
