@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Enums\MemberEnum;
 use App\Models\MemberBaseModel;
 use App\Repositories\Traits\RepositoryTrait;
+use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -25,30 +26,64 @@ class MemberBaseRepository extends ApiRepository
     {
         $this->model = $model;
     }
-
     /**
-     * OA 获取成员基础信息
+     * 获取OA列表
      * @param $keywords
-     * @param $is_home_detail
-     * @param int $page
-     * @param int $page_num
-     * @param string $asc
-     * @param array $where
+     * @param $where
+     * @param $column
+     * @param $page
+     * @param $page_num
+     * @param $order
+     * @param $asc
      * @return bool|mixed|null
      */
-    protected function searchMemberBase($keywords, $is_home_detail, int $page, int $page_num, string $asc, array $where)
+    protected function getMemberList($keywords, $where, $column, $page, $page_num, $order, $asc)
     {
-        $base_column = ['id','card_no','ch_name','en_name','avatar_id','sex','mobile','address','status','hidden','created_at'];
-        if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
+        $where['id'] = ['>',1];
         if (!empty($keywords)){
-            $keyword  = [$keywords => ['ch_name','en_name','card_no','mobile']];
-            if (!$list = $this->search($keyword,$where,$base_column,$page,$page_num,'created_at',$asc)){
-                return false;
+            $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'category']];
+            if (!$list = $this->search($keyword, $where, $column, $page, $page_num, $order, $asc)) {
+                 return false;
             }
         }else{
-            if (!$list = $this->getList($where,$base_column,'created_at',$asc,$page,$page_num)){
+            if (!$list = $this->getList($where, $column, $order, $asc, $page, $page_num)) {
                 return false;
             }
+        }
+        $list['data'] = ImagesService::getListImagesConcise($list['data'],['avatar_id' => 'single']);
+        $member_ids  = array_column($list['data'],'id');
+        if (empty($member_info_list  = MemberInfoRepository::getList(['member_id' => ['in',$member_ids]],['member_id','is_recommend','is_home_detail','employer']))){
+            $member_info_list = [
+                'member_id'     => 0,
+                'is_recommend'  => 0,
+                'is_home_detail'=> 0,
+                'employer'      => '',
+            ];
+        }
+        if (empty($member_grade_list = MemberGradeRepository::getList(['user_id' => ['in',$member_ids]],['user_id','grade']))){
+            $member_grade_list = [
+                'user_id' => 0,
+                'grade' => 0,
+            ];
+        }
+        $member_info_arr  = [];
+        $member_grade_arr = [];
+        foreach ($list['data'] as &$value){
+            if ($member_info = $this->searchArray($member_info_list,'member_id',$value['id'])){
+                $member_info_arr = reset($member_info);
+            }
+            if ($member_grade = $this->searchArray($member_grade_list,'user_id',$value['id'])){
+                $member_grade_arr = reset($member_grade);
+            }
+            $value = array_merge($value,$member_info_arr,$member_grade_arr);
+            if (empty($list['is_recommend'])) $value['is_recommend'] = '0'; else $value['is_recommend'] == 0 ? 0 : 1;
+            if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
+            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
+            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['img_url']       = $value['avatar_url']; #前端适配字段名
+            unset($value['member_id'],$value['user_id'],$value['avatar_url']);
         }
         return $list;
     }

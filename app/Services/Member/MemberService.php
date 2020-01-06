@@ -1171,15 +1171,22 @@ class MemberService extends BaseService
             return false;
         }
         $contact_ids  = array_column($list,'contact_id');
-        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
+        $contact_list = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name','avatar_id']);
         $grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
+        $info_list    = MemberInfoRepository::getAssignList($contact_ids,['member_id','employer'],'member_id');
+        $contact_list = ImagesService::getListImagesConcise($contact_list,['avatar_id' => 'single']);
+        $base_arr = [];
         foreach ($list as &$value){
             if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
-                $value['contact_name'] = reset($contacts)['ch_name'];
+                $base_arr = reset($contacts);
             }
             if ($grades = $this->searchArray($grade_list,'user_id',$value['contact_id'])){
                 $value['grades'] = reset($grades)['grade'];
             }
+            if ($info = $this->searchArray($info_list,'member_id',$value['contact_id'])){
+                $value['employer'] = reset($info)['employer'];
+            }
+            $value = array_merge($base_arr,$value);
             $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
             $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
         }
@@ -1253,5 +1260,27 @@ class MemberService extends BaseService
         }
         $this->setMessage('审核成功!');
         return true;
+    }
+
+    /**
+     * 获取联系成员详情
+     * @param $id
+     * @return bool|null
+     */
+    public function getMemberContactInfo($id)
+    {
+        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $id])){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $contact_info['contact_name']  = MemberBaseRepository::getField(['id' => $contact_info['contact_id']],'ch_name');
+        $proposer_base = MemberBaseRepository::getOne(['id' => $contact_info['proposer_id']],['avatar_id','ch_name']);
+        $contact_info['proposer_name']  = $proposer_base['ch_name'];
+        $contact_info['proposer_url']   = CommonImagesRepository::getField(['id' => $proposer_base['avatar_id']],'img_url');
+        $contact_info['employer']       = MemberInfoRepository::getField(['member_id' => $id],'employer');
+        $contact_info['status_name']    = MemberEnum::getAuditStatus($contact_info['status'],'待审核');
+        unset($contact_info['proposer_id'],$contact_info['updated_at']);
+        $this->setMessage('获取成功!');
+        return $contact_info;
     }
 }

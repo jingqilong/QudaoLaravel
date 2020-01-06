@@ -408,6 +408,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_member_contact','MemberController@editMemberContact')->name('编辑修改成员联系请求');
                 $api->delete('del_member_contact','MemberController@delMemberContact')->name('删除成员联系请求');
                 $api->get('get_member_contact','MemberController@getMemberContact')->name('查看成员联系请求列表');
+                $api->get('get_member_contact_info','MemberController@getMemberContactInfo')->name('查看成员联系请求详情');
 
 
                 #会员等级
@@ -702,6 +703,7 @@ $api->version('v1',function ($api){
                 $api->get('get_goods_list','GoodsController@getGoodsList')->name('获取商品列表');
                 $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');
                 $api->get('get_goods_spec','GoodsController@getGoodsSpec')->name('获取商品规格');
+                $api->get('get_goods_spec_list','GoodsController@getGoodsSpecList')->name('获取某一商品规格列表');
             });
         });
 
