@@ -11,19 +11,7 @@ use Tolawho\Loggy\Facades\Loggy;
 class SendFlowSmsListener implements ShouldQueue
 {
     use InteractsWithQueue;
-    /**
-     * 任务应该发送到的队列的连接的名称
-     *
-     * @var string|null
-     */
-    public $connection = 'redis';
 
-    /**
-     * 任务应该发送到的队列的名称
-     *
-     * @var string|null
-     */
-    public $queue = 'event_sms';
     /**
      * Create the event listener.
      *
@@ -31,7 +19,6 @@ class SendFlowSmsListener implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -43,7 +30,7 @@ class SendFlowSmsListener implements ShouldQueue
     public function handle(SendFlowSms $event)
     {
         $data = $event->data;
-        Loggy::write('process',date('Y-m-d H:i:s').'执行了发送短信事件！',$event);
+        Loggy::write('process','执行了发送短信事件223！');
         //TODO 这里要处理相关数据
         app(SmsService::class)->sendContent($data['receiver_mobile'],'队列事件测试');
         return false;
@@ -58,7 +45,7 @@ class SendFlowSmsListener implements ShouldQueue
      */
     public function failed(SendFlowSms $event, $exception)
     {
-        Loggy::write('process','任务执行失败！',$event);
+        Loggy::write('process','任务执行失败！');
         //
     }
 }
