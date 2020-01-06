@@ -42,6 +42,32 @@ class OaMemberService extends BaseService
     public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = 1;
+        //$is_home_detail = $data['is_home_detail'] ?? null;
+        //$grade          = $data['grade'] ?? null;
+        $category       = $data['category'] ?? null;
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
+        $keywords       = $data['keywords'] ?? null;
+        $where          = ['deleted_at' => 0,'is_test' => 0];
+        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','category'];
+        if (!empty($category)) $where['category'] = $category;
+        if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('获取成功!');
+            return [];
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /*public function memberList(array $data)
+    {
+        if (empty($data['asc'])) $data['asc'] = 1;
         $is_home_detail = $data['is_home_detail'] ?? null;
         $grade          = $data['grade'] ?? null;
         $category       = $data['category'] ?? null;
@@ -82,7 +108,7 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $list;
-    }
+    }*/
 
     /**
      * 获取成员信息 (拆表后 已修改)
@@ -294,8 +320,8 @@ class OaMemberService extends BaseService
      */
     public function setMemberHomeDetail($request)
     {
-        if (!MemberGradeViewRepository::exists(['id' => $request['id']])){
-            $this->setError('成员不存在!');
+        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
+            $this->setError('成员信息未完善,请先完善成员信息!');
             return false;
         }
         if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],['is_home_detail' => $request['exhibition']])){
