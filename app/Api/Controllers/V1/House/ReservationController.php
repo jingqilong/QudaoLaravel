@@ -283,7 +283,7 @@ class ReservationController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->reservationService->reservationList($this->request);
+        $res = $this->reservationService->oaReservationList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }
