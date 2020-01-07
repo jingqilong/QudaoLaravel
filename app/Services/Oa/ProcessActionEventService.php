@@ -188,18 +188,18 @@ class ProcessActionEventService extends BaseService
     /**
      * 获取事件列表，可以是节点事件，也可以是节点动作结果事件
      * @param $node_id  //节点事件时传入，否则为0
-     * @param $node_action_id  //节点动作结果事件时传入，否则为0
+     * @param $node_action_result_id  //节点动作结果事件时传入，否则为0
      * @param int $event_type   事件类型 0：节点事件 1：节点动作结果事件
      * @return mixed
      */
-    public function getActionEventListWithType($node_id,$node_action_id, $event_type=0){
+    public function getActionEventListWithType($node_id,$node_action_result_id, $event_type=0){
         if((0==$event_type)&& (empty($node_id))){
             $message="查询节点事件时节点ID不可以为空!";
             $this->setError($message);
             Loggy::write("error",$message);
             return false;
         }
-        if((1==$event_type)&& (empty($node_action_id))){
+        if((1==$event_type)&& (empty($node_action_result_id))){
             $message="查询节点动作结果事件时节点动作结果ID不可以为空!";
             $this->setError($message);
             Loggy::write("error",$message);
@@ -209,11 +209,11 @@ class ProcessActionEventService extends BaseService
         if(!empty($node_id)){
             $where['node_id']=$node_id;
         }
-        if(!empty($node_action_id)){
-            $where['node_action_id']=$node_action_id;
+        if(!empty($node_action_result_id)){
+            $where['node_action_result_id']=$node_action_result_id;
         }
         if(0==$event_type){
-            unset($where['node_action_id']);
+            unset($where['node_action_result_id']);
         }
         $where['event_type']=$event_type;
         $page = 1;

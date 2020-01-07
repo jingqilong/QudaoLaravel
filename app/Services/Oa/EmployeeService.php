@@ -438,7 +438,7 @@ class EmployeeService extends BaseService
             return $list;
         }
         $employee_ids   = [0];
-        foreach ($columns as $column){
+        foreach ($columns as $column => $column_name){
             $column_employee_ids = array_column($list,$column);
             $employee_ids = array_merge($employee_ids,$column_employee_ids);
         }

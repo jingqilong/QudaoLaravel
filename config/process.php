@@ -2,7 +2,8 @@
 
 
 return [
-    'start_node' => 1,
+    //流程发起节点位置
+    'start_node_position' => 1,
     'link_url' =>[
         'test'          =>'http://oa.qudaoplus.cn/',
         'local'         =>'http://oa.qudaoplus.cn/',

@@ -7,6 +7,7 @@ use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaDepartmentRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
+use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Services\BaseService;
 use Tolawho\Loggy\Facades\Loggy;
@@ -250,7 +251,11 @@ class ProcessActionPrincipalsService extends BaseService
      */
     public function getResultEventPrincipals($node_action_result_id,$business_id,$process_category){
         //获取所有的参与人
-        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_action_result_id'=> $node_action_result_id])){
+        if (!$node_action_id = OaProcessNodeActionsResultRepository::getField(['id' => $node_action_result_id],'node_action_id')){
+            Loggy::write("error","流程节点动作结果查找失败！！node_action_result_id::" . $node_action_result_id);
+            return [];
+        }
+        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_action_id'=> $node_action_id])){
             Loggy::write("error","本节点缺少参与人！node_action_result_id::" . $node_action_result_id);
             return [];
         }
@@ -263,9 +268,9 @@ class ProcessActionPrincipalsService extends BaseService
                 $principal_list['receiver_name'] = $principal['ch_name'];
                 $principal_list['receiver_id'] = $principal['id'];
             } else {   //获取员工信息
-                $principal = app(OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]));
-                $principal_list['receiver_name'] = $principal['m_cname'];
-                $principal_list['receiver_id'] = $principal['m_id'];
+                $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
+                $principal_list['receiver_name'] = $principal['real_name'];
+                $principal_list['receiver_id'] = $principal['id'];
             }
         }
         return $principal_list;
