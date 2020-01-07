@@ -2,29 +2,30 @@
 namespace App\Api\Controllers\V1\Shop;
 
 use App\Api\Controllers\ApiController;
-use App\Services\Shop\ShopInventoryService;
+use App\Services\Shop\ShopInventorService;
+use Illuminate\Support\Arr;
 
-class OaShopInventoryController extends ApiController
+class OaShopInventorController extends ApiController
 {
-    public $shopInventoryService;
+    public $shopInventorService;
 
     /**
      * OrderController constructor.
-     * @param $shopInventoryService
+     * @param $shopInventorService
      */
-    public function __construct(ShopInventoryService $shopInventoryService)
+    public function __construct(ShopInventorService $shopInventorService)
     {
         parent::__construct();
-        $this->shopInventoryService = $shopInventoryService;
+        $this->shopInventorService = $shopInventorService;
     }
 
     /**
      * @OA\Get(
-     *     path="/api/v1/shop/get_shop_invertor_list",
+     *     path="/api/v1/shop/get_shop_inventor_list",
      *     tags={"商城后台"},
      *     summary="获取商品库存列表",
      *     description="sang" ,
-     *     operationId="get_shop_invertor_list",
+     *     operationId="get_shop_inventor_list",
      *     @OA\Parameter(
      *          name="sign",
      *          in="query",
@@ -109,11 +110,13 @@ class OaShopInventoryController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->shopInventoryService->getInventoryList($this->request);
+        $res = $this->shopInventorService->getInventorList(
+                Arr::only($this->request,['name','goods_id','spec_id','page','page_num'])
+            );
         if ($res === false){
-            return ['code' => 100, 'message' => $this->shopInventoryService->error];
+            return ['code' => 100, 'message' => $this->shopInventorService->error];
         }
-        return ['code' => 200, 'message' => $this->shopInventoryService->message,'data' => $res];
+        return ['code' => 200, 'message' => $this->shopInventorService->message,'data' => $res];
     }
 
     /**
@@ -186,10 +189,10 @@ class OaShopInventoryController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->shopInventoryService->createInventor($this->request);
+        $res = $this->shopInventorService->createInventor($this->request);
         if ($res === false){
-            return ['code' => 100,'message' => $this->shopInventoryService->error];
+            return ['code' => 100,'message' => $this->shopInventorService->error];
         }
-        return ['code' => 200, 'message' => $this->shopInventoryService->message];
+        return ['code' => 200, 'message' => $this->shopInventorService->message];
     }
 }

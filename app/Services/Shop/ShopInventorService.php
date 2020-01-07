@@ -6,6 +6,7 @@ use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
+use App\Services\Common\ImagesService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,7 @@ use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\ShopInventoryRepository;
 use App\Repositories\ShopGoodsSpecViewRepository;
 
-class ShopInventoryService extends BaseService
+class ShopInventorService extends BaseService
 {
     /**
      * 创建库存记录
@@ -90,7 +91,7 @@ class ShopInventoryService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function getInventoryList($request){
+    public function getInventorList($request){
         $page = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $where = Arr::only($request,['goods_id', 'spec_id']);
@@ -98,47 +99,36 @@ class ShopInventoryService extends BaseService
             $where['name'] = ['like',$request['name']];
         }
         $column = ['goods_id','spec_id','name','spec_ids' ,'category' ,'spec_inventor','goods_inventor','image_ids'];
-
         if (!$list = ShopGoodsSpecViewRepository::getList($where,$column,['goods_id','spec_id'],['desc','desc'],$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
-
-        foreach($list['data'] as $key => &$value){
-            //处理分类
-            $value['category_name'] = ShopGoodsCategoryRepository::getOne(['id'=>$value['category']],['name']);
-            unset($value['category']);
-            //处理：规格属性列表
-            $value['spec_desc'] = $this->getSpecDescription($value['spec_ids']);
-            unset($value['spec_ids']);
-            //处理图像 TODO 处理图像 只提供一个图像即可
-            //$value['image_ids']
+        //处理分类：
+        if(!$list['data'] = ShopGoodsCategoryRepository::bulkHasOneSet($list['data'],['from'=>'category','to'=>'id'],['id'=>'category_id','name'=>'category_name'])){
+            $this->setError('获取失败！');
+            return false;
         }
-
+        //处理规格属性
+        if(!$attrs = ShopGoodsSpecRepository::getHasManyList($list['data'],[],['from'=>'spec_ids','to'=>'id'],['id','spec_name','spec_value'])){
+            $this->setError('获取失败！');
+            return false;
+        }
+        foreach($list['data'] as  & $item){
+            $keys= explode(',',trim($item['spec_ids'],','));
+            $item ['props'] = '';
+            foreach($keys as $key){
+                $item ['props'] .= $attrs[$key]['spec_name'] ."：".  $attrs[$key]['spec_value'] ."；";
+            }
+        }
+        //处理图像,获取图片
+        $list['data']  = ImagesService::getListImages($list['data'],['image_ids' => 'single']);
         $this->setMessage('获取成功！');
         return $list;
 
     }
 
-    /**
-     * @param $sepc_ids
-     * @return string
-     */
-    private function getSpecDescription($sepc_ids){
-        $where=['id'=>['in',$sepc_ids]];
-        $spec_list = ShopGoodsSpecRepository::getAllList($where,['spec_name','spec_value']);
-        if(!isset($spec_list['data'])){
-            return '';
-        }
-        $desc_string = '';
-        foreach($spec_list['data'] as $value){
-            $desc_string .=  $value['spec_name'] . $value['spec_value'];
-        }
-        return $desc_string;
-    }
 }
