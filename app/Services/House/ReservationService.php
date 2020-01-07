@@ -214,7 +214,7 @@ class ReservationService extends BaseService
         }
         $reservation['state'] = HouseEnum::getReservationStatus($reservation['state']);
         $weekday = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-        $reservation['time']        = date('Y年m月d日 H点i分 ',$reservation['time']) . $weekday[date('w',$reservation['time'])];
+        $reservation['time']        = empty($reservation['time']) ? '' : date('Y年m月d日 H点i分 ',$reservation['time']) . $weekday[date('w',$reservation['time'])];
         $house_column = ['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy'];
         if (!$house = HouseDetailsRepository::getOne(['id' => $reservation['house_id']],$house_column)){
             $this->setError('预约房产已下架！');
