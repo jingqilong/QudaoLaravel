@@ -11,19 +11,6 @@ class SendSiteMessageListener implements ShouldQueue
 {
     use InteractsWithQueue;
     /**
-     * 任务应该发送到的队列的连接的名称
-     *
-     * @var string|null
-     */
-    public $connection = 'redis';
-
-    /**
-     * 任务应该发送到的队列的名称
-     *
-     * @var string|null
-     */
-    public $queue = 'event_message';
-    /**
      * Create the event listener.
      *
      * @return void

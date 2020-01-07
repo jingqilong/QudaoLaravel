@@ -9,6 +9,8 @@ use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
+use App\Repositories\OaProcessNodeActionsResultViewRepository;
+use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordActionsResultViewRepository;
 use App\Services\Oa\ProcessActionEventService;
@@ -18,6 +20,7 @@ use App\Services\Oa\ProcessNodeService;
 use App\Services\Oa\ProcessRecordService;
 use App\Services\Oa\ProcessTransitionService;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Events\SendDingTalkEmail;
 use App\Events\SendSiteMessage;
@@ -47,34 +50,49 @@ trait BusinessTrait
             return ['code'=>100,  'message' => $message ];
         }
         //获取第一个流程节点ID
-        $start_node = Config::get('process.start_node');
-        $start_node = OaProcessNodeRepository::getOne(['process_id' => $process_id,'position' => $start_node]);
+        $start_node_position= Config::get('process.start_node_position');
+        $start_node         = OaProcessNodeRepository::getOne(['process_id' => $process_id,'position' => $start_node_position]);
         if(!$start_node){
             $message = "获取开始节点失败";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        $record_data = [
+        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getList(['node_id' => $start_node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
+            $message = '该流程节点没有动作执行人，流程发起失败';
+            Loggy::write("error",$message);
+            return ['code'=>100,  'message' => $message ];
+        }
+        DB::beginTransaction();
+        foreach ($operator_list as $operator){
+            $record_data = [
+                'business_id'       	=> $business_id,
+                'process_id'        	=> $process_id,
+                'process_category'  	=> $process_category,
+                'node_id'           	=> $start_node['id'],
+                'position'           	=> $start_node_position,
+                'operator_id'       	=> $operator['principal_id'],
+            ];
+            //创建流程节点
+            $processRecordService = new ProcessRecordService();
+            $result = $processRecordService->addRecord($record_data);
+            if(!$result){
+                $message = $processRecordService->error;
+                DB::rollBack();
+                return ['code'=>100,  'message' => $message ];
+            }
+        }
+        DB::commit();
+        #获取节点事件列表
+        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
+            $start_node['id'],0,ProcessActionEventTypeEnum::NODE_EVENT);
+        //触发流程事件
+        $event_params = [
             'business_id'       	=> $business_id,
             'process_id'        	=> $process_id,
             'process_category'  	=> $process_category,
             'node_id'           	=> $start_node['id'],
-            'position'           	=> 1,
-            'node_action_result_id' => 0,
-            'operator_id'       	=> 0,
-            'note'              	=> '',
         ];
-        //创建流程节点
-        $processRecordService = new ProcessRecordService();
-        $result = $processRecordService->addRecord($record_data);
-        if(!$result){
-            $message = $processRecordService->error;
-            return ['code'=>100,  'message' => $message ];
-        }
-        $event_list =  app(ProcessActionEventService::class)->getActionEventListWithType(
-            $start_node['id'],0,ProcessActionEventTypeEnum::NODE_EVENT);
-        //触发流程事件
-        $this->triggerNodeEvent($event_list,$record_data);
+        $this->triggerNodeEvent($event_list,$event_params);
         return ['code'=>200,  'message' => "流程发起成功！" ];
     }
 
@@ -85,7 +103,7 @@ trait BusinessTrait
      * @return array
      */
     public function updateProcessRecord($process_record_id, $process_record_data){
-        if(!isset($process_record_data['node_actions_result_id'])){
+        if(!isset($process_record_data['node_action_result_id'])){
             $message = "缺少节点动作结果id！";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
@@ -118,7 +136,7 @@ trait BusinessTrait
 
 
         if(1< $transition['status'] || $transition['next_node'] == 0){ //节点已结束或终止
-            return ['code'=>202,  'message' => "流程发起成功！" ];
+            return ['code'=>202,  'message' => "流程发起成功！"];
 
         }
         $next_node_id = $transition['next_node'];
@@ -246,22 +264,22 @@ trait BusinessTrait
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
             $event_params['business_id'],$event_params['node_id']
         );
-        $action_result = OaProcessActionsResultRepository::getOne($event_params['action_result_id']);
+        $action_result = OaProcessNodeActionsResultViewRepository::getOne(['id' => $event_params['node_action_result_id']]);
         if (!$action_result){
-            Loggy::write('error',"节action_result_id 数值不对！ ",$event_params['action_result_id'] );
+            Loggy::write('error',"节node_action_result_id 数值不对！ ",$event_params['node_action_result_id'] );
             //return false;
             $action_result['name']='';
         }
-        if($event_params['process_result_status']>1){
-            $send_data['precess_result'] = "已经审絯结束，结果是：".$action_result['name']."。 ";
+        if($event_params['action_result_status']>1){
+            $send_data['precess_result'] = "已经审絯结束，结果是：".$action_result['action_result_name']."。 ";
         }else{
-            $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['name']."。 ";
+            $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['action_result_name']."。 ";
         }
         //邮件签名
         $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
             ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
         //邮件标题
-        $send_data['title'] = "你的". $send_data['process_full_name'] . "审核进展！";
+        $send_data['title'] = "你的". $send_data['process_full_name']['process_name'] . "审核进展！";
         //跳转链接
         $send_data['link_url'] = '';
         foreach($event_list as $event){
@@ -315,13 +333,13 @@ trait BusinessTrait
             ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
         ];
         //初始化事件的数据。
-        $send_data = [
-                'business_id'       	=> $event_params['business_id'],
-                'process_id'        	=> $event_params['process_id'],
-                'process_category'  	=> $event_params['process_category'],
-                'node_id'           	=> $event_params['node_id'],
-                'employee_id'           => $event_params['operator_id'],
-            ];
+//        $send_data = [
+//                'business_id'       	=> $event_params['business_id'],
+//                'process_id'        	=> $event_params['process_id'],
+//                'process_category'  	=> $event_params['process_category'],
+//                'node_id'           	=> $event_params['node_id'],
+//                'employee_id'           => $event_params['operator_id'],
+//            ];
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
             $event_params['process_id'],$event_params['node_id']
@@ -458,6 +476,9 @@ trait BusinessTrait
             $this->setError('函数'.$target_object ."->".$function. '不存在，获取失败!');
             return false;
         }
-        return $target_object->$function($business_id,$audit_status);
+        $result = $target_object->$function($business_id,$audit_status);
+        $this->setError($target_object->error);
+        $this->setMessage($target_object->message);
+        return $result;
     }
 }

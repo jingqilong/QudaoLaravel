@@ -48,7 +48,7 @@ class ShopOrderEnum extends BaseEnum
 
     const RECEIVED          = 4;    //订单状态-已收货（待评论）
 
-    const FINISHED          = 5;    //订单状态-已收货（待评论）
+    const FINISHED          = 5;    //订单状态-已完成（已评论）
 
     //收货方式
 

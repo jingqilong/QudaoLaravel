@@ -4,22 +4,30 @@
 namespace App\Services\Oa;
 
 
+use App\Enums\CommonAuditStatusEnum;
 use App\Enums\ProcessCommonStatusEnum;
 use App\Repositories\OaProcessDefinitionRepository;
+use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessRecordRepository;
 use App\Services\BaseService;
 use App\Traits\BusinessTrait;
 use Illuminate\Support\Facades\Auth;
+use Tolawho\Loggy\Facades\Loggy;
 
 class ProcessPerformService extends BaseService
 {
     use BusinessTrait;
 
+    /**
+     * 提交操作结果
+     * @param $request
+     * @return bool
+     */
     public function submitOperationResult($request)
     {
         $employee = Auth::guard('oa_api')->user();
         #检查有效性
-        if (!$process_record = OaProcessRecordRepository::exists(['id' => $request[''] ,'operator_id' => $employee->id])){
+        if (!$process_record = OaProcessRecordRepository::getOne(['id' => $request['process_record_id'] ,'operator_id' => $employee->id])){
             $this->setError('流程记录不存在！');
             return false;
         }
@@ -37,7 +45,7 @@ class ProcessPerformService extends BaseService
             'process_id'                => $process_record['process_id'],
             'process_category'          => $process_record['process_category'],
             'node_id'                   => $process_record['node_id'],
-            'node_actions_result_id'    => $request['node_actions_result_id'],
+            'node_action_result_id'     => $request['node_actions_result_id'],
             'operator_id'               => $employee->id,
             'note'                      => $request['note'] ?? ''
         ];
@@ -52,8 +60,17 @@ class ProcessPerformService extends BaseService
         }
         #如果审核的是最后一个节点，则更改业务审核状态
         if (202 == $update_process_record_result['code']){
-            $this->updateBusinessAuditStatus($process_record['business_id'],'',$process_record['process_category']);
-            //TODO
+            if ($action_result= OaProcessNodeActionsResultViewRepository::getOne(['id' => $request['node_actions_result_id']])){
+                $audit_status = $action_result['action_result_name'] == '同意' ? CommonAuditStatusEnum::PASS : CommonAuditStatusEnum::NO_PASS;
+                $upd_result = $this->updateBusinessAuditStatus($process_record['business_id'],$audit_status,$process_record['process_category']);
+                if ($upd_result == false){
+                    Loggy::write('process',$this->error);
+                }
+            }
+            $this->setMessage('操作成功！');
+            return true;
         }
+        $this->setError('操作失败！');
+        return false;
     }
 }
