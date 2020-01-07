@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\SendFlowSms;
+use App\Services\Message\MessageTemplate;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\Common\SmsService;
@@ -30,9 +31,14 @@ class SendFlowSmsListener implements ShouldQueue
     public function handle(SendFlowSms $event)
     {
         $data = $event->data;
-        Loggy::write('process',$data['receiver_mobile'].'执行了发送短信事件！');
-        //TODO 这里要处理相关数据
-        app(SmsService::class)->sendContent($data['receiver_mobile'],'队列事件测试2');
+        $receiver   = $data['receiver'];
+        Loggy::write('process',$receiver['receiver_mobile'].'执行了发送短信事件！');
+        $message_data = [
+            'receiver_name'     => $receiver['receiver_name'],
+            'process_full_name' => $data['process_full_name']['process_name'],
+        ];
+        $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
+        app(SmsService::class)->sendContent($receiver['receiver_mobile'],$messageTemplate->getContent());
         return false;
     }
 

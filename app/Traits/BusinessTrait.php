@@ -6,13 +6,13 @@ use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessEventMessageTypeEnum;
 use App\Enums\ProcessPrincipalsEnum;
-use App\Repositories\OaProcessActionsResultRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordActionsResultViewRepository;
+use App\Services\Message\MessageTemplate;
 use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
@@ -244,21 +244,21 @@ trait BusinessTrait
             Loggy::write('error',"没有事件参与人,node_id::" .$event_params['node_id'] );
             return false;
         }
-        //定义事件消息类型 //TODO 这里是不是要升级为配置，或数据表
-        $message_type = [
-            ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
-            ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
-            ProcessPrincipalsEnum::STARTER => ProcessEventMessageTypeEnum::STATUS_NOTICE,
-            ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
-        ];
-        //初始化事件的数据。
-        $send_data = [
-            'business_id'       	=> $event_params['business_id'],
-            'process_id'        	=> $event_params['process_id'],
-            'process_category'  	=> $event_params['process_category'],
-            'node_id'           	=> $event_params['node_id'],
-            'employee_id'           => $event_params['operator_id'],
-        ];
+//        //定义事件消息类型 //TODO 这里是不是要升级为配置，或数据表
+//        $message_type = [
+//            ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+//            ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+//            ProcessPrincipalsEnum::STARTER => ProcessEventMessageTypeEnum::STATUS_NOTICE,
+//            ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
+//        ];
+//        //初始化事件的数据。
+//        $send_data = [
+//            'business_id'       	=> $event_params['business_id'],
+//            'process_id'        	=> $event_params['process_id'],
+//            'process_category'  	=> $event_params['process_category'],
+//            'node_id'           	=> $event_params['node_id'],
+//            'employee_id'           => $event_params['operator_id'],
+//        ];
 
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
@@ -275,18 +275,21 @@ trait BusinessTrait
         }else{
             $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['action_result_name']."。 ";
         }
-        //邮件签名
-        $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
-            ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
         //邮件标题
         $send_data['title'] = "你的". $send_data['process_full_name']['process_name'] . "审核进展！";
         //跳转链接
         $send_data['link_url'] = '';
         foreach($event_list as $event){
             foreach ($stakeholders as $receiver){
+                if ($receiver['receiver_iden'] != $event['principals_type']){
+                    continue;
+                }
                 $event_data = $send_data;
                 $event_data['receiver'] = $receiver;
                 $event_data['event_type'] =  $event['event_type'];
+                $event_data['business_id']           =  $event_params['business_id'];
+                $event_data['process_category']      =  $event_params['process_category'];
+                $event_data['event_defined_type']    =  $event['event_defined_type'];
                 //所以，到这里，还是要具体获取这些人的ID
                 if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_defined_type']){
                     event(new SendDingTalkEmail($event_data));
@@ -326,13 +329,13 @@ trait BusinessTrait
             return false;
         }
         //定义事件消息类型 //TODO 这里是不是要升级为配置，或数据表
-        $message_type = [
-            ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
-            ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
-            ProcessPrincipalsEnum::STARTER => ProcessEventMessageTypeEnum::STATUS_NOTICE,
-            ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
-        ];
-        //初始化事件的数据。
+//        $message_type = [
+//            ProcessPrincipalsEnum::EXECUTOR => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+//            ProcessPrincipalsEnum::AGENT => ProcessEventMessageTypeEnum::EXCUTE_NOTICE,
+//            ProcessPrincipalsEnum::STARTER => ProcessEventMessageTypeEnum::STATUS_NOTICE,
+//            ProcessPrincipalsEnum::SUPERVISOR => ProcessEventMessageTypeEnum::STATUS_NOTICE
+//        ];
+//        //初始化事件的数据。
 //        $send_data = [
 //                'business_id'       	=> $event_params['business_id'],
 //                'process_id'        	=> $event_params['process_id'],
@@ -344,32 +347,34 @@ trait BusinessTrait
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
             $event_params['process_id'],$event_params['node_id']
         );
-        //邮件签名
-        $send_data['subcopy'] = "<p style='text-align: right'>上海渠道商务咨询有限公司</p>"
-        ."<p style='text-align: right'>".date("Y年m月d日 H时n分")."</p>";
         //邮件标题
         $send_data['title'] = $send_data['process_full_name']['process_name'] . "有一项审核要处理！";
         //跳转链接
         $send_data['link_url'] = config('process.link_url')[app()['env']];
 
         //此处为节点事件的执行，只针对事件通知的人群
-        foreach($event_list as $event){
+        foreach($event_list as $event){dd($stakeholders);
            foreach ($stakeholders as $receiver){
                if ($receiver['receiver_iden'] != $event['principals_type']){
                    continue;
                }
                $event_data = $send_data;
-               $event_data['receiver'] = $receiver;
-               $event_data['event_type'] =  $event['event_defined_type'];
+               $event_data['receiver']              = $receiver;
+               $event_data['event_type']            =  $event['event_type'];
+               $event_data['business_id']           =  $event_params['business_id'];
+               $event_data['process_category']      =  $event_params['process_category'];
+               $event_data['event_defined_type']    =  $event['event_defined_type'];
                //所以，到这里，还是要具体获取这些人的ID
                if(ProcessEventEnum::DINGTALK_EMAIL ==  $event['event_defined_type']){
+                   Loggy::write('process',' 触发了发送【邮件】事件！发送人：'.$receiver['receiver_name']);
                    event(new SendDingTalkEmail($event_data));
                }
                if(ProcessEventEnum::SMS ==  $event['event_defined_type']){
-                   Loggy::write('process',' 触发了发送短信事件！发送人：'.$receiver['receiver_name']);
+                   Loggy::write('process',' 触发了发送【短信】事件！发送人：'.$receiver['receiver_name']);
                    event(new SendFlowSms($event_data));
                }
                if(ProcessEventEnum::SITE_MESSAGE ==  $event['event_defined_type']){
+                   Loggy::write('process',' 触发了发送【站内信】事件！发送人：'.$receiver['receiver_name']);
                    event(new SendSiteMessage($event_data));
                }
 //               if(ProcessEventEnum::WECHAT_PUSH ==  $event['event_type']){

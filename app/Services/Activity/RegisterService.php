@@ -870,7 +870,7 @@ class RegisterService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($register_id){
-        return ActivityRegisterRepository::getField(['id',$register_id],'member_id');
+        return ActivityRegisterRepository::getField(['id' => $register_id],'member_id');
     }
 
     /**

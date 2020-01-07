@@ -203,7 +203,8 @@ class ProcessActionPrincipalsService extends BaseService
             $this->setError('函数'.$target_object ."->".$function. '不存在，获取失败!');
             return false;
         }
-        return $target_object->$function($business_id);
+        $start_user_id = $target_object->$function($business_id);
+        return MemberBaseRepository::find($start_user_id);
     }
 
     /**
@@ -223,22 +224,20 @@ class ProcessActionPrincipalsService extends BaseService
         foreach ($stakeholders as $receivers) {
             //如果是发起人，则先获取发起人的相关信息
             $event_principal['receiver_iden'] = $receivers['principal_iden'];
-            if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
-                $principal_id = $this->getStartUserInfo($business_id,$process_category);
-                $principal = MemberBaseRepository::getOne(['id'=>$principal_id],['id','ch_name','mobile','email']);
-                $event_principal['receiver_name'] = $principal['ch_name'];
-                $event_principal['receiver_id'] = $principal['id'];
-                $event_principal['receiver_mobile'] = $principal['mobile'];
-                $event_principal['receiver_email'] = $principal['email'];
-            } else {   //获取员工信息
-                $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
-                $event_principal['receiver_name'] = $principal['real_name'];
-                $event_principal['receiver_id'] = $principal['id'];
-                $event_principal['receiver_mobile'] = $principal['mobile'];
-                $event_principal['receiver_email'] = $principal['email'];
-            }
+            //获取员工信息
+            $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
+            $event_principal['receiver_name']   = $principal['real_name'];
+            $event_principal['receiver_id']     = $principal['id'];
+            $event_principal['receiver_mobile'] = $principal['mobile'];
+            $event_principal['receiver_email']  = $principal['email'];
             $principal_list[] = $event_principal;
         }
+        $start_user = $this->getStartUserInfo($business_id,$process_category);
+        $principal_list[] = [
+            'receiver_iden' => ProcessPrincipalsEnum::STARTER,
+            'receiver_name' => $start_user['ch_name'],
+            'receiver_id'   => $start_user['id']
+        ];
         return $principal_list;
     }
 
@@ -262,17 +261,23 @@ class ProcessActionPrincipalsService extends BaseService
         $principal_list = [];
         foreach ($stakeholders as $receivers) {
             //如果是发起人，则先获取发起人的相关信息
-            $principal_list['receiver_iden'] = $receivers['principal_iden'];
-            if (ProcessPrincipalsEnum::STARTER == $receivers['principal_iden']) {
-                $principal = $this->getStartUserInfo($business_id,$process_category);
-                $principal_list['receiver_name'] = $principal['ch_name'];
-                $principal_list['receiver_id'] = $principal['id'];
-            } else {   //获取员工信息
-                $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
-                $principal_list['receiver_name'] = $principal['real_name'];
-                $principal_list['receiver_id'] = $principal['id'];
-            }
+            $event_principal['receiver_iden'] = $receivers['principal_iden'];
+            //获取员工信息
+            $principal = OaEmployeeRepository::getOne(['id' => $receivers['principal_id']]);
+            $event_principal['receiver_name']   = $principal['real_name'];
+            $event_principal['receiver_id']     = $principal['id'];
+            $event_principal['receiver_mobile'] = $principal['mobile'];
+            $event_principal['receiver_email']  = $principal['email'];
+            $principal_list[] = $event_principal;
         }
+        $start_user = $this->getStartUserInfo($business_id,$process_category);
+        $principal_list[] = [
+            'receiver_iden'     => ProcessPrincipalsEnum::STARTER,
+            'receiver_name'     => $start_user['ch_name'],
+            'receiver_id'       => $start_user['id'],
+            'receiver_mobile'   => $start_user['mobile'],
+            'receiver_email'    => $start_user['email']
+        ];
         return $principal_list;
     }
 

@@ -401,7 +401,7 @@ class ReservationService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($reservation_id){
-        return PrimeReservationRepository::getField(['id',$reservation_id],'member_id');
+        return PrimeReservationRepository::getField(['id' => $reservation_id],'member_id');
     }
 
     /**

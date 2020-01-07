@@ -476,7 +476,7 @@ class OrdersService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($order_id){
-        return MedicalOrdersRepository::getField(['id',$order_id],'member_id');
+        return MedicalOrdersRepository::getField(['id' => $order_id],'member_id');
     }
 
     /**

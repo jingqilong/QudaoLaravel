@@ -102,6 +102,6 @@ class ProcessPerformController extends ApiController
         if ($res == false){
             return ['code' => 100, 'message' => $this->processPerformService->error];
         }
-        return ['code' => 200, 'message' => $this->processPerformService->message, 'data' => $res];
+        return ['code' => 200, 'message' => $this->processPerformService->message];
     }
 }

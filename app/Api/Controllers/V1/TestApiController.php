@@ -7,10 +7,12 @@ use App\Events\SendFlowSms;
 use App\Events\SendSiteMessage;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Library\UmsPay\UmsPay;
+use App\Mail\DingTalkEmail;
 use App\Services\Common\EventProcessorService;
 use App\Services\Common\QiNiuService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Ixudra\Curl\Facades\Curl;
 
@@ -575,11 +577,18 @@ class $serviceName extends BaseService
     }
 
     public function eventTest(){
-        try {
-            return event(new SendSiteMessage(['mobile' => '18394377667','content' => '事件测试！']));
-        }catch (\Exception $exception){
-            dd($exception);
-        }
-
+        $email_data = [
+            'event_type'        => 1,
+            'receiver_email'    => '2286760960@qq.com',
+            'title'             => '普通邮件',
+            'receiver_name'     => '桑',
+//            'subcopy'           => '--',
+            'process_full_name' => '--',
+            'link_url'          => 'https://fanmmy.cn',
+            'precess_result'    => 'ok',
+        ];
+        $mailable = new DingTalkEmail($email_data);
+        Mail::to('2286760960@qq.com')->send($mailable);
+        return 'ok';
     }
 }
