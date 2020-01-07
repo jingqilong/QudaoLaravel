@@ -403,20 +403,10 @@ class OrderRelateService extends BaseService
         $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
-            $value['is_comment'] = 0;
+            $value['is_comment'] = $value['status'] == ShopOrderEnum::FINISHED ? 1 : 0;
             $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
             if ($search_goods_list = $this->searchArray($goods_list,'order_relate_id',$value['id'])){
                 $value['goods_list'] = $search_goods_list;
-                foreach ($search_goods_list as $item){
-                    if ($goods = $this->searchArray($goods_list,'goods_id',$item['goods_id'])){
-                        if ($value['is_comment'] == 1)continue;
-                        if(CommonCommentsRepository::exists(
-                            ['member_id' => $member->id,'type' => CommentsEnum::SHOP,'related_id' => $item['order_relate_id'] .','. reset($goods)['goods_id']]
-                        )){
-                            $value['is_comment']   = 1;
-                        }
-                    }
-                }
             }
             $value['company_code'] = '';
             $value['company_name'] = '';

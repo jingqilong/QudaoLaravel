@@ -387,7 +387,7 @@ class OrderController extends ApiController
      */
     public function getMyOrderList(){
         $rules = [
-            'status'        => 'in:0,1,2,3,4',
+            'status'        => 'in:0,1,2,3,4,5',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
