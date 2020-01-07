@@ -714,11 +714,12 @@ class CommonController extends ApiController
      */
     public function setCommentStatus(){
         $rules = [
-            'id'            => 'required',
+            'id'            => 'required|integer',
             'status'        => 'required|in:2,3',
         ];
         $messages = [
             'id.required'   => '评论ID不能为空',
+            'id.integer'    => '评论ID不是整数',
             'status.in'     => '设置评论状态不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -731,6 +732,76 @@ class CommonController extends ApiController
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/get_comment_details",
+     *     tags={"公共"},
+     *     summary="获取评论详情",
+     *     description="jing" ,
+     *     operationId="get_comment_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="评论列表类别，1商城 （目前只有商城）..",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="评论ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="",
+     *     ),
+     * )
+     *
+     */
+    public function getCommentDetails(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '评论ID不能为空',
+            'id.integer'    => '评论id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->collectService->getCommentDetails($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->collectService->message];
+        }
+        return ['code' => 100, 'message' => $this->collectService->error];
+    }
+
     /**
      * @OA\Get(
      *     path="/api/v1/common/get_contact",
