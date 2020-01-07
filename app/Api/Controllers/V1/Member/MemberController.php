@@ -1498,7 +1498,7 @@ class MemberController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="用户 token",
+     *         description="OA token",
      *         required=true,
      *         @OA\Schema(
      *              type="string",

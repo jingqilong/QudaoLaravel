@@ -429,7 +429,7 @@ class OrdersService extends BaseService
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
         $orderInfo['appointment_at']  = date('Y-m-d H:m',strtotime($orderInfo['appointment_at']));
         $orderInfo['end_time']        = date('Y-m-d H:m',strtotime($orderInfo['end_time']));
-        unset($orderInfo['member_id'],$orderInfo['hospital_id'],$orderInfo['created_at'],$orderInfo['updated_at'],$orderInfo['deleted_at']);
+        unset($orderInfo['member_id'],$orderInfo['created_at'],$orderInfo['updated_at'],$orderInfo['deleted_at']);
         $this->setMessage('查找成功!');
         return $orderInfo;
     }

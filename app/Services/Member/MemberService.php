@@ -26,6 +26,7 @@ use App\Services\Common\ImagesService;
 use App\Services\Common\WeChatService;
 use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
+use Dingo\Blueprint\Annotation\Member;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
@@ -1211,28 +1212,17 @@ class MemberService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $contact_ids   = array_column($list['data'],'contact_id');
-        $proposer_id   = array_column($list['data'],'proposer_id');
-        $contact_list  = MemberBaseRepository::getAssignList($contact_ids,['id','ch_name']);
-        $proposer_list = MemberBaseRepository::getAssignList($proposer_id,['id','ch_name']);
-        $contact_grade_list   = MemberGradeRepository::getAssignList($contact_ids,['user_id','grade'],'user_id');
-        $proposer_grade_list  = MemberGradeRepository::getAssignList($proposer_id,['user_id','grade'],'user_id');
+        $list = $this->removePagingField($list);
+        $proposer_grade_list = MemberGradeRepository::getHasOneList($list['data'],[],['from' => 'proposer_id','to' => 'user_id'],['user_id','grade']);
+        $contact_grade_list  = MemberGradeRepository::getHasOneList($list['data'],[],['from' => 'contact_id','to' => 'user_id'],['user_id','grade']);
         foreach ($list['data'] as &$value){
-            if ($contacts = $this->searchArray($contact_list,'id',$value['contact_id'])){
-                $value['contact_name'] = reset($contacts)['ch_name'];
-            }
-            if ($contacts = $this->searchArray($proposer_list,'id',$value['proposer_id'])){
-                $value['proposer_name'] = reset($contacts)['ch_name'];
-            }
-            if ($contact_grades = $this->searchArray($contact_grade_list,'user_id',$value['contact_id'])){
-                $value['contact_grades'] = reset($contact_grades)['grade'];
-            }
-            if ($proposer_grades = $this->searchArray($proposer_grade_list,'user_id',$value['proposer_id'])){
-                $value['proposer_grades'] = reset($proposer_grades)['grade'];
-            }
-            $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
-            $value['contact_grades_name']  = MemberEnum::getGrade($value['contact_grades'],'普通成员');
-            $value['proposer_grades_name'] = MemberEnum::getGrade($value['proposer_grades'],'普通成员');
+            $proposer_key = $value['proposer_id'];
+            $contact_key  = $value['contact_id'];
+            $value['proposer_grade']  = $proposer_grade_list[$proposer_key]['grade'];
+            $value['contact_grade']   = $contact_grade_list[$contact_key]['grade'];
+            $value['proposer_name']   = MemberEnum::getGrade($proposer_grade_list[$proposer_key]['grade'],'普通成员');
+            $value['contact_name']    = MemberEnum::getGrade($contact_grade_list[$contact_key]['grade'],'普通成员');
+            $value['status_name']     = MemberEnum::getAuditStatus($value['status']);
         }
         $this->setMessage('获取成功!');
         return $list;

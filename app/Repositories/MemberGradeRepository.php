@@ -20,5 +20,18 @@ class MemberGradeRepository extends ApiRepository
     {
         $this->model = $model;
     }
+
+    protected function getAddGrade(int $user_id)
+    {
+        $add_arr = [
+            'user_id'    => $user_id,
+            'grade'      => MemberEnum::DEFAULT,
+            'status'     => MemberEnum::PASS,
+            'created_at' => time(),
+            'update_at'  => time(),
+        ];
+        $this->getAddId($add_arr);
+        return '普通成员';
+    }
 }
             

@@ -5,10 +5,13 @@ namespace App\Repositories\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Tolawho\Loggy\Facades\Loggy;
+
 
 trait RepositoryTrait
 {
+
     /**
      * @var Model
      */
@@ -395,4 +398,82 @@ trait RepositoryTrait
         }
         return $model;
     }
+
+    /**
+     * @desc 以键值为$key重组数组。如同给表创建索引。
+     * @param $src_array ,源二组数组。
+     * @param $index_column ,要索引的列
+     * @return array
+     */
+    protected function createArrayIndex($src_array,$index_column){
+        $result_array = [];
+        foreach($src_array as $item){
+            $result_array[$item[$index_column]] = $item;
+        }
+        return $result_array;
+    }
+
+    /**
+     * @desc 以联表条件，查出所有的相关数据。
+     * @param $src_list ,源列表数据（主表），从表是当前的Repository
+     * @param array $where 附加的 where条件
+     * @param $join    ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
+     * @param $columns  ,要查出的字段列表
+     * @return array|null
+     */
+    protected function getHasOneList($src_list,$where, $join, $columns){
+        $in_param = Arr::pluck($src_list,$join['from']);
+        $in_param = array_unique($in_param);
+        $where[$join['to']] =['in', $in_param];
+        $data = $this->getAllList($where,$columns,$join['to'],'asc');
+        if(!$data){
+            return [];
+        }
+        return  $this->createArrayIndex($data,$join['to']);
+    }
+
+    /**
+     * @desc 以联表条件，查出所有的相关数据。(一对多，源表中是逗号分隔的)
+     * @param $src_list ,源列表数据（主表），从表是当前的Repository
+     * @param array $where 附加的 where条件
+     * @param $join    ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
+     * @param $columns  ,要查出的字段列表
+     * @return array|null
+     */
+    protected function getHasManyList($src_list,$where, $join, $columns){
+        $param_array = Arr::pluck($src_list,$join['from']);
+        array_walk($param_array, function(&$value) {
+            $value = trim($value,',' );
+        });
+        $in_param_str = implode(',',$param_array);
+        $in_param = array_unique(explode(',',$in_param_str));
+        $where[$join['to']] =['in', $in_param];
+        $data = $this->getAllList($where,$columns,$join['to'],'asc');
+        if(!$data){
+            return [];
+        }
+        return $this->createArrayIndex($data,$join['to']);
+    }
+
+    /**
+     * @desc 批量设置字段，代替联表查询，此函数默认只用调用 getAllList 处理
+     * @param $src_list  ,源列表 作为主表，引用参数，返回结果
+     * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
+     * @param $alias  ,别名：将查出结果更名为什么 ['联接的name1' => '主表alias1','联接的name2' => '主表alias2']
+     * @param array $where 附加的 where条件
+     * @return bool  ,操作成功与否
+     */
+    protected function bulkHasOneSet( $src_list, $join, $alias, $where=[]){
+        if(!$set_data = $this->getHasOneList($src_list,$where,$join, array_keys($alias))){
+            return false;
+        }
+        foreach($src_list as & $src_item) {
+            $key = $src_item[$join['from']];
+            foreach($alias as $src => $trg){
+                 $src_item[$trg] = $set_data[$key][$src];
+            }
+         }
+         return $src_list;
+    }
+
 }

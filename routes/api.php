@@ -682,6 +682,8 @@ $api->version('v1',function ($api){
                 $api->post('shipment','OaOrderController@shipment')->name('发货');
                 $api->get('get_oa_order_express_details','OaOrderController@getOaOrderExpressDetails')->name('Oa根据订单号获取物流状态');
                 $api->get('get_express_list','OaOrderController@getExpressList')->name('OA获取快递列表');
+                $api->get('get_shop_inventor_list','OaShopInventorController@getShopInventorList')->name('OA获取商品库存列表');
+                $api->post('change_inventor','OaShopInventorController@changeInventor')->name('OA修改库存');
 
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
@@ -704,6 +706,7 @@ $api->version('v1',function ($api){
                 $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');
                 $api->get('get_goods_spec','GoodsController@getGoodsSpec')->name('获取商品规格');
                 $api->get('get_goods_spec_list','GoodsController@getGoodsSpecList')->name('获取某一商品规格列表');
+
             });
         });
 
