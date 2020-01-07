@@ -385,6 +385,7 @@ class OrderRelateService extends BaseService
             $where['status']    = $status;
         }
         $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no'];
+        #获取订单列表
         if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -394,8 +395,10 @@ class OrderRelateService extends BaseService
             $this->setMessage('您还没有订单，快去购买吧！');
             return $order_list;
         }
+        #获取物流公司列表
         $express_company_ids   = array_column($order_list['data'],'express_company_id');
         $express_company_list  = CommonExpressRepository::getList(['id' => ['in',$express_company_ids]]);
+        #获取订单中的商品列表
         $order_relate_ids   = array_column($order_list['data'],'id');
         $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);

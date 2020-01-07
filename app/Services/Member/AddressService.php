@@ -152,6 +152,11 @@ class AddressService extends BaseService
             #处理地址
             list($area_address) = $this->makeAddress($value['area_code'],'');
             $value['area_address']  = $area_address;
+            $value['free_shipping']   = 0;#默认不包邮
+            $area_code = explode(',',trim($value['area_code'],','));
+            if (array_intersect($area_code,OrderRelateService::$free_shipping_area_code)){
+                $value['free_shipping'] = 1;
+            }
         }
         $this->setMessage('查找成功');
         return $list;
