@@ -410,7 +410,7 @@ class OrdersService extends BaseService
     }
 
     /**
-     * 根据id获取成员自己预约详情
+     * 医疗根据id获取成员自己预约详情
      * @param $request
      * @return bool|null
      */
@@ -421,6 +421,9 @@ class OrdersService extends BaseService
             $this->setError('没有此订单!');
             return false;
         }
+        $department_ids               = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'department_ids');
+        $department_list              = explode(',',trim($department_ids,','));
+        $orderInfo['department_arr']  = MedicalDepartmentsRepository::getList(['id' => ['in',$department_list]],['id','name']);
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);
