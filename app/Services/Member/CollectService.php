@@ -341,5 +341,22 @@ class CollectService extends BaseService
         return true;
     }
 
+    public function getCommentDetails($request)
+    {
+        $related_id = $request['related_id'];
+        switch ($request['type']){
+            case CommentsEnum::SHOP:
+                if (!$order = ShopOrderRelateRepository::getCommentDetails($related_id)){
+                    $this->setError('获取失败！');
+                    return false;
+                }
+                break;
+            default:
+                $this->setError('评论类型不存在！');
+                return false;
+        }
+        //TODO 此处添加业务
+    }
+
 }
 
