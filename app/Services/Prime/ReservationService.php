@@ -44,7 +44,7 @@ class ReservationService extends BaseService
         if (!empty($merchant_id)){
             $where['merchant_id'] = $merchant_id;
         }
-        if (!empty($state)){
+        if (!is_null($state)){
             $where['state'] = $state;
         }
         if (!empty($keywords)){

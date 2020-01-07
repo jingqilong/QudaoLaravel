@@ -80,7 +80,7 @@ class ReservationService extends BaseService
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
-        if (!empty($state)){
+        if (!is_null($state)){
             $where['state'] = $state;
         }
         $column = ['id','house_id','name','mobile','time','memo','state'];
@@ -147,7 +147,7 @@ class ReservationService extends BaseService
         $order      = 'id';
         $desc_asc   = 'desc';
         $where = ['id' => ['<>',0]];
-        if (!empty($state)){
+        if (!is_null($state)){
             $where['state'] = $state;
         }
         $column = ['id','house_id','name','mobile','time','memo','state'];
