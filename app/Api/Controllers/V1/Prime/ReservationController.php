@@ -232,8 +232,7 @@ class ReservationController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $merchant = Auth::guard('prime_api')->user();
-        $res = $this->reservationService->reservationList($this->request,$merchant->id);
+        $res = $this->reservationService->merchantReservationList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }

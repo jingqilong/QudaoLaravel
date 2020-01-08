@@ -6,6 +6,7 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\PrimeTypeEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\PrimeMerchantRepository;
@@ -16,6 +17,7 @@ use App\Services\Common\ImagesService as CommonImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Member\OrdersService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,16 +25,16 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class ReservationService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     /**
-     * 获取预约列表
+     * OA获取预约列表
      * @param $request
-     * @param null $merchant_id
      * @return bool|mixed|null
      */
-    public function reservationList($request, $merchant_id = null)
+    public function reservationList($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
@@ -41,9 +43,73 @@ class ReservationService extends BaseService
         $desc_asc   = 'desc';
         $where      = ['id' => ['>',0]];
         $column     = ['id','merchant_id','order_no','name','mobile','time','memo','member_id','number','order_image_ids','state'];
-        if (!empty($merchant_id)){
-            $where['merchant_id'] = $merchant_id;
+        if (!is_null($state)){
+            $where['state'] = $state;
         }
+        if (!empty($keywords)){
+            $keywords = [$keywords => ['order_no','name','mobile','memo']];
+            if (!$list = PrimeReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('暂无数据！');
+            return $list;
+        }
+        $list['data'] = CommonImagesService::getListImages($list['data'], ['order_image_ids'=>'several']);
+        $merchant_ids = array_column($list['data'],'merchant_id');
+        $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
+        $order_nos = array_column($list['data'],'order_no');
+        $order_list= MemberOrdersRepository::getList(['order_no' => ['in',$order_nos]],['order_no','amount','payment_amount','status']);
+        foreach ($list['data'] as &$value){
+            $value['merchant_name'] = '';
+            if ($merchant = $this->searchArray($merchant_list,'id',$value['merchant_id'])){
+                $value['merchant_name'] = reset($merchant)['name'];
+            }
+            $amount = 0;
+            $payment_amount = 0;
+            $status = -1;
+            if ($order = $this->searchArray($order_list,'order_no',$value['order_no'])){
+                $amount         = reset($order)['amount'];
+                $payment_amount = reset($order)['payment_amount'];
+                $status         = reset($order)['status'];
+            }
+            $value['time']              = date('Y年m月d日 H点i分',$value['time']);
+            $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
+            $value['payment_status']    = OrderEnum::getStatus($status,'未付款');
+            $value['amount']            = round($amount / 100,2).'元';
+            $value['payment_amount']    = round($payment_amount / 100,2).'元';
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::LOAN_RESERVATION,$employee->id);
+            unset($value['merchant_id']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+    /**
+     * OA获取预约列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function merchantReservationList($request)
+    {
+        $merchant = Auth::guard('prime_api')->user();
+        $page       = $request['page'] ?? 1;
+        $page_num   = $request['page_num'] ?? 20;
+        $state      = $request['state'] ?? null;
+        $keywords   = $request['keywords'] ?? null;
+        $order      = 'id';
+        $desc_asc   = 'desc';
+        $where      = ['id' => ['>',0],'merchant_id' => $merchant->id];
+        $column     = ['id','merchant_id','order_no','name','mobile','time','memo','member_id','number','order_image_ids','state'];
         if (!is_null($state)){
             $where['state'] = $state;
         }
@@ -124,12 +190,21 @@ class ReservationService extends BaseService
         }
         $add_arr['created_at']  = time();
         $add_arr['updated_at']  = time();
-        if (PrimeReservationRepository::getAddId($add_arr)){
-            $this->setMessage('预约成功！');
-            return true;
+        DB::beginTransaction();
+        if (!$id = PrimeReservationRepository::getAddId($add_arr)){
+            $this->setError('预约失败！');
+            DB::rollBack();
+            return false;
         }
-        $this->setError('预约失败！');
-        return false;
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::PRIME_RESERVATION);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('预约成功！');
+        DB::commit();
+        return true;
     }
 
     /**
