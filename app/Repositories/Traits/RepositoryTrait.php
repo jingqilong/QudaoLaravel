@@ -7,7 +7,7 @@ namespace App\Repositories\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Tolawho\Loggy\Facades\Loggy;
-
+use Closure;
 
 trait RepositoryTrait
 {
@@ -508,10 +508,10 @@ trait RepositoryTrait
      * @param $columns  ,要从当前Repository中查出的字段
      * @param array $where 附加的 where条件
      * @param $callback ,闭包，用来实现结果的处理
-     * @return bool  ,操作成功与否
+     * @return bool|array  ,操作成功与否
      *
      */
-    protected function bulkHasOneWalk($src_list, $join, $columns, $where,\Closure $callback){
+    protected function bulkHasOneWalk($src_list, $join, $columns, $where,Closure $callback){
         if(!$set_data = $this->getHasOneList($src_list,$where,$join, $columns)){
             return false;
         }
@@ -555,10 +555,10 @@ trait RepositoryTrait
      * @param $columns  ,要从当前Repository中查出的字段
      * @param array $where 附加的 where条件
      * @param $callback ,闭包，用来实现结果的处理
-     * @return bool  ,操作成功与否
+     * @return bool|array  ,操作成功与否
      *
      */
-    protected function bulkHasManyWalk($src_list, $join, $columns, $where,\Closure $callback){
+    protected function bulkHasManyWalk($src_list, $join, $columns, $where,Closure $callback){
         if(!$set_data = $this->getHasManyList($src_list,$where,$join, $columns)){
             return false;
         }
