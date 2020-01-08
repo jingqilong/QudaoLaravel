@@ -50,8 +50,10 @@
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout"
-      })
+        layout: "StandaloneLayout",
+        //docExpansion:'none'
+        docExpansion:'list'
+      });
 
       window.ui = ui
     }
