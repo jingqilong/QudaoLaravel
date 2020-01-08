@@ -24,11 +24,11 @@ class MessageTemplate extends BaseService
         2 => //监督人
 '',
         3 => //发起人
-'尊敬的[$receiver_name]：
+'尊敬的[receiver_name]：
 
 您好！
 
-您所提交的[$process_full_name]已经[$precess_result]。感谢您的参与！
+您所提交的[process_full_name]已经[precess_result]。感谢您的参与！
 
 (注：此邮件无须回复！)祝您
 
@@ -81,6 +81,6 @@ class MessageTemplate extends BaseService
     public function getContent(){
         $data           = $this->data;
         $template       = $this->getTemplate();
-        return str_replace(['[receiver_name]','[process_full_name]'],[$data['receiver_name'],$data['process_full_name']],$template);
+        return str_replace(['[receiver_name]','[process_full_name]','[precess_result]'],[$data['receiver_name'],$data['process_full_name'],$data['precess_result']],$template);
     }
 }

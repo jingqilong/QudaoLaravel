@@ -30,15 +30,24 @@ class SendFlowSmsListener implements ShouldQueue
      */
     public function handle(SendFlowSms $event)
     {
-        $data = $event->data;
-        $receiver   = $data['receiver'];
-        Loggy::write('process',$receiver['receiver_mobile'].'执行了发送短信事件！');
-        $message_data = [
-            'receiver_name'     => $receiver['receiver_name'],
-            'process_full_name' => $data['process_full_name']['process_name'],
-        ];
-        $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
-        app(SmsService::class)->sendContent($receiver['receiver_mobile'],$messageTemplate->getContent());
+        try {
+            $data = $event->data;
+            $receiver   = $data['receiver'];
+            if (!isset($receiver['receiver_mobile'])){
+                Loggy::write('process','短信发送失败！原因：无手机号');
+                return false;
+            }
+            Loggy::write('process','执行了发送短信事件！手机号：'.$receiver['receiver_mobile']);
+            $message_data = [
+                'receiver_name'     => $receiver['receiver_name'],
+                'process_full_name' => $data['process_full_name']['process_name'],
+                'precess_result'    => $data['precess_result'] ?? '',
+            ];
+            $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
+            app(SmsService::class)->sendContent($receiver['receiver_mobile'],$messageTemplate->getContent());
+        }catch (\Exception $e){
+            Loggy::write('process','执行发送短信事件出错！手机号：'.$receiver['receiver_mobile'],json_decode(json_encode($e), true));
+        }
         return false;
     }
 
@@ -51,7 +60,6 @@ class SendFlowSmsListener implements ShouldQueue
      */
     public function failed(SendFlowSms $event, $exception)
     {
-        Loggy::write('process','任务执行失败！');
-        //
+        Loggy::write('process','发送短信任务执行失败！',json_decode(json_encode($exception), true));
     }
 }

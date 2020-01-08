@@ -14,6 +14,7 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\ShopActivityRepository;
 use App\Repositories\ShopGoodsCategoryRepository;
+use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
@@ -23,6 +24,7 @@ use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Encore\Admin\Grid\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -68,7 +70,7 @@ class GoodsService extends BaseService
             'labels'            => $labels,
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
-            'stock'             => $request['stock'],
+            'stock'             => $request['stock'] ?? 0,
             'express_price'     => isset($request['express_price']) ? $request['express_price'] * 100 : 0,
             'score_deduction'   => $request['score_deduction'] ?? 0,
             'score_categories'  => $request['score_categories'] ?? '',
@@ -104,6 +106,17 @@ class GoodsService extends BaseService
             if (!$shopActivityService->addOrUpdScoreExchange($goods_id,$score_exchange_status)){
                 $this->setError($shopActivityService->error);
                 DB::rollBack();
+                return false;
+            }
+        }
+        #如果商品有规格  处理库存价格
+        if ($spec_value = ShopGoodSpecListViewRepository::getList(['goods_id' => $goods_id])){
+            $spec_stock = array_sum(Arr::pluck($spec_value,'stock'));
+            $spec_price = min(Arr::pluck($spec_value,'price'));
+            $upd_arr = ['price' => $spec_price,'stock' => $spec_stock];
+            if (!$goods_id = ShopGoodsRepository::getUpdId(['id' => $goods_id],$upd_arr)){
+                DB::rollBack();
+                $this->setError('添加失败！');
                 return false;
             }
         }
@@ -234,6 +247,17 @@ class GoodsService extends BaseService
             if (!$shopActivityService->addOrUpdScoreExchange($goods_id,$score_exchange_status)){
                 $this->setError($shopActivityService->error);
                 DB::rollBack();
+                return false;
+            }
+        }
+        #如果商品有规格  处理库存价格
+        if ($spec_value = ShopGoodSpecListViewRepository::getList(['goods_id' => $goods_id])){
+            $spec_stock = array_sum(Arr::pluck($spec_value,'stock'));
+            $spec_price = min(Arr::pluck($spec_value,'price'));
+            $upd_arr = ['price' => $spec_price,'stock' => $spec_stock];
+            if (!$goods_id = ShopGoodsRepository::getUpdId(['id' => $goods_id],$upd_arr)){
+                DB::rollBack();
+                $this->setError('添加失败！');
                 return false;
             }
         }
