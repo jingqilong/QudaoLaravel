@@ -32,33 +32,49 @@ class SendSiteMessageListener implements ShouldQueue
      */
     public function handle($event)
     {
-        $data       = $event->data;
-        $receiver   = $data['receiver'];
-        Loggy::write('process',$receiver['receiver_mobile'].'执行了发送站内信事件！');
-        $message_data = [
-            'receiver_name'     => $receiver['receiver_name'],
-            'process_full_name' => $data['process_full_name']['process_name'],
-        ];
-        $category = MessageEnum::SYSTEMNOTICE;
-        $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
-        if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
-            app(SendService::class)::sendMessageForMember(
+        try {
+            $data       = $event->data;
+            $receiver   = $data['receiver'];
+            Loggy::write('process','执行了发送站内信事件！用户ID：'.$receiver['receiver_id']);
+            $message_data = [
+                'receiver_name'     => $receiver['receiver_name'],
+                'process_full_name' => $data['process_full_name']['process_name'],
+            ];
+            $category = MessageEnum::SYSTEMNOTICE;
+            $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
+            if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
+                app(SendService::class)::sendMessageForMember(
+                    $receiver['receiver_id'],
+                    $category,
+                    $data['title'],
+                    $messageTemplate->getContent(),
+                    $data['business_id']
+                );
+                return false;
+            }
+            app(SendService::class)::sendMessageForEmployee(
                 $receiver['receiver_id'],
                 $category,
                 $data['title'],
                 $messageTemplate->getContent(),
-                $data['business_id']
+                $data['business_id'],
+                $data['link_url']
             );
-            return false;
+        }catch (\Exception $e){
+            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'],json_decode(json_encode($e), true));
         }
-        app(SendService::class)::sendMessageForEmployee(
-            $receiver['receiver_id'],
-            $category,
-            $data['title'],
-            $messageTemplate->getContent(),
-            $data['business_id'],
-            $data['link_url']
-        );
         return false;
+    }
+
+    /**
+     * 处理失败任务。
+     *
+     * @param  object  $event
+     * @param  \Exception  $exception
+     * @return void
+     */
+    public function failed($event, $exception)
+    {
+        Loggy::write('process','发送站内信任务执行失败！',json_decode(json_encode($exception), true));
     }
 }

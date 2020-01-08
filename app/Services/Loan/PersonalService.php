@@ -135,6 +135,10 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
+        if (!isset(LoanEnum::$type[$data['type']])){
+              $this->setError('该推荐类型不存在');
+              return false;
+        }
         $add_arr  = [
             'user_id'         =>  $memberInfo->id,
             'name'            =>  $data['name'],
