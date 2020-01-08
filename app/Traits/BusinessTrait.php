@@ -353,7 +353,7 @@ trait BusinessTrait
         $send_data['link_url'] = config('process.link_url')[app()['env']];
 
         //此处为节点事件的执行，只针对事件通知的人群
-        foreach($event_list as $event){dd($stakeholders);
+        foreach($event_list as $event){
            foreach ($stakeholders as $receiver){
                if ($receiver['receiver_iden'] != $event['principals_type']){
                    continue;

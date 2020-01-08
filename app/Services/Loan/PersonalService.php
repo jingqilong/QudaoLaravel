@@ -13,6 +13,7 @@ use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class PersonalService extends BaseService
 {
@@ -135,7 +136,7 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
-        if (!LoanEnum::isset($data['type'])){
+        if (!isset(LoanEnum::$type[$data['type']])){
               $this->setError('该推荐类型不存在');
               return false;
         }
@@ -163,7 +164,6 @@ class PersonalService extends BaseService
             DB::rollBack();
             return false;
         }
-        DB::rollBack();
         $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::LOAN_RESERVATION);
         if (100 == $start_process_result['code']){
             $this->setError('预约失败，请稍后重试！');
