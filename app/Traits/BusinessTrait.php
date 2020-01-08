@@ -189,16 +189,16 @@ trait BusinessTrait
     /**
      * @desc  添加下一个待审记录节点。
      * @param $current_data
-     * @param $transition
+     * @param $next_node_id
      * @return mixed
      */
-    public function addNextProcessRecord($current_data,$transition){
+    public function addNextProcessRecord($current_data,$next_node_id){
         if(!isset($current_data['process_id'])){
             $message = "未收到流程ID!";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        $node = OaProcessNodeRepository::getOne(['process_id' => $current_data['process_id'],'id' => $transition['next_node']]);
+        $node = OaProcessNodeRepository::getOne(['process_id' => $current_data['process_id'],'id' => $next_node_id]);
         if(!$node){
             $message = "获取下一节点失败";
             Loggy::write("error",$message);
