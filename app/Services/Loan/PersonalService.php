@@ -153,7 +153,7 @@ class PersonalService extends BaseService
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
-        $add_arr['created_at']     =  time();
+        $add_arr['created_at'] =  time();
         DB::beginTransaction();
         if (!$id = LoanPersonalRepository::getAddId($add_arr)){
             $this->setError('预约失败,请稍后重试！');
