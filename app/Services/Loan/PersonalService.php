@@ -138,9 +138,6 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
-        if (!LoanEnum::isset($data['type'])){
-              $this->setError('该推荐类型不存在');
-        }
         $add_arr  = [
             'user_id'         =>  $memberInfo->id,
             'name'            =>  $data['name'],
@@ -152,6 +149,7 @@ class PersonalService extends BaseService
             'type'            =>  $data['type'],
             'remark'          =>  $data['remark'],
             'status'          =>  LoanEnum::SUBMIT,
+            'appointment'     =>  LoanEnum::PLATFORM,
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
         if (LoanPersonalRepository::exists($add_arr)){
