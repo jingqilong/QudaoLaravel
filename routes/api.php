@@ -166,6 +166,7 @@ $api->version('v1',function ($api){
 
                 #流程提交审核结果
                 $api->post('submit_operation_result','ProcessPerformController@submitOperationResult')->name('提交流程操作（审核）结果');
+                $api->get('get_my_audit_list','ProcessPerformController@getMyAuditList')->name('获取我的审核列表');
 
 
                 #OA流程

@@ -104,4 +104,75 @@ class ProcessPerformController extends ApiController
         }
         return ['code' => 200, 'message' => $this->processPerformService->message];
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/oa/get_my_audit_list",
+     *     tags={"OA"},
+     *     summary="获取我的审核列表",
+     *     description="sang" ,
+     *     operationId="get_my_audit_list",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMyAuditList(){
+        $rules = [
+            'page'              => 'integer',
+            'page_num'          => 'integer',
+        ];
+        $messages = [
+            'page.integer'          => '页码必须为整数！',
+            'page_num.integer'      => '每页显示条数必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->processPerformService->getMyAuditList($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->processPerformService->error];
+        }
+        return ['code' => 200, 'message' => $this->processPerformService->message,'data' => $res];
+    }
 }

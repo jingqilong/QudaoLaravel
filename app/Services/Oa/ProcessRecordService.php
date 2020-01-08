@@ -13,6 +13,7 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class ProcessRecordService extends BaseService
 {
+    use HelpTrait;
     /**
      * @desc 添加流程进度记录
      * @param array $process_record_data
@@ -192,12 +193,12 @@ class ProcessRecordService extends BaseService
     public function getNodeListByUserId($user_id,$page,$page_num)
     {
         $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
-        $column= ['*'];
+        $column= ['id','business_id','process_id','process_category','position','created_at'];
         if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
-        $recode_list = app(HelpTrait::class)->removePagingField($recode_list);
+        $recode_list = $this->removePagingField($recode_list);
         if (empty($recode_list['data'])){
             $this->setMessage('暂无数据！');
             return $recode_list;
@@ -210,20 +211,25 @@ class ProcessRecordService extends BaseService
                     $business_ids[] = $recode['business_id'];
                 }
             }
+            #给业务分类列表建立索引
             $business_list[$process_category] = $this->getAllBusinessList($business_ids,$process_category);
         }
-        foreach ($recode_list['data'] as &$recode){
+        $result = [];
+        foreach ($recode_list['data'] as $key => &$recode){
             $list = $business_list[$recode['process_category']];
             foreach ($list as $value){
                 if ($recode['business_id'] == $value['id']){
-                    $recode['business_name']    = $value['name'];
-                    $recode['member_id']        = $value['member_id'];
-                    $recode['member_name']      = $value['member_name'];
-                    $recode['member_mobile']    = $value['member_mobile'];
+                    $result[$key]['process_category']= $recode['process_category'];
+                    $result[$key]['business_id']    = $recode['business_id'];
+                    $result[$key]['business_name']  = $value['name'];
+                    $result[$key]['member_name']    = $value['member_name'];
+                    $result[$key]['member_mobile']  = $value['member_mobile'];
+                    $result[$key]['created_at']     = date('Y-m-d H:i:s',$recode['created_at']);
                     //TODO 如需要更多参数，在此添加
                 }
             }
         }
+        $recode_list['data'] = $result;
         $this->setMessage('获取成功！');
         return $recode_list;
     }

@@ -426,11 +426,11 @@ trait BusinessTrait
      * @param int $page_num
      * @return array
      */
-    public function getNodeListByUserid($user_id,$page = 1,$page_num = 20){
+    public function getNodeListByUserId($user_id,$page = 1,$page_num = 20){
         $processRecordService = new ProcessRecordService();
         $recode_list = $processRecordService->getNodeListByUserId($user_id,$page,$page_num);
         if ($recode_list == false){
-            return ['code' => 100,$processRecordService->error];
+            return ['code' => 100,'message' => $processRecordService->error];
         }
         return ['code' => 200,'message' => $processRecordService->message,'data' => $recode_list];
     }
