@@ -7,6 +7,7 @@ namespace App\Traits;
 use App\Enums\ImageTypeEnum;
 use App\Repositories\CommonAreaRepository;
 use Illuminate\Support\Arr;
+use App\Library\Members\Member;
 
 trait HelpTrait
 {
@@ -242,34 +243,7 @@ trait HelpTrait
      * @return int
      */
     function discount($grade, $amount){
-        $discount_amount = 0;
-        switch ($grade){
-            case 1:
-                $discount_amount = $amount;
-                break;
-            case 2:
-                $discount_amount = $amount;
-                break;
-            case 3:
-                $discount_amount = $amount;
-                break;
-            case 4:
-                $discount_amount = $amount;
-                break;
-            case 5:
-                $discount_amount = $amount;
-                break;
-            case 6:
-                $discount_amount = $amount;
-                break;
-            case 7:
-                $discount_amount = $amount;
-                break;
-            default:
-                $discount_amount = $amount;
-                break;
-        }
-        return $discount_amount;
+         return Member::of($grade)->discount($amount);
     }
 
     /**

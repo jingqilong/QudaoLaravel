@@ -1215,13 +1215,17 @@ class MemberService extends BaseService
         $list = $this->removePagingField($list);
         $proposer_grade_list = MemberGradeRepository::getHasOneList($list['data'],[],['from' => 'proposer_id','to' => 'user_id'],['user_id','grade']);
         $contact_grade_list  = MemberGradeRepository::getHasOneList($list['data'],[],['from' => 'contact_id','to' => 'user_id'],['user_id','grade']);
+        $proposer_name_list = MemberBaseRepository::getHasOneList($list['data'],[],['from' => 'proposer_id','to' => 'id'],['id','ch_name']);
+        $contact_name_list   = MemberBaseRepository::getHasOneList($list['data'],[],['from' => 'contact_id','to' => 'id'],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $proposer_key = $value['proposer_id'];
             $contact_key  = $value['contact_id'];
             $value['proposer_grade']  = $proposer_grade_list[$proposer_key]['grade'];
             $value['contact_grade']   = $contact_grade_list[$contact_key]['grade'];
-            $value['proposer_name']   = MemberEnum::getGrade($proposer_grade_list[$proposer_key]['grade'],'普通成员');
-            $value['contact_name']    = MemberEnum::getGrade($contact_grade_list[$contact_key]['grade'],'普通成员');
+            $value['proposer_name']   = $proposer_name_list[$proposer_key]['ch_name'];
+            $value['contact_name']    = $contact_name_list[$contact_key]['ch_name'];
+            $value['proposer_grade_name']   = MemberEnum::getGrade($proposer_grade_list[$proposer_key]['grade'],'普通成员');
+            $value['contact_grade_name']    = MemberEnum::getGrade($contact_grade_list[$contact_key]['grade'],'普通成员');
             $value['status_name']     = MemberEnum::getAuditStatus($value['status']);
         }
         $this->setMessage('获取成功!');
