@@ -11,6 +11,8 @@ use RuntimeException;
  */
 class Member
 {
+
+
     /**
      * @desc 通过配置文件指定相关的类，从而创建对应的策略对象的静态方法
      * @example  $member = Member::of($member_grade);

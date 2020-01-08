@@ -166,6 +166,7 @@ $api->version('v1',function ($api){
 
                 #流程提交审核结果
                 $api->post('submit_operation_result','ProcessPerformController@submitOperationResult')->name('提交流程操作（审核）结果');
+                $api->get('get_my_audit_list','ProcessPerformController@getMyAuditList')->name('获取我的审核列表');
 
 
                 #OA流程
@@ -240,6 +241,7 @@ $api->version('v1',function ($api){
 
                 $api->get('get_reservation_list','ReservationController@getReservationList')->name('获取预约列表');
                 $api->post('audit_reservation','ReservationController@auditReservation')->name('审核预约');
+                $api->get('merchant_reservation_detail','ReservationController@merchantReservationDetail')->name('预约详情');
 
                 $api->post('bill_settlement','ReservationController@billSettlement')->name('账单结算');
             });
@@ -257,6 +259,7 @@ $api->version('v1',function ($api){
 
                 $api->post('audit','ReservationController@audit')->name('审核预约');
                 $api->get('reservation_list','ReservationController@reservationList')->name('获取预约列表');
+                $api->get('reservation_detail','ReservationController@reservationDetail')->name('预约详情');
             });
             #精选生活
             $api->group(['middleware' => 'member.jwt.auth'],function($api){

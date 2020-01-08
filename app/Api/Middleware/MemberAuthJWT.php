@@ -30,7 +30,7 @@ class MemberAuthJWT extends BaseMiddleware
                 return new Response(json_encode(['code' => 405, 'message' => '非法token或token为空']));
 //                return ['code' => 401, 'message' => '非法token或token为空'];
             }
-            if (!$this->checkGuest($request->path())){
+            if (!$this->checkAud($request->path())){
                 return new Response(json_encode(['code' => 405, 'message' => '权限不足！']));
             }
             $auth = $auth->setToken($token);
@@ -65,14 +65,20 @@ class MemberAuthJWT extends BaseMiddleware
      * @param $path
      * @return bool
      */
-    public function checkGuest($path){
+    public function checkAud($path){
         $payload    = JWTAuth::parseToken()->getPayload();
         if (is_null($aud = $payload->get('aud'))){
             return true;
         }
-        if ('guest' == $aud){
-            $path  = '/'.$path;
+        $path  = '/'.$path;
+        if ('guest' == $aud){//访客用户路由白名单检查
             $greenlight_routes = config('guest.greenlight_routes');
+            if (!in_array($path,$greenlight_routes)){
+                return false;
+            }
+        }
+        if ('test' == $aud){//测试用户路由白名单检查
+            $greenlight_routes = config('guest.test_greenlight_routes');
             if (!in_array($path,$greenlight_routes)){
                 return false;
             }

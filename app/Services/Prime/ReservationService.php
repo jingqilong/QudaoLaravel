@@ -6,6 +6,7 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\PrimeTypeEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\PrimeMerchantRepository;
@@ -16,6 +17,7 @@ use App\Services\Common\ImagesService as CommonImagesService;
 use App\Services\Common\SmsService;
 use App\Services\Member\OrdersService;
 use App\Services\Message\SendService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,20 +25,21 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class ReservationService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     /**
      * 获取预约列表
      * @param $request
-     * @param null $merchant_id
      * @return bool|mixed|null
      */
-    public function reservationList($request, $merchant_id = null)
+    public function reservationList($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
         $keywords   = $request['keywords'] ?? null;
+        $merchant_id= $request['merchant_id'] ?? null;
         $order      = 'id';
         $desc_asc   = 'desc';
         $where      = ['id' => ['>',0]];
@@ -87,6 +90,8 @@ class ReservationService extends BaseService
             $value['payment_status']    = OrderEnum::getStatus($status,'未付款');
             $value['amount']            = round($amount / 100,2).'元';
             $value['payment_amount']    = round($payment_amount / 100,2).'元';
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
             unset($value['merchant_id']);
         }
         $this->setMessage('获取成功！');
@@ -124,12 +129,56 @@ class ReservationService extends BaseService
         }
         $add_arr['created_at']  = time();
         $add_arr['updated_at']  = time();
-        if (PrimeReservationRepository::getAddId($add_arr)){
-            $this->setMessage('预约成功！');
-            return true;
+        DB::beginTransaction();
+        if (!$id = PrimeReservationRepository::getAddId($add_arr)){
+            $this->setError('预约失败！');
+            DB::rollBack();
+            return false;
         }
-        $this->setError('预约失败！');
-        return false;
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::PRIME_RESERVATION);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        $this->setMessage('预约成功！');
+        DB::commit();
+        return true;
+    }
+
+    /**
+     * 获取预约详情
+     * @param $id
+     * @param null $merchant_id
+     * @return array|bool
+     */
+    public function reservationDetails($id,$merchant_id = null){
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','merchant_id','time','longitude','latitude','number','state','merchant_name','type','banner_ids','star','address','name','mobile','memo','discount'];
+        if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        $reservation        = CommonImagesService::getOneImagesConcise($reservation, ['banner_ids'=>'single']);
+        $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
+        $reservation['state_title']     = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $reservation['type_title']      = PrimeTypeEnum::getType($reservation['type']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::PRIME_RESERVATION]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $reservation,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 
     /**
@@ -176,18 +225,18 @@ class ReservationService extends BaseService
             $member_name = $reservation['name'];
             $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
-                PrimeTypeEnum::RESERVATIONOK =>
-                    MessageEnum::getTemplate(
-                        MessageEnum::PRIMEBOOKING,
-                        'auditPass',
-                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
-                    ),
-                PrimeTypeEnum::RESERVATIONNO =>
-                    MessageEnum::getTemplate(
-                        MessageEnum::PRIMEBOOKING,
-                        'auditPass',
-                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
-                    ),
+                PrimeTypeEnum::RESERVATIONOK => MessageEnum::getTemplate
+                (
+                    MessageEnum::PRIMEBOOKING,
+                    'auditPass',
+                    ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                ),
+                PrimeTypeEnum::RESERVATIONNO => MessageEnum::getTemplate
+                (
+                    MessageEnum::PRIMEBOOKING,
+                    'auditNoPass',
+                    ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                ),
             ];
             #短信通知
             if (!empty($member['mobile'])){
@@ -348,6 +397,7 @@ class ReservationService extends BaseService
     }
 
     /**
+     * 取消预约
      * @param $id
      * @return bool
      */

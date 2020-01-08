@@ -73,4 +73,21 @@ class ProcessPerformService extends BaseService
         $this->setError('操作失败！');
         return false;
     }
+
+    /**
+     * 获取我的审核列表
+     * @param $request
+     * @return bool|mixed
+     */
+    public function getMyAuditList($request)
+    {
+        $employee = Auth::guard('oa_api')->user();
+        $result = $this->getNodeListByUserId($employee->id,$request['page'] ?? 1,$request['page_num'] ?? 20);
+        if (100 == $result['code']){
+            $this->setError($result['message']);
+            return false;
+        }
+        $this->setMessage($result['message']);
+        return $result['data'];
+    }
 }

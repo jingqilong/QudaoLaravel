@@ -89,7 +89,7 @@ class PersonalService extends BaseService
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据');
-            return [];
+            return $list;
         }
         foreach ($list['data'] as &$value)
         {

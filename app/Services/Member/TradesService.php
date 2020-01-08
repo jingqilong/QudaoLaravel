@@ -4,12 +4,16 @@ namespace App\Services\Member;
 
 use App\Enums\OrderEnum;
 use App\Enums\TradeEnum;
+use App\Library\Members\Member;
 use App\Library\Time\Time;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
+use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
+use Tolawho\Loggy\Facades\Loggy;
 
 class TradesService extends BaseService
 {
@@ -44,6 +48,12 @@ class TradesService extends BaseService
         if (!MemberOrdersRepository::getUpdId(['id' => $order_id],$order_upd)){
             $this->setError('更新订单信息失败！');
             return false;
+        }
+        if(('+' ==  $fund_flow) && ( 1 == $status  )){
+            $ret = $this->addRewardScore($order_id, $pay_user_id, $amount);
+            if(false === $ret){
+                Loggy::write('error', '更新用户积分失败。',$trade_arr );
+            }
         }
         $this->setMessage('添加成功！');
         return true;
@@ -187,6 +197,39 @@ class TradesService extends BaseService
         }
         $this->setMessage('获取成功！');
         return $trade_list;
+    }
+
+    /**
+     * @desc 同步更新推荐人积分
+     * 调用条件：付款人是成员，是付款，不是退款，（因为目前没有退款）
+     * @param int $order_id         订单id
+     * @param int $pay_user_id      付款方ID
+     * @param int $amount           交易金额
+     * @return bool|mixed
+     */
+    public function addRewardScore($order_id, $pay_user_id, $amount){
+        //从会员订单表获取订单类型
+        $order = MemberOrdersRepository::getOne(['id' => $order_id],['user_id','order_type','payment_amount']);
+        if(($order['user_id'] != $pay_user_id ) || ($order['payment_amount'] != $amount )){
+            Loggy::write('error',"支付人与金额可能不一致！", ['order'=>$order, 'trade'=> [ 'user_id'=>$pay_user_id,'amount'=>$amount]]);
+        }
+        $order_type = $order['$order'];
+        $relation = MemberRelationRepository::getOne(['member_id' => $pay_user_id],['member_id','parent_id','path']);
+        if(!$relation){
+            Loggy::write('error','推荐关系不存在！', ['member_id'=>$pay_user_id]);
+            return false;
+        }
+        $referrer_user_id = $relation['parent_id'];
+        if(0 ==  $referrer_user_id){
+            Loggy::write('error','推荐人ID=0！', ['member_id'=>$pay_user_id]);
+            return false;
+        }
+        $referrer_info = MemberGradeRepository::getOne(['user_id'=>$referrer_user_id],['user_id','grade']);
+        $member_grade = $referrer_info['grade'];
+
+        //调用发送积分策略
+        return  Member::addRewardScore($member_grade,$referrer_user_id,$order_type,$amount);
+
     }
 }
             

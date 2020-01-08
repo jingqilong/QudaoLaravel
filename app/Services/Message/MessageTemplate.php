@@ -18,20 +18,15 @@ class MessageTemplate extends BaseService
 '尊敬的[receiver_name]：
 您好！
     渠道PLUS OA的工作流程[process_full_name]中又有新的审核流程需要处理了。请您及时处理。谢谢！
-(注：此邮件无须回复！)祝您
-
+(注：此信息无须回复！)祝您
 健康快乐！',
         2 => //监督人
 '',
         3 => //发起人
 '尊敬的[receiver_name]：
-
 您好！
-
-您所提交的[process_full_name]已经[precess_result]。感谢您的参与！
-
-(注：此邮件无须回复！)祝您
-
+    您所提交的[process_full_name]已经[precess_result]。感谢您的参与！
+(注：此信息无须回复！)祝您
 健康快乐！',
         4 => //代理人
 '',
