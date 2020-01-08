@@ -198,29 +198,43 @@ trait BusinessTrait
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        $node = OaProcessNodeRepository::getOne(['process_id' => $current_data['process_id']]);
+        $node = OaProcessNodeRepository::getOne(['process_id' => $current_data['process_id'],'id' => $transition['next_node']]);
         if(!$node){
             $message = "获取下一节点失败";
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        $record_data = [
+        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getList(['node_id' => $node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
+            $message = '该流程节点没有动作执行人，流程发起失败';
+            Loggy::write("error",$message);
+            return ['code'=>100,  'message' => $message ];
+        }
+        DB::beginTransaction();
+        foreach ($operator_list as $operator){
+            $record_data = [
+                'business_id'       	=> $current_data['business_id'],
+                'process_id'        	=> $current_data['process_id'],
+                'process_category'  	=> $current_data['process_category'],
+                'node_id'           	=> $node['id'],
+                'position'           	=> $node['position'],
+                'operator_id'       	=> $operator['principal_id'],
+            ];
+            //创建流程节点
+            $processRecordService = new ProcessRecordService();
+            $result = $processRecordService->addRecord($record_data);
+            if(!$result){
+                $message = $processRecordService->error;
+                DB::rollBack();
+                return ['code'=>100,  'message' => $message ];
+            }
+        }
+        DB::commit();
+        return [
             'business_id'       	=> $current_data['business_id'],
             'process_id'        	=> $current_data['process_id'],
             'process_category'  	=> $current_data['process_category'],
-            'node_id'           	=> $transition['next_node'],
-            'position'           	=> $node['position'],
-            'node_action_result_id' => 0,
-            'operator_id'       	=> 0,
-            'note'              	=> '',
+            'node_id'           	=> $node['id'],
         ];
-        $processRecordService = new ProcessRecordService();
-        $result = $processRecordService->addRecord($record_data);
-        if(!$result){
-            $message = $processRecordService->error;
-            return ['code'=>100,  'message' => $message ];
-        }
-        return $record_data;
     }
 
 
