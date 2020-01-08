@@ -28,7 +28,7 @@ class ReservationService extends BaseService
     use HelpTrait,BusinessTrait;
 
     /**
-     * OA获取预约列表
+     * 获取预约列表
      * @param $request
      * @return bool|mixed|null
      */
@@ -39,10 +39,14 @@ class ReservationService extends BaseService
         $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
         $keywords   = $request['keywords'] ?? null;
+        $merchant_id= $request['merchant_id'] ?? null;
         $order      = 'id';
         $desc_asc   = 'desc';
         $where      = ['id' => ['>',0]];
         $column     = ['id','merchant_id','order_no','name','mobile','time','memo','member_id','number','order_image_ids','state'];
+        if (!empty($merchant_id)){
+            $where['merchant_id'] = $merchant_id;
+        }
         if (!is_null($state)){
             $where['state'] = $state;
         }
@@ -87,72 +91,7 @@ class ReservationService extends BaseService
             $value['amount']            = round($amount / 100,2).'元';
             $value['payment_amount']    = round($payment_amount / 100,2).'元';
             #获取流程信息
-            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::LOAN_RESERVATION,$employee->id);
-            unset($value['merchant_id']);
-        }
-        $this->setMessage('获取成功！');
-        return $list;
-    }
-
-    /**
-     * OA获取预约列表
-     * @param $request
-     * @return bool|mixed|null
-     */
-    public function merchantReservationList($request)
-    {
-        $merchant = Auth::guard('prime_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        $state      = $request['state'] ?? null;
-        $keywords   = $request['keywords'] ?? null;
-        $order      = 'id';
-        $desc_asc   = 'desc';
-        $where      = ['id' => ['>',0],'merchant_id' => $merchant->id];
-        $column     = ['id','merchant_id','order_no','name','mobile','time','memo','member_id','number','order_image_ids','state'];
-        if (!is_null($state)){
-            $where['state'] = $state;
-        }
-        if (!empty($keywords)){
-            $keywords = [$keywords => ['order_no','name','mobile','memo']];
-            if (!$list = PrimeReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
-                $this->setError('获取失败！');
-                return false;
-            }
-        }else{
-            if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
-                $this->setError('获取失败！');
-                return false;
-            }
-        }
-        $list = $this->removePagingField($list);
-        if (empty($list['data'])){
-            $this->setMessage('暂无数据！');
-            return $list;
-        }
-        $list['data'] = CommonImagesService::getListImages($list['data'], ['order_image_ids'=>'several']);
-        $merchant_ids = array_column($list['data'],'merchant_id');
-        $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
-        $order_nos = array_column($list['data'],'order_no');
-        $order_list= MemberOrdersRepository::getList(['order_no' => ['in',$order_nos]],['order_no','amount','payment_amount','status']);
-        foreach ($list['data'] as &$value){
-            $value['merchant_name'] = '';
-            if ($merchant = $this->searchArray($merchant_list,'id',$value['merchant_id'])){
-                $value['merchant_name'] = reset($merchant)['name'];
-            }
-            $amount = 0;
-            $payment_amount = 0;
-            $status = -1;
-            if ($order = $this->searchArray($order_list,'order_no',$value['order_no'])){
-                $amount         = reset($order)['amount'];
-                $payment_amount = reset($order)['payment_amount'];
-                $status         = reset($order)['status'];
-            }
-            $value['time']              = date('Y年m月d日 H点i分',$value['time']);
-            $value['state_title']       = PrimeTypeEnum::getReservationStatus($value['state']);
-            $value['payment_status']    = OrderEnum::getStatus($status,'未付款');
-            $value['amount']            = round($amount / 100,2).'元';
-            $value['payment_amount']    = round($payment_amount / 100,2).'元';
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
             unset($value['merchant_id']);
         }
         $this->setMessage('获取成功！');
@@ -208,6 +147,41 @@ class ReservationService extends BaseService
     }
 
     /**
+     * 获取预约详情
+     * @param $id
+     * @param null $merchant_id
+     * @return array|bool
+     */
+    public function reservationDetails($id,$merchant_id = null){
+        $employee = Auth::guard('oa_api')->user();
+        $column = ['id','merchant_id','time','longitude','latitude','number','state','merchant_name','type','banner_ids','star','address','name','mobile','memo','discount'];
+        if (!$reservation = PrimeReservationViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('预约信息不存在！');
+            return false;
+        }
+        $reservation        = CommonImagesService::getOneImagesConcise($reservation, ['banner_ids'=>'single']);
+        $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
+        $reservation['state_title']     = PrimeTypeEnum::getReservationStatus($reservation['state']);
+        $reservation['type_title']      = PrimeTypeEnum::getType($reservation['type']);
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::PRIME_RESERVATION]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $reservation,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
+    }
+
+    /**
      * 预约审核
      * @param $id
      * @param $audit
@@ -251,18 +225,18 @@ class ReservationService extends BaseService
             $member_name = $reservation['name'];
             $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
-                PrimeTypeEnum::RESERVATIONOK =>
-                    MessageEnum::getTemplate(
-                        MessageEnum::PRIMEBOOKING,
-                        'auditPass',
-                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
-                    ),
-                PrimeTypeEnum::RESERVATIONNO =>
-                    MessageEnum::getTemplate(
-                        MessageEnum::PRIMEBOOKING,
-                        'auditPass',
-                        ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
-                    ),
+                PrimeTypeEnum::RESERVATIONOK => MessageEnum::getTemplate
+                (
+                    MessageEnum::PRIMEBOOKING,
+                    'auditPass',
+                    ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                ),
+                PrimeTypeEnum::RESERVATIONNO => MessageEnum::getTemplate
+                (
+                    MessageEnum::PRIMEBOOKING,
+                    'auditNoPass',
+                    ['member_name' => $member_name,'time' => date('Y-m-d H:i',$reservation['time'])]
+                ),
             ];
             #短信通知
             if (!empty($member['mobile'])){
@@ -423,6 +397,7 @@ class ReservationService extends BaseService
     }
 
     /**
+     * 取消预约
      * @param $id
      * @return bool
      */

@@ -232,7 +232,10 @@ class ReservationController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->reservationService->merchantReservationList($this->request);
+        $merchant = Auth::guard('prime_api')->user();
+        $request = $this->request;
+        $request['merchant_id'] = $merchant->id;
+        $res = $this->reservationService->reservationList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }
@@ -327,6 +330,129 @@ class ReservationController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->reservationService->reservationList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/reservation_detail",
+     *     tags={"精选生活OA后台"},
+     *     summary="预约详情",
+     *     description="sang" ,
+     *     operationId="reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function reservationDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->reservationService->reservationDetails($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->reservationService->error];
+        }
+        return ['code' => 200, 'message' => $this->reservationService->message, 'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/prime/merchant_reservation_detail",
+     *     tags={"精选生活商户后台"},
+     *     summary="预约详情",
+     *     description="sang" ,
+     *     operationId="merchant_reservation_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="商户 TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="预约ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    protected function merchantReservationDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'               => '预约ID不能为空',
+            'id.integer'                => '预约ID必须为整数',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $merchant = Auth::guard('prime_api')->user();
+        $res = $this->reservationService->reservationDetails($this->request['id'],$merchant->id);
         if ($res === false){
             return ['code' => 100, 'message' => $this->reservationService->error];
         }
@@ -702,14 +828,10 @@ class ReservationController extends ApiController
     protected function myReservationDetail(){
         $rules = [
             'id'            => 'required|integer',
-            'page'          => 'integer',
-            'page_num'      => 'integer',
         ];
         $messages = [
             'id.required'               => '预约ID不能为空',
             'id.integer'                => '预约ID必须为整数',
-            'page.integer'              => '页码不是整数',
-            'page_num.integer'          => '每页显示条数不是整数',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
