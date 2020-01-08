@@ -585,6 +585,15 @@ class CommonController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="order_related_id",
+     *         in="query",
+     *         description="商品订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="related_id",
      *         in="query",
      *         description="【商品订单ID,商品的ID】比如【1,2】",
@@ -629,6 +638,7 @@ class CommonController extends ApiController
      */
     public function addComment(){
         $rules = [
+            'order_related_id' => 'required|integer',
             'related_id'    => 'required',
             'content'       => 'required',
             'type'          => 'required|in:1',
@@ -636,10 +646,12 @@ class CommonController extends ApiController
             'page_num'      => 'integer',
         ];
         $messages = [
-            'related_id.required'   => '评论ID不能为空',
-            'content.required'      => '评论内容不能为空',
-            'type.required'         => '评论类别不能为空',
-            'type.in'               => '评论类别不存在',
+            'order_related_id.required' => '商品订单ID不能为空',
+            'order_related_id.integer'  => '商品订单ID不是整数',
+            'related_id.required' => '商品ID不能为空',
+            'content.required'    => '评论内容不能为空',
+            'type.required'       => '评论类别不能为空',
+            'type.in'             => '评论类别不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -734,7 +746,7 @@ class CommonController extends ApiController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *     path="/api/v1/common/get_comment_details",
      *     tags={"公共"},
      *     summary="获取评论详情",
@@ -797,7 +809,7 @@ class CommonController extends ApiController
         }
         $res = $this->collectService->getCommentDetails($this->request);
         if ($res){
-            return ['code' => 200, 'message' => $this->collectService->message];
+            return ['code' => 200, 'message' => $this->collectService->message,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->collectService->error];
     }

@@ -196,10 +196,11 @@ class CollectService extends BaseService
                 $this->setError('获取失败!');
                 return false;
             }
-        }
-        if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc',$page,$page_num)){
-            $this->setError('获取失败!');
-            return false;
+        }else{
+            if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败!');
+                return false;
+            }
         }
         $comment_list = $this->removePagingField($comment_list);
         if (empty($comment_list['data'])) {
@@ -246,7 +247,6 @@ class CollectService extends BaseService
             $value['created_at']    = date('Y-m-d',strtotime($value['created_at']));
             unset($value['comment_avatar'],$value['related_id'],$value['image_ids']);
         }
-
         $this->setMessage('获取成功!');
         return $comment_list;
 }
@@ -291,6 +291,7 @@ class CollectService extends BaseService
             'comment_name'      => $member->ch_name,
             'comment_avatar'    => $member->avatar_id,
             'type'              => CommentsEnum::SHOP,
+            'order_related_id'  => $request['order_related_id'],
             'related_id'        => $request['related_id'],
             'image_ids'         => $request['image_ids'] ?? '',
             'status'            => CommentsEnum::SUBMIT,
@@ -308,7 +309,7 @@ class CollectService extends BaseService
             return false;
         }
         //更改订单状态
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::FINISHED])){
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $request['related_id']],['status' => ShopOrderEnum::FINISHED])){
             $this->setError('评论添加失败!');
             DB::rollBack();
             return false;
@@ -341,12 +342,16 @@ class CollectService extends BaseService
         return true;
     }
 
+    /**
+     * 获取评论详情
+     * @param $request
+     * @return array|bool|string|null
+     */
     public function getCommentDetails($request)
     {
-        $related_id = $request['related_id'];
         switch ($request['type']){
             case CommentsEnum::SHOP:
-                if (!$order = ShopOrderRelateRepository::getCommentDetails($related_id)){
+                if (!$order = ShopOrderRelateRepository::getCommentDetails($request['id'])){
                     $this->setError('获取失败！');
                     return false;
                 }
@@ -355,7 +360,8 @@ class CollectService extends BaseService
                 $this->setError('评论类型不存在！');
                 return false;
         }
-        //TODO 此处添加业务
+        $this->setMessage('获取成功!');
+        return $order;
     }
 
 }

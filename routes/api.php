@@ -700,7 +700,7 @@ $api->version('v1',function ($api){
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
                 $api->delete('delete_order','OrderController@deleteOrder')->name('删除订单');
-                $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情'); //不需要验证签名  名流杂志需要上网站
+                $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情');
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');
                 $api->get('get_goods_list','GoodsController@getGoodsList')->name('获取商品列表');
                 $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');
@@ -762,6 +762,7 @@ $api->version('v1',function ($api){
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->get('collect_list', 'CommonController@collectList')->name('收藏类别列表');
+                $api->get('get_comment_details', 'CommonController@getCommentDetails')->name('查看评论详情');
                 $api->post('add_comment', 'CommonController@addComment')->name('添加评论');
                 $api->get('common_list', 'CommonController@commonList')->name('获取评论列表');
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');

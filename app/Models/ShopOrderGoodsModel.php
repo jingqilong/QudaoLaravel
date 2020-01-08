@@ -27,7 +27,7 @@ class ShopOrderGoodsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','order_relate_id','goods_id','spec_relate_id','number','created_at'];
+    protected $fillable = ['id','order_relate_id','goods_id','spec_relate_id','spec_relate_value','number','created_at'];
 
     /**
      * The attributes that should be cast to native types.
