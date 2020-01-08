@@ -144,7 +144,7 @@ class PersonalService extends BaseService
             'ent_title'       =>  $data['ent_title'],
             'address'         =>  $data['address'],
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
+            'remark'          =>  $data['remark'] ?? '',
             'status'          =>  LoanEnum::SUBMIT,
             'appointment'     =>  LoanEnum::PLATFORM,
             'reservation_at'  =>  strtotime($data['reservation_at']),
