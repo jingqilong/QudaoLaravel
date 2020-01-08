@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 
 use App\Enums\MemberEnum;
+use App\Enums\MemberIsTestEnum;
 use App\Models\MemberBaseModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Services\Common\ImagesService;
@@ -117,7 +118,11 @@ class MemberBaseRepository extends ApiRepository
         if (is_integer($user)){
             $user = $this->model->where(['id' => $user])->first();
         }
-        if (! $token = Auth::guard('member_api')->fromUser($user)) {
+        $auth = Auth::guard('member_api');
+        if (MemberIsTestEnum::TEST == $user->is_test){
+            $auth = $auth->claims(['aud' => 'test']);
+        }
+        if (! $token = $auth->fromUser($user)) {
             return false;
         }
         Auth::guard('member_api')->setToken($token);
@@ -139,12 +144,7 @@ class MemberBaseRepository extends ApiRepository
         if (!Hash::check($account_password['password'],$user->password)){
             return ['code' => 100, 'message' => '密码不正确'];
         }
-
-        if (! $token = Auth::guard('member_api')->fromUser($user)) {
-            return ['code' => 100, 'message' => 'token获取失败'];
-        }
-        Auth::guard('member_api')->setToken($token);
-        return $token;
+        return $this->getToken($user);
     }
 
 
