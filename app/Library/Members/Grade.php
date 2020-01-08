@@ -6,7 +6,9 @@ namespace App\Library\Members;
 /**
  * Class Grade
  * @package App\Library\Members
- * @desc 会员等级的父类，假如算法都一样，基本算法放在此类中。如果不同，则在不同的等级中实现。
+ * @desc 会员等级的父类，注意
+ * 假如算法都一样，实现算法的方法就放在此类中。
+ * 如果算法有所不同，则实现算法的在不同的等级的类中实现。
  *
  */
 class Grade
