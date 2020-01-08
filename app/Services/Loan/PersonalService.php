@@ -13,7 +13,6 @@ use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Tolawho\Loggy\Facades\Loggy;
 
 class PersonalService extends BaseService
 {
@@ -149,15 +148,16 @@ class PersonalService extends BaseService
             'ent_title'       =>  $data['ent_title'],
             'address'         =>  $data['address'],
             'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'],
+            'remark'          =>  $data['remark'] ?? '',
             'status'          =>  LoanEnum::SUBMIT,
+            'appointment'     =>  LoanEnum::PLATFORM,
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
         if (LoanPersonalRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
-        $add_arr['created_at']     =  time();
+        $add_arr['created_at'] =  time();
         DB::beginTransaction();
         if (!$id = LoanPersonalRepository::getAddId($add_arr)){
             $this->setError('预约失败,请稍后重试！');

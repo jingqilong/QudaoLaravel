@@ -26,6 +26,9 @@ class ShopInventorService extends BaseService
         $user = Auth::guard('oa_api')->user();
         //余额
         $remain = $this->getCurrentInventor($request['goods_id'],$request['spec_id']);
+        if(0==$remain){
+            $remain = $this->getCurrentStock($request['goods_id'],$request['spec_id']);
+        }
         $remain += $request['amount'] * $request['change_type'];
         //数据
         $new_data = Arr::only($request,['entry_id','goods_id','spec_id','change_type','change_from','amount']);
@@ -33,18 +36,20 @@ class ShopInventorService extends BaseService
         $new_data ['created_at'] = time();
         $new_data ['created_by'] = (!empty($user))?$user->id:0;
         DB::beginTransaction();
+
         if (!ShopInventoryRepository::getAddId($new_data)){
             DB::rollBack();
-            Loggy::write('error','库存记录添加失败！',$new_data);
-            $this->setError('库存记录添加失败！');
+            Loggy::write('error','ShopInventoryRepository::库存记录添加失败！',$new_data);
+            $this->setError('ShopInventoryRepository::库存记录添加失败！');
             return false;
         }
+
         $where = Arr::only($new_data,['goods_id','spec_id']);
         $data['real_inventor'] = $new_data['remain'] ;
-        if(!$this->updateInventor($where,$data)){
+        if(false === $this->updateInventor($where,$data)){
             DB::rollBack();
-            Loggy::write('error','库存记录添加失败！',$new_data);
-            $this->setError('库存记录添加失败！');
+            Loggy::write('error','updateInventor::库存记录添加失败！',$new_data);
+            $this->setError('updateInventor::库存记录添加失败！');
             return false;
         }
         DB::commit();
@@ -63,7 +68,7 @@ class ShopInventorService extends BaseService
             unset($where['spec_id']);
             return ShopGoodsRepository::update(['id'=>$where['goods_id']],$data);
         }
-        return ShopGoodsSpecRelateRepository::update($where,$data);
+        return ShopGoodsSpecRelateRepository::update(['id' =>$where['spec_id'], 'goods_id'=> $where['goods_id']],$data);
 
     }
 
@@ -74,15 +79,38 @@ class ShopInventorService extends BaseService
      * @return int
      */
     public function getCurrentInventor($goods_id,$sepc_id=0){
-        $inventory = ShopInventoryRepository::getList(
-            [['goods_id'=>$goods_id], ['spec_id'=>$sepc_id]],
+        $inventory_list = ShopInventoryRepository::getAllList(
+            ['goods_id'=>$goods_id, 'spec_id'=>$sepc_id],
             ['remain'], //'id','goods_id','spec_id',
             ['id'],
-            ['desc'],
-            1,
-            1);
-        if(isset($inventory['data']['0'])){
-            return $inventory['data']['0']['remain'];
+            ['desc']);
+        if(isset($inventory_list['data']['0'])){
+            return $inventory_list['data']['0']['remain'];
+        }
+        return 0;
+    }
+
+    /**
+     * @desc 获取当前库存(从SPU或SKU中获取数据)
+     * @param $goods_id
+     * @param int $sepc_id
+     * @return int
+     */
+    public function getCurrentStock($goods_id,$sepc_id=0){
+        $inventory_list = ShopGoodsSpecViewRepository::getAllList(
+            ['goods_id'=>$goods_id, 'spec_id'=>$sepc_id],
+            ['goods_inventor','spec_inventor','goods_stock','spec_stock'], //'id','goods_id','spec_id',
+            ['goods_id','spec_id'],
+            ['asc','asc']);
+        $inventor_column = 'goods_inventor';
+        $stock_column = 'goods_stock';
+        if(0 == $sepc_id){
+            $inventor_column = 'spec_inventor';
+            $stock_column = 'spec_stock';
+        }
+        if(isset($inventory_list['data']['0'])){
+            $data = $inventory_list['data']['0'];
+            return (0 !== $data[$inventor_column])?$data[$inventor_column]:$data[$stock_column];
         }
         return 0;
     }
