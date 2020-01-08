@@ -17,7 +17,9 @@ class OrderEnum extends BaseEnum
         'MEMBERRECHARGE'=> '会员充值',
         'ACTIVITY'      => '参加活动',
         'PRIME'         => '精选生活',
-        'SHOP'          => '商城',
+        'SHOP'          => '商城购物',
+        //积分奖励类型 （包括上面4种类型）
+        'LOAN'          => '金融服务',
     ];
 
     public static $status = [
@@ -32,6 +34,8 @@ class OrderEnum extends BaseEnum
         2 => 'ACTIVITY',
         3 => 'PRIME',
         4 => 'SHOP',
+        //积分奖励类型 （包括上面4种类型）
+        5 => 'LOAN',
     ];
 
     //交易状态
