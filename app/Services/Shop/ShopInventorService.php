@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\DB;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\ShopInventoryRepository;
 use App\Repositories\ShopGoodsSpecViewRepository;
+use App\Traits\HelpTrait;
 
 class ShopInventorService extends BaseService
 {
+    use HelpTrait;
     /**
      * 创建库存记录
      * @param $request
@@ -135,6 +137,8 @@ class ShopInventorService extends BaseService
             $this->setMessage('暂无数据！');
             return $list;
         }
+        $list = $this->removePagingField($list);
+
         //处理分类：
         if(!$list['data'] = ShopGoodsCategoryRepository::bulkHasOneSet($list['data'],['from'=>'category','to'=>'id'],['id'=>'category_id','name'=>'category_name'])){
             $this->setError('获取失败！');

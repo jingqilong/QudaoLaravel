@@ -33,10 +33,15 @@ class SendFlowSmsListener implements ShouldQueue
         try {
             $data = $event->data;
             $receiver   = $data['receiver'];
+            if (!isset($receiver['receiver_mobile'])){
+                Loggy::write('process','短信发送失败！原因：无手机号');
+                return false;
+            }
             Loggy::write('process','执行了发送短信事件！手机号：'.$receiver['receiver_mobile']);
             $message_data = [
                 'receiver_name'     => $receiver['receiver_name'],
                 'process_full_name' => $data['process_full_name']['process_name'],
+                'precess_result'    => $data['precess_result'] ?? '',
             ];
             $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
             app(SmsService::class)->sendContent($receiver['receiver_mobile'],$messageTemplate->getContent());
