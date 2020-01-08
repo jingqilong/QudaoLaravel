@@ -41,6 +41,7 @@ class SendFlowSmsListener implements ShouldQueue
             $message_data = [
                 'receiver_name'     => $receiver['receiver_name'],
                 'process_full_name' => $data['process_full_name']['process_name'],
+                'precess_result'    => $data['precess_result'] ?? '',
             ];
             $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
             app(SmsService::class)->sendContent($receiver['receiver_mobile'],$messageTemplate->getContent());
