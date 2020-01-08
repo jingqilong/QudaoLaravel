@@ -331,7 +331,7 @@ class GradeOrdersService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($grade_order_id){
-        return MemberGradeOrdersRepository::getField(['id',$grade_order_id],'member_id');
+        return MemberGradeOrdersRepository::getField(['id' => $grade_order_id],'member_id');
     }
 
     /**

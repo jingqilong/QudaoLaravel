@@ -452,7 +452,7 @@ class ReservationService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($reservation_id){
-        return HouseReservationRepository::getField(['id',$reservation_id],'member_id');
+        return HouseReservationRepository::getField(['id' => $reservation_id],'member_id');
     }
 
     /**

@@ -13,7 +13,7 @@ class OrderService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($project_order_id){
-        return ProjectOrderRepository::getField(['id',$project_order_id],'user_id');
+        return ProjectOrderRepository::getField(['id' => $project_order_id],'user_id');
     }
     /**
      * 返回流程中的业务列表

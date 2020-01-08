@@ -7,7 +7,7 @@ namespace App\Repositories\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Tolawho\Loggy\Facades\Loggy;
-
+use Closure;
 
 trait RepositoryTrait
 {
@@ -457,7 +457,7 @@ trait RepositoryTrait
 
     /**
      * @desc 批量设置字段，代替联表查询，此函数默认只用调用 getAllList 处理
-     * @param $src_list  ,源列表 作为主表，引用参数，返回结果
+     * @param $src_list  ,源列表 作为主表，
      * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
      * @param $alias  ,别名：将查出结果更名为什么 ['联接的name1' => '主表alias1','联接的name2' => '主表alias2']
      * @param array $where 附加的 where条件
@@ -474,6 +474,101 @@ trait RepositoryTrait
             }
          }
          return $src_list;
+    }
+
+    /**
+     * @desc 批量查询字段，代替联表查询，此函数默认只要调用 getAllList 处理，交给闭包处理
+     * @example
+     *
+     *  $result_list = SomeRepository::bulkHasOneWalk(
+     *      $src_list,
+     *      $join,
+     *      $columns,
+     *      $where,
+     *      function($src_item,$set_item){
+     *           //可以用 dd 查看参数
+     *           dd($src_item,$set_item);
+     *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
+     *  });
+     *
+     *  //你还可以跟你的类一起使用，或用你函数中的其它变量
+     *  $result_list = SomeRepository::bulkHasOneWalk(
+     *      $src_list,
+     *      $join,
+     *      $columns,
+     *      $where,
+     *      function($src_item,$set_items)use($this,$other_param){
+     *           //可以用 dd 查看参数
+     *           dd($src_item,$set_items);
+     *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
+     *  });
+     *
+     * @param $src_list  ,源列表 作为主表，
+     * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
+     * @param $columns  ,要从当前Repository中查出的字段
+     * @param array $where 附加的 where条件
+     * @param $callback ,闭包，用来实现结果的处理
+     * @return bool|array  ,操作成功与否
+     *
+     */
+    protected function bulkHasOneWalk($src_list, $join, $columns, $where,Closure $callback){
+        if(!$set_data = $this->getHasOneList($src_list,$where,$join, $columns)){
+            return false;
+        }
+        $res = [];
+        foreach($src_list as $src_item) {
+            $key = $src_item[$join['from']];
+            $res[] = $callback($src_item,$set_data[$key]);
+        }
+        return $res;
+    }
+
+    /**
+     * @desc 批量查询字段，代替联表查询，此函数默认只要调用 getAllList 处理，交给闭包处理
+     * @example
+     *
+     *  $result_list = SomeRepository::bulkHasManyWalk(
+     *      $src_list,
+     *      $join,
+     *      $columns,
+     *      $where,
+     *      function($src_item,$set_items){
+     *           //可以用 dd 查看参数
+     *           dd($src_item,$set_items);
+     *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
+     *  });
+     *
+     *  //你还可以跟你的类一起使用，或用你函数中的其它变量
+     *  $result_list = SomeRepository::bulkHasManyWalk(
+     *      $src_list,
+     *      $join,
+     *      $columns,
+     *      $where,
+     *      function($src_item,$set_items)use($this,$other_param){
+     *           //可以用 dd 查看参数
+     *           dd($src_item,$set_items);
+     *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
+     *  });
+     *
+     * @param $src_list  ,源列表 作为主表，
+     * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
+     * @param $columns  ,要从当前Repository中查出的字段
+     * @param array $where 附加的 where条件
+     * @param $callback ,闭包，用来实现结果的处理
+     * @return bool|array  ,操作成功与否
+     *
+     */
+    protected function bulkHasManyWalk($src_list, $join, $columns, $where,Closure $callback){
+        if(!$set_data = $this->getHasManyList($src_list,$where,$join, $columns)){
+            return false;
+        }
+        $res = [];
+        foreach($src_list as $src_item) {
+            $keys = $src_item[$join['from']];
+            $set_items = Arr::Only($set_data, explode(",",trim($keys,',')));
+            $res[] = $callback($src_item,$set_items);
+        }
+        return $res;
     }
 
 }

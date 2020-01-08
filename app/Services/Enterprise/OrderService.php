@@ -395,7 +395,7 @@ class OrderService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($order_id){
-        return EnterpriseOrderRepository::getField(['id',$order_id],'user_id');
+        return EnterpriseOrderRepository::getField(['id' => $order_id],'user_id');
     }
 
     /**

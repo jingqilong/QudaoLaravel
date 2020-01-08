@@ -3,11 +3,9 @@ namespace App\Services\Loan;
 
 
 use App\Enums\LoanEnum;
-use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\LoanPersonalRepository;
-use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -15,7 +13,6 @@ use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 
 class PersonalService extends BaseService
 {
@@ -163,6 +160,7 @@ class PersonalService extends BaseService
             DB::rollBack();
             return false;
         }
+        DB::rollBack();
         $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::LOAN_RESERVATION);
         if (100 == $start_process_result['code']){
             $this->setError('预约失败，请稍后重试！');
@@ -431,7 +429,7 @@ class PersonalService extends BaseService
      * @return mixed
      */
     public function getCreatedUser($personal_id){
-        return LoanPersonalRepository::getField(['id',$personal_id],'user_id');
+        return LoanPersonalRepository::getField(['id' => $personal_id],'user_id');
     }
 
     /**

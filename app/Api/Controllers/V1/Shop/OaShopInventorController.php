@@ -189,6 +189,8 @@ class OaShopInventorController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
+        $this->request['change_type'] = 1;
+        $this->request['change_from'] = 2;
         $res = $this->shopInventorService->createInventor($this->request);
         if ($res === false){
             return ['code' => 100,'message' => $this->shopInventorService->error];

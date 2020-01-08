@@ -430,5 +430,35 @@ class SendService extends BaseService
         DB::commit();
         return true;
     }
+    /**
+     * 给成员发送通知
+     * @param int $member_id        成员ID
+     * @param int $category         消息类型
+     * @param string $title         消息标题
+     * @param string $content       消息内容
+     * @param mixed $relate_id      与消息相关联的ID
+     * @param null $image_ids       图片ID
+     * @param null $url             链接
+     * @return bool
+     */
+    public static function sendMessageForMember($member_id,$category, $title, $content, $relate_id = null, $url = null, $image_ids = null){
+        DB::beginTransaction();
+        if (!$message_id = DefService::addMessage($category,$title,$content, $relate_id, $image_ids, $url)){
+            DB::rollBack();
+            return false;
+        }
+        $send_arr = [
+            'user_id'       => $member_id,
+            'user_type'     => MessageEnum::MEMBER,
+            'message_id'    => $message_id,
+            'created_at'    => date('Y-m-d H:i:s'),
+        ];
+        if (!MessageSendRepository::getAddId($send_arr)){
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
+        return true;
+    }
 }
             
