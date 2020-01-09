@@ -98,11 +98,11 @@ class CommonFeedBacksController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/common/feedBack_list",
+     *     path="/api/v1/common/feed_back_list",
      *     tags={"公共"},
      *     summary="oa 反馈列表",
      *     description="jing" ,
-     *     operationId="feedBack_list",
+     *     operationId="feed_back_list",
      *     @OA\Parameter(
      *         name="sign",
      *         in="query",

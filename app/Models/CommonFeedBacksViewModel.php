@@ -10,7 +10,7 @@ class CommonFeedBacksViewModel extends Model
      *
      * @var string
      */
-    protected $table = 'common_feedbacks_view';
+    protected $table = 'common_feed_backs_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -25,9 +25,6 @@ class CommonFeedBacksViewModel extends Model
      * @var bool
      */
     protected $primaryKey = 'id';
-
-
-    protected $fillable = ['id','member_id','content','mobile','ch_name','card_no','created_at'];
 
 
 

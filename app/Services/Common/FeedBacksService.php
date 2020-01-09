@@ -2,10 +2,13 @@
 namespace App\Services\Common;
 
 
+use App\Enums\MemberEnum;
 use App\Repositories\CommonFeedBacksRepository;
 use App\Repositories\CommonFeedBacksViewRepository;
+use App\Repositories\MemberGradeRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class FeedBacksService extends BaseService
@@ -75,6 +78,17 @@ class FeedBacksService extends BaseService
         if (empty($list['data'])){
             return $list;
         }
+        $list['data'] = MemberGradeRepository::bulkHasManyWalk(
+            $list['data'],
+            ['from' => 'member_id','to' => 'user_id'],
+            ['user_id','grade'],
+            [],
+            function($src_item,$src_items){
+                $grade = Arr::only($src_items[$src_item['member_id']],'grade');
+                $src_item['grade'] = MemberEnum::getGrade((int)$grade,'普通成员');
+                return $src_item;
+            }
+        );
         $this->setMessage('获取成功!');
         return $list;
     }
