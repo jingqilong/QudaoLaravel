@@ -168,7 +168,7 @@ class MemberController extends ApiController
         //短信验证
         $check_sms = $this->smsService->checkCode($this->request['mobile'],SMSEnum::REGISTER, $this->request['code']);
         if (is_string($check_sms)){
-//            return ['code' => 100, 'message' => $check_sms];
+            return ['code' => 100, 'message' => $check_sms];
         }
         $res = $this->memberService->register($this->request);
         if (!$res){
@@ -1484,7 +1484,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_member_contact_list",
      *     tags={"OA成员管理"},
-     *     summary="成员查看成员的联系列表",
+     *     summary="成员联系申请列表",
      *     operationId="get_member_contact_list",
      *     @OA\Parameter(
      *         name="sign",
@@ -1554,6 +1554,66 @@ class MemberController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->memberService->getMemberContactList($this->request);
+        if ($res == false){
+            return ['code' => 100, 'message' => $this->memberService->error];
+        }
+        return ['code' => 200, 'message' => $this->memberService->message,'data' => $res];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/member/get_member_contact_detail",
+     *     tags={"OA成员管理"},
+     *     summary="成员联系申请详情",
+     *     operationId="get_member_contact_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="string",
+     *         )
+     *    ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="申请ID",
+     *         required=true,
+     *         @OA\Schema(
+     *              type="integer",
+     *         )
+     *    ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getMemberContactDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '申请ID不能为空',
+            'id.integer'    => '申请ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->memberService->getMemberContactDetail($this->request['id']);
         if ($res == false){
             return ['code' => 100, 'message' => $this->memberService->error];
         }

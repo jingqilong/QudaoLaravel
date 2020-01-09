@@ -6,7 +6,6 @@ namespace App\Traits;
 
 use App\Enums\ImageTypeEnum;
 use App\Repositories\CommonAreaRepository;
-use Illuminate\Support\Arr;
 use App\Library\Members\Member;
 
 trait HelpTrait

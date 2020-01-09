@@ -4,7 +4,6 @@ namespace App\Traits;
 use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
-use App\Enums\ProcessEventMessageTypeEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
@@ -12,7 +11,6 @@ use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordActionsResultViewRepository;
-use App\Services\Message\MessageTemplate;
 use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
@@ -499,5 +497,31 @@ trait BusinessTrait
         $this->setError($target_object->error);
         $this->setMessage($target_object->message);
         return $result;
+    }
+
+    /**
+     * 获取业务详情流程
+     * @param $business_details
+     * @param $process_category
+     * @param $employee_id
+     * @return array|bool
+     */
+    public function getBusinessDetailsProcess($business_details, $process_category, $employee_id){
+        #获取流程进度
+        $progress = $this->getProcessRecordList(['business_id' => $business_details['id'],'process_category' => $process_category]);
+        if (100 == $progress['code']){
+            $this->setError($progress['message']);
+            return false;
+        }
+        #获取流程权限
+        $process_permission = $this->getBusinessProgress($business_details['id'],$process_category,$employee_id);
+        $this->setMessage('获取成功！');
+        return [
+            'details'               => $business_details,
+            'progress'              => $progress['data'],
+            'process_permission'    => $process_permission,
+            #获取可操作的动作结果列表
+            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
+        ];
     }
 }
