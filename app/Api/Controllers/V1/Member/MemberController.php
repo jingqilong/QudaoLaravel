@@ -1484,7 +1484,7 @@ class MemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/member/get_member_contact_list",
      *     tags={"OA成员管理"},
-     *     summary="成员查看成员的联系列表",
+     *     summary="成员联系列表",
      *     operationId="get_member_contact_list",
      *     @OA\Parameter(
      *         name="sign",
