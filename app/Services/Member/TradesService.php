@@ -11,8 +11,13 @@ use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberTradesRepository;
+use App\Repositories\ShopGoodsSpecRelateRepository;
+use App\Repositories\ShopGoodsSpecRepository;
+use App\Repositories\ShopOrderRelateNameViewRepository;
+use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Tolawho\Loggy\Facades\Loggy;
 
 class TradesService extends BaseService
@@ -124,38 +129,12 @@ class TradesService extends BaseService
      */
     public function getTradeList($request)
     {
-        $trade_no       = $request['trade_no'] ?? null;
-        $transaction_no = $request['transaction_no'] ?? null;
-        $pay_user_id    = $request['pay_user_id'] ?? null;
-        $payee_user_id  = $request['payee_user_id'] ?? null;
-        $fund_flow      = $request['fund_flow'] ?? null;
-        $trade_method   = $request['trade_method'] ?? null;
-        $status         = $request['status'] ?? null;
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
-        $where          = ['id' => ['<>',0]];
-        if (!is_null($trade_no)){
-            $where['trade_no'] = $trade_no;
-        }
-        if (!is_null($transaction_no)){
-            $where['transaction_no'] = $transaction_no;
-        }
-        if (!is_null($pay_user_id)){
-            $where['pay_user_id'] = $pay_user_id;
-        }
-        if (!is_null($payee_user_id)){
-            $where['payee_user_id'] = $payee_user_id;
-        }
-        if (!is_null($fund_flow)){
-            $where['fund_flow'] = $fund_flow;
-        }
-        if (!is_null($trade_method)){
-            $where['trade_method'] = $trade_method;
-        }
-        if (!is_null($status)){
-            $where['status'] = $status;
-        }
-        $column = ['*'];
+        $request_arr = Arr::only($request,['trade_no','transaction_no','pay_user_id','payee_user_id','fund_flow','trade_method','status']);
+        $page        = $request['page'] ?? 1;
+        $page_num    = $request['page_num'] ?? 20;
+        $where       = ['id' => ['<>',0]];
+        $column      = ['*'];
+        foreach ($request_arr as $key => $value) if (is_null($value)) $where[$key] = $value;
         if (!$trade_list = MemberTradesRepository::getList($where,$column,'create_at','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -165,36 +144,39 @@ class TradesService extends BaseService
             $this->setMessage('暂无数据！');
             return $trade_list;
         }
-        $order_ids      = array_column($trade_list['data'],'order_id');
-        $pay_user_ids   = array_column($trade_list['data'],'pay_user_id');
-        $payee_user_ids = array_column($trade_list['data'],'payee_user_id');
-        $order_list     = MemberOrdersRepository::getList(['id' => ['in',$order_ids]],['id','order_no']);
-        $pay_user_list  = MemberBaseRepository::getList(['id' => ['in',$pay_user_ids]],['id','ch_name','en_name']);
-        $payee_user_list= MemberBaseRepository::getList(['id' => ['in',$payee_user_ids]],['id','ch_name','en_name']);
-
-        foreach ( $trade_list['data'] as &$trade){
-            $trade['order_no']              = '';
-            if ($order = $this->searchArray($order_list,'id',$trade['order_id'])){
-                $trade['order_no'] = reset($order)['order_no'];
+        $trade_list['data'] = MemberOrdersRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'order_id','to' => 'id'], ['id','order_no'], [],
+            function ($src_item,$src_items){
+                $src_item['transaction_no'] = is_null($src_item['transaction_no']) ? '' : $src_item['transaction_no'];
+                $src_item['order_no'] = $src_items['order_no'] ?? '';
+                $src_item['amount']   = sprintf('%.2f',round($src_item['amount'] / 100, 2));;
+                return $src_item;
             }
-            #匹配付款人信息
-            $trade['pay_user_name']         = $trade['pay_user_id'] == 0 ? '系统' : '';
-            if ($pay_user = $this->searchArray($pay_user_list,'id',$trade['pay_user_id'])){
-                $pay_user = reset($pay_user);
-                $trade['pay_user_name']     = $pay_user['ch_name'] ?? $pay_user['en_name'];
+        );
+        $trade_list['data'] = ShopOrderRelateNameViewRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'order_id','to' => 'order_id'], ['order_id','name','spec_relate_value'], [],
+            function ($src_item,$src_items){
+                $src_item['shop_name'] = $src_items['name'] ?? '';
+                //$src_item['spec_relate_value'] = $src_items['spec_relate_value'] ?? '';
+                return $src_item;
             }
-            #匹配收款人信息
-            $trade['payee_user_name']       = $trade['payee_user_id'] == 0 ? '系统' : '';
-            if ($payee_user = $this->searchArray($payee_user_list,'id',$trade['payee_user_id'])){
-                $payee_user = reset($payee_user);
-                $trade['payee_user_name']   = $payee_user['ch_name'] ?? $payee_user['en_name'];
+        );
+        $trade_list['data'] = MemberBaseRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'pay_user_id','to' => 'id'], ['id','ch_name','mobile'], [],
+            function ($src_item,$src_items){
+                $src_item['pay_user_name'] = $src_items['ch_name'] ?? '';
+                $src_item['mobile']      = $src_items['mobile'] ?? '';
+                return $src_item;
             }
-            $trade['fund_flow_title']       = $trade['fund_flow'] == '+' ? '进账' : '出账';
-            $trade['trade_method_title']    = TradeEnum::getTradeMethod($trade['trade_method']);
-            $trade['status_title']          = TradeEnum::getStatus($trade['status']);
-            $trade['create_at']             = date('Y-m-d H:i:s',$trade['create_at']);
-            $trade['end_at']                = date('Y-m-d H:i:s',$trade['end_at']);
-        }
+        );
+        $trade_list['data'] = MemberBaseRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'payee_user_id','to' => 'id'], ['id','ch_name'], [],
+            function ($src_item,$src_items){
+                $src_item['payee_user_name']    = $src_items['ch_name'] ?? '';
+                $src_item['fund_flow_title']    = $src_item['fund_flow'] == '+' ? '付款' : '退款';
+                $src_item['trade_method_title'] = TradeEnum::getTradeMethod($src_item['trade_method']);
+                $src_item['status_title']       = TradeEnum::getStatus($src_item['status']);
+                $src_item['create_at']          = date('Y-m-d H:i:s',$src_item['create_at']);
+                $src_item['end_at']             = date('Y-m-d H:i:s',$src_item['end_at']);
+                return $src_item;
+            }
+        );
         $this->setMessage('获取成功！');
         return $trade_list;
     }
