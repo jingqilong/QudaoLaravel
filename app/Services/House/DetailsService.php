@@ -6,6 +6,7 @@ use App\Enums\CollectTypeEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
@@ -18,13 +19,14 @@ use App\Services\Common\AreaService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
-use phpDocumentor\Reflection\Types\This;
+use Illuminate\Support\Facades\DB;
 
 class DetailsService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     /**
      * 发布房产信息
@@ -68,7 +70,7 @@ class DetailsService extends BaseService
             'publisher'     => $publisher,
             'publisher_id'  => $publisher_id,
             'facilities_ids'=> $request['facilities_ids'] . ',',
-            'status'        => HouseEnum::PENDING,
+            'status'        => $publisher == HouseEnum::PERSON ? HouseEnum::PENDING : HouseEnum::PASS,
         ];
         if (HouseDetailsRepository::exists($add_arr)){
             $this->setError('房产信息已添加！');
@@ -76,10 +78,22 @@ class DetailsService extends BaseService
         }
         $add_arr['created_at'] = time();
         $add_arr['updated_at'] = time();
-        if (!HouseDetailsRepository::getAddId($add_arr)){
+        DB::beginTransaction();
+        if (!$id = HouseDetailsRepository::getAddId($add_arr)){
             $this->setError('发布失败！');
+            DB::rollBack();
             return false;
         }
+        #如果是用户发布房源，则开启流程
+        if ($publisher == HouseEnum::PERSON){
+            $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::HOUSE_RELEASE);
+            if (100 == $start_process_result['code']){
+                $this->setError('预约失败，请稍后重试！');
+                DB::rollBack();
+                return false;
+            }
+        }
+        DB::commit();
         $this->setMessage('发布成功！');
         return true;
     }

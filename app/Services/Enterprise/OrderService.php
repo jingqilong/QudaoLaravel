@@ -16,6 +16,7 @@ use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderService extends BaseService
 {
@@ -183,10 +184,19 @@ class OrderService extends BaseService
             return false;
         }
         $add_arr['created_at'] = time();
-        if (!$res = EnterpriseOrderRepository::getAddId($add_arr)){
+        DB::beginTransaction();
+        if (!$id = EnterpriseOrderRepository::getAddId($add_arr)){
             $this->setError('预约失败,请重试！');
+            DB::rollBack();
             return false;
         }
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::ENTERPRISE_CONSULT);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('恭喜你，预约成功');
         return true;
     }

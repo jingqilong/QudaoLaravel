@@ -106,6 +106,7 @@ class RegisterService extends BaseService
         if (!$register_id = ActivityRegisterRepository::getAddId($add_arr)){
             $this->setError('报名失败！');
             Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，添加报名信息失败，导致报名失败！报名信息：'.json_encode($add_arr));
+            DB::rollBack();
             return false;
         }
         //如果是收费活动，创建订单
@@ -130,8 +131,14 @@ class RegisterService extends BaseService
                 return false;
             }
         }
-        //如果需要审核，通知用户等待审核结果审核
+        //如果需要审核，通知用户等待审核结果审核，发起流程
         if ($activity['need_audit'] == ActivityEnum::NEEDAUDIT){
+            $start_process_result = $this->addNewProcessRecord($register_id,ProcessCategoryEnum::ACTIVITY_REGISTER);
+            if (100 == $start_process_result['code']){
+                $this->setError('预约失败，请稍后重试！');
+                DB::rollBack();
+                return false;
+            }
             $title   = '活动报名成功';
             $content = MessageEnum::getTemplate(MessageEnum::ACTIVITYENROLL,'register',['activity_name' => $activity['name']]);
             #发送短信
