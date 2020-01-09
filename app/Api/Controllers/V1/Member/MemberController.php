@@ -1483,7 +1483,7 @@ class MemberController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/member/get_member_contact_list",
-     *     tags={"OA"},
+     *     tags={"OA成员管理"},
      *     summary="成员查看成员的联系列表",
      *     operationId="get_member_contact_list",
      *     @OA\Parameter(
@@ -1564,7 +1564,7 @@ class MemberController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/member/set_member_contact",
-     *     tags={"OA"},
+     *     tags={"OA成员管理"},
      *     summary="审核成员查看成员的联系",
      *     operationId="set_member_contact",
      *     @OA\Parameter(
