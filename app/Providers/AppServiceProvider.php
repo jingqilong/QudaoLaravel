@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         });
         //检查手机号
         Validator::extend('mobile', function($attribute,$value, $parameters,$validator) {
-            $mobile_regex = '/^(1(([35789][0-9])|(47)))\d{8}$/';
+            $mobile_regex = '/^(1(([356789][0-9])|(47)))\d{8}$/';
             if (!preg_match($mobile_regex, $value)) {
                 return false;
             }

@@ -18,6 +18,7 @@ use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -131,9 +132,9 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在或别删除!');
             return false;
         }
-        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = ['is_recommend' => 0];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0,'end_at' => 0];
-        if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
+        if (!$member_info = MemberInfoRepository::getOne(['member_id' => $id])) $member_info = ['is_recommend' => 0];
+        if (!$member_grade = MemberGradeRepository::getOne(['user_id' => $id]))  $member_grade = ['grade' => 0,'end_at' => 0];
+        if (!$member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id])) $member_service = [];
         $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
         $base    = array_merge($member_base,$member_grade);
@@ -499,6 +500,7 @@ class OaMemberService extends BaseService
      */
     public function addMemberInfo($request)
     {
+        if (empty($request['is_recommend'])) $request['is_recommend'] = 0;
         $add_arr = [
             'member_id'       => $request['member_id'],
             'employer'        => $request['employer'] ?? '',
@@ -508,14 +510,14 @@ class OaMemberService extends BaseService
             'brands'          => $request['brands'] ?? '',
             'run_wide'        => $request['run_wide'] ?? '',
             'profile'         => $request['profile'] ?? '',
-            'good_at'          => $request['good_at'] ?? '',
+            'good_at'         => $request['good_at'] ?? '',
             'degree'          => $request['degree'] ?? '',
             'school'          => $request['school'] ?? '',
             'remarks'         => $request['remarks'] ?? '',
             'referral_agency' => $request['referral_agency'] ?? '',
             'info_provider'   => $request['info_provider'] ?? '',
-            'archive'         => $request['archive'],
-            'is_home_detail'  => $request['is_home_detail'],
+            'archive'         => $request['archive'] ?? 0,
+            'is_home_detail'  => $request['is_home_detail'] ?? 0,
         ];
         if (MemberInfoRepository::exists($add_arr)){
             $this->setError('成员简历信息已存在!');
@@ -541,11 +543,11 @@ class OaMemberService extends BaseService
     {
         $service_arr = [
             'member_id'     => $request['member_id'],
-            'publicity'     => $request['publicity'],
-            'protocol'      => $request['protocol'],
-            'nameplate'     => $request['nameplate'],
+            'publicity'     => $request['publicity'] ?? 0,
+            'protocol'      => $request['protocol'] ?? 0,
+            'nameplate'     => $request['nameplate'] ?? 0,
             'attendant'     => $request['attendant'] ?? '',
-            'other_server'  => $request['other_server'],
+            'other_server'  => $request['other_server'] ?? 0,
             'member_attendant'  => $request['member_attendant'] ?? '',
             'gift'          => $request['gift'] ?? '',
             ];

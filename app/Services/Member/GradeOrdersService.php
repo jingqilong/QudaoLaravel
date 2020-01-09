@@ -68,8 +68,15 @@ class GradeOrdersService extends BaseService
             'created_at'    => time(),
             'updated_at'    => time(),
         ];
-        if (!MemberGradeOrdersRepository::getAddId($add_arr)){
+        if (!$id = MemberGradeOrdersRepository::getAddId($add_arr)){
             $this->setError('申请失败！');
+            DB::rollBack();
+            return false;
+        }
+        #开启流程
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::MEMBER_UPGRADE);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
             DB::rollBack();
             return false;
         }

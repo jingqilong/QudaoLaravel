@@ -35,25 +35,25 @@ class ProcessCategoryEnum extends BaseEnum
     ];
     // constants
 
-    const MEMBER_UPGRADE           = 1;
+    const MEMBER_UPGRADE           = 1; //成员升级
 
-    const ACTIVITY_REGISTER        = 2;
+    const ACTIVITY_REGISTER        = 2; //活动报名
 
-    const PROJECT_DOCKING          = 3;
+    const PROJECT_DOCKING          = 3; //项目对接
 
-    const LOAN_RESERVATION         = 4;
+    const LOAN_RESERVATION         = 4; //贷款预约
 
-    const ENTERPRISE_CONSULT       = 5;
+    const ENTERPRISE_CONSULT       = 5; //企业咨询
 
-    const HOUSE_RESERVATION        = 6;
+    const HOUSE_RESERVATION        = 6; //看房预约
 
-    const HOSPITAL_RESERVATION     = 7;
+    const HOSPITAL_RESERVATION     = 7; //医疗预约
 
-    const PRIME_RESERVATION        = 8;
+    const PRIME_RESERVATION        = 8; //精选生活预约
 
-    const HOUSE_RELEASE            = 9;
+    const HOUSE_RELEASE            = 9; //房源发布
 
-    const MEMBER_CONTACT_REQUEST   = 10;
+    const MEMBER_CONTACT_REQUEST   = 10;    //成员联系请求
 
     /**
      * 获取状态label

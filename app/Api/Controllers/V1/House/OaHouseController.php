@@ -698,6 +698,65 @@ class OaHouseController extends ApiController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/v1/house/house_audit_detail",
+     *     tags={"房产租赁后台"},
+     *     summary="房源审核详情",
+     *     description="sang" ,
+     *     operationId="house_audit_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA_token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="房源ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function houseAuditDetail(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'               => '房源ID不能为空',
+            'id.integer'                => '房源ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->detailService->houseAuditDetail($this->request['id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->detailService->error];
+        }
+        return ['code' => 200, 'message' => $this->detailService->message,'data' => $res];
+    }
+    /**
      * @OA\Post(
      *     path="/api/v1/house/audit_house",
      *     tags={"房产租赁后台"},

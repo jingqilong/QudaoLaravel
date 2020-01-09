@@ -6,6 +6,7 @@ use App\Enums\CollectTypeEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
@@ -18,13 +19,15 @@ use App\Services\Common\AreaService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use phpDocumentor\Reflection\Types\This;
+use Illuminate\Support\Facades\DB;
 
 class DetailsService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     /**
      * 发布房产信息
@@ -68,7 +71,7 @@ class DetailsService extends BaseService
             'publisher'     => $publisher,
             'publisher_id'  => $publisher_id,
             'facilities_ids'=> $request['facilities_ids'] . ',',
-            'status'        => HouseEnum::PENDING,
+            'status'        => $publisher == HouseEnum::PERSON ? HouseEnum::PENDING : HouseEnum::PASS,
         ];
         if (HouseDetailsRepository::exists($add_arr)){
             $this->setError('房产信息已添加！');
@@ -76,10 +79,22 @@ class DetailsService extends BaseService
         }
         $add_arr['created_at'] = time();
         $add_arr['updated_at'] = time();
-        if (!HouseDetailsRepository::getAddId($add_arr)){
+        DB::beginTransaction();
+        if (!$id = HouseDetailsRepository::getAddId($add_arr)){
             $this->setError('发布失败！');
+            DB::rollBack();
             return false;
         }
+        #如果是用户发布房源，则开启流程
+        if ($publisher == HouseEnum::PERSON){
+            $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::HOUSE_RELEASE);
+            if (100 == $start_process_result['code']){
+                $this->setError('预约失败，请稍后重试！');
+                DB::rollBack();
+                return false;
+            }
+        }
+        DB::commit();
         $this->setMessage('发布成功！');
         return true;
     }
@@ -240,6 +255,7 @@ class DetailsService extends BaseService
      */
     public function houseList($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         $keywords   = $request['keywords'] ?? '';
         $decoration = $request['decoration'] ?? '';
         $publisher  = $request['publisher'] ?? '';
@@ -276,29 +292,63 @@ class DetailsService extends BaseService
         }
         foreach ($list['data'] as &$value){
             #处理地址
-            //list($area_address,$lng,$lat) = $this->makeAddress($value['area_code'],$value['address']);
-            $value['area_address']  = $this->getAreaName($value['area_code'],0,3);
-            $value['area_code']     = rtrim($value['area_code'],',');
-//            $value['lng']           = $lng;
-//            $value['lat']           = $lat;
+            $value['area_address']      = $this->getAreaName($value['area_code'],0,3);
+            $value['area_code']         = rtrim($value['area_code'],',');
             #处理价格
-            $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
-
-            $value['decoration_title'] = HouseEnum::getDecoration($value['decoration']);
-            $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
-            $value['images']              = $image_list;
-            $value['category_title']      = HouseEnum::getCategory($value['category']);
-            $value['publisher_title']     = HouseEnum::getPublisher($value['publisher']);
-            $value['publisher_name']      = $this->getPublisherName($value['publisher'],$value['publisher_id']);
-            $value['facilities']    = HouseFacilitiesRepository::getFacilitiesList(explode(',',$value['facilities_ids']),['id','title','icon_id']);
-            $value['facilities_ids']     = rtrim($value['facilities_ids'],',');
-            $value['status_title']        = HouseEnum::getStatus($value['status']);
-            $value['created_at'] = date('Y-m-d H:i:s',$value['created_at']);
-            $value['updated_at'] = date('Y-m-d H:i:s',$value['updated_at']);
-            $value['deleted_at'] = $value['deleted_at'] ==0 ? '':date('Y-m-d H:i:s',$value['deleted_at']);
+            $value['rent_tenancy']      = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+            $value['decoration_title']  = HouseEnum::getDecoration($value['decoration']);
+            $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
+            $value['images']            = $image_list;
+            $value['category_title']    = HouseEnum::getCategory($value['category']);
+            $value['publisher_title']   = HouseEnum::getPublisher($value['publisher']);
+            $publisher                  = $this->getPublisher($value['publisher'],$value['publisher_id']);
+            $value['publisher_name']    = $publisher['name'];
+            $value['publisher_mobile']  = $publisher['mobile'];
+            $value['facilities']        = HouseFacilitiesRepository::getFacilitiesList(explode(',',$value['facilities_ids']),['id','title','icon_id']);
+            $value['facilities_ids']    = rtrim($value['facilities_ids'],',');
+            $value['status_title']      = HouseEnum::getStatus($value['status']);
+            $value['created_at']        = date('Y-m-d H:i:s',$value['created_at']);
+            $value['updated_at']        = date('Y-m-d H:i:s',$value['updated_at']);
+            unset($value['deleted_at']);
+            #获取流程信息
+            $value['progress']          = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::HOUSE_RELEASE,$employee->id);
         }
         $this->setMessage('获取成功！');
         return $list;
+    }
+
+    /**
+     * 房源审核详情
+     * @param $id
+     * @return array|bool
+     */
+    public function houseAuditDetail($id){
+        $employee   = Auth::guard('oa_api')->user();
+        $column     = ['id','title','area_code','longitude','latitude','address','describe','rent','tenancy','leasing','decoration',
+        'area','image_ids','storey','unit','condo_name','toward','category','publisher','publisher_id','facilities_ids','status','created_at','updated_at'
+        ];
+        if (!$house = HouseDetailsRepository::getOne(['id' => $id,'deleted_at' => 0],$column)){
+            $this->setError('房源不存在！');
+            return false;
+        }
+        $house['area_address']      = $this->getAreaName($house['area_code'],0,3);
+//        $house['area_code']         = rtrim($house['area_code'],',');
+        #处理价格
+        $house['rent_tenancy']      = '¥'. $house['rent'] .'/'. HouseEnum::getTenancy($house['tenancy']);
+        $house['decoration']        = HouseEnum::getDecoration($house['decoration']);
+        $house['category']          = HouseEnum::getCategory($house['category']);
+        $publisher                  = $this->getPublisher($house['publisher'],$house['publisher_id']);
+        $house['publisher_name']    = $publisher['name'];
+        $house['publisher_mobile']  = $publisher['mobile'];
+        $house['publisher']         = HouseEnum::getPublisher($house['publisher']);
+        $house['status']            = HouseEnum::getStatus($house['status']);
+        $house['created_at']        = date('Y-m-d H:i:s',$house['created_at']);
+        $house['updated_at']        = date('Y-m-d H:i:s',$house['updated_at']);
+        $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]],['img_url']);
+        $house['images']            = empty($image_list) ? [] : Arr::flatten($image_list);
+        $house['facilities']        = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']),['title','icon_id']);
+        unset($house['area_code'],$house['rent'],$house['tenancy'],$house['image_ids'],$house['facilities_ids'],$house['publisher_id'],$house['rent'],$house['rent']);
+        return $this->getBusinessDetailsProcess($house,ProcessCategoryEnum::LOAN_RESERVATION,$employee->id);
     }
 
     /**
@@ -474,15 +524,19 @@ class DetailsService extends BaseService
      * @param $publisher_id
      * @return string|null
      */
-    public function getPublisherName($publisher, $publisher_id){
-        $name = '';
+    public function getPublisher($publisher, $publisher_id){
+        $result = ['name' => '','mobile' => ''];
         if ($publisher == HouseEnum::PERSON){
-            $name = MemberBaseRepository::getField(['id' => $publisher_id],'mobile');
+            $member = MemberBaseRepository::getOne(['id' => $publisher_id],['mobile','ch_name']);
+            $result['name']     = $member['ch_name'] ?? '';
+            $result['mobile']   = $member['mobile'] ?? '';
         }
         if ($publisher == HouseEnum::PLATFORM){
-            $name = OaEmployeeRepository::getField(['id' => $publisher_id],'mobile');
+            $employee = OaEmployeeRepository::getOne(['id' => $publisher_id],['mobile','real_name']);
+            $result['name']     = $employee['real_name'] ?? '';
+            $result['mobile']   = $employee['mobile'] ?? '';
         }
-        return $name;
+        return $result;
     }
 
     /**

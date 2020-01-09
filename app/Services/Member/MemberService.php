@@ -1085,10 +1085,20 @@ class MemberService extends BaseService
         $add_arr['status']     = MemberEnum::SUBMIT;
         $add_arr['created_at'] = time();
         $add_arr['updated_at'] = time();
-        if (!MemberContactRequestRepository::getAddId($add_arr)){
+        DB::beginTransaction();
+        if (!$id = MemberContactRequestRepository::getAddId($add_arr)){
             $this->setError('提交申请失败!');
+            DB::rollBack();
             return false;
         }
+        #开启流程
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::MEMBER_CONTACT_REQUEST);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('提交申请成功!');
         return true;
     }
