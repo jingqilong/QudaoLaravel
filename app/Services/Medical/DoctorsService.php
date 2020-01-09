@@ -18,18 +18,27 @@ class DoctorsService extends BaseService
     use HelpTrait;
 
 
+    /**
+     * 添加医疗医生
+     * @param $request
+     * @return bool
+     */
     public function addDoctors($request)
     {
+        $label_ids      = isset($request['label_ids']) ? $request['label_ids'].',' : '';
+        $department_ids = isset($request['department_ids']) ? ',' . $request['department_ids'] . ',' : '';
         if(isset($request['member_id'])){
             if (!MemberRepository::exists(['m_id' => $request['member_id']])){
                 $this->setError('该会员不存在');
                 return false;
             }
         }
-        $department_ids = explode(',',$request['department_ids']);
-        if (count($department_ids) != MedicalDepartmentsRepository::exists(['id' => ['in',$department_ids]])){
-            $this->setError('科室不存在！');
-            return false;
+        if ('' != $department_ids){
+            $department_ids_arr = explode(',',$request['department_ids']);
+            if (count($department_ids_arr) != MedicalDepartmentsRepository::exists(['id' => ['in',$department_ids_arr]])){
+                $this->setError('科室不存在！');
+                return false;
+            }
         }
         if (!MediclaHospitalsRepository::exists(['id' => $request['hospitals_id']])){
             $this->setError('医院不存在！');
@@ -40,12 +49,12 @@ class DoctorsService extends BaseService
             'title'             => $request['title'],
             'sex'               => $request['sex'],
             'img_id'            => $request['img_id'],
-            'good_at'           => $request['good_at'],
-            'introduction'      => $request['introduction'],
-            'label_ids'         => isset($request['label_ids']) ? $request['label_ids'].',' : '',
+            'good_at'           => $request['good_at'] ?? '',
+            'introduction'      => $request['introduction'] ?? '',
+            'label_ids'         => $label_ids,
             'hospitals_id'      => $request['hospitals_id'],
             'member_id'         => $request['member_id'] ?? 0,
-            'department_ids'    => isset($request['department_ids']) ? ',' . $request['department_ids'] . ',' : '',
+            'department_ids'    => $department_ids,
         ];
         if (MedicalDoctorsRepository::exists($add_arr)){
             $this->setError('医生已存在！');
@@ -134,9 +143,11 @@ class DoctorsService extends BaseService
         $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
         $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
+        $departments_id = $request['departments_id'] ?? null;
         $where          = ['deleted_at' => 0];
+        if (!empty($departments_id)) $where['department_ids'] = ['like','%,' . $departments_id . ',%'];
         if (!empty($keywords)){
-            $keyword        = [$keywords => ['name','sex','department_ids']];
+            $keyword        = [$keywords => ['name','sex']];
             if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$asc)){
                 $this->setError('获取失败！');
                 return false;

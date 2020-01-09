@@ -104,7 +104,7 @@ class DoctorsController extends ApiController
      *         name="label_ids",
      *         in="query",
      *         description="医生标签ids【格式：1,2,3,4】",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="string",
      *         )
@@ -161,10 +161,8 @@ class DoctorsController extends ApiController
             'sex'               => 'required|integer',
             'good_at'           => 'required|string',
             'introduction'      => 'string',
-            'label_ids'         => 'string',
             'recommend'         => 'required|integer',
             'hospitals_id'      => 'required|integer',
-            'department_ids'    => 'string',
         ];
         $messages = [
             'member_id.integer'         => '会员id必须为整数',
@@ -542,10 +540,19 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【医生姓名，医生性别，医生科室】",
+     *         description="搜索内容【医生姓名，医生性别】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="departments_id",
+     *         in="query",
+     *         description="根据科室搜索",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -584,10 +591,12 @@ class DoctorsController extends ApiController
      */
     public function doctorsListPage(){
         $rules = [
-            'page'          => 'integer',
-            'page_num'      => 'integer',
+            'departments_id' => 'integer',
+            'page'           => 'integer',
+            'page_num'       => 'integer',
         ];
         $messages = [
+            'departments_id.integer'    => '科室id必须为整数',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
         ];
