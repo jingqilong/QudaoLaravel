@@ -132,17 +132,29 @@ class EmployeeService extends BaseService
      * @return mixed
      */
     public function getPermUserList($request){
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
-        $department_id = $request['department_id'] ?? null;
-        $column = ['id', 'username', 'real_name','department_id', 'mobile', 'email','work_title', 'status', 'role_ids', 'permission_ids', 'created_at', 'updated_at'];
-        $where = ['id' => ['>',0]];
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
+        $keywords       = $request['keywords'] ?? null;
+        $department_id  = $request['department_id'] ?? null;
+        $created_at_sort= $request['created_at_sort'] ?? 1;
+        $column         = ['id', 'username', 'real_name','department_id', 'mobile', 'email','work_title', 'status', 'role_ids', 'permission_ids', 'created_at', 'updated_at'];
+        $where          = ['id' => ['>',0]];
+        $sort           = ['id','created_at'];
+        $asc            = $created_at_sort == 1 ? ['desc','desc'] : ['asc','asc'];
         if (!is_null($department_id)){
             $where['department_id'] = $department_id;
         }
-        if (!$user_list = OaEmployeeRepository::getList($where,$column,'id','asc',$page,$page_num)){
-            $this->setError('获取失败!');
-            return false;
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['username','real_name','mobile','email','work_title']];
+            if (!$user_list = OaEmployeeRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else{
+            if (!$user_list = OaEmployeeRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
+                $this->setError('获取失败!');
+                return false;
+            }
         }
         $user_list = $this->removePagingField($user_list);
         if (empty($user_list['data'])){

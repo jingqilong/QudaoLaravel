@@ -264,9 +264,27 @@ class EmployeeController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索关键字，【账号，姓名，手机，邮箱，职务】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="department_id",
      *         in="query",
      *         description="部门ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="created_at_sort",
+     *         in="query",
+     *         description="创建时间排序，1按最新创建排序，2按最早创建排序",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -300,11 +318,13 @@ class EmployeeController extends ApiController
     public function userList(){
         $rules = [
             'department_id' => 'integer',
+            'created_at_sort' => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
             'department_id.integer'     => '部门ID必须为整数',
+            'created_at_sort.in'        => '创建时间排序取值有误',
             'page.integer'              => '页码必须为整数',
             'page_num.integer'          => '每页显示条数必须为整数',
         ];
