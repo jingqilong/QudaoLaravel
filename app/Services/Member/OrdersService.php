@@ -90,7 +90,7 @@ class OrdersService extends BaseService
             [],
             function($src_item,$set_items){
                 $src_item['trade_no']       = $set_items['trade_no'] ?? '';
-                $src_item['order_type']     = OrderEnum::getOrderType($src_item['order_type']);
+                $src_item['order_type_title'] = OrderEnum::getOrderType($src_item['order_type']);
                 $src_item['status_title']   = OrderEnum::getStatus($src_item['status']);
                 $src_item['amount']         = sprintf('%.2f',round($src_item['amount'] / 100, 2));
                 $src_item['payment_amount'] = sprintf('%.2f',round($src_item['payment_amount'] / 100, 2));
