@@ -18,6 +18,7 @@ use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -131,9 +132,9 @@ class OaMemberService extends BaseService
             $this->setError('用户不存在或别删除!');
             return false;
         }
-        if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $id]))) $member_info = ['is_recommend' => 0];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $id])))  $member_grade = ['grade' => 0,'end_at' => 0];
-        if (empty($member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id]))) $member_service = [];
+        if (!$member_info = MemberInfoRepository::getOne(['member_id' => $id])) $member_info = ['is_recommend' => 0];
+        if (!$member_grade = MemberGradeRepository::getOne(['user_id' => $id]))  $member_grade = ['grade' => 0,'end_at' => 0];
+        if (!$member_service = MemberPersonalServiceRepository::getOne(['member_id' => $id])) $member_service = [];
         $preference['content'] = MemberPreferenceRepository::getPreference($id);
         $member_base = ImagesService::getOneImagesConcise($member_base,['avatar_id' => 'single']);
         $base    = array_merge($member_base,$member_grade);
