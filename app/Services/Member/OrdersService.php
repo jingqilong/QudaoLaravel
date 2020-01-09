@@ -83,7 +83,7 @@ class OrdersService extends BaseService
             $this->setMessage('暂无数据！');
             return $order_list;
         }
-        $order_list = MemberTradesRepository::bulkHasOneWalk(
+        $order_list['data'] = MemberTradesRepository::bulkHasOneWalk(
             $order_list['data'],
             ['from' => 'trade_id','to' => 'id'],
             ['id','trade_no'],
@@ -92,6 +92,7 @@ class OrdersService extends BaseService
                 $src_item['trade_no']       = $set_items['trade_no'];
                 $src_item['order_type']     = OrderEnum::getOrderType($src_item['order_type']);
                 $src_item['status_title']   = OrderEnum::getStatus($src_item['status']);
+                $src_item['amount']         = sprintf('%.2f',round($src_item['amount'] / 100, 2));
                 $src_item['payment_amount'] = sprintf('%.2f',round($src_item['payment_amount'] / 100, 2));
                 return $src_item;
             });
