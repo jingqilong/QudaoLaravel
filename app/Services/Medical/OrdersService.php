@@ -18,6 +18,7 @@ use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrdersService extends BaseService
 {
@@ -40,7 +41,10 @@ class OrdersService extends BaseService
      */
     public function addDoctorOrders($request)
     {
-        $memberInfo = $this->auth->user();
+        $memberInfo     = $this->auth->user();
+        $end_time       = isset($request['end_time']) ? strtotime($request['end_time']) : 0;
+        $appointment_at = strtotime($request['appointment_at']);
+
         if (!MediclaHospitalsRepository::exists(['id' => $request['hospital_id'],'deleted_at' => 0])){
             $this->setError('医院不存在！');
             return false;
@@ -51,6 +55,14 @@ class OrdersService extends BaseService
         }
         if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在！');
+            return false;
+        }
+        if ($appointment_at < time()){
+            $this->setError('不能预约已经逝去的日子!');
+            return false;
+        }
+        if (!empty($end_time) && ($end_time < $appointment_at)){
+            $this->setError('截止时间必须大于预约时间!');
             return false;
         }
         $add_arr = [
@@ -64,26 +76,28 @@ class OrdersService extends BaseService
             'doctor_id'          =>  $request['doctor_id'],
             'description'        =>  $request['description'] ?? '',
             'type'               =>  $request['type'],
-            'appointment_at'     =>  strtotime($request['appointment_at']),
-            'end_time'           =>  isset($request['end_time']) ? strtotime($request['end_time']) : 0,
+            'appointment_at'     =>  $appointment_at,
+            'end_time'           =>  $end_time,
         ];
         if (MedicalOrdersRepository::exists($add_arr)){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
-        if ($add_arr['appointment_at'] < time()){
-            $this->setError('不能预约已经逝去的日子!');
-            return false;
-        }
-        if (!empty($add_arr['end_time']) && ($add_arr['end_time'] < $add_arr['appointment_at'])){
-            $this->setError('截止时间必须大于预约时间!');
-            return false;
-        }
         $add_arr['created_at'] = time();
+        DB::beginTransaction();
         if (!$orderId = MedicalOrdersRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
+            DB::rollBack();
             return false;
         }
+        #开启流程
+        $start_process_result = $this->addNewProcessRecord($orderId,ProcessCategoryEnum::LOAN_RESERVATION);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('预约成功');
         return $orderId;
     }

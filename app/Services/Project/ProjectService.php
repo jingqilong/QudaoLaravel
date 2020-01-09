@@ -2,15 +2,18 @@
 namespace App\Services\Project;
 
 
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ProjectEnum;
 use App\Repositories\ProjectOrderRepository;
 use App\Services\BaseService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProjectService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     protected $auth;
 
     /**
@@ -93,10 +96,20 @@ class ProjectService extends BaseService
         $add_arr['user_id']      =   $member_id;
         $add_arr['created_at']   =   time();
         $add_arr['status']       =   ProjectEnum::SUBMIT;
-        if (!ProjectOrderRepository::getAddId($add_arr)){
+        DB::beginTransaction();
+        if (!$id = ProjectOrderRepository::getAddId($add_arr)){
             $this->setError('预约失败!');
+            DB::rollBack();
             return false;
         }
+        #开启流程
+        $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::PROJECT_DOCKING);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('预约成功!');
         return true;
 
