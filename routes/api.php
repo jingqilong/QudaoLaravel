@@ -564,6 +564,7 @@ $api->version('v1',function ($api){
                 $api->delete('delete_house', 'OaHouseController@deleteHouse')->name('删除房源');
                 $api->post('edit_house', 'OaHouseController@editHouse')->name('修改房源');
                 $api->get('house_list', 'OaHouseController@houseList')->name('获取房产列表');
+                $api->get('house_audit_detail', 'OaHouseController@houseAuditDetail')->name('房源审核详情');
                 $api->post('audit_house', 'OaHouseController@auditHouse')->name('审核房源');
                 #房产设施
                 $api->post('add_facility', 'FacilityController@addFacility')->name('添加房产设施');
