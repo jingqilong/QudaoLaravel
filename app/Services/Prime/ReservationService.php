@@ -163,7 +163,7 @@ class ReservationService extends BaseService
         $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
         $reservation['state_title']     = PrimeTypeEnum::getReservationStatus($reservation['state']);
         $reservation['type_title']      = PrimeTypeEnum::getType($reservation['type']);
-        return $this->getBusinessDetailsProcess($reservation,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
+        return $this->getBusinessDetailsProcess($reservation,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? $employee->id : 0);
     }
 
     /**
