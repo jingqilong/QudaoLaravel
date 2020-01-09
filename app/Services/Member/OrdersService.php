@@ -83,7 +83,7 @@ class OrdersService extends BaseService
             $this->setMessage('暂无数据！');
             return $order_list;
         }
-        $order_list = MemberTradesRepository::bulkHasOneWalk(
+        $order_list['data'] = MemberTradesRepository::bulkHasOneWalk(
             $order_list['data'],
             ['from' => 'trade_id','to' => 'id'],
             ['id','trade_no'],
