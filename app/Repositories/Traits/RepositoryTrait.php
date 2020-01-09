@@ -465,12 +465,12 @@ trait RepositoryTrait
      */
     protected function bulkHasOneSet( $src_list, $join, $alias, $where=[]){
         if(!$set_data = $this->getHasOneList($src_list,$where,$join, array_keys($alias))){
-            return false;
+            $set_data = [];
         }
         foreach($src_list as & $src_item) {
-            $key = $src_item[$join['from']];
+            $key = $src_item[$join['from']]??"";
             foreach($alias as $src => $trg){
-                 $src_item[$trg] = $set_data[$key][$src];
+                 $src_item[$trg] = $set_data[$key][$src]??"";
             }
          }
          return $src_list;

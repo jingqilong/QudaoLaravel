@@ -2,8 +2,11 @@
 namespace App\Services\Member;
 
 
+use App\Enums\CommonAuditStatusEnum;
 use App\Enums\MemberEnum;
+use App\Enums\MemberGradeEnum;
 use App\Enums\MemberIsTestEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonImagesRepository;
@@ -17,16 +20,14 @@ use App\Repositories\MemberPersonalServiceRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberRepository;
 use App\Repositories\MemberSignRepository;
-use App\Repositories\MemberSpecifyViewRepository;
 use App\Repositories\OaGradeViewRepository;
 use App\Repositories\ScoreRecordRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
-use App\Services\Common\WeChatService;
 use App\Services\Score\RecordService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
-use Dingo\Blueprint\Annotation\Member;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\HttpException;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
@@ -43,7 +44,7 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class MemberService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     protected $auth;
 
     /**
@@ -1202,12 +1203,13 @@ class MemberService extends BaseService
      */
     public function getMemberContactList($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         $status    = $request['status'] ?? null;
         $page      = $request['page'] ?? 1;
         $page_num  = $request['page_num'] ?? 20;
         $where  = ['id' => ['<>',0]];
         $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
-        if (!empty($status)) $where['status'] = $status;
+        if (!is_null($status)) $where['status'] = $status;
         if (!$list = MemberContactRequestRepository::getList($where,$column,'id','asc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
@@ -1227,9 +1229,42 @@ class MemberService extends BaseService
             $value['proposer_grade_name']   = MemberEnum::getGrade($proposer_grade_list[$proposer_key]['grade'],'普通成员');
             $value['contact_grade_name']    = MemberEnum::getGrade($contact_grade_list[$contact_key]['grade'],'普通成员');
             $value['status_name']     = MemberEnum::getAuditStatus($value['status']);
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::MEMBER_CONTACT_REQUEST,$employee->id);
         }
         $this->setMessage('获取成功!');
         return $list;
+    }
+
+    /**
+     * 获取成员联系申请详情
+     * @param $id
+     * @return array|bool
+     */
+    public function getMemberContactDetail($id){
+        $employee = Auth::guard('oa_api')->user();
+        if (!$contact_info = MemberContactRequestRepository::getOne(['id' => $id])){
+            $this->setError('申请不存在！');
+            return false;
+        }
+        $member_ids         = [$contact_info['proposer_id'],$contact_info['contact_id']];
+        $member_base_list   = MemberBaseRepository::getAssignList($member_ids,['id','ch_name']);
+        $member_base_list   = MemberBaseRepository::createArrayIndex($member_base_list,'id');
+        $grade_where        = ['user_id' => ['in',$member_ids],'status' => MemberGradeEnum::PASS,'end_at' => ['range',['-1',time()]]];
+        $member_grade_list  = MemberGradeRepository::getList($grade_where,['user_id','grade']);
+        $member_grade_list  = MemberGradeRepository::createArrayIndex($member_grade_list,'user_id');
+        $detail = [
+            'id'            => $contact_info['id'],
+            'proposer_name' => $member_base_list[$contact_info['proposer_id']]['ch_name'] ?? '',
+            'proposer_grade'=> MemberEnum::getGrade($member_grade_list[$contact_info['proposer_id']]['grade'] ?? 0,'普通成员'),
+            'contact_name'  => $member_base_list[$contact_info['contact_id']]['ch_name'] ?? '',
+            'contact_grade' => MemberEnum::getGrade($member_grade_list[$contact_info['contact_id']]['grade'] ?? 0,'普通成员'),
+            'needs_value'   => $contact_info['needs_value'],
+            'status'        => CommonAuditStatusEnum::getAuditStatus($contact_info['status']),
+            'created_at'    => empty($contact_info['created_at']) ? date('Y-m-d H:i:s',$contact_info['created_at']) : '',
+            'updated_at'    => empty($contact_info['updated_at']) ? date('Y-m-d H:i:s',$contact_info['updated_at']) : '',
+        ];
+        return $this->getBusinessDetailsProcess($detail,ProcessCategoryEnum::MEMBER_CONTACT_REQUEST,$employee->id);
     }
 
     /**

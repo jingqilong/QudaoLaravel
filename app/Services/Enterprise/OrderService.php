@@ -133,22 +133,7 @@ class OrderService extends BaseService
         $info['created_at']         =   empty($info['created_at']) ? '' : date('Y-m-d H:m:s',$info['created_at']);
         $info['updated_at']         =   empty($info['updated_at']) ? '' : date('Y-m-d H:m:s',$info['updated_at']);
         unset($info['deleted_at']);
-        #获取流程进度
-        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::ENTERPRISE_CONSULT]);
-        if (100 == $progress['code']){
-            $this->setError($progress['message']);
-            return false;
-        }
-        #获取流程权限
-        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::ENTERPRISE_CONSULT,$employee->id);
-        $this->setMessage('获取成功！');
-        return [
-            'details'               => $info,
-            'progress'              => $progress['data'],
-            'process_permission'    => $process_permission,
-            #获取可操作的动作结果列表
-            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
-        ];
+        return $this->getBusinessDetailsProcess($info,ProcessCategoryEnum::ENTERPRISE_CONSULT,$employee->id);
     }
 
     /**

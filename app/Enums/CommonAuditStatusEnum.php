@@ -27,4 +27,13 @@ class CommonAuditStatusEnum extends BaseEnum
 
     const NO_PASS       = 2;    //已驳回
 
+    /**
+     * 获取状态label
+     * @param int $value
+     * @param string $default
+     * @return mixed|string
+     */
+    public static function getAuditStatus(int $value,$default = ''){
+        return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : $default;
+    }
 }

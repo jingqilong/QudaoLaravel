@@ -242,22 +242,7 @@ class OrdersService extends BaseService
         $info['updated_at']         = empty($info['updated_at']) ? '' : date('Y-m-d H:i:s',$info['updated_at']);
         $info['end_time']           = empty($info['end_time']) ? '' : date('Y-m-d H:i:s',$info['end_time']);
         unset($info['doctor_id'],$info['hospital_id']);
-        #获取流程进度
-        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::HOSPITAL_RESERVATION]);
-        if (100 == $progress['code']){
-            $this->setError($progress['message']);
-            return false;
-        }
-        #获取流程权限
-        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::HOSPITAL_RESERVATION,$employee->id);
-        $this->setMessage('获取成功！');
-        return [
-            'details'               => $info,
-            'progress'              => $progress['data'],
-            'process_permission'    => $process_permission,
-            #获取可操作的动作结果列表
-            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
-        ];
+        return $this->getBusinessDetailsProcess($info,ProcessCategoryEnum::HOSPITAL_RESERVATION,$employee->id);
     }
 
     /**
