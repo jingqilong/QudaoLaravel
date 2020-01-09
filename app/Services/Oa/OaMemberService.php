@@ -500,6 +500,7 @@ class OaMemberService extends BaseService
      */
     public function addMemberInfo($request)
     {
+        if (empty($request['is_recommend'])) $request['is_recommend'] = 0;
         $add_arr = [
             'member_id'       => $request['member_id'],
             'employer'        => $request['employer'] ?? '',
@@ -509,7 +510,7 @@ class OaMemberService extends BaseService
             'brands'          => $request['brands'] ?? '',
             'run_wide'        => $request['run_wide'] ?? '',
             'profile'         => $request['profile'] ?? '',
-            'good_at'          => $request['good_at'] ?? '',
+            'good_at'         => $request['good_at'] ?? '',
             'degree'          => $request['degree'] ?? '',
             'school'          => $request['school'] ?? '',
             'remarks'         => $request['remarks'] ?? '',
@@ -542,11 +543,11 @@ class OaMemberService extends BaseService
     {
         $service_arr = [
             'member_id'     => $request['member_id'],
-            'publicity'     => $request['publicity'],
-            'protocol'      => $request['protocol'],
-            'nameplate'     => $request['nameplate'],
+            'publicity'     => $request['publicity'] ?? 0,
+            'protocol'      => $request['protocol'] ?? 0,
+            'nameplate'     => $request['nameplate'] ?? 0,
             'attendant'     => $request['attendant'] ?? '',
-            'other_server'  => $request['other_server'],
+            'other_server'  => $request['other_server'] ?? 0,
             'member_attendant'  => $request['member_attendant'] ?? '',
             'gift'          => $request['gift'] ?? '',
             ];
