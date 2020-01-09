@@ -515,8 +515,8 @@ class OaMemberService extends BaseService
             'remarks'         => $request['remarks'] ?? '',
             'referral_agency' => $request['referral_agency'] ?? '',
             'info_provider'   => $request['info_provider'] ?? '',
-            'archive'         => $request['archive'],
-            'is_home_detail'  => $request['is_home_detail'],
+            'archive'         => $request['archive'] ?? 0,
+            'is_home_detail'  => $request['is_home_detail'] ?? 0,
         ];
         if (MemberInfoRepository::exists($add_arr)){
             $this->setError('成员简历信息已存在!');
