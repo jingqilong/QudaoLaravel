@@ -1140,7 +1140,7 @@ class OaMemberController extends ApiController
      *         name="archive",
      *         in="query",
      *         description="是否有存档，默认0无，1有",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1149,7 +1149,7 @@ class OaMemberController extends ApiController
      *         name="is_recommend",
      *         in="query",
      *         description="是否推荐【0不推荐 1推荐】",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1158,7 +1158,7 @@ class OaMemberController extends ApiController
      *         name="is_home_detail",
      *         in="query",
      *         description="设置成员是否在首页显示【默认0不显示 1显示】",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1189,18 +1189,15 @@ class OaMemberController extends ApiController
     {
         $rules = [
             'member_id'       => 'required|integer',
-            'archive'         => 'required|in:0,1',
-            'is_recommend'    => 'required|in:0,1',
-            'is_home_detail'  => 'required|in:0,1',
+            'archive'         => 'in:0,1',
+            'is_recommend'    => 'in:0,1',
+            'is_home_detail'  => 'in:0,1',
         ];
         $messages = [
             'member_id.required'        => '成员ID不能为空',
             'member_id.integer'         => '成员ID不是整数',
-            'archive.required'          => '成员是否有存档不能为空',
             'archive.in'                => '成员是否有存档类型不存在',
-            'is_recommend.required'     => '成员是否推荐不能为空',
             'is_recommend.in'           => '成员是否推荐类型不存在',
-            'is_home_detail.required'   => '成员是否首页推荐不能为空',
             'is_home_detail.in'         => '成员是否首页推荐类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
@@ -1252,7 +1249,7 @@ class OaMemberController extends ApiController
      *         name="publicity",
      *         in="query",
      *         description="是否需要宣传，默认0不需要，1需要",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1261,7 +1258,7 @@ class OaMemberController extends ApiController
      *         name="protocol",
      *         in="query",
      *         description="是否签署天朝上品微代理协议，默认0否，1是",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1270,7 +1267,7 @@ class OaMemberController extends ApiController
      *         name="nameplate",
      *         in="query",
      *         description="铭牌状态，默认0未制作，1已制作未送，2已送",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1279,7 +1276,7 @@ class OaMemberController extends ApiController
      *         name="other_server",
      *         in="query",
      *         description="其他服务 [0需要 1不需要]",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -1328,18 +1325,15 @@ class OaMemberController extends ApiController
     {
         $rules = [
             'member_id'     => 'required|integer',
-            'protocol'      => 'required|in:0,1',
-            'nameplate'     => 'required|in:0,1,2',
-            'other_server'  => 'required|in:0,1',
+            'protocol'      => 'in:0,1',
+            'nameplate'     => 'in:0,1,2',
+            'other_server'  => 'in:0,1',
         ];
         $messages = [
             'member_id.required'    => '成员ID不能为空',
             'member_id.integer'     => '成员ID不是整数',
-            'protocol.required'     => '成员是否需要宣传不能为空',
             'protocol.in'           => '成员是否需要宣传类型不存在',
-            'nameplate.required'    => '成员铭牌状态不能为空',
             'nameplate.in'          => '成员铭牌状态类型不存在',
-            'other_server.required' => '成员其他服务不能为空',
             'other_server.in'       => '成员其他服务类型不存在',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
