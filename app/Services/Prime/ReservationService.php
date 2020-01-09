@@ -91,7 +91,7 @@ class ReservationService extends BaseService
             $value['amount']            = round($amount / 100,2).'元';
             $value['payment_amount']    = round($payment_amount / 100,2).'元';
             #获取流程信息
-            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? $employee->id : 0);
             unset($value['merchant_id']);
         }
         $this->setMessage('获取成功！');
@@ -163,22 +163,7 @@ class ReservationService extends BaseService
         $reservation['time'] = date('Y.m.d / H:i',$reservation['time']);
         $reservation['state_title']     = PrimeTypeEnum::getReservationStatus($reservation['state']);
         $reservation['type_title']      = PrimeTypeEnum::getType($reservation['type']);
-        #获取流程进度
-        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::PRIME_RESERVATION]);
-        if (100 == $progress['code']){
-            $this->setError($progress['message']);
-            return false;
-        }
-        #获取流程权限
-        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
-        $this->setMessage('获取成功！');
-        return [
-            'details'               => $reservation,
-            'progress'              => $progress['data'],
-            'process_permission'    => $process_permission,
-            #获取可操作的动作结果列表
-            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
-        ];
+        return $this->getBusinessDetailsProcess($reservation,ProcessCategoryEnum::PRIME_RESERVATION,is_null($merchant_id) ? 0 : $employee->id);
     }
 
     /**

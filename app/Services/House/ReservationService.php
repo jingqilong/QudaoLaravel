@@ -227,22 +227,7 @@ class ReservationService extends BaseService
         $house['rent']                  = $house['rent'] .'元/'. HouseEnum::getTenancy($house['tenancy']);
         unset($house['area_code'],$house['address'],$house['tenancy'],$reservation['house_id']);
         $reservation['house_info']      = $house;
-        #获取流程进度
-        $progress = $this->getProcessRecordList(['business_id' => $id,'process_category' => ProcessCategoryEnum::HOUSE_RESERVATION]);
-        if (100 == $progress['code']){
-            $this->setError($progress['message']);
-            return false;
-        }
-        #获取流程权限
-        $process_permission = $this->getBusinessProgress($id,ProcessCategoryEnum::HOUSE_RESERVATION,$employee->id);
-        $this->setMessage('获取成功！');
-        return [
-            'details'               => $reservation,
-            'progress'              => $progress['data'],
-            'process_permission'    => $process_permission,
-            #获取可操作的动作结果列表
-            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
-        ];
+        return $this->getBusinessDetailsProcess($reservation,ProcessCategoryEnum::HOUSE_RESERVATION,$employee->id);
     }
 
     /**

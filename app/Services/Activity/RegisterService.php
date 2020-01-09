@@ -265,22 +265,7 @@ class RegisterService extends BaseService
         $activity               = ImagesService::getOneImagesConcise($activity,['cover_id' => 'single'],true);
         $activity['is_member']  = ActivityEnum::getIsMember($activity['is_member']);
         $register['activity_info'] = $activity;
-        #获取流程进度
-        $progress = $this->getProcessRecordList(['business_id' => $register_id,'process_category' => ProcessCategoryEnum::ACTIVITY_REGISTER]);
-        if (100 == $progress['code']){
-            $this->setError($progress['message']);
-            return false;
-        }
-        #获取流程权限
-        $process_permission = $this->getBusinessProgress($register_id,ProcessCategoryEnum::ACTIVITY_REGISTER,$employee->id);
-        $this->setMessage('获取成功！');
-        return [
-            'details'               => $register,
-            'progress'              => $progress['data'],
-            'process_permission'    => $process_permission,
-            #获取可操作的动作结果列表
-            'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
-        ];
+        return $this->getBusinessDetailsProcess($register,ProcessCategoryEnum::ACTIVITY_REGISTER,$employee->id);
     }
 
     /**

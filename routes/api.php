@@ -458,7 +458,8 @@ $api->version('v1',function ($api){
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
 
                 #OA获取用户联系用户列表
-                $api->get('get_member_contact_list','MemberController@getMemberContactList')->name('查看成员联系请求列表');
+                $api->get('get_member_contact_list','MemberController@getMemberContactList')->name('成员联系申请列表');
+                $api->get('get_member_contact_detail','MemberController@getMemberContactDetail')->name('成员联系申请详情');
                 $api->post('set_member_contact','MemberController@setMemberContact')->name('审核成员联系请求列表');
 
                 #OA 获取会员订单
