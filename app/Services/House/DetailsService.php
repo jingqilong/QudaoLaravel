@@ -223,6 +223,7 @@ class DetailsService extends BaseService
             'tenancy'       => $request['tenancy'],
             'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
+            'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
@@ -296,6 +297,7 @@ class DetailsService extends BaseService
             $value['area_code']         = rtrim($value['area_code'],',');
             #处理价格
             $value['rent_tenancy']      = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
+            $value['tenancy_title']     = HouseEnum::getTenancy($value['tenancy']);
             $value['decoration_title']  = HouseEnum::getDecoration($value['decoration']);
             $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
             $value['images']            = $image_list;

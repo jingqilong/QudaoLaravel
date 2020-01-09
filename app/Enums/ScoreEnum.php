@@ -19,7 +19,7 @@ class ScoreEnum extends BaseEnum
         'EXPENSE'       => '消费',
         //是否最新
         'OLD'           => '历史记录',
-        'LATEST'        => '最新余额',
+        'LATEST'        => '当前余额',
     ];
 
     public static $status = [

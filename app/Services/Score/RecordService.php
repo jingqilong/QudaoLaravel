@@ -36,7 +36,7 @@ class RecordService extends BaseService
             $this->setMessage('积分类别不存在！');
             return false;
         }
-        $score_record = ScoreRecordViewRepository::getOrderOne(['score_type' => $score_type,'member_id' => $member_id],'created_at','desc');
+        $score_record = ScoreRecordViewRepository::getOne(['score_type' => $score_type,'member_id' => $member_id,'latest' => ScoreEnum::LATEST]);
         $add_arr = [
             'member_id'             => $member_id,
             'score_type'            => $score_type,
@@ -100,7 +100,7 @@ class RecordService extends BaseService
             $this->setMessage('积分类别不存在！');
             return false;
         }
-        if (!$score_record = ScoreRecordViewRepository::getOrderOne(['score_type' => $score_type,'member_id' => $member_id],'created_at','desc')){
+        if (!$score_record = ScoreRecordViewRepository::getOne(['score_type' => $score_type,'member_id' => $member_id,'latest' => ScoreEnum::LATEST])){
             $this->setError('无积分可消费！');
             return false;
         }
