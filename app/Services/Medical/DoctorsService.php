@@ -146,8 +146,9 @@ class DoctorsService extends BaseService
         $departments_id = $request['departments_id'] ?? null;
         $where          = ['deleted_at' => 0];
         if (!empty($departments_id)) $where['department_ids'] = ['like','%,' . $departments_id . ',%'];
+        if (!empty($request['sex'])) $where['sex'] = $request['sex'];
         if (!empty($keywords)){
-            $keyword        = [$keywords => ['name','sex']];
+            $keyword        = [$keywords => ['name','title']];
             if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$asc)){
                 $this->setError('获取失败！');
                 return false;

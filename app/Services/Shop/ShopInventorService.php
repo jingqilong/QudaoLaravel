@@ -154,6 +154,9 @@ class ShopInventorService extends BaseService
             $item ['props'] = '';
             foreach($keys as $key){
                 $item ['props'] .= $attrs[$key]['spec_name'] ."：".  $attrs[$key]['spec_value'] ."；";
+                $item['inventor'] = $item['spec_inventor']>0 ? $item['goods_inventor'] : $item['goods_inventor'];
+                $item['inventor'] = $item['inventor']??0;
+                //unset($item['spec_ids'],$item['spec_inventor'],$item['goods_inventor'],$item['category']);
             }
         }
         //处理图像,获取图片

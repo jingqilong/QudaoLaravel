@@ -540,10 +540,19 @@ class DoctorsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【医生姓名，医生性别】",
+     *         description="搜索内容【医生姓名，医生职称】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sex",
+     *         in="query",
+     *         description="性别【1 男  2 女】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -592,13 +601,15 @@ class DoctorsController extends ApiController
     public function doctorsListPage(){
         $rules = [
             'departments_id' => 'integer',
+            'sex'            => 'in:1,2',
             'page'           => 'integer',
             'page_num'       => 'integer',
         ];
         $messages = [
-            'departments_id.integer'    => '科室id必须为整数',
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
+            'departments_id.integer' => '科室id必须为整数',
+            'sex.in'                 => '性别类型不存在',
+            'page.integer'           => '页码必须为整数',
+            'page_num.integer'       => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
