@@ -226,14 +226,14 @@ class OrderRelateService extends BaseService
             ['from' => 'spec_relate_id','to'=>'id'],
             ['id','goods_id','spec_name','spec_value'],
             [],
-                function($src_item,$set_items) use($order_relate_id) {
-                    $src_item['order_relate_id']    = $order_relate_id;
-                    $src_item['spec_relate_value']  = $src_item['spec'];
-                    $spec_arr = Arr::only($src_item,['goods_id','order_relate_id','spec_relate_id','spec_relate_value','number']);
-                    $spec_arr['created_at']         = time();
-                    return $spec_arr;
-                }
-            );
+            function($src_item,$set_items) use($order_relate_id) {
+                $src_item['order_relate_id']    = $order_relate_id;
+                $src_item['spec_relate_value']  = $src_item['spec'] ?? '';
+                $spec_arr = Arr::only($src_item,['goods_id','order_relate_id','spec_relate_id','spec_relate_value','number']);
+                $spec_arr['created_at']         = time();
+                return $spec_arr;
+            }
+        );
         if (!ShopOrderGoodsRepository::create($order_relate_add_arr)){
             $this->setError('订单创建失败！');
             Loggy::write('order','创建订单商品记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
