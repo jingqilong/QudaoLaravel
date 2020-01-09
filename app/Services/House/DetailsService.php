@@ -223,6 +223,7 @@ class DetailsService extends BaseService
             'tenancy'       => $request['tenancy'],
             'leasing'       => $request['leasing'],
             'decoration'    => $request['decoration'],
+            'height'        => $request['height'],
             'area'          => $request['area'],
             'image_ids'     => $request['image_ids'],
             'storey'        => $request['storey'],
