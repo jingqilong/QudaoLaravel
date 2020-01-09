@@ -282,7 +282,10 @@ class DetailService extends BaseService
         $is_member      = $request['is_member'] ?? null;
         $need_audit     = $request['need_audit'] ?? null;
         $keywords       = $request['keywords'] ?? null;
+        $time_sort      = $request['time_sort'] ?? 1;
         $where          = ['id' => ['>',0],'deleted_at' => 0];
+        $sort           = ['id','created_at'];
+        $asc            = $time_sort == 1 ? ['desc','desc'] : ['asc','asc'];
         if (!is_null($start_time)){
             $where['start_time']    = ['>',strtotime($start_time)];
         }
@@ -308,12 +311,12 @@ class DetailService extends BaseService
                 $where['theme_id'] = ['in',$theme_ids];
             }
             $keyword = [$keywords => ['name', 'address', 'price','firm']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,'created_at','desc')){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,'created_at','desc',$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$sort,$asc,$page,$page_num)){
                 $this->setError('获取失败！');
                 return false;
             }

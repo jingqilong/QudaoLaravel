@@ -749,6 +749,15 @@ class ActivityController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="time_sort",
+     *         in="query",
+     *         description="发布时间排序，1按最新发布排序，2按最早发布排序",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="页码",
@@ -785,6 +794,7 @@ class ActivityController extends ApiController
             'status'        => 'in:1,2',
             'is_member'     => 'in:1,2',
             'need_audit'    => 'in:0,1',
+            'time_sort'     => 'in:1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
@@ -796,6 +806,7 @@ class ActivityController extends ApiController
             'status.in'             => '活动状态取值不在范围内',
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
             'need_audit.in'         => '是否需要审核取值不在范围内',
+            'time_sort.in'          => '发布排序取值有误',
             'page.integer'          => '页码必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',
         ];
