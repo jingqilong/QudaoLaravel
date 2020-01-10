@@ -84,6 +84,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_personal_password','OaController@editPersonalPassword')->name('验证码修改密码');
                 $api->post('edit_password','OaController@editPassword')->name('使用旧密码修改密码');
                 $api->post('edit_bind_mobile','OaController@editBindMobile')->name('修改绑定手机号');
+                $api->post('edit_bind_email','OaController@editBindEmail')->name('修改绑定邮箱');
 
                 $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
                 $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
@@ -745,6 +746,7 @@ $api->version('v1',function ($api){
         //公共模块
         $api->group(['prefix' => 'common', 'namespace' => 'Common'], function ($api){
             $api->post('send_captcha', 'CommonController@sendCaptcha')->name('发送短信验证码');
+            $api->post('send_email_captcha', 'CommonController@sendEmailCaptcha')->name('发送邮件验证码');
             $api->get('browser_push', 'MessageController@browserPush')->name('浏览器推送消息');
             $api->post('mobile_exists', 'CommonController@mobileExists')->name('检测成员手机号是否注册');
             $api->get('get_area_list', 'AreaController@getAreaList')->name('获取省市区街道四级联动地区列表');

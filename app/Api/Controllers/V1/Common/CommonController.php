@@ -5,6 +5,7 @@ namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Common\CommonServiceTermsService;
+use App\Services\Common\EmailService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\HomeService;
 use App\Services\Common\PvService;
@@ -113,6 +114,70 @@ class CommonController extends ApiController
             return ['code' => 100, 'message' => $res['message']];
         }
         return ['code' => 200, 'message' => $res['message']];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/send_email_captcha",
+     *     tags={"公共"},
+     *     summary="发送邮件验证码",
+     *     description="sang" ,
+     *     operationId="send_email_captcha",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="验证码类型【0，默认类型,1、登录验证,2、短信修改密码,3、邮箱注册，4、绑定邮箱,....】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="邮箱地址",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="发送失败",
+     *     ),
+     * )
+     *
+     */
+    public function sendEmailCaptcha(){
+        $rules = [
+            'type'      => 'required|integer',
+            'email'     => 'required|email',
+        ];
+        $messages = [
+            'type.required'     => '请输入短信类型',
+            'type.integer'      => '短信类型必须为整数',
+            'email.required'    => '请输入邮箱地址',
+            'email.email'       => '邮箱地址格式有误',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $emailService = new EmailService();
+        $res = $emailService->sendCode($this->request['email'], $this->request['type']);
+        if ($res == false){
+            return ['code' => 100, 'message' => $emailService->error];
+        }
+        return ['code' => 200, 'message' => $emailService->message];
     }
 
     /**

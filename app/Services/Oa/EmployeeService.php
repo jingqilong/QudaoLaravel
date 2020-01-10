@@ -562,6 +562,47 @@ class EmployeeService extends BaseService
     }
 
     /**
+     * 员工修改绑定手机号
+     * @param $request
+     * @return bool
+     */
+    public function editBindEmail($request){
+        $employee = $this->auth->user();
+        #此处做限制，每天修改邮箱密码错误指定次数
+        $key    = md5('oa_employee_self_edit_email'.$employee->id);
+        $count  = 1;//今日修改次数初始化
+        $number = config('common.employee_self_edit_email_error_number');//获取每日修改邮箱密码错误上限次数
+        if (Cache::has($key)){
+            $count = Cache::get($key);
+            if ($count >= $number){
+                $this->setError('密码错误'.$number.'次，已达今日上限！');
+                return false;
+            }
+            ++$count;
+        }
+        if (!Hash::check($request['password'],$employee->password)){
+            Cache::forget($key);
+            Cache::add($key,$count,strtotime('23:59:59')-time());
+            $this->setError('密码错误！');
+            return false;
+        }
+        if (OaEmployeeRepository::exists(['email' => $request['email']])){
+            $this->setError('该邮箱已被绑定！');
+            return false;
+        }
+        $upd = [
+            'email'         => $request['email'],
+            'updated_at'    => time()
+        ];
+        if (!OaEmployeeRepository::getUpdId(['id' => $employee->id],$upd)){
+            $this->setError('修改密码失败！');
+            return false;
+        }
+        $this->setMessage('修改密码成功！');
+        return true;
+    }
+
+    /**
      * 返回用户信息
      * @param $user
      * @return array
