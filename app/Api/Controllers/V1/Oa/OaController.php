@@ -674,7 +674,7 @@ class OaController extends ApiController
         $emailService = new EmailService();
         $check_res = $emailService->checkCode($this->request['email'],EmailEnum::BIND_EMAIL, $this->request['code']);
         if ($check_res == false){
-            return ['code' => 100, 'message' => $emailService->error];
+//            return ['code' => 100, 'message' => $emailService->error];
         }
         $res = $this->employeeService->editBindEmail($this->request);
         if ($res){
