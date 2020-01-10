@@ -48,9 +48,10 @@ class ShopInventorService extends BaseService
             $this->setError('ShopInventoryRepository::库存记录添加失败！');
             return false;
         }
-
         $where = Arr::only($new_data,['goods_id','spec_id']);
+        //同时更新 商品 或 SKU表中的 real_inventor stock
         $data['real_inventor'] = $new_data['remain'] ;
+        $data['stock'] += $request['change_from'] ;
         if(false === $this->updateInventor($where,$data)){
             DB::rollBack();
             Loggy::write('error','updateInventor::库存记录添加失败！',$new_data);
