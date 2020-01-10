@@ -88,8 +88,8 @@ class OrdersService extends BaseService
             ['from' => 'trade_id','to' => 'id'],
             ['id','trade_no'],
             [],
-            function($src_item,$set_items){
-                $src_item['trade_no']       = $set_items['trade_no'] ?? '';
+            function($src_item,$member_trade_items){
+                $src_item['trade_no']       = $member_trade_items['trade_no'] ?? '';
                 $src_item['order_type_title'] = OrderEnum::getOrderType($src_item['order_type']);
                 $src_item['status_title']   = OrderEnum::getStatus($src_item['status']);
                 $src_item['amount']         = sprintf('%.2f',round($src_item['amount'] / 100, 2));

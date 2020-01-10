@@ -274,16 +274,7 @@ class SendService extends BaseService
                 $value['is_read'] = 1;
             }
             //处理时间
-            $cr_time    = strtotime($value['created_at']);
-            $today      = Time::getStartStopTime('today');
-            $yesterday  = Time::getStartStopTime('yesterday');
-            if ($cr_time > $today['start'] && $cr_time < $today['end']){
-                $value['created_at'] = date('今天 H:i',$cr_time);
-            }else if ($cr_time > $yesterday['start'] && $cr_time < $yesterday['end']){
-                $value['created_at'] = date('昨天 H:i',$cr_time);
-            }else{
-                $value['created_at'] = date('Y.m.d',$cr_time);
-            }
+            $value['created_at'] = Time::fineTime($value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -317,7 +308,8 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            //处理时间
+            $value['created_at'] = Time::fineTime($value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -351,7 +343,8 @@ class SendService extends BaseService
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
                 $value['is_read'] = 1;
             }
-            $value['created_at'] = date('Y.m.d',strtotime($value['created_at']));
+            //处理时间
+            $value['created_at'] = Time::fineTime($value['created_at']);
         }
         $this->setMessage('获取成功！');
         return $list;

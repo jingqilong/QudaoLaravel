@@ -84,8 +84,8 @@ class FeedBacksService extends BaseService
             ['from' => 'member_id','to' => 'user_id'],
             ['user_id','grade'],
             [],
-            function($src_item,$src_items){
-                $grade = Arr::only($src_items[$src_item['member_id']],'grade');
+            function($src_item,$member_grade_items){
+                $grade = Arr::only($member_grade_items[$src_item['member_id']],'grade');
                 $src_item['grade'] = MemberEnum::getGrade((int)$grade,'普通成员');
                 return $src_item;
             }

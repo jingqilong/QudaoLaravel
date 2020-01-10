@@ -51,4 +51,23 @@ class Time
         }
         return $res;
     }
+
+    /**
+     * 细化时间，eg：今天 20:40，
+     * @param $time
+     * @return false|string
+     */
+    public static function fineTime($time){
+        $cr_time    = strtotime($time);
+        $today      = Time::getStartStopTime('today');
+        $yesterday  = Time::getStartStopTime('yesterday');
+        if ($cr_time > $today['start'] && $cr_time < $today['end']){
+            $result_time = date('今天 H:i',$cr_time);
+        }else if ($cr_time > $yesterday['start'] && $cr_time < $yesterday['end']){
+            $result_time = date('昨天 H:i',$cr_time);
+        }else{
+            $result_time = date('Y.m.d',$cr_time);
+        }
+        return $result_time;
+    }
 }
