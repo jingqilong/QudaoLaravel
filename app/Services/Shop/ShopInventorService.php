@@ -158,7 +158,7 @@ class ShopInventorService extends BaseService
             $keys= explode(',',trim($item['spec_ids'],','));
             $item ['props'] = '';
             foreach($keys as $key){
-                $item ['props'] .= $attrs[$key]['spec_name'] ."：".  $attrs[$key]['spec_value'] ."；";
+                $item ['props'] .= $attrs[$key]['spec_name']??"" ."：".  $attrs[$key]['spec_value']??"" ."；";
                 $item['inventor'] = $item['spec_inventor']>0 ? $item['goods_inventor'] : $item['goods_inventor'];
                 $item['inventor'] = $item['inventor']??0;
                 //unset($item['spec_ids'],$item['spec_inventor'],$item['goods_inventor'],$item['category']);
