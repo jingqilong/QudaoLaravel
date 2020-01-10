@@ -109,7 +109,7 @@ class ShopInventorService extends BaseService
             ['asc','asc']);
         $inventor_col = 'spec_inventor';
         $stock_col = 'spec_stock';
-        if(0 == $inventory_list['spec_id'] + 0 ){
+        if(0 == $sepc_id + 0 ){
             $inventor_col = 'goods_inventor';
             $stock_col = 'goods_stock';
         }
