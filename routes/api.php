@@ -83,6 +83,7 @@ $api->version('v1',function ($api){
                 $api->post('edit_personal_info','OaController@editPersonalInfo')->name('编辑个人信息');
                 $api->post('edit_personal_password','OaController@editPersonalPassword')->name('验证码修改密码');
                 $api->post('edit_password','OaController@editPassword')->name('使用旧密码修改密码');
+                $api->post('edit_bind_mobile','OaController@editBindMobile')->name('修改绑定手机号');
 
                 $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
                 $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
