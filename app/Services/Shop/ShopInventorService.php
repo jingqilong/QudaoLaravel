@@ -97,7 +97,7 @@ class ShopInventorService extends BaseService
     }
 
     /**
-     * @desc 获取当前库存(从SPU或SKU中获取数据) 
+     * @desc 获取当前库存(从SPU或SKU中获取数据)
      * @param $goods_id
      * @param int $sepc_id
      * @return int
