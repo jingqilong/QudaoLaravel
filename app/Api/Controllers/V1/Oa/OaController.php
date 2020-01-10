@@ -500,4 +500,95 @@ class OaController extends ApiController
         }
         return ['code' => 100, 'message' => $this->employeeService->error];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_bind_mobile",
+     *     tags={"OA"},
+     *     summary="修改绑定手机号",
+     *     description="sang" ,
+     *     operationId="edit_bind_mobile",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="mobile",
+     *         in="query",
+     *         description="手机号",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="query",
+     *         description="验证码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editBindMobile(){
+        $rules = [
+            'password'      => 'required',
+            'mobile'        => 'required|mobile',
+            'code'          => 'required',
+        ];
+        $messages = [
+            'password.required'     => '请输入密码！',
+            'mobile.required'       => '请输入手机号！',
+            'mobile.mobile'         => '手机号格式有误！',
+            'code.required'         => '请输入验证码！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        //短信验证
+        $smsService = new SmsService();
+        $check_sms = $smsService->checkCode($this->request['mobile'],SMSEnum::BINDMOBILE, $this->request['code']);
+        if (is_string($check_sms)){
+            return ['code' => 100, 'message' => $check_sms];
+        }
+        $res = $this->employeeService->editBindMobile($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->employeeService->message];
+        }
+        return ['code' => 100, 'message' => $this->employeeService->error];
+    }
+
+    public function editBindEmail(){}
 }

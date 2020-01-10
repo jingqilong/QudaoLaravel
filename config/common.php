@@ -23,4 +23,7 @@ return [
 
     //员工自己修改密码每日上限次数
     'employee_self_edit_password_number' => 3,
+
+    //员工自己修改手机号密码错误上限次数【每日】
+    'employee_self_edit_mobile_error_number' => 3,
 ];

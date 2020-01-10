@@ -10,6 +10,7 @@ use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -59,17 +60,8 @@ class EmployeeService extends BaseService
             $this->setError('您的账户已被管理员禁用！');
             return false;
         }
-        $user = $user->toArray();
-        $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
-        $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
-        $user['birth_date'] = empty($user['birth_date']) ? '' : date('Y-m-d',$user['birth_date']);
-        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
-        $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
-        $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
-        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
-        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
+        $user = $this->returnUserInfo($user->toArray());
         $this->setMessage('登录成功！');
-        unset($user['role_ids'],$user['status'],$user['note'],$user['department_ids']);
         return ['user' => $user, 'token' => $token];
     }
 
@@ -109,7 +101,9 @@ class EmployeeService extends BaseService
      */
     public function getUserInfo()
     {
-        return OaEmployeeRepository::getUser();
+        $employee           = OaEmployeeRepository::getUser()->toArray();
+        $this->setMessage('获取成功！');
+        return $this->returnUserInfo($employee);
     }
 
 
@@ -453,7 +447,7 @@ class EmployeeService extends BaseService
     /**
      * 编辑个人信息
      * @param $request
-     * @return bool|null
+     * @return mixed
      */
     public function editPersonalInfo($request){
         $employee = $this->auth->user();
@@ -470,16 +464,8 @@ class EmployeeService extends BaseService
         }
         $column             = ['id','username','real_name','department_id','gender','mobile','email','work_title','avatar_id','birth_date','role_ids','permission_ids'];
         $user               = OaEmployeeRepository::getOne(['id' => $employee->id],$column);
-        #获取更新过的个人信息
-        $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
-        $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
-        $user['birth_date'] = empty($user['birth_date']) ? '' : date('m月h日',$user['birth_date']);
-        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
-        $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
-        $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
-        unset($user['role_ids'],$user['department_id'],$user['permission_ids']);
         $this->setMessage('编辑成功！');
-        return $user;
+        return $this->returnUserInfo($user);
     }
 
     /**
@@ -492,10 +478,10 @@ class EmployeeService extends BaseService
         #此处做限制，每天只能修改密码指定次数
         $key    = md5('oa_employee_self_edit_password'.$employee_id);
         $count  = 1;//今日修改次数初始化
-        $number = config('common.employee_self_edit_password_number');//获取每日修改密码上限次数
+        $number = config('common.employee_self_edit_password_number',3);//获取每日修改密码上限次数
         if (Cache::has($key)){
             $count = Cache::get($key);
-            if ($count == $number){
+            if ($count >= $number){
                 $this->setError('今日修改密码'.$number.'次机会已用完！');
                 return false;
             }
@@ -514,7 +500,7 @@ class EmployeeService extends BaseService
             return false;
         }
         Cache::forget($key);
-        Cache::add($key,$count,84600);
+        Cache::add($key,$count,strtotime('23:59:59')-time());
         $this->setMessage('修改密码成功！');
         return true;
     }
@@ -531,6 +517,69 @@ class EmployeeService extends BaseService
             return false;
         }
         return $this->editPersonalPassword($request,$employee->id);
+    }
+
+
+    /**
+     * 员工修改绑定手机号
+     * @param $request
+     * @return bool
+     */
+    public function editBindMobile($request){
+        $employee = $this->auth->user();
+        #此处做限制，每天修改手机号密码错误指定次数
+        $key    = md5('oa_employee_self_edit_mobile'.$employee->id);
+        $count  = 1;//今日修改次数初始化
+        $number = config('common.employee_self_edit_mobile_error_number');//获取每日修改手机号密码错误上限次数
+        if (Cache::has($key)){
+            $count = Cache::get($key);
+            if ($count >= $number){
+                $this->setError('密码错误'.$number.'次，已达今日上限！');
+                return false;
+            }
+            ++$count;
+        }
+        if (!Hash::check($request['password'],$employee->password)){
+            Cache::forget($key);
+            Cache::add($key,$count,strtotime('23:59:59')-time());
+            $this->setError('密码错误！');
+            return false;
+        }
+        if (OaEmployeeRepository::exists(['mobile' => $request['mobile']])){
+            $this->setError('该手机号已被绑定！');
+            return false;
+        }
+        $upd = [
+            'mobile'    => $request['mobile'],
+            'updated_at'=> time()
+        ];
+        if (!OaEmployeeRepository::getUpdId(['id' => $employee->id],$upd)){
+            $this->setError('修改密码失败！');
+            return false;
+        }
+        $this->setMessage('修改密码成功！');
+        return true;
+    }
+
+    /**
+     * 返回用户信息
+     * @param $user
+     * @return array
+     */
+    public function returnUserInfo($user){
+        if (empty($user)){
+            return [];
+        }
+        $column             = ['id','username','real_name','department_id','gender','mobile','email','work_title','avatar_id','birth_date','role_ids','permission_ids'];
+        $user               = Arr::only($user,$column);
+        $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
+        $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
+        $user['birth_date'] = empty($user['birth_date']) ? '' : date('m月h日',$user['birth_date']);
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
+        $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
+        unset($user['role_ids'],$user['department_id'],$user['permission_ids']);
+        return $user;
     }
 }
             
