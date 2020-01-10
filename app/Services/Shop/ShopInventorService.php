@@ -125,6 +125,11 @@ class ShopInventorService extends BaseService
         $page = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $where = Arr::only($request,['goods_id', 'spec_id']);
+        foreach ($where as $key => $value) {
+            if(empty($value)){
+                unset($where[$key]);
+            }
+        }
         if(isset($request['name'])){
             $where['name'] = ['like',$request['name']];
         }
