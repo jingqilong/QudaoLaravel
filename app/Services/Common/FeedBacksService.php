@@ -2,14 +2,19 @@
 namespace App\Services\Common;
 
 
+use App\Enums\CommentsEnum;
+use App\Enums\FeedBacksEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\CommonFeedBacksRepository;
 use App\Repositories\CommonFeedBacksViewRepository;
+use App\Repositories\CommonFeedbackThreadRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class FeedBacksService extends BaseService
 {
@@ -30,20 +35,16 @@ class FeedBacksService extends BaseService
      */
     public function addFeedBack($request)
     {
-        $member     = $this->auth->user();
-        $content    = $request['content'] ?? null;
-        $mobile     = $request['mobile'] ?? null;
-        $add_arr = [
-            'member_id' => $member->id,
-            'content'   => $content,
-            'mobile'    => $mobile,
-        ];
-        if (CommonFeedBacksRepository::exists($add_arr)){
+        $member      = $this->auth->user();
+        $request_arr = Arr::only($request,['content','mobile']);
+        $request_arr['member_id'] = $member->id;
+        $request_arr['mobile'] = empty($request_arr['mobile']) ? $member->mobile : $request_arr['mobile'];
+        if (CommonFeedBacksRepository::exists($request_arr)){
             $this->setError('您的信息已提交!');
             return false;
         }
-        $add_arr['created_at'] = time();
-        if (!CommonFeedBacksRepository::getAddId($add_arr)){
+        $request_arr['created_at'] = time();
+        if (!CommonFeedBacksRepository::getAddId($request_arr)){
             $this->setError('信息提交失败!');
             return false;
         }
@@ -89,6 +90,53 @@ class FeedBacksService extends BaseService
                 return $src_item;
             }
         );
+        $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * 客户服务 回复反馈消息
+     * @param $request
+     * @return bool
+     */
+    public function addCallBackFeedBack($request)
+    {
+        $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
+        if (!CommonFeedbackThreadRepository::exists(['id' => $request_arr['replay_id']]) || !CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
+            $this->setError('没有反馈消息!');
+            return false;
+        }
+        if (CommonFeedbackThreadRepository::exists($request_arr)){
+            $this->setError('这条信息您已经回复过了哦!');
+            return false;
+        }
+        $request_arr['operator_type'] = FeedBacksEnum::OA;
+        $request_arr['status']        = FeedBacksEnum::MANAGE;
+        $request_arr['created_at']    = time();
+        $request_arr['created_by']    = time();
+        if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
+            $this->setError('回复失败!');;
+            return false;
+        }
+        $this->setMessage('回复成功!');
+        return true;
+    }
+
+    /**
+     * 获取OA反馈的回复详情
+     * @param $request
+     * @return bool|null
+     */
+    public function getCallBackFeedBack($request)
+    {
+        if (!$list = CommonFeedbackThreadRepository::getList(['feedback_id' => $request['feedback_id']])){
+            $this->setError('获取失败!');;
+            return false;
+        }
+        foreach ($list as &$value){
+            $value['status_title']          = FeedBacksEnum::getStatus($value['status']);
+            $value['operator_type_title']   = FeedBacksEnum::getOperatorType($value['operator_type']);
+        }
         $this->setMessage('获取成功!');
         return $list;
     }
