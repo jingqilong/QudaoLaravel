@@ -169,7 +169,7 @@ class ShopInventorService extends BaseService
 
         //处理图像,获取图片
         $list['data']  = ImagesService::getListImages($list['data'],['image_ids' => 'single']);
-        dd($list['data']  );
+        //dd($list['data']  );
         $this->setMessage('获取成功！');
         return $list;
 
