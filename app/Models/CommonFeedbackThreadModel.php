@@ -29,6 +29,15 @@ class CommonFeedbackThreadModel extends Model
 
     protected $fillable = ['id','feedback_id','replay_id','content','status','operator_type','created_at','created_by'];
 
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'created_by' => 'datetime',
+    ];
 
 
 }

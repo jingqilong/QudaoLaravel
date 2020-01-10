@@ -763,6 +763,8 @@ $api->version('v1',function ($api){
                 $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
                 $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');
                 $api->get('feed_back_list', 'CommonFeedBacksController@feedBackList')->name('oa获取用户反馈列表');
+                $api->post('add_call_back_feed_back', 'CommonFeedBacksController@addCallBackFeedBack')->name('添加oa客服反馈消息');
+                $api->get('get_call_back_feed_back', 'CommonFeedBacksController@getCallBackFeedBack')->name('获取oa客服反馈消息');
 
                 $api->get('get_image_repository', 'ImagesController@getImageRepository')->name('获取图片仓库');
             });

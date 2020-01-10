@@ -175,4 +175,148 @@ class CommonFeedBacksController extends ApiController
         }
         return ['code' => 200, 'message' => $this->FeedBacksService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/common/add_call_back_feed_back",
+     *     tags={"公共"},
+     *     summary="oa 回复反馈",
+     *     description="jing" ,
+     *     operationId="add_call_back_feed_back",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="replay_id",
+     *         in="query",
+     *         description="replay_id【id】",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="feedback_id",
+     *         in="query",
+     *         description="反馈列表id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
+     *         name="content",
+     *         in="query",
+     *         description="反馈内容",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="发送失败",
+     *     ),
+     * )
+     *
+     */
+    public function addCallBackFeedBack(){
+        $rules = [
+            'replay_id'   => 'required|integer',
+            'feedback_id' => 'required|integer',
+            'content'     => 'required',
+        ];
+        $messages = [
+            'replay_id.required'    => '反馈ID不能为空',
+            'replay_id.integer'     => '反馈ID必须为整数',
+            'feedback_id.required'  => '反馈ID不能为空',
+            'feedback_id.integer'   => '反馈ID必须为整数',
+            'content.required'      => '页码数量必须为整数',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->FeedBacksService->addCallBackFeedBack($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->FeedBacksService->error];
+        }
+        return ['code' => 200, 'message' => $this->FeedBacksService->message];
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/common/get_call_back_feed_back",
+     *     tags={"公共"},
+     *     summary="获取OA反馈的回复详情",
+     *     description="jing" ,
+     *     operationId="get_call_back_feed_back",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="feedback_id",
+     *         in="query",
+     *         description="反馈列表id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="发送失败",
+     *     ),
+     * )
+     *
+     */
+    public function getCallBackFeedBack(){
+        $rules = [
+            'feedback_id' => 'required|integer',
+        ];
+        $messages = [
+            'feedback_id.required'  => '反馈ID不能为空',
+            'feedback_id.integer'   => '反馈ID必须为整数',
+        ];
+        // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->FeedBacksService->getCallBackFeedBack($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->FeedBacksService->error];
+        }
+        return ['code' => 200, 'message' => $this->FeedBacksService->message,'data' => $res];
+    }
 }

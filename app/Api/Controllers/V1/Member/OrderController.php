@@ -348,6 +348,7 @@ class OrderController extends ApiController
         $rules = [
             'fund_flow'     => 'in:+,-',
             'trade_method'  => 'in:1,2,3',
+            'order_type'    => 'in:1,2,3,4',
             'status'        => 'in:0,1,2',
             'page'          => 'integer',
             'page_num'      => 'integer',
@@ -355,6 +356,7 @@ class OrderController extends ApiController
         $messages = [
             'fund_flow.in'          => '资金流向有误',
             'trade_method.in'       => '交易方式不存在',
+            'order_type.in'         => '消费类型不存在',
             'status.in'             => '交易状态不存在',
             'page.integer'          => '页数必须为整数',
             'page_num.integer'      => '每页显示条数必须为整数',

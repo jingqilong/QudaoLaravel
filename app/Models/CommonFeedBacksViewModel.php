@@ -26,7 +26,15 @@ class CommonFeedBacksViewModel extends Model
      */
     protected $primaryKey = 'id';
 
-
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
 }
 
