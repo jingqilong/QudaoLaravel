@@ -130,12 +130,12 @@ class TradesService extends BaseService
      */
     public function getTradeList($request)
     {
-        $request_arr = Arr::only($request,['trade_no','keywords','transaction_no','fund_flow','trade_method','status']);
+        $request_arr = Arr::only($request,['trade_no','order_type','keywords','transaction_no','fund_flow','trade_method','status']);
         $page        = $request['page'] ?? 1;
         $page_num    = $request['page_num'] ?? 20;
-        $where       = ['id' => ['<>',0]];
+        $where       = ['id' => ['>',0]];
         $column      = ['*'];
-        foreach ($request_arr as $key => $value) if (is_null($value)) $where[$key] = $value;
+        foreach ($request_arr as $key => $value) $where[$key] = $value;
         if (!empty($request_arr['keywords'])){
             $keyword = [$request_arr['keywords'] => ['pay_user_name','mobile']];
             if (!$trade_list = MemberTradeListViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
@@ -163,7 +163,7 @@ class TradesService extends BaseService
         );
         $trade_list['data'] = ShopOrderRelateNameViewRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'order_id','to' => 'order_id'], ['order_id','name','spec_relate_value'], [],
             function ($src_item,$src_items){
-                $src_item['commodity'] = $src_items['name'] ?? '';
+                $src_item['goods_or_service'] = $src_items['name'] ?? '';
                 return $src_item;
             }
         );

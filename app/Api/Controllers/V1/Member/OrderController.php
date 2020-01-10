@@ -293,6 +293,15 @@ class OrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="order_type",
+     *         in="query",
+     *         description="消费类型，1、会员充值，2、活动报名，3、精选生活，4、商城购物",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="trade_method",
      *         in="query",
      *         description="交易方式：1微信支付，2，积分支付，3，银联支付",
