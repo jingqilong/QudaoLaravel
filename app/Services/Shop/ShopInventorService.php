@@ -154,11 +154,11 @@ class ShopInventorService extends BaseService
             ['from'=>'spec_ids','to'=>'id'],
             ['id','spec_name','spec_value'],
             [],
-            function ($src_item, $set_items){
+            function ($src_item, $shop_goods_spec_items){
                 $src_item ['props'] = '';
                 $src_item['amount'] = 0;
                 $src_item['spec_id'] |= 0;
-                foreach($set_items as $set_item) {
+                foreach($shop_goods_spec_items as $set_item) {
                     $src_item['props'] .= $set_item['spec_name'] . "：" . $set_item['spec_value'] . "；";
                 }
 

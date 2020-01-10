@@ -226,7 +226,7 @@ class OrderRelateService extends BaseService
             ['from' => 'spec_relate_id','to'=>'id'],
             ['id','goods_id','spec_name','spec_value'],
             [],
-            function($src_item,$set_items) use($order_relate_id) {
+            function($src_item,$shop_goods_spec_items) use($order_relate_id) {
                 $src_item['order_relate_id']    = $order_relate_id;
                 $src_item['spec_relate_value']  = $src_item['spec'] ?? '';
                 $spec_arr = Arr::only($src_item,['goods_id','order_relate_id','spec_relate_id','spec_relate_value','number']);

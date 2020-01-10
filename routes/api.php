@@ -318,10 +318,11 @@ $api->version('v1',function ($api){
                 $api->get('get_sign_list','RegisterController@getSignList')->name('获取活动签到列表');
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
 
-                $api->post('add_activity_past','UserActivityController@addActivityPast')->name('添加往期活动');
-                $api->post('edit_activity_past','UserActivityController@editActivityPast')->name('修改往期活动');
-                $api->get('get_activity_past_list','UserActivityController@getActivityPastList')->name('获取往期活动列表');
-                $api->delete('del_activity_past','UserActivityController@delActivityPast')->name('删除往期活动');
+                #OA 往期活动管理
+                $api->post('add_activity_past','ActivityPastController@addActivityPast')->name('添加往期活动');
+                $api->post('edit_activity_past','ActivityPastController@editActivityPast')->name('修改往期活动');
+                $api->get('get_activity_past_list','ActivityPastController@getActivityPastList')->name('获取往期活动列表');
+                $api->delete('del_activity_past','ActivityPastController@delActivityPast')->name('删除往期活动');
 
                 $api->get('get_comment_list','CommentController@getCommentList')->name('获取活动评论列表');
                 $api->post('audit_comment','CommentController@auditComment')->name('审核活动评论');
@@ -410,11 +411,11 @@ $api->version('v1',function ($api){
 
 
                 #成员联系请求
-                $api->post('add_member_contact','MemberController@addMemberContact')->name('添加成员联系请求');
-                $api->post('edit_member_contact','MemberController@editMemberContact')->name('编辑修改成员联系请求');
-                $api->delete('del_member_contact','MemberController@delMemberContact')->name('删除成员联系请求');
-                $api->get('get_member_contact','MemberController@getMemberContact')->name('查看成员联系请求列表');
-                $api->get('get_member_contact_info','MemberController@getMemberContactInfo')->name('查看成员联系请求详情');
+                $api->post('add_member_contact','MemberContactController@addMemberContact')->name('添加成员联系请求');
+                $api->post('edit_member_contact','MemberContactController@editMemberContact')->name('编辑修改成员联系请求');
+                $api->delete('del_member_contact','MemberContactController@delMemberContact')->name('删除成员联系请求');
+                $api->get('get_member_contact','MemberContactController@getMemberContact')->name('查看成员联系请求列表');
+                $api->get('get_member_contact_info','MemberContactController@getMemberContactInfo')->name('查看成员联系请求详情');
 
 
                 #会员等级
@@ -460,10 +461,10 @@ $api->version('v1',function ($api){
                 #OA用户地址管理
                 $api->get('list_address','AddressController@listAddress')->name('OA用户地址管理');
 
-                #OA获取用户联系用户列表
-                $api->get('get_member_contact_list','MemberController@getMemberContactList')->name('成员联系申请列表');
-                $api->get('get_member_contact_detail','MemberController@getMemberContactDetail')->name('成员联系申请详情');
-                $api->post('set_member_contact','MemberController@setMemberContact')->name('审核成员联系请求列表');
+                #OA获取成员联系申请列表
+                $api->get('get_member_contact_list','MemberContactController@getMemberContactList')->name('成员联系申请列表');
+                $api->get('get_member_contact_detail','MemberContactController@getMemberContactDetail')->name('成员联系申请详情');
+                $api->post('set_member_contact','MemberContactController@setMemberContact')->name('审核成员联系请求列表');
 
                 #OA 获取会员订单
                 $api->get('get_order_list','OrderController@getOrderList')->name('获取会员所有订单列表');
