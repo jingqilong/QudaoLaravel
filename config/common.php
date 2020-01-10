@@ -19,5 +19,8 @@ return [
     'test_user_ttl' => 24,
 
     //测试使用的推荐码
-    'test_referral_code' => 'DAICHIPLUS'
+    'test_referral_code' => 'DAICHIPLUS',
+
+    //员工自己修改密码每日上限次数
+    'employee_self_edit_password_number' => 3,
 ];
