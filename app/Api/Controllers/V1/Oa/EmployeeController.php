@@ -284,7 +284,7 @@ class EmployeeController extends ApiController
      *     @OA\Parameter(
      *         name="created_at_sort",
      *         in="query",
-     *         description="创建时间排序，1按最新创建排序，2按最早创建排序",
+     *         description="创建时间排序，1按最新添加排序，2按最早添加排序",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",

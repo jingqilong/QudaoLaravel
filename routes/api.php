@@ -80,6 +80,7 @@ $api->version('v1',function ($api){
             $api->post('refresh','OaController@refresh')->name('刷新token');
             $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('get_user_info','OaController@getUserInfo')->name('获取用户信息');
+                $api->post('edit_personal_info','OaController@editPersonalInfo')->name('编辑个人信息');
 
                 $api->get('menu_list','MenuController@menuList')->name("获取菜单列表");
                 $api->get('get_all_menu_list','MenuController@getAllMenuList')->name("获取所有菜单列表，用于前端访问api");
