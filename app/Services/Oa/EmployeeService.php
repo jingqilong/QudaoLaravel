@@ -11,6 +11,7 @@ use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeService extends BaseService
@@ -467,7 +468,7 @@ class EmployeeService extends BaseService
             $this->setError('编辑失败！');
             return false;
         }
-        $column             = ['id','username','real_name','department_id','gender','mobile','email','work_title','avatar_id','birth_date','role_ids','permission_ids','created_at','updated_at'];
+        $column             = ['id','username','real_name','department_id','gender','mobile','email','work_title','avatar_id','birth_date','role_ids','permission_ids'];
         $user               = OaEmployeeRepository::getOne(['id' => $employee->id],$column);
         #获取更新过的个人信息
         $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
@@ -476,11 +477,60 @@ class EmployeeService extends BaseService
         $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
         $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
         $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
-        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
-        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
         unset($user['role_ids'],$user['department_id'],$user['permission_ids']);
         $this->setMessage('编辑成功！');
         return $user;
+    }
+
+    /**
+     * 修改密码
+     * @param $request
+     * @param $employee_id
+     * @return bool
+     */
+    public function editPersonalPassword($request, $employee_id){
+        #此处做限制，每天只能修改密码指定次数
+        $key    = md5('oa_employee_self_edit_password'.$employee_id);
+        $count  = 1;//今日修改次数初始化
+        $number = config('common.employee_self_edit_password_number');//获取每日修改密码上限次数
+        if (Cache::has($key)){
+            $count = Cache::get($key);
+            if ($count == $number){
+                $this->setError('今日修改密码'.$number.'次机会已用完！');
+                return false;
+            }
+            ++$count;
+        }
+        if ($request['password'] !== $request['confirm_password']){
+            $this->setError('两次密码不一致！');
+            return false;
+        }
+        $upd = [
+            'password'  => Hash::make($request['password']),
+            'updated_at'=> time()
+        ];
+        if (!OaEmployeeRepository::getUpdId(['id' => $employee_id],$upd)){
+            $this->setError('修改密码失败！');
+            return false;
+        }
+        Cache::forget($key);
+        Cache::add($key,$count,84600);
+        $this->setMessage('修改密码成功！');
+        return true;
+    }
+
+    /**
+     * 使用旧密码修改密码
+     * @param $request
+     * @return bool
+     */
+    public function editPassword($request){
+        $employee = $this->auth->user();
+        if (!Hash::check($request['old_password'],$employee->password)){
+            $this->setError('旧密码输入有误！');
+            return false;
+        }
+        return $this->editPersonalPassword($request,$employee->id);
     }
 }
             

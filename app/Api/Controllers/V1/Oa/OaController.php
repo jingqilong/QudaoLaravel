@@ -5,8 +5,11 @@ namespace App\Api\Controllers\V1\Oa;
 
 
 use App\Api\Controllers\ApiController;
+use App\Enums\SMSEnum;
+use App\Services\Common\SmsService;
 use App\Services\Oa\DepartmentService;
 use App\Services\Oa\EmployeeService;
+use Illuminate\Support\Facades\Auth;
 
 class OaController extends ApiController
 {
@@ -296,7 +299,7 @@ class OaController extends ApiController
             'real_name'     => 'required|max:10',
             'gender'        => 'required|in:1,2',
             'avatar_id'     => 'required|integer',
-            'birth_date'    => 'date',
+            'birth_date'    => 'date_format:Y-m-d',
         ];
         $messages = [
             'real_name.required'    => '请输入您的姓名！',
@@ -305,7 +308,7 @@ class OaController extends ApiController
             'gender.in'             => '性别取值有误！',
             'avatar_id.required'    => '请上传您的头像！',
             'avatar_id.in'          => '头像ID必须为整数！',
-            'birth_date.date'       => '生日格式有误!',
+            'birth_date.date_format'=> '生日格式有误!',
         ];
 
         $Validate = $this->ApiValidate($rules, $messages);
@@ -319,4 +322,182 @@ class OaController extends ApiController
         return ['code' => 100, 'message' => $this->employeeService->error];
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_personal_password",
+     *     tags={"OA"},
+     *     summary="验证码修改密码",
+     *     description="sang" ,
+     *     operationId="edit_personal_password",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="query",
+     *         description="手机验证码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="新密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="confirm_password",
+     *         in="query",
+     *         description="确认新密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改密码失败",
+     *     ),
+     * )
+     *
+     */
+    public function editPersonalPassword(){
+        $rules = [
+            'code'                  => 'required',
+            'password'              => 'required|min:6|max:20',
+            'confirm_password'      => 'required|min:6|max:20',
+        ];
+        $messages = [
+            'code.required'             => '请输入手机验证码！',
+            'password.required'         => '请填写新密码！',
+            'password.min'              => '密码长度不能低于6位！',
+            'password.max'              => '密码长度不能超过20位！',
+            'confirm_password.required' => '请填写确认新密码！',
+            'confirm_password.min'      => '确认密码长度不能低于6位！',
+            'confirm_password.max'      => '确认密码长度不能超过20位！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $employee = Auth::guard('oa_api')->user();
+        //短信验证
+        $smsService = new SmsService();
+        $check_sms = $smsService->checkCode($employee->mobile,SMSEnum::CHANGEPASSWORD, $this->request['code']);
+        if (is_string($check_sms)){
+            return ['code' => 100, 'message' => $check_sms];
+        }
+        $res = $this->employeeService->editPersonalPassword($this->request,$employee->id);
+        if ($res){
+            return ['code' => 200, 'message' => $this->employeeService->message];
+        }
+        return ['code' => 100, 'message' => $this->employeeService->error];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_password",
+     *     tags={"OA"},
+     *     summary="使用旧密码修改密码",
+     *     description="使用旧密码修改个人登录密码，sang" ,
+     *     operationId="edit_password",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="old_password",
+     *         in="query",
+     *         description="旧密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="新密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="confirm_password",
+     *         in="query",
+     *         description="确认新密码",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改密码失败",
+     *     ),
+     * )
+     *
+     */
+    public function editPassword(){
+        $rules = [
+            'old_password'          => 'required',
+            'password'              => 'required|min:6|max:20',
+            'confirm_password'      => 'required|min:6|max:20',
+        ];
+        $messages = [
+            'old_password.required'     => '请输入旧密码！',
+            'password.required'         => '请填写新密码！',
+            'password.min'              => '密码长度不能低于6位！',
+            'password.max'              => '密码长度不能超过20位！',
+            'confirm_password.required' => '请填写确认新密码！',
+            'confirm_password.min'      => '确认密码长度不能低于6位！',
+            'confirm_password.max'      => '确认密码长度不能超过20位！',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->employeeService->editPassword($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->employeeService->message];
+        }
+        return ['code' => 100, 'message' => $this->employeeService->error];
+    }
 }
