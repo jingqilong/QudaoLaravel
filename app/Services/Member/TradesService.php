@@ -10,6 +10,7 @@ use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRelationRepository;
+use App\Repositories\MemberTradeListViewRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
@@ -129,15 +130,23 @@ class TradesService extends BaseService
      */
     public function getTradeList($request)
     {
-        $request_arr = Arr::only($request,['trade_no','transaction_no','pay_user_id','payee_user_id','fund_flow','trade_method','status']);
+        $request_arr = Arr::only($request,['trade_no','keywords','transaction_no','fund_flow','trade_method','status']);
         $page        = $request['page'] ?? 1;
         $page_num    = $request['page_num'] ?? 20;
         $where       = ['id' => ['<>',0]];
         $column      = ['*'];
         foreach ($request_arr as $key => $value) if (is_null($value)) $where[$key] = $value;
-        if (!$trade_list = MemberTradesRepository::getList($where,$column,'create_at','desc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        if (!empty($request_arr['keywords'])){
+            $keyword = [$request_arr['keywords'] => ['pay_user_name','mobile']];
+            if (!$trade_list = MemberTradeListViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$trade_list = MemberTradeListViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $trade_list = $this->removePagingField($trade_list);
         if (empty($trade_list['data'])){
@@ -154,15 +163,7 @@ class TradesService extends BaseService
         );
         $trade_list['data'] = ShopOrderRelateNameViewRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'order_id','to' => 'order_id'], ['order_id','name','spec_relate_value'], [],
             function ($src_item,$src_items){
-                $src_item['shop_name'] = $src_items['name'] ?? '';
-                //$src_item['spec_relate_value'] = $src_items['spec_relate_value'] ?? '';
-                return $src_item;
-            }
-        );
-        $trade_list['data'] = MemberBaseRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'pay_user_id','to' => 'id'], ['id','ch_name','mobile'], [],
-            function ($src_item,$src_items){
-                $src_item['pay_user_name'] = $src_items['ch_name'] ?? '';
-                $src_item['mobile']      = $src_items['mobile'] ?? '';
+                $src_item['commodity'] = $src_items['name'] ?? '';
                 return $src_item;
             }
         );

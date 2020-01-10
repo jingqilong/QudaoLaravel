@@ -257,6 +257,15 @@ class OrderController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="关键字搜索【姓名 手机号】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="trade_no",
      *         in="query",
      *         description="本地交易号",
@@ -272,24 +281,6 @@ class OrderController extends ApiController
      *         required=false,
      *         @OA\Schema(
      *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="pay_user_id",
-     *         in="query",
-     *         description="付款方ID，0为系统",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="payee_user_id",
-     *         in="query",
-     *         description="收款方ID，0为系统",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -346,8 +337,6 @@ class OrderController extends ApiController
      */
     public function getTradeList(){
         $rules = [
-            'pay_user_id'   => 'integer',
-            'payee_user_id' => 'integer',
             'fund_flow'     => 'in:+,-',
             'trade_method'  => 'in:1,2,3',
             'status'        => 'in:0,1,2',
@@ -355,8 +344,6 @@ class OrderController extends ApiController
             'page_num'      => 'integer',
         ];
         $messages = [
-            'pay_user_id.integer'   => '付款方ID必须为整数',
-            'payee_user_id.integer' => '收款方ID必须为整数',
             'fund_flow.in'          => '资金流向有误',
             'trade_method.in'       => '交易方式不存在',
             'status.in'             => '交易状态不存在',
