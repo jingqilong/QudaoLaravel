@@ -17,21 +17,21 @@ class CodeEmail extends Mailable
      */
     public $content = '';
     /**
-     * 邮件验证码
+     * 邮件验证码标题
      * @var string
      */
-    public $code = '';
+    public $title = '';
 
     /**
      * Create a new message instance.
      *
      * @param $content
-     * @param $code
+     * @param $title
      */
-    public function __construct($content,$code)
+    public function __construct($content,$title)
     {
         $this->content  = $content;
-        $this->code     = $code;
+        $this->title    = $title;
     }
 
     /**
@@ -44,7 +44,7 @@ class CodeEmail extends Mailable
         $view = 'mails.code.html.code';
         return $this->from(config("mail.from.address"),config("mail.from.name"))
             ->markdown($view)
-            ->subject('【渠道PLUS】邮箱验证码:'.$this->code)       //邮件标题
+            ->subject('【渠道PLUS】'.$this->title)       //邮件标题
             ->with([
                 'content'     => $this->content,                        //邮件内容
             ]);

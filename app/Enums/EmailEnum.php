@@ -16,7 +16,7 @@ class EmailEnum extends BaseEnum
         'BIND_EMAIL'       => '绑定邮箱',
     ];
 
-    //短信类型
+    //邮件类型
     public static $type = [
         0 => 'DEFAULT',
         1 => 'MEMBERLOGIN',
@@ -25,13 +25,21 @@ class EmailEnum extends BaseEnum
         4 => 'BINDMOBILE',
     ];
 
-    //短信模板
-    public static $sms_template = [
+    //邮件模板
+    public static $template = [
         0 => '验证码：%s,有效时间为%s分钟。如非本人操作，请忽略此邮件。',
         1 => '登录验证码：%s,有效时间为%s分钟。如非本人操作，请忽略此邮件。',
         2 => '验证码：%s,有效时间为%s分钟。如非本人操作，请忽略此邮件。',
         3 => '注册验证码：%s,有效时间为%s分钟。如非本人操作，请忽略此邮件。',
         4 => '邮箱绑定验证码：%s,有效时间为%s分钟。如非本人操作，请忽略此邮件。',
+    ];
+    //邮件标题
+    public static $title = [
+        0 => '验证码：%s',
+        1 => '登录验证码：%s',
+        2 => '验证码：%s',
+        3 => '注册验证码：%s',
+        4 => '邮箱绑定验证码：%s',
     ];
 
     // constants
@@ -61,6 +69,15 @@ class EmailEnum extends BaseEnum
      * @return mixed
      */
     public static function getTemplate($type){
-        return self::$sms_template[$type];
+        return self::$template[$type];
+    }
+
+    /**
+     * 获取验证码标题
+     * @param $type
+     * @return mixed
+     */
+    public static function getTitle($type){
+        return self::$title[$type];
     }
 }

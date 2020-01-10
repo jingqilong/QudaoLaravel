@@ -34,8 +34,9 @@ class EmailService extends BaseService
         for ($i=0;$i < $email_long;$i++){
             $code .= rand(0,9);
         }
-        $content = sprintf(EmailEnum::getTemplate($code_type),$code,$email_ttl/60);
-        $view = new CodeEmail($content,$code);
+        $content    = sprintf(EmailEnum::getTemplate($code_type),$code,$email_ttl/60);
+        $title      = sprintf(EmailEnum::getTitle($code_type),$code);
+        $view       = new CodeEmail($content,$title);
         Mail::to($email)->send($view);
         Cache::add($key,$code,$email_ttl);
         $this->setMessage('发送成功！');
