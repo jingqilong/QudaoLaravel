@@ -31,12 +31,15 @@ class ShopInventorService extends BaseService
         if(0==$remain){
             $remain = $this->getCurrentStock($request['goods_id'],$request['spec_id']);
         }
+        $request['change_from'] = $remain;
         $remain += $request['amount'] * $request['change_type'];
+        $request['entry_id'] = $request['entry_id']?? 0;
         //数据
         $new_data = Arr::only($request,['entry_id','goods_id','spec_id','change_type','change_from','amount']);
         $new_data ['remain'] = $remain;
         $new_data ['created_at'] = time();
         $new_data ['created_by'] = (!empty($user))?$user->id:0;
+
         DB::beginTransaction();
 
         if (!ShopInventoryRepository::getAddId($new_data)){
@@ -104,15 +107,15 @@ class ShopInventorService extends BaseService
             ['goods_inventor','spec_inventor','goods_stock','spec_stock'], //'id','goods_id','spec_id',
             ['goods_id','spec_id'],
             ['asc','asc']);
-        $inventor_column = 'goods_inventor';
-        $stock_column = 'goods_stock';
-        if(0 == $sepc_id){
-            $inventor_column = 'spec_inventor';
-            $stock_column = 'spec_stock';
+        $inventor_col = 'spec_inventor';
+        $stock_col = 'spec_stock';
+        if(0 == $inventory_list['spec_id'] + 0 ){
+            $inventor_col = 'goods_inventor';
+            $stock_col = 'goods_stock';
         }
         if(isset($inventory_list['data']['0'])){
             $data = $inventory_list['data']['0'];
-            return (0 !== $data[$inventor_column])?$data[$inventor_column]:$data[$stock_column];
+            return (0 !== $data[$inventor_col])?$data[$inventor_col]:$data[$stock_col];
         }
         return 0;
     }
@@ -162,14 +165,13 @@ class ShopInventorService extends BaseService
                     $src_item['props'] .= $set_item['spec_name'] . "：" . $set_item['spec_value'] . "；";
                 }
 
-                $src_item['amount'] = $this->retriveInventor($src_item);
+                $src_item['amount'] = $this->retrieveInventor($src_item);
                 unset($src_item['spec_ids'],$src_item['spec_inventor'],$src_item['goods_inventor'],$src_item['spec_stock'],$src_item['goods_stock']);
                 return $src_item;
             });
 
         //处理图像,获取图片
         $list['data']  = ImagesService::getListImages($list['data'],['image_ids' => 'single']);
-        //dd($list['data']  );
         $this->setMessage('获取成功！');
         return $list;
 
@@ -180,16 +182,16 @@ class ShopInventorService extends BaseService
      * @param $src_item
      * @return mixed
      */
-    private function retriveInventor($src_item){
-        $inventor_col = 'goods_inventor';
-        $stock_col = 'goods_stock';
-        if(0 == $src_item['spec_id']){
-            $inventor_col = 'spec_inventor';
-            $stock_col = 'spec_stock';
+    private function retrieveInventor($src_item){
+        $inventor_col = 'spec_inventor';
+        $stock_col = 'spec_stock';
+        if(0 == $src_item['spec_id'] + 0 ){
+            $inventor_col = 'goods_inventor';
+            $stock_col = 'goods_stock';
         }
-        $remain = $src_item[$inventor_col];
-        if(0==$src_item[$inventor_col]){
-            $remain = $src_item[$stock_col];
+        $remain = $src_item[$inventor_col] + 0;
+        if(0 == $remain){
+            $remain = $src_item[$stock_col] + 0;
         }
         return $remain|0;
     }
