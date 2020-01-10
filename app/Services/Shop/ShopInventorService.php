@@ -156,13 +156,13 @@ class ShopInventorService extends BaseService
             [],
             function ($src_item, $set_items){
                 $src_item ['props'] = '';
-                $src_item['inventor'] = 0;
+                $src_item['amount'] = 0;
                 $src_item['spec_id'] |= 0;
                 foreach($set_items as $set_item) {
                     $src_item['props'] .= $set_item['spec_name'] . "：" . $set_item['spec_value'] . "；";
                 }
 
-                $src_item['inventor'] = $this->retriveInventor($src_item);
+                $src_item['amount'] = $this->retriveInventor($src_item);
                 unset($src_item['spec_ids'],$src_item['spec_inventor'],$src_item['goods_inventor'],$src_item['spec_stock'],$src_item['goods_stock']);
                 return $src_item;
             });
