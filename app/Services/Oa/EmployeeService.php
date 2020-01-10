@@ -2,6 +2,7 @@
 namespace App\Services\Oa;
 
 
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\OaAdminPermissionsRepository;
 use App\Repositories\OaAdminRolesRepository;
 use App\Repositories\OaDepartmentRepository;
@@ -58,26 +59,12 @@ class EmployeeService extends BaseService
             return false;
         }
         $user = $user->toArray();
-        $user['avatar_url'] = url('images/default_avatar.jpg');
-        if (!empty($user['avatar_id'])){
-            $user = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
-        }
+        $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
+        $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
+        $user['birth_date'] = empty($user['birth_date']) ? '' : date('Y-m-d',$user['birth_date']);
         $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
-        $user['roles'] = [];
-        if (!empty($user['role_ids'])){
-            $role_ids = explode(',',trim($user['role_ids'],','));
-            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['name'])){
-                $user['roles'] = array_column($roles,'name');
-            }
-        }
-        if (!empty($user['permission_ids'])){
-            $permission_ids = explode(',',trim($user['permission_ids'],','));
-            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['name'])){
-                $user['permissions'] = array_column($permission,'name');
-            }
-        }else{
-            $user['permissions'] = [];
-        }
+        $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
+        $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
         $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
         $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
         $this->setMessage('登录成功！');
@@ -166,28 +153,23 @@ class EmployeeService extends BaseService
         $department_list = OaDepartmentRepository::getList(['id' => ['in',$department_ids]],['id','name']);
         //获取角色和权限
         list($role_ids,$permission_ids) = $this->getArrayIds($user_list['data'],['role_ids','permission_ids']);
-        $role_list = empty($role_ids) ? [] : OaAdminRolesRepository::getAssignList($role_ids,['id','name']);
-        $permission_list = empty($permission_ids) ? [] : OaAdminPermissionsRepository::getAssignList($permission_ids,['id','name']);
+        $role_list          = OaAdminRolesRepository::getAssignList($role_ids,['id','name']);
+        $role_list          = OaAdminRolesRepository::createArrayIndex($role_list,'id');
+        $permission_list    = OaAdminPermissionsRepository::getAssignList($permission_ids,['id','name']);
+        $permission_list    = OaAdminPermissionsRepository::createArrayIndex($permission_list,'id');
         foreach ($user_list['data'] as &$value){
-            $value['roles']         = [];
-            if (!empty($role_list) && !empty($value['role_ids'])){
-                $roles = explode(',',trim($value['role_ids'],','));
-                foreach ($roles as $id){
-                    if ($role = $this->searchArray($role_list,'id',$id)){
-                        $value['roles'][] = reset($role);
-                    }
-                }
+            $value['roles'] = [];
+            $role_ids       = explode(',',trim($value['role_ids'],','));
+            foreach ($role_ids as $id){
+                if (isset($role_list[$id]))
+                $value['roles'][] = $role_list[$id];
             }
-            $value['permissions']         = [];
-            if (!empty($role_list) && !empty($value['permission_ids'])){
-                $permissions = explode(',',trim($value['permission_ids'],','));
-                foreach ($permissions as $id){
-                    if ($permission = $this->searchArray($permission_list,'id',$id)){
-                        $value['permissions'][] = reset($permission);
-                    }
-                }
+            $value['permissions']   = [];
+            $permission_ids         = explode(',',trim($value['permission_ids'],','));
+            foreach ($permission_ids as $id){
+                if (isset($permission_list[$id]))
+                    $value['permissions'][] = $permission_list[$id];
             }
-            //获取部门
             $value['department_name'] = '';
             if ($department = $this->searchArray($department_list,'id',$value['department_id'])){
                 $value['department_name'] = reset($department)['name'];
@@ -464,6 +446,41 @@ class EmployeeService extends BaseService
             }
         }
         return $list;
+    }
+
+
+    /**
+     * 编辑个人信息
+     * @param $request
+     * @return bool|null
+     */
+    public function editPersonalInfo($request){
+        $employee = $this->auth->user();
+        $upd_arr = [
+            'real_name'     => $request['real_name'],
+            'gender'        => $request['gender'],
+            'avatar_id'     => $request['avatar_id'],
+            'birth_date'    => isset($request['birth_date']) ? strtotime($request['birth_date']) : null,
+            'updated_at'    => time()
+        ];
+        if (!OaEmployeeRepository::getUpdId(['id' => $employee->id],$upd_arr)){
+            $this->setError('编辑失败！');
+            return false;
+        }
+        $column             = ['id','username','real_name','department_id','gender','mobile','email','work_title','avatar_id','birth_date','role_ids','permission_ids','created_at','updated_at'];
+        $user               = OaEmployeeRepository::getOne(['id' => $employee->id],$column);
+        #获取更新过的个人信息
+        $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
+        $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
+        $user['birth_date'] = empty($user['birth_date']) ? '' : date('m月h日',$user['birth_date']);
+        $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
+        $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
+        $user['permissions']= array_column(OaAdminPermissionsRepository::getAssignList([$user['permission_ids']],['name']),'name');
+        $user['created_at'] = date('Y-m-d H:i:s',$user['created_at']);
+        $user['updated_at'] = date('Y-m-d H:i:s',$user['updated_at']);
+        unset($user['role_ids'],$user['department_id'],$user['permission_ids']);
+        $this->setMessage('编辑成功！');
+        return $user;
     }
 }
             

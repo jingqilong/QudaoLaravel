@@ -7,7 +7,6 @@ namespace App\Api\Controllers\V1\Oa;
 use App\Api\Controllers\ApiController;
 use App\Services\Oa\DepartmentService;
 use App\Services\Oa\EmployeeService;
-use Illuminate\Http\JsonResponse;
 
 class OaController extends ApiController
 {
@@ -70,7 +69,7 @@ class OaController extends ApiController
     public function login()
     {
         $rules = [
-            'account'   => 'required',
+            'account'  => 'required',
             'password' => 'required|string|min:6',
         ];
         $messages = [
@@ -220,6 +219,104 @@ class OaController extends ApiController
             return ['code' => 200, 'message' => '用户信息获取成功！', 'data' => ['user' => $user]];
         }
         return ['code' => 100, 'message' => '用户信息获取失败！'];
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/oa/edit_personal_info",
+     *     tags={"OA"},
+     *     summary="编辑个人信息",
+     *     description="sang" ,
+     *     operationId="edit_personal_info",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA TOKEN",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="real_name",
+     *         in="query",
+     *         description="姓名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="gender",
+     *         in="query",
+     *         description="性别，1男，2女",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="avatar_id",
+     *         in="query",
+     *         description="头像，（图片ID）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="birth_date",
+     *         in="query",
+     *         description="生日，年-月-日，如：2020-01-10",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="编辑个人信息失败",
+     *     ),
+     * )
+     *
+     */
+    public function editPersonalInfo()
+    {
+        $rules = [
+            'real_name'     => 'required|max:10',
+            'gender'        => 'required|in:1,2',
+            'avatar_id'     => 'required|integer',
+            'birth_date'    => 'date',
+        ];
+        $messages = [
+            'real_name.required'    => '请输入您的姓名！',
+            'real_name.max'         => '姓名字数不能超过10个字！',
+            'gender.required'       => '请选择您的性别！',
+            'gender.in'             => '性别取值有误！',
+            'avatar_id.required'    => '请上传您的头像！',
+            'avatar_id.in'          => '头像ID必须为整数！',
+            'birth_date.date'       => '生日格式有误!',
+        ];
+
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->employeeService->editPersonalInfo($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->employeeService->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->employeeService->error];
     }
 
 }

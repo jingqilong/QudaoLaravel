@@ -512,13 +512,14 @@ trait RepositoryTrait
      *
      */
     protected function bulkHasOneWalk($src_list, $join, $columns, $where,Closure $callback){
+        $default_set = $this->fillArrayWithKeys($columns);
         if(!$set_data = $this->getHasOneList($src_list,$where,$join, $columns)){
             $set_data = [];
         }
         $res = [];
         foreach($src_list as $src_item) {
             $key = $src_item[$join['from']];
-            $res[] = $callback($src_item,$set_data[$key] ?? []);
+            $res[] = $callback($src_item,$set_data[$key] ?? $default_set);
         }
         return $res;
     }
@@ -559,6 +560,7 @@ trait RepositoryTrait
      *
      */
     protected function bulkHasManyWalk($src_list, $join, $columns, $where,Closure $callback){
+        $default_set = [$this->fillArrayWithKeys($columns)];
         if(!$set_data = $this->getHasManyList($src_list,$where,$join, $columns)){
             $set_data = [];
         }
@@ -566,9 +568,20 @@ trait RepositoryTrait
         foreach($src_list as $src_item) {
             $keys = $src_item[$join['from']]??'';
             $set_items = Arr::Only($set_data, explode(",",trim($keys,',')));
+            $set_items = $set_items??$default_set;
             $res[] = $callback($src_item,$set_items);
         }
         return $res;
+    }
+
+    /**
+     * @param array $keys
+     * @param string $value
+     * @return array|false
+     */
+    protected function fillArrayWithKeys(array $keys,$value=''){
+        $values = array_fill(0, count($keys), $value);
+        return array_combine($keys, $values);
     }
 
 }

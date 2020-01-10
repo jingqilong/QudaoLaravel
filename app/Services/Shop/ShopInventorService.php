@@ -125,11 +125,16 @@ class ShopInventorService extends BaseService
         $page = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $where = Arr::only($request,['goods_id', 'spec_id']);
+        foreach ($where as $key => $value) {
+            if(empty($value)){
+                unset($where[$key]);
+            }
+        }
         if(isset($request['name'])){
             $where['name'] = ['like',$request['name']];
         }
-        $column = ['goods_id','spec_id','name','spec_ids' ,'category' ,'spec_inventor','goods_inventor','image_ids'];
-        if (!$list = ShopGoodsSpecViewRepository::getList($where,$column,['goods_id','spec_id'],['desc','desc'],$page,$page_num)){
+        $columns = ['goods_id','spec_id','name','spec_ids' ,'category' ,'goods_stock','spec_stock','spec_inventor','goods_inventor','image_ids'];
+        if (!$list = ShopGoodsSpecViewRepository::getList($where,$columns,['goods_id','spec_id'],['desc','desc'],$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
@@ -138,32 +143,52 @@ class ShopInventorService extends BaseService
             return $list;
         }
         $list = $this->removePagingField($list);
-
         //处理分类：
         if(!$list['data'] = ShopGoodsCategoryRepository::bulkHasOneSet($list['data'],['from'=>'category','to'=>'id'],['id'=>'category_id','name'=>'category_name'])){
             $this->setError('获取失败！');
             return false;
         }
         //处理规格属性
-        if(!$attrs = ShopGoodsSpecRepository::getHasManyList($list['data'],[],['from'=>'spec_ids','to'=>'id'],['id','spec_name','spec_value'])){
-            $this->setError('获取失败！');
-            return false;
-        }
-        foreach($list['data'] as  & $item){
-            $keys= explode(',',trim($item['spec_ids'],','));
-            $item ['props'] = '';
-            foreach($keys as $key){
-                $item ['props'] .= $attrs[$key]['spec_name'] ."：".  $attrs[$key]['spec_value'] ."；";
-                $item['inventor'] = $item['spec_inventor']>0 ? $item['goods_inventor'] : $item['goods_inventor'];
-                $item['inventor'] = $item['inventor']??0;
-                //unset($item['spec_ids'],$item['spec_inventor'],$item['goods_inventor'],$item['category']);
-            }
-        }
+        $list['data'] = ShopGoodsSpecRepository::bulkHasManyWalk(
+            $list['data'],
+            ['from'=>'spec_ids','to'=>'id'],
+            ['id','spec_name','spec_value'],
+            [],
+            function ($src_item, $set_items){
+                $src_item ['props'] = '';
+                $src_item['inventor'] = 0;
+                foreach($set_items as $set_item) {
+                    $src_item['props'] .= $set_item['spec_name'] . "：" . $set_item['spec_value'] . "；";
+                }
+                $src_item['inventor'] = $this->retriveInventor($src_item);
+                unset($src_item['spec_ids'],$src_item['spec_inventor'],$src_item['goods_inventor'],$src_item['spec_stock'],$src_item['goods_stock']);
+                return $src_item;
+            });
+
         //处理图像,获取图片
         $list['data']  = ImagesService::getListImages($list['data'],['image_ids' => 'single']);
         $this->setMessage('获取成功！');
         return $list;
 
+    }
+
+    /**
+     * 因为，添加商品时未初始化库存，现在仅从商品或SKU表获取数据。
+     * @param $src_item
+     * @return mixed
+     */
+    private function retriveInventor($src_item){
+        $inventor_col = 'goods_inventor';
+        $stock_col = 'goods_stock';
+        if(0 == $src_item['spec_id']){
+            $inventor_col = 'spec_inventor';
+            $stock_col = 'spec_stock';
+        }
+        $remain = $src_item[$inventor_col];
+        if(0==$src_item[$inventor_col]){
+            $remain = $src_item[$stock_col];
+        }
+        return $remain|0;
     }
 
 }
