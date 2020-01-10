@@ -615,6 +615,7 @@ class EmployeeService extends BaseService
         $user               = Arr::only($user,$column);
         $user['avatar_url'] = CommonImagesRepository::getField(['id' => $user['avatar_id']],'img_url');
         $user['avatar_url'] = $user['avatar_url'] ?? url('images/default_avatar.jpg');
+        $user['birthday']   = empty($user['birth_date']) ? '' : date('Y-m-d',$user['birth_date']);
         $user['birth_date'] = empty($user['birth_date']) ? '' : date('m月h日',$user['birth_date']);
         $user['department'] = OaDepartmentRepository::getField(['id'=>$user['department_id']],'name');
         $user['roles']      = array_column(OaAdminRolesRepository::getAssignList([$user['role_ids']],['name']),'name');
