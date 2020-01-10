@@ -171,6 +171,7 @@ class TradesService extends BaseService
             function ($src_item,$src_items){
                 $src_item['payee_user_name']    = $src_items['ch_name'] ?? '';
                 $src_item['fund_flow_title']    = $src_item['fund_flow'] == '+' ? '付款' : '退款';
+                $src_item['order_type_title']   = OrderEnum::getOrderType($src_item['order_type']);
                 $src_item['trade_method_title'] = TradeEnum::getTradeMethod($src_item['trade_method']);
                 $src_item['status_title']       = TradeEnum::getStatus($src_item['status']);
                 $src_item['create_at']          = date('Y-m-d H:i:s',$src_item['create_at']);
