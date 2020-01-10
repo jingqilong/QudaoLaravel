@@ -545,7 +545,7 @@ class EmployeeService extends BaseService
             $this->setError('密码错误！');
             return false;
         }
-        if (OaEmployeeRepository::exists(['mobile' => $request['mobile']])){
+        if (OaEmployeeRepository::exists(['mobile' => $request['mobile'],['id' => ['<>',$employee->id]]])){
             $this->setError('该手机号已被绑定！');
             return false;
         }
@@ -586,7 +586,7 @@ class EmployeeService extends BaseService
             $this->setError('密码错误！');
             return false;
         }
-        if (OaEmployeeRepository::exists(['email' => $request['email']])){
+        if (OaEmployeeRepository::exists(['email' => $request['email'],['id' => ['<>',$employee->id]]])){
             $this->setError('该邮箱已被绑定！');
             return false;
         }
