@@ -173,7 +173,7 @@ class ShopInventorService extends BaseService
                 foreach($shop_goods_spec_items as $set_item) {
                     $src_item['props'] .= $set_item['spec_name'] . "：" . $set_item['spec_value'] . "；";
                 }
-                $src_item['change_from_title'] = ShopInventorChangeEnum::getLabels($src_item['change_from']);
+                //$src_item['change_from_title'] = ShopInventorChangeEnum::getLabels($src_item['change_from']);
                 $src_item['amount'] = $this->retrieveInventor($src_item);
                 unset($src_item['spec_ids'],$src_item['spec_inventor'],$src_item['goods_inventor'],$src_item['spec_stock'],$src_item['goods_stock']);
                 return $src_item;
