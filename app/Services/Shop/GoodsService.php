@@ -212,7 +212,7 @@ class GoodsService extends BaseService
             'banner_ids'        => $request['banner_ids'],
             'image_ids'         => $request['image_ids'],
             'stock'             => $request['stock'],
-            'express_price'     => isset($request['stock']) ? $request['stock'] * 100 : 0,
+            'express_price'     => isset($request['express_price']) ? $request['express_price'] * 100 : 0,
             'score_deduction'   => $request['score_deduction'] ?? 0,
             'score_categories'  => $request['score_categories'] ?? '',
             'gift_score'        => $request['gift_score'] ?? 0,
