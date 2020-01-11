@@ -212,6 +212,7 @@ class MemberContactServices extends BaseService
                 $src_item['progress']           = $this->getBusinessProgress($src_item['id'],ProcessCategoryEnum::MEMBER_CONTACT_REQUEST,$employee->id);
                 return $src_item;
             });
+        $list['data'] = array_values($list['data']);
         $this->setMessage('获取成功!');
         return $list;
     }
