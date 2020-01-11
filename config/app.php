@@ -177,7 +177,7 @@ return [
         Ixudra\Curl\CurlServiceProvider::class,
         NotificationChannels\WebPush\WebPushServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        manfal\sse\SSEServiceProvider::class,
+        MAnfal\sse\SSEServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -243,8 +243,8 @@ return [
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Curl'          => Ixudra\Curl\Facades\Curl::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'SSE' => manfal\sse\SSEFacade::class,
-        'SSEEvent' => manfal\sse\SSEEventFacade::class
+        'SSE' => MAnfal\sse\SSEFacade::class,
+        'SSEEvent' => MAnfal\sse\SSEEventFacade::class
 
     ],
 
