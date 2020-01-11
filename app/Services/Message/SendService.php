@@ -47,7 +47,7 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
+        MessageSendRepository::increaseCacheMessageCount($user_id,$user_type);
         DB::commit();
         return true;
     }
@@ -109,7 +109,7 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
+        MessageSendRepository::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
         DB::commit();
         return true;
     }

@@ -31,7 +31,7 @@ class MessageSendRepository extends ApiRepository
         $index      = config('message.cache-chanel');
         $user_index = base64_encode($index[$user_type].$user_id);
         $key        = config('message.cache-key');
-        $all_message_count = Cache::has($key) ? Cache::pull($key) : [];
+        $all_message_count = Cache::has($key) ? Cache::get($key) : [];
         if (empty($user_id)){
             foreach ($all_message_count as &$count){++$count;}
         }else{
