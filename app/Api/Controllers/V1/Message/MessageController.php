@@ -409,7 +409,7 @@ class MessageController extends ApiController
      *         description="通道",
      *         required=true,
      *         @OA\Schema(
-     *             type="integer",
+     *             type="string",
      *         )
      *     ),
      * )
