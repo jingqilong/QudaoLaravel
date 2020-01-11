@@ -535,9 +535,9 @@ trait RepositoryTrait
         if(!$set_data = $this->getHasOneList($src_data,$where,$join, $columns)){
             $set_data = [];
         }
-        foreach($src_data as $key => $src_item) {
+        foreach($src_data as $list_key => $src_item) {
             $key = $src_item[$join['from']];
-            $ret_data[$key] = $callback($src_item,$set_data[$key] ?? $default_set);
+            $ret_data[$list_key] = $callback($src_item,$set_data[$key] ?? $default_set);
         }
         return  $is_ref?true:$ret_data;
     }
@@ -593,11 +593,11 @@ trait RepositoryTrait
         if(!$set_data = $this->getHasManyList($src_data,$where,$join, $columns)){
             $set_data = [];
         }
-        foreach($src_data as $key => $src_item) {
+        foreach($src_data as $list_key => $src_item) {
             $keys = $src_item[$join['from']]??'';
             $set_items = Arr::Only($set_data, explode(",",trim($keys,',')));
             $set_items = $set_items??$default_set;
-            $ret_data[$key] = $callback($src_item,$set_items);
+            $ret_data[$list_key] = $callback($src_item,$set_items);
         }
         return $is_ref?true:$ret_data;
     }
