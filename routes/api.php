@@ -28,6 +28,12 @@ $api->version('v1',function ($api){
 //    })->where(['all' => '([a-zA-Z0-9-]|/)+']);
 
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
+    $api->post('send_message',function(){
+        $request = request();
+        $message = $request->post('message');
+        \Illuminate\Support\Facades\Cache::put('push_message',$message);
+        return 'ok';
+    });
     //不需要验签的接口
     $api->group(['prefix' => 'v1','middleware' => 'cors','namespace' => 'App\Api\Controllers\V1'], function ($api) {
         //测试

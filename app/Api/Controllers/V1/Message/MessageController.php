@@ -398,6 +398,7 @@ class MessageController extends ApiController
     }
 
     public function pushMessage(){
+        set_time_limit(0);
         $SSEService = new SSEService();
         return $SSEService->newMsgs();
     }
