@@ -23,19 +23,6 @@ class MessageSendRepository extends ApiRepository
     }
 
     /**
-     * 重写添加
-     * @param array $data
-     * @return mixed
-     */
-    protected function getAddId(array $data=[]){
-        $result = $this->getAddId($data);
-        if ($result){
-            $this->increaseCacheMessageCount($data['user_id'],$data['user_type']);
-        }
-        return $result;
-    }
-
-    /**
      * 增加缓存中消息数量
      * @param $user_id
      * @param $user_type
