@@ -399,10 +399,10 @@ class MessageController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/message/oa_message_details",
+     *     path="/api/v1/message/push_message",
      *     tags={"消息"},
-     *     summary="OA员工消息详情",
-     *     operationId="oa_message_details",
+     *     summary="消息未读数量推送",
+     *     operationId="push_message",
      *     @OA\Parameter(
      *         name="channel",
      *         in="query",
@@ -412,6 +412,7 @@ class MessageController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *     @OA\Response(response=100,description="获取失败",),
      * )
      *
      */
