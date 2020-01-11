@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\SendEmailCode;
+use App\Listeners\SendEmailCodeListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -49,6 +51,10 @@ class EventServiceProvider extends ServiceProvider
         SendFlowSms::class => [
             //短信 流程订阅都监听
             SendFlowSmsListener::class,
+        ],
+        SendEmailCode::class => [
+            //邮件验证码订阅都监听
+            SendEmailCodeListener::class,
         ],
     ];
 

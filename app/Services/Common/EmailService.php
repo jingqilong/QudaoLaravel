@@ -5,6 +5,7 @@ namespace App\Services\Common;
 
 
 use App\Enums\EmailEnum;
+use App\Events\SendEmailCode;
 use App\Mail\CodeEmail;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Cache;
@@ -23,22 +24,13 @@ class EmailService extends BaseService
             $this->setError('暂无此类型！');
             return false;
         }
-        $email_ttl      = config('common.email.ttl',300);
-        $email_long     = config('common.email.long',4);
         $key            = md5('email_code'.$email.$code_type);
         if (Cache::has($key)){
             $this->setError('验证码已发送，请耐心等待！');
             return false;
         }
-        $code = '';
-        for ($i=0;$i < $email_long;$i++){
-            $code .= rand(0,9);
-        }
-        $content    = sprintf(EmailEnum::getTemplate($code_type),$code,$email_ttl/60);
-        $title      = sprintf(EmailEnum::getTitle($code_type),$code);
-        $view       = new CodeEmail($content,$title);
-        Mail::to($email)->send($view);
-        Cache::add($key,$code,$email_ttl);
+        $event_data = ['email' => $email,'code_type' => $code_type];
+        event(new SendEmailCode($event_data));
         $this->setMessage('发送成功！');
         return true;
     }
