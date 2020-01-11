@@ -246,12 +246,12 @@ class ShopInventorService extends BaseService
     /**
      * @desc 统一更新库存接口，添加库存台帐变更流水
      * 这一方法是在支付后调用，还是发货后调用
-     * @param $entry_id
-     * @param $goods_id
-     * @param $spec_id
-     * @param $change_type
-     * @param $amount
-     * @param $change_from
+     * @param $entry_id ,凭证（订单ID)
+     * @param $goods_id ,商品id
+     * @param $spec_id ,SKU的ID
+     * @param $change_type 增减类型， 增：1 ,减-1,
+     * @param $amount ,数量
+     * @param $change_from ,库存增减原因，枚举
      * @return bool
      */
     public function updateInventor($entry_id,$goods_id,$spec_id,$amount,$change_type,$change_from = ShopInventorChangeEnum::SELLING){
