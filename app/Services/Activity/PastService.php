@@ -2,10 +2,14 @@
 namespace App\Services\Activity;
 
 
+use App\Enums\CollectTypeEnum;
+use App\Enums\CommonImagesEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
+use App\Repositories\MemberCollectRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PastService extends BaseService
@@ -156,6 +160,51 @@ class PastService extends BaseService
             $value['resource_ids']  = explode(',',$value['resource_ids']);
         }
         return json_encode($list);
+    }
+    /**
+     * 往期活动
+     * @param $request
+     * @return array|bool|null
+     */
+    public function getActivityPast($request)
+    {
+        $where  = ['activity_id' => $request['id'],'hidden' => 0];
+        $column = ['id','resource_ids','top','presentation'];
+        $auth = Auth::guard('member_api');
+        $member = $auth->user();
+        $res['is_collect'] = 0;
+        if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $request['id'],'member_id' => $member->id,'deleted_at' => 0])){
+            $activity['is_collect'] = 1;
+        }
+        if (!ActivityPastRepository::exists(['activity_id' => $request['id']])) {
+            $this->setError('没有此活动!');
+            return false;
+        }
+        $res['banner']      = [];
+        $res['video_list']  = [];
+        $res['images_list'] = [];
+        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+            $this->setError('获取失败');
+            return false;
+        }
+        $list = ImagesService::getListImages($list,['resource_ids' => 'several'],false);
+        foreach ($list as $value){
+            if ($value['top'] == 1){
+                $res['banner'][] = $value;
+                continue;
+            }
+            foreach ($value['resource_urls'] as $item){
+                if ($item['file_type'] == CommonImagesEnum::VIDEO){
+                    $res['video_list'][] = $value;break;
+                }
+                if ($item['file_type'] == CommonImagesEnum::IMAGE){
+                    $res['images_list'][] = $value;break;
+                }
+            }
+            unset($value['resource_ids'],$value['top']);
+        }
+        $this->setMessage('获取成功!');
+        return $res;
     }
 }
             
