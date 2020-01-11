@@ -390,6 +390,7 @@ class SendService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
+        MessageSendRepository::decrementCacheMessageCount($user_id,$user_type);
         $this->setMessage('获取成功！');
         return $send;
     }
