@@ -50,7 +50,7 @@ class MessageSendRepository extends ApiRepository
         $key        = config('message.cache-key');
         $all_message_count = Cache::has($key) ? Cache::pull($key) : [];
         $count = $all_message_count[$user_index] ?? 0;
-        $all_message_count[$user_index] = empty($count) ? 0 : --$all_message_count[$user_index];
+        $all_message_count[$user_index] = empty($count) ? 0 : $all_message_count[$user_index] - 1;
         Cache::put($key,$all_message_count);
     }
 }
