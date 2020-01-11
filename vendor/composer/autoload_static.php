@@ -162,6 +162,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
             'Intervention\\Image\\' => 19,
             'Illuminate\\' => 11,
         ),
+        'H' => 
+        array (
+            'Hhxsv5\\SSE\\' => 11,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -542,6 +546,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'Illuminate\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate',
+        ),
+        'Hhxsv5\\SSE\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hhxsv5/php-sse/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -1308,6 +1316,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Services\\Message\\DefService' => __DIR__ . '/../..' . '/app/Services/Message/DefService.php',
         'App\\Services\\Message\\MessageTemplate' => __DIR__ . '/../..' . '/app/Services/Message/MessageTemplate.php',
         'App\\Services\\Message\\ReadService' => __DIR__ . '/../..' . '/app/Services/Message/ReadService.php',
+        'App\\Services\\Message\\SSEService' => __DIR__ . '/../..' . '/app/Services/Message/SSEService.php',
         'App\\Services\\Message\\SendService' => __DIR__ . '/../..' . '/app/Services/Message/SendService.php',
         'App\\Services\\Oa\\AdminMenuService' => __DIR__ . '/../..' . '/app/Services/Oa/AdminMenuService.php',
         'App\\Services\\Oa\\AdminOperationLogService' => __DIR__ . '/../..' . '/app/Services/Oa/AdminOperationLogService.php',
@@ -1360,7 +1369,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Services\\Shop\\OrderGoodsService' => __DIR__ . '/../..' . '/app/Services/Shop/OrderGoodsService.php',
         'App\\Services\\Shop\\OrderRelateService' => __DIR__ . '/../..' . '/app/Services/Shop/OrderRelateService.php',
         'App\\Services\\Shop\\ShopInventorService' => __DIR__ . '/../..' . '/app/Services/Shop/ShopInventorService.php',
-        'App\\Traits\\BusinessTrait' => __DIR__ . '/../..' . '/app/Traits/BusinessTrait.php',
+        'App\\Services\\Shop\\StockService' => __DIR__ . '/../..' . '/app/Services/Shop/StockService.php',        'App\\Traits\\BusinessTrait' => __DIR__ . '/../..' . '/app/Traits/BusinessTrait.php',
         'App\\Traits\\HelpTrait' => __DIR__ . '/../..' . '/app/Traits/HelpTrait.php',
         'App\\Traits\\ProcessTrait' => __DIR__ . '/../..' . '/app/Traits/ProcessTrait.php',
         'App\\Traits\\QiNiuTrait' => __DIR__ . '/../..' . '/app/Traits/QiNiuTrait.php',
@@ -3526,6 +3535,9 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'Hamcrest\\Type\\IsString' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Type/IsString.php',
         'Hamcrest\\Util' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Util.php',
         'Hamcrest\\Xml\\HasXPath' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Xml/HasXPath.php',
+        'Hhxsv5\\SSE\\Event' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/Event.php',
+        'Hhxsv5\\SSE\\SSE' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/SSE.php',
+        'Hhxsv5\\SSE\\Update' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/Update.php',
         'Illuminate\\Auth\\Access\\AuthorizationException' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/AuthorizationException.php',
         'Illuminate\\Auth\\Access\\Gate' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/Gate.php',
         'Illuminate\\Auth\\Access\\HandlesAuthorization' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/HandlesAuthorization.php',

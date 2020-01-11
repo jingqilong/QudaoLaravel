@@ -375,6 +375,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
+                $api->get('push_message','MessageController@pushMessage')->name('推送消息');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
