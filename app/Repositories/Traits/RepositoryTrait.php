@@ -457,23 +457,31 @@ trait RepositoryTrait
 
     /**
      * @desc 批量设置字段，代替联表查询，此函数默认只用调用 getAllList 处理
-     * @param $src_list  ,源列表 作为主表，
+     * 强制引用的实例，参见：ShopInventorService::getInventorList 方法
+     * @param $src_list  ,源列表 作为主表，如果要强制引用，则使用函数 byRef($src_list)传参
      * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
      * @param $alias  ,别名：将查出结果更名为什么 ['联接的name1' => '主表alias1','联接的name2' => '主表alias2']
      * @param array $where 附加的 where条件
-     * @return bool  ,操作成功与否
+     * @return bool  ,结果列表，强制引用时则是bool，操作成功与否
      */
     protected function bulkHasOneSet( $src_list, $join, $alias, $where=[]){
-        if(!$set_data = $this->getHasOneList($src_list,$where,$join, array_keys($alias))){
+        //begin 支持强制引用
+        $src_data = $src_list; //传入的数据
+        $is_ref =($src_list instanceof Closure);//检测是否强制引用传参。
+        if($is_ref){
+            $src_data = & $src_list(); //传入的数据
+        }
+        //end 支持强制引用
+        if(!$set_data = $this->getHasOneList($src_data,$where,$join, array_keys($alias))){
             $set_data = [];
         }
-        foreach($src_list as & $src_item) {
+        foreach($src_data as & $src_item) {
             $key = $src_item[$join['from']]??"";
             foreach($alias as $src => $trg){
                  $src_item[$trg] = $set_data[$key][$src]??"";
             }
          }
-         return $src_list;
+         return $is_ref?true:$src_data;
     }
 
     /**
@@ -503,25 +511,35 @@ trait RepositoryTrait
      *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
      *  });
      *
-     * @param $src_list  ,源列表 作为主表，
+     * 强制引用的实例，参见：ShopInventorService::getInventorList 方法
+     *
+     * @param $src_list  ,源列表 作为主表， 如果要强制引用，则使用函数 byRef($src_list)传参
      * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
      * @param $columns  ,要从当前Repository中查出的字段
      * @param array $where 附加的 where条件
      * @param $callback ,闭包，用来实现结果的处理
-     * @return bool|array  ,操作成功与否
+     * @return bool|array  ,,结果列表，强制引用时则是bool，操作成功与否
      *
      */
     protected function bulkHasOneWalk($src_list, $join, $columns, $where,Closure $callback){
+        //begin 支持强制引用
+        $src_data = $src_list; //传入的数据
+        $ret_data = [];  //返回的数据
+        $is_ref =($src_list instanceof Closure);//检测是否强制引用传参。
+        if($is_ref){
+            $src_data = & $src_list(); //传入的数据
+             $ret_data = & $src_data;   //返回的数据
+         }
+        //end 支持强制引用
         $default_set = $this->fillArrayWithKeys($columns);
-        if(!$set_data = $this->getHasOneList($src_list,$where,$join, $columns)){
+        if(!$set_data = $this->getHasOneList($src_data,$where,$join, $columns)){
             $set_data = [];
         }
-        $res = [];
-        foreach($src_list as $src_item) {
+        foreach($src_data as $key => $src_item) {
             $key = $src_item[$join['from']];
-            $res[] = $callback($src_item,$set_data[$key] ?? $default_set);
+            $ret_data[$key] = $callback($src_item,$set_data[$key] ?? $default_set);
         }
-        return $res;
+        return  $is_ref?true:$ret_data;
     }
 
     /**
@@ -551,27 +569,37 @@ trait RepositoryTrait
      *           //最关键，还是你不需要foreach，直接在这个位置写单条记录的处理方法。
      *  });
      *
-     * @param $src_list  ,源列表 作为主表，
+     * 强制引用的实例，参见：ShopInventorService::getInventorList 方法
+     *
+     * @param $src_list  ,源列表 作为主表，如果要强制引用，则使用函数 byRef($src_list)传参
      * @param $join ,关联条件 ['from' => '$src_list中的字段' ，'to' => '当前Repository中的字段' ]
      * @param $columns  ,要从当前Repository中查出的字段
      * @param array $where 附加的 where条件
      * @param $callback ,闭包，用来实现结果的处理
-     * @return bool|array  ,操作成功与否
+     * @return bool|array  ,结果列表，强制引用时则是bool，操作成功与否
      *
      */
     protected function bulkHasManyWalk($src_list, $join, $columns, $where,Closure $callback){
+        //begin 支持强制引用
+        $src_data = $src_list; //传入的数据
+        $ret_data = [];  //返回的数据
+        $is_ref =($src_list instanceof Closure);//检测是否强制引用传参。
+        if($is_ref){
+            $src_data = & $src_list(); //传入的数据
+            $ret_data = & $src_data;   //返回的数据
+        }
+        //end 支持强制引用
         $default_set = [$this->fillArrayWithKeys($columns)];
-        if(!$set_data = $this->getHasManyList($src_list,$where,$join, $columns)){
+        if(!$set_data = $this->getHasManyList($src_data,$where,$join, $columns)){
             $set_data = [];
         }
-        $res = [];
-        foreach($src_list as $src_item) {
+        foreach($src_data as $key => $src_item) {
             $keys = $src_item[$join['from']]??'';
             $set_items = Arr::Only($set_data, explode(",",trim($keys,',')));
             $set_items = $set_items??$default_set;
-            $res[] = $callback($src_item,$set_items);
+            $ret_data[$key] = $callback($src_item,$set_items);
         }
-        return $res;
+        return $is_ref?true:$ret_data;;
     }
 
     /**

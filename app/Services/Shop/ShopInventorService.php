@@ -161,8 +161,8 @@ class ShopInventorService extends BaseService
             return false;
         }
         //处理规格属性
-        $list['data'] = ShopGoodsSpecRepository::bulkHasManyWalk(
-            $list['data'],
+        ShopGoodsSpecRepository::bulkHasManyWalk(
+            byRef($list['data']),
             ['from'=>'spec_ids','to'=>'id'],
             ['id','spec_name','spec_value'],
             [],

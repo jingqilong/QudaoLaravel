@@ -14,7 +14,10 @@ if(!function_exists('byRef')){
     "files": [
     "app/Helpers/helpers.php"
     ],
-     * 例如：我们要调用的源码是：
+     * 如果有问题：则要通过命令行走一下
+     *  $ composer dump-autoload
+     *  实际使用示例如下：
+     *  例如：我们要调用的源码是：
      *  $ret = SomeRepository::SomeMethod($data,$columns,$where,$order) ;
      *  其中，我们想让   $data 为引用传参,只要这样：
      *  $ret = SomeRepository::SomeMethod(byRef($data),$columns,$where,$order) ;
@@ -24,11 +27,22 @@ if(!function_exists('byRef')){
      *             Throw InvalidArgumentException("Data is not valid Closure.");
      *      }
      *      $src_data = & $data(); //通过引用从闭包中获取数据
+     *  }
+     *  最好的方式，那就是，引用与非引用并存。参看以下代码：
+     *  public function SomeMethod($data,$columns,$where,$order){
+     *      $src_data = $data; //传入的数据
+     *      $ret_data = [];  //返回的数据
+     *      $is_ref =($data instanceof Closure);//检测是否强制引用传参。
+     *      if($is_ref){
+     *          $src_data = & $data(); //传入的数据
+     *          $ret_data = & $src_data;   //返回的数据
+     *      }
+     *      //......具体的实现代码
+     *      //引用只返回BOOL，或其它的。
+     *      return $is_ref ？true : $ret_data;
      * }
-     * 如果想更方便的方式： 则使用约定法。比如，约定，第一个参数就是引用。非引用的闭包参数必须在最后。
-     * 在这一规则下。所有类中的引用声明，就可以使用原来的方式。
-     * 而我们可以在__callStatic __call中进行拦截，将其转换为正常参数.
-     * 以下是测试的代码：
+     *
+     * 以下是经过测试的代码，运行OK：
      *
     function byRef(&$data){
         return function &()use(&$data){
@@ -48,7 +62,6 @@ if(!function_exists('byRef')){
     $data_after = '345678';
 
     echo($data);   //结果输出：345678
-     * //未完成，待续......
      *
      *
      * @param $data
