@@ -1,15 +1,11 @@
 <?php
 
-
 namespace App\Services\Common;
-
 
 use App\Enums\EmailEnum;
 use App\Events\SendEmailCode;
-use App\Mail\CodeEmail;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
 
 class EmailService extends BaseService
 {
@@ -30,6 +26,7 @@ class EmailService extends BaseService
             return false;
         }
         $event_data = ['email' => $email,'code_type' => $code_type];
+        #异步处理
         event(new SendEmailCode($event_data));
         $this->setMessage('发送成功！');
         return true;

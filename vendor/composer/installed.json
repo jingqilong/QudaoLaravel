@@ -2363,62 +2363,6 @@
         ]
     },
     {
-        "name": "hhxsv5/php-sse",
-        "version": "v1.1.6",
-        "version_normalized": "1.1.6.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/hhxsv5/php-sse.git",
-            "reference": "2d808a249b59f912b6bd74efe6216783aa5fcd28"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/hhxsv5/php-sse/zipball/2d808a249b59f912b6bd74efe6216783aa5fcd28",
-            "reference": "2d808a249b59f912b6bd74efe6216783aa5fcd28",
-            "shasum": "",
-            "mirrors": [
-                {
-                    "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
-                    "preferred": true
-                }
-            ]
-        },
-        "require": {
-            "php": ">=5.4"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~6.0"
-        },
-        "time": "2018-11-08T11:50:36+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Hhxsv5\\SSE\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Xie Biao",
-                "email": "hhxsv5@sina.com"
-            }
-        ],
-        "description": "A simple and efficient library implemented HTML5's server-sent events by PHP, is used to real-time push events from server to client, and easier than Websocket, instead of AJAX request.",
-        "homepage": "https://github.com/hhxsv5/php-sse",
-        "keywords": [
-            "Server-Sent Events",
-            "event-stream",
-            "events",
-            "eventsource",
-            "sever-events",
-            "sse"
-        ]
-    },
-    {
         "name": "intervention/image",
         "version": "2.5.1",
         "version_normalized": "2.5.1.0",
@@ -3379,6 +3323,52 @@
             "league",
             "rest"
         ]
+    },
+    {
+        "name": "manfal/sse",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/MAnfal/sse.git",
+            "reference": "8153e59eb0170f2f43c7650721b880f1b9a628bf"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/MAnfal/sse/zipball/8153e59eb0170f2f43c7650721b880f1b9a628bf",
+            "reference": "8153e59eb0170f2f43c7650721b880f1b9a628bf",
+            "shasum": "",
+            "mirrors": [
+                {
+                    "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                    "preferred": true
+                }
+            ]
+        },
+        "time": "2015-09-11T16:21:26+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.1-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "manfal\\sse\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Anfal",
+                "email": "muhammadanfal0@gmail.com"
+            }
+        ],
+        "description": "SSE is a Laravel wrapper for PHP Library LibSSE for implementing asynchronous Server Sent Events and pass them on to views."
     },
     {
         "name": "minishlink/web-push",

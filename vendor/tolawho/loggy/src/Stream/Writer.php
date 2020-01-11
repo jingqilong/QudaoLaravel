@@ -49,11 +49,14 @@ class Writer
      * @author tolawho
      * @param string $channel
      * @param string $message
-     * @param array $context
+     * @param array|object $context
      * @return void
      */
-    public function write($channel, $message, array $context = [])
+    public function write($channel, $message, $context = [])
     {
+        if (is_object($context)){
+            $context = get_object_vars($context);
+        }
         $level = $this->channels[$channel]['level'];
         $this->put($channel, $level, $message, $context);
     }

@@ -46,6 +46,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         array (
             'phpDocumentor\\Reflection\\' => 25,
         ),
+        'm' => 
+        array (
+            'manfal\\sse\\' => 11,
+        ),
         'X' => 
         array (
             'XdgBaseDir\\' => 11,
@@ -162,10 +166,6 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
             'Intervention\\Image\\' => 19,
             'Illuminate\\' => 11,
         ),
-        'H' => 
-        array (
-            'Hhxsv5\\SSE\\' => 11,
-        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -233,6 +233,10 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
+        ),
+        'manfal\\sse\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/manfal/sse/src',
         ),
         'XdgBaseDir\\' => 
         array (
@@ -546,10 +550,6 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'Illuminate\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate',
-        ),
-        'Hhxsv5\\SSE\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/hhxsv5/php-sse/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -898,6 +898,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Enums\\TradeEnum' => __DIR__ . '/../..' . '/app/Enums/TradeEnum.php',
         'App\\Enums\\UserSurveyHearFromEnum' => __DIR__ . '/../..' . '/app/Enums/UserSurveyHearFromEnum.php',
         'App\\Events\\SendDingTalkEmail' => __DIR__ . '/../..' . '/app/Events/SendDingTalkEmail.php',
+        'App\\Events\\SendEmailCode' => __DIR__ . '/../..' . '/app/Events/SendEmailCode.php',
         'App\\Events\\SendFlowSms' => __DIR__ . '/../..' . '/app/Events/SendFlowSms.php',
         'App\\Events\\SendSiteMessage' => __DIR__ . '/../..' . '/app/Events/SendSiteMessage.php',
         'App\\Events\\SendWeChatPush' => __DIR__ . '/../..' . '/app/Events/SendWeChatPush.php',
@@ -949,6 +950,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Listeners\\ProcessEventListener' => __DIR__ . '/../..' . '/app/Listeners/ProcessEventListener.php',
         'App\\Listeners\\ProcessEventSubscriber' => __DIR__ . '/../..' . '/app/Listeners/ProcessEventSubscriber.php',
         'App\\Listeners\\SendDingTalkEmailListener' => __DIR__ . '/../..' . '/app/Listeners/SendDingTalkEmailListener.php',
+        'App\\Listeners\\SendEmailCodeListener' => __DIR__ . '/../..' . '/app/Listeners/SendEmailCodeListener.php',
         'App\\Listeners\\SendFlowSmsListener' => __DIR__ . '/../..' . '/app/Listeners/SendFlowSmsListener.php',
         'App\\Listeners\\SendSiteMessageListener' => __DIR__ . '/../..' . '/app/Listeners/SendSiteMessageListener.php',
         'App\\Listeners\\SendWeChatPushListener' => __DIR__ . '/../..' . '/app/Listeners/SendWeChatPushListener.php',
@@ -1237,6 +1239,8 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Repositories\\ShopOrderRelateRepository' => __DIR__ . '/../..' . '/app/Repositories/ShopOrderRelateRepository.php',
         'App\\Repositories\\ShopOrderRelateViewRepository' => __DIR__ . '/../..' . '/app/Repositories/ShopOrderRelateViewRepository.php',
         'App\\Repositories\\Traits\\RepositoryTrait' => __DIR__ . '/../..' . '/app/Repositories/Traits/RepositoryTrait.php',
+        'App\\SSEEvent\\MessageCountEvent' => __DIR__ . '/../..' . '/app/SSEEvents/MessageCountEvent.php',
+        'App\\SSEEvent\\PushMessageEvent' => __DIR__ . '/../..' . '/app/SSEEvents/PushMessageEvent.php',
         'App\\Services\\Activity\\CollectService' => __DIR__ . '/../..' . '/app/Services/Activity/CollectService.php',
         'App\\Services\\Activity\\CommentsService' => __DIR__ . '/../..' . '/app/Services/Activity/CommentsService.php',
         'App\\Services\\Activity\\DetailService' => __DIR__ . '/../..' . '/app/Services/Activity/DetailService.php',
@@ -1369,7 +1373,7 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'App\\Services\\Shop\\OrderGoodsService' => __DIR__ . '/../..' . '/app/Services/Shop/OrderGoodsService.php',
         'App\\Services\\Shop\\OrderRelateService' => __DIR__ . '/../..' . '/app/Services/Shop/OrderRelateService.php',
         'App\\Services\\Shop\\ShopInventorService' => __DIR__ . '/../..' . '/app/Services/Shop/ShopInventorService.php',
-        'App\\Services\\Shop\\StockService' => __DIR__ . '/../..' . '/app/Services/Shop/StockService.php',        'App\\Traits\\BusinessTrait' => __DIR__ . '/../..' . '/app/Traits/BusinessTrait.php',
+        'App\\Traits\\BusinessTrait' => __DIR__ . '/../..' . '/app/Traits/BusinessTrait.php',
         'App\\Traits\\HelpTrait' => __DIR__ . '/../..' . '/app/Traits/HelpTrait.php',
         'App\\Traits\\ProcessTrait' => __DIR__ . '/../..' . '/app/Traits/ProcessTrait.php',
         'App\\Traits\\QiNiuTrait' => __DIR__ . '/../..' . '/app/Traits/QiNiuTrait.php',
@@ -3535,9 +3539,6 @@ class ComposerStaticInit9576f56f14870a3cb01b05bc857df150
         'Hamcrest\\Type\\IsString' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Type/IsString.php',
         'Hamcrest\\Util' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Util.php',
         'Hamcrest\\Xml\\HasXPath' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Xml/HasXPath.php',
-        'Hhxsv5\\SSE\\Event' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/Event.php',
-        'Hhxsv5\\SSE\\SSE' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/SSE.php',
-        'Hhxsv5\\SSE\\Update' => __DIR__ . '/..' . '/hhxsv5/php-sse/src/Update.php',
         'Illuminate\\Auth\\Access\\AuthorizationException' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/AuthorizationException.php',
         'Illuminate\\Auth\\Access\\Gate' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/Gate.php',
         'Illuminate\\Auth\\Access\\HandlesAuthorization' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/HandlesAuthorization.php',

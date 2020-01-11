@@ -397,9 +397,37 @@ class MessageController extends ApiController
         return ['code' => 200, 'message' => $this->sendService->message,'data' => $res];
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/message/oa_message_details",
+     *     tags={"消息"},
+     *     summary="OA员工消息详情",
+     *     operationId="oa_message_details",
+     *     @OA\Parameter(
+     *         name="chanel",
+     *         in="query",
+     *         description="通道",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     * )
+     *
+     */
     public function pushMessage(){
+        $rules = [
+            'chanel'        => 'required',
+        ];
+        $messages = [
+            'chanel.required'   => '通道不能为空',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
         set_time_limit(0);
         $SSEService = new SSEService();
-        return $SSEService->newMsgs();
+        return $SSEService->pushMessageUnreadCount($this->request['chanel']);
     }
 }

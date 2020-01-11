@@ -19,5 +19,17 @@ class MessageReadRepository extends ApiRepository
     {
         $this->model = $model;
     }
+
+    /**
+     * 重写
+     * @param array $where
+     * @param array $data
+     */
+    protected function firstOrCreate(array $where, array $data){
+        $result = $this->firstOrCreate($where, $data);
+        if ($result){
+            MessageSendRepository::decrementCacheMessageCount($data['user_id'],$data['user_type']);
+        }
+    }
 }
             

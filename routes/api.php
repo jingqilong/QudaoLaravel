@@ -29,9 +29,11 @@ $api->version('v1',function ($api){
 
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
     $api->post('send_message',function(){
-        $request = request();
-        $message = $request->post('message');
-        \Illuminate\Support\Facades\Cache::put('push_message',$message);
+        $user_index = base64_encode('oa.1');
+        $key        = 'message_count';
+        $all_message_count = \Illuminate\Support\Facades\Cache::has($key) ? \Illuminate\Support\Facades\Cache::pull($key) : [];
+        $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
+        \Illuminate\Support\Facades\Cache::put($key,$all_message_count);
         return 'ok';
     });
     //不需要验签的接口
@@ -75,6 +77,10 @@ $api->version('v1',function ($api){
         //贷款模块
         $api->group(['prefix' => 'loan', 'namespace' => 'Loan'], function ($api){
             $api->post('add_loan_activity', 'LoanController@addLoanActivity')->name('活动添加贷款订单'); //不需要验证签名 贷款模块活动报名
+        });
+        //贷款模块
+        $api->group(['prefix' => 'message', 'namespace' => 'Message'], function ($api){
+            $api->get('push_message','MessageController@pushMessage')->name('推送消息');
         });
     });
     //需要验签的接口
@@ -381,7 +387,6 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
-                $api->get('push_message','MessageController@pushMessage')->name('推送消息');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){

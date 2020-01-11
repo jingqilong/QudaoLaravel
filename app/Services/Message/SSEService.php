@@ -1,43 +1,29 @@
 <?php
 
-
 namespace App\Services\Message;
 
-
 use App\Services\BaseService;
-use Hhxsv5\SSE\SSE;
-use Hhxsv5\SSE\Update;
-use Illuminate\Support\Facades\Cache;
+use App\SSEEvent\MessageCountEvent;
+use SSE;
+use Tolawho\Loggy\Facades\Loggy;
 
 class SSEService extends BaseService
 {
-    public function newMsgs()
-    {
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse();
-        $response->headers->set('Content-Type', 'text/event-stream');
-        $response->headers->set('Cache-Control', 'no-cache');
-        $response->headers->set('Connection', 'keep-alive');
-        $response->headers->set('X-Accel-Buffering', 'no');//Nginx: unbuffered responses suitable for Comet and HTTP streaming applications
-        $response->setCallback(function () {
-            (new SSE())->start(new Update(function () {
-                $key = 'push_message';
-                if (!Cache::has($key)){
-                    return false;
-                }
-                $newMessage = Cache::get($key);
-                Cache::forget($key);
-//                $id = mt_rand(1, 1000);
-//                $newMsgs = [['id' => $id, 'title' => 'title' . $id, 'content' => 'content' . $id]];//get data from database or service.
-                if (!empty($newMessage)) {
-                    return json_encode(['newMessage' => $newMessage]);
-                }
-                return false;//return false if no new messages
-            }), 'new-msgs');
-            (new SSE())->start(new Update(function () {
-                $number = rand(1, 1000);
-                return json_encode(['number' => $number]);
-            }), 'new-message-number');
-        });
-        return $response;
+
+    /**
+     * @desc 推送消息未读数量
+     * @param string $chanel    通道
+     */
+    public function pushMessageUnreadCount($chanel){
+        try {
+            $sse = new SSE();
+            $sse->sleep_time = 5;   #数据发送后睡眠时间
+            $sse->exec_limit = 10;  #脚本时间限制
+            $sse->allow_cors = true;
+            $sse->addEventListener('message', new MessageCountEvent($chanel));
+            $sse->start();
+        } catch (\Exception $e) {
+            Loggy::write('error',$e->getMessage(),$e);
+        }
     }
 }

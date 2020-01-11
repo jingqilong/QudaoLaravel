@@ -149,7 +149,7 @@
       <path value="$PROJECT_DIR$/vendor/intervention/imagecache" />
       <path value="$PROJECT_DIR$/vendor/jeremeamia/superclosure" />
       <path value="$PROJECT_DIR$/vendor/predis/predis" />
-      <path value="$PROJECT_DIR$/vendor/hhxsv5/php-sse" />
+      <path value="$PROJECT_DIR$/vendor/manfal/sse" />
     </include_path>
   </component>
   <component name="PhpProjectServersManager">
