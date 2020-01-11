@@ -404,7 +404,7 @@ class MessageController extends ApiController
      *     summary="OA员工消息详情",
      *     operationId="oa_message_details",
      *     @OA\Parameter(
-     *         name="chanel",
+     *         name="channel",
      *         in="query",
      *         description="通道",
      *         required=true,
@@ -417,10 +417,10 @@ class MessageController extends ApiController
      */
     public function pushMessage(){
         $rules = [
-            'chanel'        => 'required',
+            'channel'        => 'required',
         ];
         $messages = [
-            'chanel.required'   => '通道不能为空',
+            'channel.required'   => '通道不能为空',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -428,6 +428,6 @@ class MessageController extends ApiController
         }
         set_time_limit(0);
         $SSEService = new SSEService();
-        return $SSEService->pushMessageUnreadCount($this->request['chanel']);
+        return $SSEService->pushMessageUnreadCount($this->request['channel']);
     }
 }
