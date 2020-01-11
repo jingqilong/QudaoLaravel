@@ -17,6 +17,7 @@
         "dingo/api": "^2.3",
         "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "^4.0",
+        "hhxsv5/php-sse": "~1.0",
         "intervention/image": "^2.5",
         "intervention/imagecache": "^2.4",
         "ixudra/curl": "^6.17",

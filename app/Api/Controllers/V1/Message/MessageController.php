@@ -5,9 +5,9 @@ namespace App\Api\Controllers\V1\Message;
 
 
 use App\Api\Controllers\ApiController;
-use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Services\Message\SendService;
+use App\Services\Message\SSEService;
 use Illuminate\Support\Facades\Auth;
 
 class MessageController extends ApiController
@@ -397,4 +397,8 @@ class MessageController extends ApiController
         return ['code' => 200, 'message' => $this->sendService->message,'data' => $res];
     }
 
+    public function pushMessage(){
+        $SSEService = new SSEService();
+        return $SSEService->newMsgs();
+    }
 }
