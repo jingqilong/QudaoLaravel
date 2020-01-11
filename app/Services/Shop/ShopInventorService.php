@@ -8,7 +8,6 @@ use App\Repositories\ShopGoodsSpecRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\ShopInventoryRepository;
@@ -26,7 +25,9 @@ class ShopInventorService extends BaseService
      */
     public function createInventor($request)
     {
-        $user = Auth::guard('oa_api')->user();
+        if(!isset($request['created_by'])){
+            $request['created_by'] = 0;
+        }
         //余额
         $old_remain = $this->getCurrentInventor($request['goods_id'],$request['spec_id']);
         $old_stock = $this->getCurrentStock($request['goods_id'],$request['spec_id']);
@@ -39,11 +40,13 @@ class ShopInventorService extends BaseService
         //所以，这里改为
         $request['amount'] =  $remain - $old_remain;
         $request['entry_id'] = $request['entry_id']?? 0;
+        if(!isset($request['change_from'])){ //如果未传值，默认置为库存调整
+            $request['change_from'] = ShopInventorChangeEnum::ADJUSTMENT;
+        };
         //数据
-        $new_data = Arr::only($request,['entry_id','goods_id','spec_id','change_type','change_from','amount']);
+        $new_data = Arr::only($request,['entry_id','goods_id','spec_id','change_type','change_from','amount','created_by']);
         $new_data ['remain'] = $remain;
         $new_data ['created_at'] = time();
-        $new_data ['created_by'] = (!empty($user))?$user->id:0;
 
         DB::beginTransaction();
 
@@ -160,7 +163,7 @@ class ShopInventorService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
-        //处理规格属性
+        //处理规格属性 (这里采用强制引用传参)
         ShopGoodsSpecRepository::bulkHasManyWalk(
             byRef($list['data']),
             ['from'=>'spec_ids','to'=>'id'],
@@ -212,7 +215,14 @@ class ShopInventorService extends BaseService
      * @return bool
      */
     public function lockStock($goods_id,$spec_id = 0, $amount = 1){
-        return true;
+        if(0 == $spec_id + 0){
+            return ShopGoodsRepository::decrement(
+                ['id'=>$goods_id],'stock',-$amount
+            );
+        }
+        return ShopGoodsSpecRelateRepository::decrement(
+            ['id'=>$spec_id,'goods_id'=>$goods_id],'stock',-$amount
+        );
     }
 
     /**
@@ -223,19 +233,28 @@ class ShopInventorService extends BaseService
      * @return bool
      */
     public function unlockStock($goods_id,$spec_id = 0, $amount = 1){
-        return true;
+        if(0 == $spec_id + 0){
+            return ShopGoodsRepository::increment(
+                ['id'=>$goods_id],'stock',$amount
+            );
+        }
+        return ShopGoodsSpecRelateRepository::increment(
+            ['id'=>$spec_id,'goods_id'=>$goods_id],'stock',$amount
+        );
     }
 
     /**
      * @desc 统一更新库存接口，添加库存台帐变更流水
+     * 这一方法是在支付后调用，还是发货后调用
      * @param $entry_id
      * @param $goods_id
      * @param $spec_id
      * @param $change_type
      * @param $amount
+     * @param $change_from
      * @return bool
      */
-    public function updateInventor($entry_id,$goods_id,$spec_id,$amount,$change_type,$change_from=2){
+    public function updateInventor($entry_id,$goods_id,$spec_id,$amount,$change_type,$change_from = ShopInventorChangeEnum::SELLING){
         //余额
         $old_remain = $this->getCurrentInventor($goods_id,$spec_id);
         if(0==$old_remain){
@@ -250,15 +269,15 @@ class ShopInventorService extends BaseService
         $new_data ['created_at'] = time();
         $new_data ['created_by'] = 0;
         DB::beginTransaction();
-
+        //添加库存台帐记录
         if (!ShopInventoryRepository::getAddId($new_data)){
             DB::rollBack();
             Loggy::write('error','ShopInventoryRepository::库存记录添加失败！',$new_data);
             $this->setError('ShopInventoryRepository::库存记录添加失败！');
             return false;
         }
-        $where = Arr::only($new_data,['goods_id','spec_id']);
         //同时更新 商品 或 SKU表中的 real_inventor
+        $where = Arr::only($new_data,['goods_id','spec_id']);
         $data['real_inventor'] = $new_data['remain'] ;
         if(false === $this->updateInventorField($where,$data)){
             DB::rollBack();

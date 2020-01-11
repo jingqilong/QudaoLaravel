@@ -4,6 +4,7 @@ namespace App\Api\Controllers\V1\Shop;
 use App\Api\Controllers\ApiController;
 use App\Services\Shop\ShopInventorService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 class OaShopInventorController extends ApiController
 {
@@ -110,8 +111,10 @@ class OaShopInventorController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
+        $user = Auth::guard('oa_api')->user();
+        $this->request['created_by'] = $user->id;
         $res = $this->shopInventorService->getInventorList(
-                Arr::only($this->request,['name','goods_id','spec_id','page','page_num'])
+                Arr::only($this->request,['name','goods_id','spec_id','page','page_num','created_by'])
             );
         if ($res === false){
             return ['code' => 100, 'message' => $this->shopInventorService->error];

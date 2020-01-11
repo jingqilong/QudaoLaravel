@@ -528,7 +528,7 @@ trait RepositoryTrait
         $is_ref =($src_list instanceof Closure);//检测是否强制引用传参。
         if($is_ref){
             $src_data = & $src_list(); //传入的数据
-             $ret_data = & $src_data;   //返回的数据
+            $ret_data = & $src_data;   //返回的数据
          }
         //end 支持强制引用
         $default_set = $this->fillArrayWithKeys($columns);
@@ -599,7 +599,7 @@ trait RepositoryTrait
             $set_items = $set_items??$default_set;
             $ret_data[$key] = $callback($src_item,$set_items);
         }
-        return $is_ref?true:$ret_data;;
+        return $is_ref?true:$ret_data;
     }
 
     /**
