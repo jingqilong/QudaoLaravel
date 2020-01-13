@@ -282,10 +282,10 @@ class LoanController extends ApiController
     public function getLoanOrderInfo()
     {
         $rules = [
-            'id'                => 'required',
+            'id'           => 'required',
         ];
         $messages = [
-            'id.required'               => '请输入订单ID',
+            'id.required'  => '请输入订单ID',
         ];
 
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
@@ -373,19 +373,10 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="price",
      *          in="query",
-     *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
-     *          required=false,
-     *          @OA\Schema(
-     *              type="integer",
-     *          )
-     *      ),
-     *     @OA\Parameter(
-     *          name="address",
-     *          in="query",
-     *          description="面谈地址",
+     *          description="贷款金额",
      *          required=true,
      *          @OA\Schema(
-     *              type="string",
+     *              type="integer",
      *          )
      *      ),
      *     @OA\Parameter(
@@ -418,14 +409,14 @@ class LoanController extends ApiController
             'price'             => 'in:1,2,3,4,5',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
-            'address'           => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
             'name.required'             => '请输入预约姓名',
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
-//            'price.required'            => '请正确填写贷款金额',
+            'price.required'            => '请填写贷款金额',
+            'price.integer'             => '请正确填写贷款金额',
             'price.in'                  => '贷款金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
@@ -501,8 +492,8 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="price",
      *          in="query",
-     *          description="贷款金额【1,(100万 - 200万) 2,(200万 - 300万) 3,(300万 - 500万) 4,(500万 - 1000万) 5,(1000万以上)】",
-     *          required=false,
+     *          description="贷款金额",
+     *          required=true,
      *          @OA\Schema(
      *              type="integer",
      *          )
@@ -543,7 +534,7 @@ class LoanController extends ApiController
         $rules = [
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
-            'price'             => 'in:1,2,3,4,5',
+            'price'             => 'required|integer',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
@@ -553,8 +544,8 @@ class LoanController extends ApiController
             'name.required'             => '请输入预约姓名',
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
-//            'price.required'            => '请正确填写贷款金额',
-            'price.in'                  => '贷款金额数量格式不正确',
+            'price.required'            => '请填写贷款金额',
+            'price.integer'             => '请正确填写贷款金额',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',

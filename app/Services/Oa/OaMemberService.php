@@ -59,44 +59,35 @@ class OaMemberService extends BaseService
      */
     public function memberList(array $data)
     {
-        if (empty($data['asc']))  $data['asc'] = $this->sort;
-        $page       = $data['page'] ?? $this->page;
-        $page_num   = $data['page_num'] ?? $this->page_num;
-        $asc        = $data['asc'] == 1 ? 'asc' : 'desc';
-        $where      = ['deleted_at' => 0,'is_test' => 0];
-        $keywords   = $data['keywords'] ?? null;
-        $column     = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
-        $where_arr  = Arr::only($data,['is_home_detail','category','sex']);
-        foreach ($where_arr as $key => $value){
-            if (!is_null($value)){
-                $where[$key] = $value;
-            }
-        }
-        if (!empty($keywords)){
-            $keyword   = [$keywords => ['card_no','ch_name','en_name','mobile']];
-            if (!$list = $this->getScreenMemberList($keyword,$where, $column, $page, $page_num, 'id', $asc)) {
+        if (empty($data['asc'])) $data['asc'] = 1;
+        $is_home_detail = $data['is_home_detail'] ?? null;
+        $category       = $data['category'] ?? null;
+        $page           = $data['page'] ?? 1;
+        $page_num       = $data['page_num'] ?? 20;
+        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
+        $keywords       = $data['keywords'] ?? null;
+        $where          = ['deleted_at' => 0,'is_test' => 0];
+        $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
+        if (!empty($category)) $where['category'] = $category;
+        /*if (!empty($is_home_detail)){
+            if (!$list = MemberInfoRepository::getScreenMemberList($is_home_detail, $column, $page, $page_num, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = MemberBaseRepository::getMemberList($where, $column, $page, $page_num, 'id', $asc)) {
+            if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
+        }*/
+        if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
+            $this->setError('获取失败!');
+            return false;
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('获取成功!');
             return [];
-        }
-        foreach ($list['data'] as &$value){
-            if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
-            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
-            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
-            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
-            $value['img_url']       = $value['avatar_url']; #前端适配字段名
-            unset($value['member_id'],$value['user_id'],$value['avatar_url']);
         }
         $this->setMessage('获取成功！');
         return $list;

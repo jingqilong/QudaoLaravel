@@ -44,7 +44,7 @@ class OaMemberController extends ApiController
      *      @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索内容【会员卡号，成员中文名，成员英文名，成员类别，成员手机号,成员级别】",
+     *         description="搜索内容【会员卡号，成员中文名，成员英文名，成员手机号,】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
@@ -63,6 +63,15 @@ class OaMemberController extends ApiController
      *         name="category",
      *         in="query",
      *         description="成员类别",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sex",
+     *         in="query",
+     *         description="成员性别",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -116,11 +125,13 @@ class OaMemberController extends ApiController
             'grade'           => 'integer',
             'category'        => 'integer',
             'is_home_detail'  => 'in:0,1',
+            'sex'             => 'in:1,2',
             'asc'             => 'in:1,2',
         ];
         $messages = [
-            'asc.integer'              => '排序类型不存在',
-            'is_home_detail.integer'   => '显示类型不存在',
+            'sex.in'                   => '性别类型不存在',
+            'asc.in'                   => '排序类型不存在',
+            'is_home_detail.in'        => '显示类型不存在',
             'page.integer'             => '页码必须为整数',
             'page_num.integer'         => '每页显示条数必须为整数',
             'grade.integer'            => '成员等级不存在',
