@@ -372,6 +372,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->get('member_message_list','MessageController@memberMessageList')->name('会员消息列表');
                 $api->get('member_message_details','MessageController@memberMessageDetails')->name('会员消息详情');
+                $api->delete('member_delete_message','MessageController@memberDeleteMessage')->name('成员删除消息');
             });
             //消息后台
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
@@ -387,11 +388,13 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
+                $api->delete('oa_delete_message','MessageController@oaDeleteMessage')->name('OA员工删除消息');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
                 $api->get('merchant_message_list','MessageController@merchantMessageList')->name('商户消息列表');
                 $api->get('merchant_message_details','MessageController@merchantMessageDetails')->name('商户消息详情');
+                $api->delete('merchant_delete_message','MessageController@merchantDeleteMessage')->name('商户删除消息');
             });
         });
 

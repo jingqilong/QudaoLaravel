@@ -397,6 +397,38 @@ class SendService extends BaseService
         $this->setMessage('获取成功！');
         return $send;
     }
+
+    /**
+     * 删除新消息
+     * @param $user_id
+     * @param $user_type
+     * @param $send_id
+     * @return mixed
+     */
+    public function deleteMessage($user_id, $user_type, $send_id){
+        if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type])){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        if (!empty($send['deleted_at'])){
+            $this->setError('消息已删除！');
+            return false;
+        }
+        if ($send['user_id'] == 0){
+            $this->setError('不能删除公告消息！');
+            return false;
+        }
+        if ($send['user_id'] !== $user_id){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        if (!MessageSendRepository::getUpdId(['id' => $send_id],['deleted_at' => date('Y-m-d H:i:s')])){
+            $this->setError('删除失败！');
+            return false;
+        }
+        $this->setMessage('获取成功！');
+        return $send;
+    }
     /**
      * 给OA员工发送通知
      * @param int $employee_id      员工ID

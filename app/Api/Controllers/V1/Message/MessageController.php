@@ -96,6 +96,7 @@ class MessageController extends ApiController
      *     path="/api/v1/message/member_message_details",
      *     tags={"消息"},
      *     summary="会员消息详情",
+     *     description="sang" ,
      *     operationId="member_message_details",
      *     @OA\Parameter(
      *          name="sign",
@@ -149,10 +150,69 @@ class MessageController extends ApiController
     }
 
     /**
+     * @OA\Delete(
+     *     path="/api/v1/message/member_delete_message",
+     *     tags={"消息"},
+     *     summary="成员删除消息",
+     *     description="不能删除公告，sang" ,
+     *     operationId="member_delete_message",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="send_id",
+     *         in="query",
+     *         description="消息发送ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function memberDeleteMessage(){
+        $rules = [
+            'send_id'       => 'required|integer',
+        ];
+        $messages = [
+            'send_id.required'      => '消息发送ID不能为空',
+            'send_id.integer'       => '消息发送ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $member = Auth::guard('member_api')->user();
+        $res = $this->sendService->deleteMessage($member->id,MessageEnum::MEMBER,$this->request['send_id']);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->sendService->error];
+        }
+        return ['code' => 200, 'message' => $this->sendService->message];
+    }
+
+    /**
      * @OA\Get(
      *     path="/api/v1/message/merchant_message_list",
      *     tags={"消息"},
      *     summary="商户消息列表",
+     *     description="sang" ,
      *     operationId="merchant_message_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -220,6 +280,7 @@ class MessageController extends ApiController
      *     path="/api/v1/message/merchant_message_details",
      *     tags={"消息"},
      *     summary="商户消息详情",
+     *     description="sang" ,
      *     operationId="merchant_message_details",
      *     @OA\Parameter(
      *          name="sign",
@@ -271,12 +332,70 @@ class MessageController extends ApiController
         }
         return ['code' => 200, 'message' => $this->sendService->message,'data' => $res];
     }
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/message/merchant_delete_message",
+     *     tags={"消息"},
+     *     summary="商户删除消息",
+     *     description="sang" ,
+     *     operationId="merchant_delete_message",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="商户token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="send_id",
+     *         in="query",
+     *         description="消息发送ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function merchantDeleteMessage(){
+        $rules = [
+            'send_id'       => 'required|integer',
+        ];
+        $messages = [
+            'send_id.required'      => '消息发送ID不能为空',
+            'send_id.integer'       => '消息发送ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $prime = Auth::guard('prime_api')->user();
+        $res = $this->sendService->deleteMessage($prime->id,MessageEnum::MERCHANT,$this->request['send_id']);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->sendService->error];
+        }
+        return ['code' => 200, 'message' => $this->sendService->message];
+    }
 
     /**
      * @OA\Get(
      *     path="/api/v1/message/oa_message_list",
      *     tags={"消息"},
      *     summary="OA员工消息列表",
+     *     description="sang" ,
      *     operationId="oa_message_list",
      *     @OA\Parameter(
      *          name="sign",
@@ -345,6 +464,7 @@ class MessageController extends ApiController
      *     path="/api/v1/message/oa_message_details",
      *     tags={"消息"},
      *     summary="OA员工消息详情",
+     *     description="sang" ,
      *     operationId="oa_message_details",
      *     @OA\Parameter(
      *          name="sign",
@@ -397,11 +517,71 @@ class MessageController extends ApiController
         return ['code' => 200, 'message' => $this->sendService->message,'data' => $res];
     }
 
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/message/oa_delete_message",
+     *     tags={"消息"},
+     *     summary="OA员工删除消息",
+     *     description="sang" ,
+     *     operationId="oa_delete_message",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="send_id",
+     *         in="query",
+     *         description="消息发送ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="删除失败",),
+     * )
+     *
+     */
+    public function oaDeleteMessage(){
+        $rules = [
+            'send_id'       => 'required|integer',
+        ];
+        $messages = [
+            'send_id.required'      => '消息发送ID不能为空',
+            'send_id.integer'       => '消息发送ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $oa = Auth::guard('oa_api')->user();
+        $res = $this->sendService->deleteMessage($oa->id,MessageEnum::OAEMPLOYEES,$this->request['send_id']);
+        if ($res === false){
+            return ['code' => 100,'message' => $this->sendService->error];
+        }
+        return ['code' => 200, 'message' => $this->sendService->message];
+    }
+
     /**
      * @OA\Get(
      *     path="/api/v1/message/push_message",
      *     tags={"消息"},
      *     summary="消息未读数量推送",
+     *     description="sang" ,
      *     operationId="push_message",
      *     @OA\Parameter(
      *         name="channel",
