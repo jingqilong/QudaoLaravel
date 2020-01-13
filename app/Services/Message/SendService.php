@@ -294,7 +294,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content'];
+        $column             = ['id','message_id','message_category','category_id','title','content'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -329,7 +329,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content','created_at'];
+        $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
