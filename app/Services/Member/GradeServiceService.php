@@ -212,8 +212,8 @@ class GradeServiceService extends BaseService
         }
         $res = [
             'now_grade'         => $grade,
-            'now_grade_title'   => MemberEnum::getGrade($grade),
-            'years_list'        => $select_grade == MemberEnum::YOUENJOY ? [6] : [1,2,3,4,5]
+            'now_grade_title'   => MemberGradeDefineRepository::getLabelById($grade),
+            'years_list'        => $select_grade == MemberGradeDefineRepository::YOUENJOY() ? [6] : [1,2,3,4,5]
         ];
         $this->setMessage('获取成功！');
         return $res;

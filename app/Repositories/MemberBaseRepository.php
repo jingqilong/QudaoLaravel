@@ -78,7 +78,8 @@ class MemberBaseRepository extends ApiRepository
             }
             $value = array_merge($value,$member_info_arr,$member_grade_arr);
             if (empty($list['is_recommend'])) $value['is_recommend'] = '0'; else $value['is_recommend'] == 0 ? 0 : 1;
-            if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
+            //if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
+            $value['grade_name'] = MemberGradeDefineRepository::getLabelById($value['grade'],'普通成员');
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
             $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');

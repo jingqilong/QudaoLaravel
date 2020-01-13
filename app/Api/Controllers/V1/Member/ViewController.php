@@ -6,6 +6,7 @@ namespace App\Api\Controllers\V1\Member;
 
 use App\Api\Controllers\ApiController;
 use App\Enums\MemberEnum;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Services\Member\GradeViewService;
 use Illuminate\Http\JsonResponse;
 
@@ -194,7 +195,7 @@ class ViewController extends ApiController
             'value.in'             => '查看值不存在',
         ];
         if (1 == $this->request['type']){
-            $rules['value'] = 'required|in:'.implode(',',array_keys(MemberEnum::$grade));
+            $rules['value'] = 'required|in:'.implode(',',MemberGradeDefineRepository::getIdArray());
         }
         if (2 == $this->request['type']){
             $rules['value'] = 'required|in:'.implode(',',array_keys(MemberEnum::$identity));

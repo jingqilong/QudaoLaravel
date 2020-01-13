@@ -13,6 +13,7 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberContactRequestRepository;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
@@ -155,10 +156,10 @@ class MemberService extends BaseService
         $user_info      = MemberBaseRepository::getUser();
         $user           = $user_info->toArray();
         if (!$grade = MemberGradeRepository::getField(['user_id' => $user_id,'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
-            $grade  = MemberEnum::DEFAULT;
+            $grade  = MemberGradeDefineRepository::DEFAULT();
         }
         $member['grade']        = $grade;
-        $member['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $member['grade_title']  = MemberGradeDefineRepository::getLabelById($grade,'普通成员');
         $user['sex']            = MemberEnum::getSex($user['sex']);
         $user                   = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at'],$user['is_test']);
@@ -250,7 +251,7 @@ class MemberService extends BaseService
             return $list;
         }
         foreach ($list['data'] as $key => &$value){
-            $value['grade']      =   MemberEnum::getGrade($value['grade'],'普通成员');
+            $value['grade']      =   MemberGradeDefineRepository::getLabelById($value['grade'],'普通成员');
             $value['category']   =   MemberEnum::getCategory($value['category'],'普通成员');
         }
         $this->setMessage('获取成功！');
@@ -273,7 +274,7 @@ class MemberService extends BaseService
             return false;
         }
         foreach ($member_info as &$value) $value = $value ?? '';
-        $member_info['grade'] = MemberEnum::getGrade($member_info['grade'],'普通成员');
+        $member_info['grade'] = MemberGradeDefineRepository::getLabelById($member_info['grade'],'普通成员');
         $member_info['profile'] = strip_tags($member_info['profile']);
         $member_info['avatar_url'] = $member_info['img_url'];//为了和前端统一数据
         unset($member_info['status'],$member_info['img_url']);
@@ -296,11 +297,11 @@ class MemberService extends BaseService
             return false;
         }
         if (empty($member_info = MemberInfoRepository::getOne(['member_id' => $member_id],$info_column))) $member_info = ['profile' => ''];
-        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $member_id],['grade'])))  $member_grade = ['grade' => MemberEnum::DEFAULT];
+        if (empty($member_grade = MemberGradeRepository::getOne(['user_id' => $member_id],['grade'])))  $member_grade = ['grade' => MemberGradeDefineRepository::DEFAULT()];
         $member = array_merge($member_base,$member_info,$member_grade);
         $member = ImagesService::getOneImagesConcise($member,['avatar_id' => 'single']);
         $member['sex_name']     = MemberEnum::getSex($member['sex'],'未设置');
-        $member['grade']        = MemberEnum::getGrade($member['grade'],'普通成员');
+        $member['grade']        = MemberGradeDefineRepository::getLabelById($member['grade'],'普通成员');
         $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
         $member['profile']      = strip_tags($member['profile']);
         $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
@@ -793,10 +794,10 @@ class MemberService extends BaseService
         DB::commit();
         $user           = $this->auth->user()->toArray();
         if (!$grade = MemberGradeRepository::getField(['user_id' => $user['id'],'status' => 1,'end_at' => ['notIn',[1,time()]]],'grade')){
-            $grade = MemberEnum::DEFAULT;
+            $grade = MemberGradeDefineRepository::DEFAULT();
         }
         $user['grade']        = $grade;
-        $user['grade_title']  = MemberEnum::getGrade($grade,'普通成员');
+        $user['grade_title']  = MemberGradeDefineRepository::getLabelById($grade,'普通成员');
         $user['sex']    = MemberEnum::getSex($user['sex']);
         $user           = ImagesService::getOneImagesConcise($user,['avatar_id' => 'single']);
         unset($user['avatar_id'],$user['status'],$user['hidden'],$user['created_at'],$user['updated_at'],$user['deleted_at']);
@@ -885,22 +886,13 @@ class MemberService extends BaseService
             'value' => MemberGradeRepository::count(['status' => 1]),
             'name'  => '全部会员'
         ];
-        $where = [
-            MemberEnum::TEST          => ['grade' => MemberEnum::TEST       ,  'status' => 1 ],
-            MemberEnum::ALSOENJOY     => ['grade' => MemberEnum::ALSOENJOY  ,  'status' => 1 ],
-            MemberEnum::TOENJOY       => ['grade' => MemberEnum::TOENJOY    ,  'status' => 1 ],
-            MemberEnum::YUEENJOY      => ['grade' => MemberEnum::YUEENJOY   ,  'status' => 1 ],
-            MemberEnum::REALLYENJOY   => ['grade' => MemberEnum::REALLYENJOY,  'status' => 1 ],
-            MemberEnum::YOUENJOY      => ['grade' => MemberEnum::YOUENJOY   ,  'status' => 1 ],
-            MemberEnum::HONOURENJOY   => ['grade' => MemberEnum::HONOURENJOY,  'status' => 1 ],
-            MemberEnum::ZHIRENJOY     => ['grade' => MemberEnum::ZHIRENJOY  ,  'status' => 1 ],
-            MemberEnum::ADVISER       => ['grade' => MemberEnum::ADVISER    ,  'status' => 1 ],
-            MemberEnum::TEMPORARY     => ['grade' => MemberEnum::TEMPORARY  ,  'status' => 1 ],
-        ];
-        foreach ($where as $key => $value){
+        $ids = MemberGradeDefineRepository::getIdArray();
+
+        foreach ($ids['id_list'] as  $value){
+            $where = ['grade'=>$value,'status'=>1];
             $res[] = [
-                'value' => MemberGradeRepository::count($value),
-                'name'  => MemberEnum::getGrade($key),
+                'value' => MemberGradeRepository::count($where),
+                'name'  => MemberGradeDefineRepository::getLabelById($value),
             ];
         }
         $this->setMessage('获取成功!');
@@ -924,7 +916,7 @@ class MemberService extends BaseService
             if(!empty($grade['end_at']) && $grade['end_at'] < time()){
                 $res['member_grade'] = '普通成员';
             }else{
-                $res['member_grade'] = MemberEnum::getGrade($grade['grade'],'普通成员');
+                $res['member_grade'] = MemberGradeDefineRepository::getLabelById($grade['grade'],'普通成员');
             }
         }
         if ($sign = MemberSignRepository::exists(['member_id' => $member->id,'sign_at' => strtotime(date('Y-m-d'))])){
@@ -1043,7 +1035,7 @@ class MemberService extends BaseService
      */
     public function getCurrentMemberGrade($user_id)
     {
-        $grade = MemberEnum::DEFAULT;
+        $grade = MemberGradeDefineRepository::DEFAULT();
         if (!$grade_info = MemberGradeRepository::getOne(['user_id' => $user_id,'status' => 1])){
             return $grade;
         }
@@ -1051,7 +1043,7 @@ class MemberService extends BaseService
             return $grade = $grade_info['grade'];
         }
         $upd_arr = [
-            'grade'      => MemberEnum::DEFAULT,
+            'grade'      => MemberGradeDefineRepository::DEFAULT(),
             'update_at'  => time(),
             'end_at' => 0
         ];

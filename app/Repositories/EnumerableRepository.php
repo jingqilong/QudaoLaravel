@@ -39,6 +39,10 @@ class EnumerableRepository
      */
     protected const KEY_PREF = 'enum_list::';
 
+    protected const KEY_IDS = 'id_list::';
+
+    protected const KEY_NAMES= 'name_list::';
+
     /**
      * The registered string macros.
      *
@@ -137,11 +141,44 @@ class EnumerableRepository
         $key = static::KEY_PREF . get_called_class();
         if (!Cache::has($key)) {
             $data_list = $this->getAll();
-            $enum_list['id_list'] = $this->createArrayIndex($data_list,$this->columns_map['id']);
-            $enum_list['name_list'] = $this->createArrayIndex($data_list,$this->columns_map['name']);
+            $enum_list[static::KEY_IDS] = $this->createArrayIndex($data_list,$this->columns_map['id']);
+            $enum_list[static::KEY_NAMES] = $this->createArrayIndex($data_list,$this->columns_map['name']);
             Cache::put($key,$enum_list,$this->ttl);
         }
         return Cache::get($key);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getIdList(){
+        $list = $this->getEnumList();
+        return $list[static::KEY_IDS];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getIdArray(){
+        $list = $this->getEnumList();
+        return array_keys($list[static::KEY_IDS]);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    protected function getNameList(){
+        $list = $this->getEnumList();
+        return $list[static::KEY_NAMES];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getNameArray(){
+        $list = $this->getEnumList();
+        return array_keys($list[static::KEY_NAMES]);
     }
 
     /**
@@ -155,7 +192,7 @@ class EnumerableRepository
             return true;
         }
         $list = $this->getEnumList();
-        foreach($list['id_list'] as $key => $value){
+        foreach($list[static::KEY_IDS] as $key => $value){
             $this->macro( //改枚举的方法名为大写
                 strtoupper($value[$this->columns_map['name']]) ,
                 function ()use($key){ //枚举宏
@@ -169,42 +206,81 @@ class EnumerableRepository
     /**
      * @通过枚举的名称获取ID
      * @param $name
+     * @param $default
      * @return mixed
      */
-    protected function getIdByName($name){
+    protected function getIdByName($name,$default = 0){
         $enum_list =  $this->getEnumList();
-        $name_data = $enum_list['name_list'][$name];
+        if(!isset( $enum_list[static::KEY_NAMES][$name])){
+            return $default;
+        }
+        $name_data =  $enum_list[static::KEY_NAMES][$name];
         return $name_data[$this->columns_map['name']];
     }
 
     /**
      * @desc 通过ID获取label
      * @param $id
+     * @param $default
      * @return mixed
      */
-    protected function getLabelById($id){
+    protected function getLabelById($id,$default =''){
         $enum_list =  $this->getEnumList();
-        $id_data =  $enum_list['id_list'][$id];
+        if(!isset( $enum_list[static::KEY_IDS][$id])){
+            return $default;
+        }
+        $id_data =  $enum_list[static::KEY_IDS][$id];
         return $id_data[$this->columns_map['label']];
     }
 
     /**
      * @desc 通过名称 获取一条枚举数据记录
      * @param $name
+     * @param string $default
      * @return mixed
      */
-    protected function getOneByName($name){
+    protected function getOneByName($name, $default = ''){
         $enum_list =  $this->getEnumList();
-        return $enum_list['name_list'][$name];
+        if(!isset( $enum_list[static::KEY_NAMES][$name])){
+            $name = $default;
+        }
+        if(!isset( $enum_list[static::KEY_NAMES][$name])){
+            $enum_list = reset($enum_list[static::KEY_NAMES]);
+        }else{
+            $enum_list =  $enum_list[static::KEY_NAMES][$name];
+        }
+        return $enum_list;
     }
 
     /**
      * @desc 通过id 获取一条枚举数据记录
      * @param $id
+     * @param $default
      * @return mixed
+     *
      */
-    protected function getOneById($id){
+    protected function getOneById($id,$default = 0){
         $enum_list =  $this->getEnumList();
-        return  $enum_list['id_list'][$id];
+        if(!isset( $enum_list[static::KEY_IDS][$id])){
+            $id = $default;
+        }
+        if(!isset( $enum_list[static::KEY_IDS][$id])){
+            $id_data = reset($enum_list[static::KEY_IDS]);
+        }else{
+            $id_data =  $enum_list[static::KEY_IDS][$id];
+        }
+        return  $id_data;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    protected function hasID($id){
+        $enum_list =  $this->getEnumList();
+        if(!isset( $enum_list[static::KEY_IDS][$id])){
+            return false;
+        }
+        return true;
     }
 }

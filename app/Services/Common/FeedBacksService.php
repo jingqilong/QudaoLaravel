@@ -8,6 +8,7 @@ use App\Enums\MemberEnum;
 use App\Repositories\CommonFeedBacksRepository;
 use App\Repositories\CommonFeedBacksViewRepository;
 use App\Repositories\CommonFeedbackThreadRepository;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
@@ -86,7 +87,7 @@ class FeedBacksService extends BaseService
             [],
             function($src_item,$member_grade_items){
                 $grade = Arr::only($member_grade_items[$src_item['member_id']],'grade');
-                $src_item['grade'] = MemberEnum::getGrade((int)$grade,'普通成员');
+                $src_item['grade'] = MemberGradeDefineRepository::getLabelById((int)$grade,'普通成员');
                 return $src_item;
             }
         );

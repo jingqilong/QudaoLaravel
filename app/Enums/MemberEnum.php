@@ -9,18 +9,18 @@ class MemberEnum extends BaseEnum
 {
 
     public static $labels=[
-        //成员级别
-        'DEFAULT'             => '普通成员',
-        'TEST'                => '内部测试',
-        'ALSOENJOY'           => '亦享成员',
-        'TOENJOY'             => '至享成员',
-        'YUEENJOY'            => '悦享成员',
-        'REALLYENJOY'         => '真享成员',
-        'YOUENJOY'            => '君享成员',
-        'HONOURENJOY'         => '尊享成员',
-        'ZHIRENJOY'           => '致享成员',
-        'ADVISER'             => '高级顾问',
-        'TEMPORARY'           => '临时成员',
+        //成员级别 (本组废弃)
+//        'DEFAULT'             => '普通成员',
+//        'TEST'                => '内部测试',
+//        'ALSOENJOY'           => '亦享成员',
+//        'TOENJOY'             => '至享成员',
+//        'YUEENJOY'            => '悦享成员',
+//        'REALLYENJOY'         => '真享成员',
+//        'YOUENJOY'            => '君享成员',
+//        'HONOURENJOY'         => '尊享成员',
+//        'ZHIRENJOY'           => '致享成员',
+//        'ADVISER'             => '高级顾问',
+//        'TEMPORARY'           => '临时成员',
         //成员分类
         'SHANGZHENG'          => '商政名流',
         'QIYEJINGYING'        => '企业精英',
@@ -57,20 +57,20 @@ class MemberEnum extends BaseEnum
 
 
 
-    //成员等级
-    public static $grade = [
-        0  => 'DEFAULT',
-        1  => 'TEST',
-        2  => 'ALSOENJOY',
-        3  => 'TOENJOY',
-        4  => 'YUEENJOY',
-        5  => 'REALLYENJOY',
-        6  => 'YOUENJOY',
-        7  => 'HONOURENJOY',
-        8  => 'ZHIRENJOY',
-        9  => 'ADVISER',
-        10 => 'TEMPORARY',
-    ];
+    //成员等级 (本组废弃)
+//    public static $grade = [
+//        0  => 'DEFAULT',
+//        1  => 'TEST',
+//        2  => 'ALSOENJOY',
+//        3  => 'TOENJOY',
+//        4  => 'YUEENJOY',
+//        5  => 'REALLYENJOY',
+//        6  => 'YOUENJOY',
+//        7  => 'HONOURENJOY',
+//        8  => 'ZHIRENJOY',
+//        9  => 'ADVISER',
+//        10 => 'TEMPORARY',
+//    ];
 
     //成员分类
     public static $category = [
@@ -134,28 +134,28 @@ class MemberEnum extends BaseEnum
         3 => 'CANCEL',            //取消预约
     ];
 
-    // 成员等级
-    const DEFAULT          = 0;    //默认
-
-    const TEST             = 1;    //内部测试
-
-    const ALSOENJOY        = 2;    //亦享成员
-
-    const TOENJOY          = 3;    //至享成员
-
-    const YUEENJOY         = 4;    //悦享成员
-
-    const REALLYENJOY      = 5;    //真享成员
-
-    const YOUENJOY         = 6;    //君享成员
-
-    const HONOURENJOY      = 7;    //尊享成员
-
-    const ZHIRENJOY        = 8;    //致享成员
-
-    const ADVISER          = 9;    //高级顾问
-
-    const TEMPORARY        = 10;   //临时成员
+    // 成员等级  (本组废弃)
+//    const DEFAULT          = 0;    //默认
+//
+//    const TEST             = 1;    //内部测试
+//
+//    const ALSOENJOY        = 2;    //亦享成员
+//
+//    const TOENJOY          = 3;    //至享成员
+//
+//    const YUEENJOY         = 4;    //悦享成员
+//
+//    const REALLYENJOY      = 5;    //真享成员
+//
+//    const YOUENJOY         = 6;    //君享成员
+//
+//    const HONOURENJOY      = 7;    //尊享成员
+//
+//    const ZHIRENJOY        = 8;    //致享成员
+//
+//    const ADVISER          = 9;    //高级顾问
+//
+//    const TEMPORARY        = 10;   //临时成员
 
 
     //成员分类
@@ -234,16 +234,16 @@ class MemberEnum extends BaseEnum
         return isset(self::$status[$value]) ? self::$labels[self::$status[$value]] : $default;
     }
 
-    /**
-     * 获取状态label
-     * @param int $value
-     * @param string $default
-     * @return mixed|string
-     */
-    public static function getGrade($value,$default = ''){
-        if (empty($value)) return $default;
-        return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : $default;
-    }
+//    /**
+//     * 获取状态label
+//     * @param int $value
+//     * @param string $default
+//     * @return mixed|string
+//     */
+//    public static function getGrade($value,$default = ''){
+//        if (empty($value)) return $default;
+//        return isset(self::$grade[$value]) ? self::$labels[self::$grade[$value]] : $default;
+//    }
 
     /**
      * 获取状态label
