@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Cache;
  * @desc 这是一个基于数据表的枚举类。继承此类以后，即可以通过以下方式：
  *  SomeRepository::EnumName(); 注意：EnumName 应当是表中的name 字段。
  *  并且应当全部大写。
- *  比如： MemberRepository::NORMAL()  或者  MemberRepository::NORMAL
+ *  比如： MemberRepository::NORMAL()
+ *  但是，与普通枚举不同，Laravel会对不存在的常量进行检查，所以，
+ *  MemberRepository::NORMAL 调用不了。
  *  如果id, label, name 字段有所不同，则需要在子类中进行配置
  *  获得对应记录的ID.此类使用了Cache。并且，所有枚举都是写在静态变量中的。
  *  并且，可以按Cache的TTL更新.
@@ -51,11 +53,6 @@ class EnumerableRepository
      */
     public static function __callStatic($method, $parameters)
     {
-        // 拦截 MemberRepository::NORMAL 这样的调用
-        if (preg_match('/^(get)([A-Z])(.*)$/', $method, $match)) {
-            $method = strtolower($match[2]). $match[3];
-        }
-
         // 以下是  MemberRepository::NORMAL() 这样的调用，如果有了$macro枚举，先处理
         if (static::hasMacro($method)) {
             $macro = static::$macros[$method];
