@@ -73,3 +73,12 @@ if(!function_exists('byRef')){
         };
     }
 }
+
+if (!function_exists('base64UrlEncode')){
+    function base64UrlEncode($data)
+    {
+        $find = array('=','+', '/');
+        $replace = array('','-', '_');
+        return str_replace($find, $replace, base64_encode($data));
+    }
+}

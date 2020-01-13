@@ -29,6 +29,22 @@ class OaMemberService extends BaseService
     protected $auth;
 
     /**
+     * 排序默认变量
+     * @var int
+     */
+    protected $sort = 2;
+    /**
+     * 排序默认变量
+     * @var int
+     */
+    protected $page = 1;
+    /**
+     * 排序默认变量
+     * @var int
+     */
+    protected $page_num = 20;
+
+    /**
      * OaMemberService constructor.
      */
     public function __construct()
@@ -36,46 +52,7 @@ class OaMemberService extends BaseService
         $this->auth = Auth::guard('oa_api');
     }
 
-    /**
-     * 获取成员列表 (拆表后 已修改) （2）
-     * @param array $data
-     * @return mixed
-     */
-    public function memberList(array $data)
-    {
-        if (empty($data['asc'])) $data['asc'] = 1;
-        $is_home_detail = $data['is_home_detail'] ?? null;
-        $category       = $data['category'] ?? null;
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $keywords       = $data['keywords'] ?? null;
-        $where          = ['deleted_at' => 0,'is_test' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
-        if (!empty($category)) $where['category'] = $category;
-        /*if (!empty($is_home_detail)){
-            if (!$list = MemberInfoRepository::getScreenMemberList($is_home_detail, $column, $page, $page_num, 'id', $asc)) {
-                $this->setError('获取失败!');
-                return false;
-            }
-        }else{
-            if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
-                $this->setError('获取失败!');
-                return false;
-            }
-        }*/
-        if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
-            $this->setError('获取失败!');
-            return false;
-        }
-        $list = $this->removePagingField($list);
-        if (empty($list['data'])){
-            $this->setMessage('获取成功!');
-            return [];
-        }
-        $this->setMessage('获取成功！');
-        return $list;
-    }
+  
 
     /*public function memberList(array $data)
     {
@@ -213,11 +190,8 @@ class OaMemberService extends BaseService
      */
     public function setMemberHomeDetail($request)
     {
-        if (!MemberInfoRepository::exists(['member_id' => $request['id']])){
-            $this->setError('成员信息未完善,请先完善成员信息!');
-            return false;
-        }
-        if (!MemberInfoRepository::getUpdId(['member_id' => $request['id']],['is_home_detail' => $request['exhibition']])){
+        $add_arr = ['is_home_detail' => $request['exhibition'],'created_at' => time(),'update_at' => time()];
+        if (!MemberInfoRepository::updateOrInsert(['member_id' => $request['id']],$add_arr)){
             $this->setError('设置失败!');
             return false;
         }
