@@ -21,28 +21,27 @@ class MessageCacheService extends BaseService
      */
     protected function increaseCacheMessageCount($user_id, $user_type){
         $index      = config('message.cache-chanel');
-        // $user_index = base64_encode($index[$user_type].$user_id);
-        $user_index = base64_urlSafeEncode($index[$user_type].$user_id);
-
         $key        = config('message.cache-key');
         $all_message_count = Cache::has($key) ? Cache::get($key) : [];
-        if (empty($user_id)){//如果消息类型为公告，需为每个用户写缓存
-            $user_list = [];
-            if (MessageEnum::MEMBER == $user_type){
-                $user_list = MemberBaseRepository::getAll(['id']);
-            }
-            if (MessageEnum::MERCHANT == $user_type){
-                $user_list = PrimeMerchantRepository::getAll(['id']);
-            }
-            if (MessageEnum::OAEMPLOYEES == $user_type){
-                $user_list = OaEmployeeRepository::getAll(['id']);
-            }
-            $user_ids = !empty($user_list) ? array_column($user_list,'id') : [];
-            foreach ($user_ids as $id){
-                $user_index = base64_urlSafeEncode($index[$user_type].$id);
-                $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
-            }
-        }else{
+        if (!empty($user_id)){
+            $user_index = base64_urlSafeEncode($index[$user_type].$user_id);
+            $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
+            Cache::put($key,$all_message_count);
+            return;
+        }//如果消息类型为公告，需为每个用户写缓存
+        $user_list = [];
+        if (MessageEnum::MEMBER == $user_type){
+            $user_list = MemberBaseRepository::getAll(['id']);
+        }
+        if (MessageEnum::MERCHANT == $user_type){
+            $user_list = PrimeMerchantRepository::getAll(['id']);
+        }
+        if (MessageEnum::OAEMPLOYEES == $user_type){
+            $user_list = OaEmployeeRepository::getAll(['id']);
+        }
+        $user_ids = !empty($user_list) ? array_column($user_list,'id') : [];
+        foreach ($user_ids as $id){
+            $user_index = base64_urlSafeEncode($index[$user_type].$id);
             $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
         }
         Cache::put($key,$all_message_count);
