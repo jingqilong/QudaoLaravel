@@ -47,7 +47,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount($user_id,$user_type);
+        MessageCacheService::increaseCacheMessageCount($user_id,$user_type);
+//        MessageSendRepository::increaseCacheMessageCount($user_id,$user_type);
         DB::commit();
         return true;
     }
@@ -77,7 +78,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
+        MessageCacheService::increaseCacheMessageCount(0,$user_type);
+//        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
         DB::commit();
         return true;
     }
@@ -109,7 +111,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
+        MessageCacheService::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
+//        MessageSendRepository::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
         DB::commit();
         return true;
     }
@@ -259,7 +262,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content','created_at'];
+        $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -294,7 +297,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content'];
+        $column             = ['id','message_id','message_category','category_id','title','content'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -329,7 +332,7 @@ class SendService extends BaseService
         $page               = $request['page'] ?? 1;
         $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
-        $column             = ['id','message_id','message_category','title','content','created_at'];
+        $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
         if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -393,8 +396,41 @@ class SendService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
-        MessageSendRepository::decrementCacheMessageCount($user_id,$user_type);
+        MessageCacheService::decrementCacheMessageCount($user_id,$user_type);
+//        MessageSendRepository::decrementCacheMessageCount($user_id,$user_type);
         $this->setMessage('获取成功！');
+        return $send;
+    }
+
+    /**
+     * 删除新消息
+     * @param $user_id
+     * @param $user_type
+     * @param $send_id
+     * @return mixed
+     */
+    public function deleteMessage($user_id, $user_type, $send_id){
+        if (!$send = MessageSendViewRepository::getOne(['id' => $send_id,'user_type' => $user_type])){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        if (!empty($send['deleted_at'])){
+            $this->setError('消息已删除！');
+            return false;
+        }
+        if ($send['user_id'] == 0){
+            $this->setError('不能删除公告消息！');
+            return false;
+        }
+        if ($send['user_id'] !== $user_id){
+            $this->setError('消息不存在！');
+            return false;
+        }
+        if (!MessageSendRepository::getUpdId(['id' => $send_id],['deleted_at' => date('Y-m-d H:i:s')])){
+            $this->setError('删除失败！');
+            return false;
+        }
+        $this->setMessage('删除成功！');
         return $send;
     }
     /**

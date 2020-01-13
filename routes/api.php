@@ -29,6 +29,7 @@ $api->version('v1',function ($api){
 
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
     $api->post('send_message',function(){
+        dd(\App\Services\Message\MessageCacheService::increaseCacheMessageCount(0,1));
         $user_index = base64_encode('oa.1');
         $key        = 'message_count';
         $all_message_count = \Illuminate\Support\Facades\Cache::has($key) ? \Illuminate\Support\Facades\Cache::pull($key) : [];
@@ -50,6 +51,7 @@ $api->version('v1',function ($api){
             $api->get('query_by_system_code','TestApiController@queryBySystemCode')->name('queryBySystemCode');
             $api->get('refund','TestApiController@refund')->name('refund');
             $api->get('event_test','TestApiController@eventTest')->name('eventTest');
+            $api->get('enum_repository_test','TestApiController@EnumRepositoryTest')->name('EnumRepositoryTest');
         });
         $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
@@ -372,6 +374,7 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => 'member.jwt.auth'],function($api){
                 $api->get('member_message_list','MessageController@memberMessageList')->name('会员消息列表');
                 $api->get('member_message_details','MessageController@memberMessageDetails')->name('会员消息详情');
+                $api->delete('member_delete_message','MessageController@memberDeleteMessage')->name('成员删除消息');
             });
             //消息后台
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api){
@@ -387,11 +390,13 @@ $api->version('v1',function ($api){
             $api->group(['middleware' => ['oa.jwt.auth']],function($api){
                 $api->get('oa_message_list','MessageController@oaMessageList')->name('OA员工消息列表');
                 $api->get('oa_message_details','MessageController@oaMessageDetails')->name('OA员工消息详情');
+                $api->delete('oa_delete_message','MessageController@oaDeleteMessage')->name('OA员工删除消息');
             });
             //消息商户
             $api->group(['middleware' => 'prime.jwt.auth'],function($api){
                 $api->get('merchant_message_list','MessageController@merchantMessageList')->name('商户消息列表');
                 $api->get('merchant_message_details','MessageController@merchantMessageDetails')->name('商户消息详情');
+                $api->delete('merchant_delete_message','MessageController@merchantDeleteMessage')->name('商户删除消息');
             });
         });
 

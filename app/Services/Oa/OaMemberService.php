@@ -7,6 +7,7 @@ namespace App\Services\Oa;
 use App\Enums\CommonHomeEnum;
 use App\Enums\MemberEnum;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
@@ -88,7 +89,7 @@ class OaMemberService extends BaseService
         }
         foreach ($list['data'] as &$value){
             $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
-            $value['grade_name']    = MemberEnum::getGrade($value['grade'],'普通成员');
+            //$value['grade_name']    = MemberGradeDefineRepository::getLabelById($value['grade'],'普通成员');
             $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
             $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
             $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
@@ -117,7 +118,7 @@ class OaMemberService extends BaseService
         $base    = array_merge($member_base,$member_grade);
         $service = array_merge($preference,$member_service);
         $member  = ['base' => $base,'info' => $member_info,'service' => $service];
-        $member['base']['grade_name']    = MemberEnum::getGrade($member['base']['grade'],'普通成员');
+        $member['base']['grade_name']    = MemberGradeDefineRepository::getLabelById($member['base']['grade'],'普通成员');
         $member['base']['category_name'] = MemberEnum::getCategory($member['base']['category'],'普通成员');
         $member['info']['is_recommend']  = $member['info']['is_recommend'] == 0 ? 0 : 1;
         $member['base']['sex_name']      = MemberEnum::getSex($member['base']['sex'],'未设置');
@@ -209,7 +210,8 @@ class OaMemberService extends BaseService
             $this->setError('类型不能为空');
             return false;
         }
-        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+
+        if ((!MemberGradeDefineRepository::hasID($request['grade'])) && (!MemberGradeDefineRepository::hasID($request['value'])) ){
             $this->setError('等级或可查看值不存在');
             return false;
         }
@@ -244,7 +246,7 @@ class OaMemberService extends BaseService
             $this->setError('类型不能为空');
             return false;
         }
-        if (!isset(MemberEnum::$grade[$request['grade']]) && !isset(MemberEnum::$grade[$request['value']]) ){
+        if (!MemberGradeDefineRepository::hasID($request['grade']) && !MemberGradeDefineRepository::hasID($request['value']) ){
             $this->setError('等级或可查看值不存在');
             return false;
         }
@@ -286,8 +288,8 @@ class OaMemberService extends BaseService
             return [];
         }
         foreach ($list['data'] as &$value){
-            $value['grade_name']  =   MemberEnum::getGrade($value['grade'],'普通成员');
-            $value['value_name']  =   MemberEnum::getGrade($value['value'],'普通成员');
+            $value['grade_name']  =   MemberGradeDefineRepository::getLabelById($value['grade'],'普通成员');
+            $value['value_name']  =   MemberGradeDefineRepository::getLabelById($value['value'],'普通成员');
             $value['type_name']   =   MemberEnum::getIdentity($value['type'],'成员');
             $value['created_at']  =   date('Y-m-d H:i:s',$value['created_at']);
         }
@@ -397,7 +399,7 @@ class OaMemberService extends BaseService
             }
         }
         $grade_upd = [
-            'grade'      => $request['grade'] ?? MemberEnum::DEFAULT,
+            'grade'      => $request['grade'] ?? MemberGradeDefineRepository::DEFAULT(),
             'status'     => MemberEnum::PASS,
             'end_at'     => $request['end_at'],
             'update_at'  => time(),
