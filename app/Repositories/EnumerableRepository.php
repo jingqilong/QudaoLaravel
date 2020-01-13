@@ -39,9 +39,9 @@ class EnumerableRepository
      */
     protected const KEY_PREF = 'enum_list::';
 
-    protected const KEY_IDS = 'id_list::';
+    protected const KEY_IDS =  'id_list';
 
-    protected const KEY_NAMES= 'name_list::';
+    protected const KEY_NAMES= 'name_list';
 
     /**
      * The registered string macros.
@@ -135,15 +135,24 @@ class EnumerableRepository
     /**
      * @desc 获取数据列表，并存于缓存当中
      * 此函数基于 trait中的有 getAll() 和  createArrayIndex() 方法！！！！
+     * @param $level ,递归时用的标记
      * @return mixed
      */
-    protected function getEnumList(){
+    protected function getEnumList($level = 0){
         $key = static::KEY_PREF . get_called_class();
         if (!Cache::has($key)) {
             $data_list = $this->getAll();
             $enum_list[static::KEY_IDS] = $this->createArrayIndex($data_list,$this->columns_map['id']);
             $enum_list[static::KEY_NAMES] = $this->createArrayIndex($data_list,$this->columns_map['name']);
             Cache::put($key,$enum_list,$this->ttl);
+        }
+        $list = Cache::get($key);
+        //数据出问题时，重新加载缓存
+        if(!isset($list[static::KEY_IDS])){
+            Cache::forget($key);
+            if(0 == $level){
+                return $this->getEnumList(1);
+            }
         }
         return Cache::get($key);
     }
