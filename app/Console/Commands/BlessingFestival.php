@@ -53,19 +53,10 @@ class BlessingFestival extends Command
             'status' => 0,
             'grade' => [
                 'in',
-                [
-                    MemberEnum::ALSOENJOY,
-                    MemberEnum::TOENJOY,
-                    MemberEnum::YUEENJOY,
-                    MemberEnum::REALLYENJOY,
-                    MemberEnum::YOUENJOY,
-                    MemberEnum::HONOURENJOY,
-                    MemberEnum::ZHIRENJOY,
-                    MemberEnum::ADVISER
-                ]
+                 config('member.fact_grades')
             ]
         ];
-        $where = ['id' => 314];
+        //$where = ['id' => 314];
         if (!$member_list = MemberViewRepository::getList($where)){
             print '没有符合条件预约  ';
             return true;

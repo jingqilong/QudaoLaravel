@@ -7,7 +7,7 @@ namespace App\Repositories;
 use App\Enums\MemberEnum;
 use App\Models\MemberGradeModel;
 use App\Repositories\Traits\RepositoryTrait;
-
+use App\Repositories\MemberGradeDefineRepository;
 class MemberGradeRepository extends ApiRepository
 {
     use RepositoryTrait;
@@ -25,7 +25,7 @@ class MemberGradeRepository extends ApiRepository
     {
         $add_arr = [
             'user_id'    => $user_id,
-            'grade'      => MemberEnum::DEFAULT,
+            'grade'      => MemberGradeDefineRepository::DEFAULT(),
             'status'     => MemberEnum::PASS,
             'created_at' => time(),
             'update_at'  => time(),

@@ -300,7 +300,13 @@ class GradeOrdersService extends BaseService
             return false;
         }
         if (!$grade_info = MemberGradeRepository::getOne(['user_id' => $request['user_id']])){
-            $grade_info = ['user_id' => $request['user_id'],'grade' => MemberEnum::DEFAULT,'status' => MemberGradeEnum::PENDING,'created_at' => time(),'end_at' => 0,'updated_at' => time()];
+            $grade_info = [
+                'user_id' => $request['user_id'],
+                'grade' => MemberGradeDefineRepository::DEFAULT(),
+                'status' => MemberGradeEnum::PENDING,
+                'created_at' => time(),
+                'end_at' => 0,
+                'updated_at' => time()];
             if (!MemberGradeRepository::getAddId($grade_info)){
                 $this->setError('修改失败！【用户等级创建失败】');
                 return false;

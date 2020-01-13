@@ -11,6 +11,7 @@ use App\Enums\ProcessCategoryEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberContactRequestRepository;
+use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Services\Common\ImagesService;
@@ -162,7 +163,7 @@ class MemberContactServices extends BaseService
             }
             $value = array_merge($base_arr,$value);
             $value['status_name'] = MemberEnum::getAuditStatus($value['status'],'待审核');
-            $value['grades_name'] = MemberEnum::getGrade($value['grades'],'普通成员');
+            $value['grades_name'] = MemberGradeDefineRepository::getLabelById($value['grades'],'普通成员');
         }
         $this->setMessage('获取成功!');
         return $list;
@@ -190,13 +191,13 @@ class MemberContactServices extends BaseService
         $list['data'] = MemberGradeRepository::bulkHasOneWalk($list['data'], ['from' => 'proposer_id','to' => 'user_id'], ['user_id','grade'], [],
             function ($src_item,$member_grade_items){
                 $src_item['proposer_grade']       = $member_grade_items['grade'] ?? '';
-                $src_item['proposer_grade_name']  = MemberEnum::getGrade($member_grade_items['grade'],'普通成员');
+                $src_item['proposer_grade_name']  = MemberGradeDefineRepository::getLabelById($member_grade_items['grade'],'普通成员');
                 return $src_item;
             });
         $list['data'] = MemberGradeRepository::bulkHasOneWalk($list['data'], ['from' => 'contact_id','to' => 'user_id'], ['user_id','grade'], [],
             function ($src_item,$member_grade_items){
                 $src_item['contact_grade']       = $member_grade_items['grade'] ?? '';
-                $src_item['contact_grade_name']  = MemberEnum::getGrade($member_grade_items['grade'],'普通成员');
+                $src_item['contact_grade_name']  = MemberGradeDefineRepository::getLabelById($member_grade_items['grade'],'普通成员');
                 return $src_item;
             });
         $list['data'] = MemberBaseRepository::bulkHasOneWalk($list['data'], ['from' => 'proposer_id','to' => 'id'], ['id','ch_name'], [],
@@ -237,9 +238,9 @@ class MemberContactServices extends BaseService
         $detail = [
             'id'            => $contact_info['id'],
             'proposer_name' => $member_base_list[$contact_info['proposer_id']]['ch_name'] ?? '',
-            'proposer_grade'=> MemberEnum::getGrade($member_grade_list[$contact_info['proposer_id']]['grade'] ?? 0,'普通成员'),
+            'proposer_grade'=> MemberGradeDefineRepository::getLabelById($member_grade_list[$contact_info['proposer_id']]['grade'] ?? 0,'普通成员'),
             'contact_name'  => $member_base_list[$contact_info['contact_id']]['ch_name'] ?? '',
-            'contact_grade' => MemberEnum::getGrade($member_grade_list[$contact_info['contact_id']]['grade'] ?? 0,'普通成员'),
+            'contact_grade' => MemberGradeDefineRepository::getLabelById($member_grade_list[$contact_info['contact_id']]['grade'] ?? 0,'普通成员'),
             'needs_value'   => $contact_info['needs_value'],
             'status'        => CommonAuditStatusEnum::getAuditStatus($contact_info['status']),
             'created_at'    => empty($contact_info['created_at']) ? date('Y-m-d H:i:s',$contact_info['created_at']) : '',
