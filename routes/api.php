@@ -29,6 +29,7 @@ $api->version('v1',function ($api){
 
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
     $api->post('send_message',function(){
+        dd(\App\Services\Message\MessageCacheService::increaseCacheMessageCount(0,1));
         $user_index = base64_encode('oa.1');
         $key        = 'message_count';
         $all_message_count = \Illuminate\Support\Facades\Cache::has($key) ? \Illuminate\Support\Facades\Cache::pull($key) : [];

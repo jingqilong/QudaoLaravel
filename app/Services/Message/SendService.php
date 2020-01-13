@@ -47,7 +47,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount($user_id,$user_type);
+        MessageCacheService::increaseCacheMessageCount($user_id,$user_type);
+//        MessageSendRepository::increaseCacheMessageCount($user_id,$user_type);
         DB::commit();
         return true;
     }
@@ -77,7 +78,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
+        MessageCacheService::increaseCacheMessageCount(0,$user_type);
+//        MessageSendRepository::increaseCacheMessageCount(0,$user_type);
         DB::commit();
         return true;
     }
@@ -109,7 +111,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageSendRepository::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
+        MessageCacheService::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
+//        MessageSendRepository::increaseCacheMessageCount($user_id,MessageEnum::MEMBER);
         DB::commit();
         return true;
     }
@@ -393,7 +396,8 @@ class SendService extends BaseService
             $this->setError('获取失败！');
             return false;
         }
-        MessageSendRepository::decrementCacheMessageCount($user_id,$user_type);
+        MessageCacheService::decrementCacheMessageCount($user_id,$user_type);
+//        MessageSendRepository::decrementCacheMessageCount($user_id,$user_type);
         $this->setMessage('获取成功！');
         return $send;
     }
@@ -426,7 +430,7 @@ class SendService extends BaseService
             $this->setError('删除失败！');
             return false;
         }
-        $this->setMessage('获取成功！');
+        $this->setMessage('删除成功！');
         return $send;
     }
     /**
