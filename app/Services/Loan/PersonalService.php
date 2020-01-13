@@ -135,18 +135,14 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
-        if (!isset(LoanEnum::$type[$data['type']])){
-              $this->setError('该推荐类型不存在');
-              return false;
-        }
         $add_arr  = [
             'user_id'         =>  $memberInfo->id,
             'name'            =>  $data['name'],
             'mobile'          =>  $data['mobile'],
-            'price'           =>  $data['price'] ?? LoanEnum::MILLION,
+            'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  '静安区延安西路300号10楼1001室',
             'type'            =>  $data['type'],
             'remark'          =>  $data['remark'] ?? '',
             'status'          =>  LoanEnum::SUBMIT,
@@ -188,10 +184,10 @@ class PersonalService extends BaseService
             'user_id'         =>  0,
             'name'            =>  $data['name'],
             'mobile'          =>  $data['mobile'],
-            'price'           =>  $data['price'] ?? LoanEnum::MILLION,
+            'price'           =>  $data['price'],
             'ent_name'        =>  $data['ent_name'],
             'ent_title'       =>  $data['ent_title'],
-            'address'         =>  $data['address'],
+            'address'         =>  '静安区延安西路300号10楼1001室',
             'type'            =>  $data['type'],
             'remark'          =>  $data['remark'],
             'appointment'     =>  LoanEnum::ACTIVITY,

@@ -30,7 +30,7 @@ class MemberGradeDefineRepository extends EnumerableRepository
 
     use RepositoryTrait;
 
-    protected $columns_map = ['id'=>'id','label'=>'title','name'=>'tag'];
+    protected $columns_map = ['id'=>'iden','label'=>'title','name'=>'tag'];
 
     /**
      * AdminUserRepository constructor.

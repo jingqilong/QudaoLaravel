@@ -52,6 +52,98 @@ class OaMemberService extends BaseService
         $this->auth = Auth::guard('oa_api');
     }
 
+    /**
+     * 获取成员列表 (拆表后 已修改) （2）
+     * @param array $data
+     * @return mixed
+     */
+    public function memberList(array $data)
+    {
+        if (empty($data['asc']))  $data['asc'] = $this->sort;
+        $page       = $data['page'] ?? $this->page;
+        $page_num   = $data['page_num'] ?? $this->page_num;
+        $asc        = $data['asc'] == 1 ? 'asc' : 'desc';
+        $where      = ['deleted_at' => 0,'is_test' => 0];
+        $keywords   = $data['keywords'] ?? null;
+        $column     = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
+        $where_arr  = Arr::only($data,['is_home_detail','category','sex']);
+        foreach ($where_arr as $key => $value){
+            if (!is_null($value)){
+                $where[$key] = $value;
+            }
+        }
+        if (!empty($keywords)){
+            $keyword   = [$keywords => ['card_no','ch_name','en_name','mobile']];
+            if (!$list = $this->getScreenMemberList($keyword,$where, $column, $page, $page_num, 'id', $asc)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }else{
+            if (!$list = MemberBaseRepository::getMemberList($where, $column, $page, $page_num, 'id', $asc)) {
+                $this->setError('获取失败!');
+                return false;
+            }
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            $this->setMessage('获取成功!');
+            return [];
+        }
+        foreach ($list['data'] as &$value){
+            if (empty($value['grade'])) $value['grade_name'] = '普通成员'; else $value['grade_name'] = MemberEnum::getGrade($value['grade']) ;
+            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
+            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
+            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
+            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+            $value['img_url']       = $value['avatar_url']; #前端适配字段名
+            unset($value['member_id'],$value['user_id'],$value['avatar_url']);
+        }
+        $this->setMessage('获取成功！');
+        return $list;
+    }
+
+
+    /**
+     * 获取OA成员加搜索列表数据
+     * @param $keyword
+     * @param array $where
+     * @param array $column
+     * @param int $page
+     * @param int $page_num
+     * @param string $order
+     * @param string $asc
+     * @return array|bool|mixed
+     */
+    public function getScreenMemberList($keyword, array $where,array $column, int $page, int $page_num, string $order, string $asc)
+    {
+        if (!$list = MemberBaseRepository::search($keyword,$where, $column, $page, $page_num, $order, $asc)) {
+            return false;
+        }
+        $list           = $this->removePagingField($list);
+        $list['data']   = ImagesService::getListImagesConcise($list['data'],['avatar_id' => 'single']);
+        $list['data']   = MemberInfoRepository::bulkHasOneWalk(
+            $list['data'],
+            ['from' => 'id','to' => 'member_id'],
+            ['member_id','is_home_detail','employer'],
+            [],
+            function ($src_item,$member_info_item){
+                $src_item['is_home_detail'] = $member_info_item['is_home_detail'];
+                $src_item['employer']       = $member_info_item['employer'];
+                return $src_item;
+            }
+        );
+        $list['data'] = MemberGradeRepository::bulkHasOneWalk(
+            $list['data'],
+            ['from' => 'id','to' => 'user_id'],
+            ['user_id','grade'],
+            [],
+            function ($src_item,$member_grade_item){
+                $src_item['grade'] = $member_grade_item['grade'];
+                return $src_item;
+            }
+        );dd($list);
+        return $list;
+    }
   
 
     /*public function memberList(array $data)
