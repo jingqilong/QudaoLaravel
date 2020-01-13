@@ -8,6 +8,7 @@ use App\Enums\MessageEnum;
 use App\Models\MessageSendModel;
 use App\Repositories\Traits\RepositoryTrait;
 use Illuminate\Support\Facades\Cache;
+use function Qiniu\base64_urlSafeEncode;
 
 class MessageSendRepository extends ApiRepository
 {
@@ -29,7 +30,9 @@ class MessageSendRepository extends ApiRepository
      */
     protected function increaseCacheMessageCount($user_id, $user_type){
         $index      = config('message.cache-chanel');
-        $user_index = base64_encode($index[$user_type].$user_id);
+        // $user_index = base64_encode($index[$user_type].$user_id);
+        $user_index = base64_urlSafeEncode($index[$user_type].$user_id);
+
         $key        = config('message.cache-key');
         $all_message_count = Cache::has($key) ? Cache::get($key) : [];
         if (empty($user_id)){
@@ -46,7 +49,9 @@ class MessageSendRepository extends ApiRepository
      */
     protected function decrementCacheMessageCount($user_id, $user_type){
         $index      = config('message.cache-chanel');
-        $user_index = base64_encode($index[$user_type].$user_id);
+        // $user_index = base64_encode($index[$user_type].$user_id);
+        $user_index = base64_urlSafeEncode($index[$user_type].$user_id);
+
         $key        = config('message.cache-key');
         $all_message_count = Cache::has($key) ? Cache::pull($key) : [];
         $count = $all_message_count[$user_index] ?? 0;
