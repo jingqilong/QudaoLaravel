@@ -188,6 +188,26 @@ trait RepositoryTrait
         return $result ? $result->toArray() : null;
     }
 
+
+    /**
+     * 获取第一条查询到的数据，如果不存在，则创建数据
+     * @param array $where
+     * @param array $data
+     * @return bool|null
+     */
+    protected function updateOrInsert(array $where, array $data){
+        if (!$model = self::addWhere($this->model,$where)->exists()) {
+            $result = $this->model->insert(array_merge($where, $data));
+            return $result ? $result : null;
+        }
+        if (empty($data)) {
+            return true;
+        }
+        $model = self::addWhere($this->model,$where);
+        $result = $model->update($data);
+        return $result;
+    }
+
     /**
      * 删除数据
      * @param $where

@@ -597,21 +597,19 @@ class OaMemberService extends BaseService
             return false;
         }
         $base_upd  = [];
-        $grade_upd = [];
-        $member_grade        = MemberGradeRepository::getOne(['user_id' => $member_base['id']]);
         $member_base_fields  = MemberBaseRepository::getFields();
-        $member_grade_fields = MemberGradeRepository::getFields();
         if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime($request['end_at']);
         foreach($member_base_fields as $v){
             if (isset($request[$v]) && $member_base[$v] !== $request[$v]){
                 $base_upd[$v] = $request[$v];
             }
         }
-        foreach($member_grade_fields as $value){
-            if (isset($request[$value]) && $member_grade[$value] !== $request[$value]){
-                $grade_upd[$value] = $request[$value];
-            }
-        }
+        $grade_upd = [
+            'grade'      => $request['grade'] ?? MemberEnum::DEFAULT,
+            'status'     => MemberEnum::PASS,
+            'end_at'     => $request['end_at'],
+            'update_at'  => time(),
+        ];
         DB::beginTransaction();
         if (!empty($base_upd)){
             if (!MemberBaseRepository::getUpdId(['id' => $request['id']],$base_upd)){
@@ -621,7 +619,7 @@ class OaMemberService extends BaseService
             }
         }
         if (!empty($grade_upd)) {
-            if (!MemberGradeRepository::getUpdId(['user_id' => $member_base['id']],$grade_upd)) {
+            if (!MemberGradeRepository::updateOrInsert(['user_id' => $request['id']],$grade_upd)) {
                 $this->setError('成员修改失败!');
                 DB::rollBack();
                 return false;
@@ -629,7 +627,7 @@ class OaMemberService extends BaseService
         }
         $this->setMessage('成员基本信息修改成功!');
         DB::commit();
-        return ['member_id' => $member_base['id']];
+        return ['member_id' => $request['id']];
     }
 
     /**
@@ -655,7 +653,7 @@ class OaMemberService extends BaseService
             }
         }
         if (!empty($info_upd)){
-            if (!MemberInfoRepository::getUpdId(['member_id' => $member_info['member_id']],$info_upd)){
+            if (!MemberInfoRepository::updateOrInsert(['member_id' => $member_info['member_id']],$info_upd)){
                 $this->setError('成员简历信息修改失败!');
                 return false;
             }
@@ -697,14 +695,14 @@ class OaMemberService extends BaseService
         }
         DB::beginTransaction();
         if (!empty($service_upd)){
-            if (!MemberPersonalServiceRepository::getUpdId(['member_id' => $request['member_id']],$service_upd)){
+            if (!MemberPersonalServiceRepository::updateOrInsert(['member_id' => $request['member_id']],$service_upd)){
                 $this->setError('成员修改失败!');
                 DB::rollBack();
                 return false;
             }
         }
         if (!empty($preference_upd)) {
-            if (!MemberPreferenceRepository::getUpdId(['member_id' => $request['member_id']],$preference_upd)) {
+            if (!MemberPreferenceRepository::updateOrInsert(['member_id' => $request['member_id']],$preference_upd)) {
                 $this->setError('成员信息修改失败!');
                 DB::rollBack();
                 return false;
