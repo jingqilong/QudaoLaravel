@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Ixudra\Curl\Facades\Curl;
 
+use App\Repositories\MemberGradeDefineRepository;
+
 class TestApiController extends ApiController
 {
     /**
@@ -125,6 +127,8 @@ class TestApiController extends ApiController
      *
      */
     public function index(){
+
+
 //        try{
 //            return EventProcessorService::eventReceiver('send_sms','18394377667','测试短信');
 //        } catch (EventDoesNotExistsException $e) {
@@ -590,5 +594,45 @@ class $serviceName extends BaseService
         $mailable = new DingTalkEmail($email_data);
         Mail::to('2286760960@qq.com')->send($mailable);
         return 'ok';
+    }
+
+    /**
+     * refund
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/enum_repository_test",
+     *     tags={"测试"},
+     *     summary="EnumRepositoryTest",
+     *     description="bardo" ,
+     *     operationId="EnumRepositoryTest",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function EnumRepositoryTest(){
+        $data = [
+            'grade_from_mehtod' =>
+                [
+                    'code' =>  'MemberGradeDefineRepository::DEFAULT()',
+                    'value' =>MemberGradeDefineRepository::DEFAULT()
+                ],
+            'grade_get_label' =>
+                [
+                    'code' =>  'MemberGradeDefineRepository::getLabelByid(MemberGradeDefineRepository::DEFAULT())',
+                    'value' =>MemberGradeDefineRepository::getLabelByid(MemberGradeDefineRepository::DEFAULT())
+                ],
+            'grade_one_by_id' =>
+                [
+                    'code' =>  'MemberGradeDefineRepository::getLabelByid(MemberGradeDefineRepository::DEFAULT())',
+                    'value' =>MemberGradeDefineRepository::getOneById(MemberGradeDefineRepository::DEFAULT())
+                ],
+        ];
+        return ['code' => 200, 'message' => '成功', 'data' => $data];
+
     }
 }

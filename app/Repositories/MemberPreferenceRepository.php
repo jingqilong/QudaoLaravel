@@ -22,36 +22,6 @@ class MemberPreferenceRepository extends ApiRepository
     }
 
     /**
-     * 添加成员偏好类型
-     * @param $request
-     * @param $member_id
-     * @return bool|null
-     */
-    protected function addMemberPreference($request, $member_id)
-    {
-        $preference = json_encode($request['preference']);
-        $preference_arr = [];
-        foreach ($preference as $value){
-            $preference_arr = [
-                'member_id'         => $member_id,
-                'type'              => $value['type'],
-                'content'           => $value['content'],
-                'created_at'        => time(),
-                'update_at'         => time(),
-            ];
-        }
-        DB::beginTransaction();
-        $this->delete(['member_id' => $member_id]);
-        DB::rollBack();
-        if (!$this->create($preference_arr)){
-            DB::rollBack();
-            return false;
-        }
-        DB::commit();
-        return true;
-    }
-
-    /**
      * 获取会员的偏好属性
      * @param $member_id
      * @return array
