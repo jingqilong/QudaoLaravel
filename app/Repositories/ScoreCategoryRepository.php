@@ -13,6 +13,17 @@ use App\Repositories\Traits\RepositoryTrait;
  * Class ScoreCategoryRepository
  * @package App\Repositories
  */
+
+/**
+ * <这是为IDE添加自动完成的以及调试所用的注解>
+ *
+ * @method        int           PRESTIGE()                                                                               Get the Activety typr id.
+ * @method        int           BONUS()                                                                                  Get the Activety typr id.
+ * @method        int           GOLD_COIN()                                                                             Get the Activety typr id.
+ *
+ * <end 自动完成>
+ *
+ */
 class ScoreCategoryRepository extends EnumerableRepository
 {
     use RepositoryTrait;

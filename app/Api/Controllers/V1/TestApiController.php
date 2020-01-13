@@ -18,6 +18,7 @@ use Ixudra\Curl\Facades\Curl;
 
 use App\Repositories\MemberGradeDefineRepository;
 
+
 class TestApiController extends ApiController
 {
     /**
@@ -620,7 +621,7 @@ class $serviceName extends BaseService
                 [
                     'code' =>  'MemberGradeDefineRepository::DEFAULT()',
                     'value' =>MemberGradeDefineRepository::DEFAULT()
-                ],
+                 ],
             'grade_get_label' =>
                 [
                     'code' =>  'MemberGradeDefineRepository::getLabelByid(MemberGradeDefineRepository::DEFAULT())',
@@ -631,6 +632,8 @@ class $serviceName extends BaseService
                     'code' =>  'MemberGradeDefineRepository::getLabelByid(MemberGradeDefineRepository::DEFAULT())',
                     'value' =>MemberGradeDefineRepository::getOneById(MemberGradeDefineRepository::DEFAULT())
                 ],
+
+
         ];
         return ['code' => 200, 'message' => '成功', 'data' => $data];
 
