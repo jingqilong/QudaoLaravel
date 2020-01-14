@@ -75,6 +75,14 @@ if(!function_exists('byRef')){
 }
 
 if (!function_exists('base64UrlEncode')){
+    /**
+     * 对提供的数据进行urlsafe的base64编码。
+     *
+     * @param string $data 待编码的数据，一般为字符串
+     *
+     * @return string 编码后的字符串
+     * @link http://developer.qiniu.com/docs/v6/api/overview/appendix.html#urlsafe-base64
+     */
     function base64UrlEncode($data)
     {
         $find = array('=','+', '/');

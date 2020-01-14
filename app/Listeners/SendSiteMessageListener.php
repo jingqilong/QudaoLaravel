@@ -35,7 +35,6 @@ class SendSiteMessageListener implements ShouldQueue
         try {
             $data       = $event->data;
             $receiver   = $data['receiver'];
-            Loggy::write('process','执行了发送站内信事件！用户ID：'.$receiver['receiver_id']);
             $message_data = [
                 'receiver_name'     => $receiver['receiver_name'],
                 'process_full_name' => $data['process_full_name']['process_name'],
@@ -61,7 +60,7 @@ class SendSiteMessageListener implements ShouldQueue
                 $data['link_url']
             );
         }catch (\Exception $e){
-            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'],json_decode(json_encode($e), true));
+            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'],$e);
         }
         return false;
     }
@@ -75,6 +74,7 @@ class SendSiteMessageListener implements ShouldQueue
      */
     public function failed($event, $exception)
     {
-        Loggy::write('process','发送站内信任务执行失败！',json_decode(json_encode($exception), true));
+        Loggy::write('process','发送站内信任务执行失败,再次执行！',$exception);
+        $this->handle($event);
     }
 }

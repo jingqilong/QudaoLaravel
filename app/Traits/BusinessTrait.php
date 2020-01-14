@@ -283,9 +283,9 @@ trait BusinessTrait
             $action_result['name']='';
         }
         if($event_params['action_result_status']>1){
-            $send_data['precess_result'] = "已经审絯结束，结果是：".$action_result['action_result_name']."。 ";
+            $send_data['precess_result'] = "已经审核结束，结果是：".$action_result['action_result_name'];
         }else{
-            $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['action_result_name']."。 ";
+            $send_data['precess_result'] = "仍在审核中，当前结果是：".$action_result['action_result_name'];
         }
         //邮件标题
         $send_data['title'] = "你的". $send_data['process_full_name']['process_name'] . "审核进展！";
