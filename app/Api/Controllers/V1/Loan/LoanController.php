@@ -371,6 +371,15 @@ class LoanController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
+     *          name="company_address",
+     *          in="query",
+     *          description="公司地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="price",
      *          in="query",
      *          description="贷款金额",
@@ -382,7 +391,7 @@ class LoanController extends ApiController
      *     @OA\Parameter(
      *          name="reservation_at",
      *          in="query",
-     *          description="预约时间",
+     *          description="预约时间【2020-10-10 15:15:15】",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -406,21 +415,21 @@ class LoanController extends ApiController
         $rules = [
             'name'              => 'required',
             'mobile'            => 'required|regex:/^1[345678][0-9]{9}$/',
-            'price'             => 'in:1,2,3,4,5',
+            'price'             => 'required|integer',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
+            'company_address'   => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
             'name.required'             => '请输入预约姓名',
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
-            'price.required'            => '请填写贷款金额',
-            'price.integer'             => '请正确填写贷款金额',
-            'price.in'                  => '贷款金额数量格式不正确',
+            'price.required'            => '请正确填写需求金额',
+            'price.integer'             => '需求金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
-            'address.required'          => '请输入面谈地址',
+            'company_address.required'  => '公司地址不能为空',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];

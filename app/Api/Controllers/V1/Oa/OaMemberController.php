@@ -71,7 +71,7 @@ class OaMemberController extends ApiController
      *     @OA\Parameter(
      *         name="sex",
      *         in="query",
-     *         description="成员性别",
+     *         description="成员性别[1男 2女]",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
