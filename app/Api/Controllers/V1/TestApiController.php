@@ -8,10 +8,12 @@ use App\Events\SendSiteMessage;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Library\UmsPay\UmsPay;
 use App\Mail\DingTalkEmail;
+use App\Repositories\MemberInfoRepository;
 use App\Services\Common\EventProcessorService;
 use App\Services\Common\QiNiuService;
 use EasyWeChat\Factory;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use EasyWeChat\Kernel\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Ixudra\Curl\Facades\Curl;
@@ -637,5 +639,33 @@ class $serviceName extends BaseService
         ];
         return ['code' => 200, 'message' => '成功', 'data' => $data];
 
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/test/update_member_info",
+     *     tags={"测试"},
+     *     summary="清除成员表个人简介中的html格式",
+     *     description="bardo" ,
+     *     operationId="update_member_info",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="成功",
+     *     ),
+     * )
+     *
+     */
+    public function updateMemberInfo()
+    {
+        $total = MemberInfoRepository::count(['id' => ['>',0]]);
+        for ($i = 1 ; $i <= $total ; $i++){
+            $info = MemberInfoRepository::getOne(['id' => $i]);
+            if (!is_null($info['profile'])){
+                $upd_profile = strip_tags($info['profile']);
+                MemberInfoRepository::getUpdId(['id' => $info['id']],['profile' => $upd_profile]);
+            }
+        }
+        return ['code' => 200, 'message' => '成功'];
     }
 }

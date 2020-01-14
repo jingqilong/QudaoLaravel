@@ -43,6 +43,7 @@ $api->version('v1',function ($api){
             $api->get('refund','TestApiController@refund')->name('refund');
             $api->get('event_test','TestApiController@eventTest')->name('eventTest');
             $api->get('enum_repository_test','TestApiController@EnumRepositoryTest')->name('EnumRepositoryTest');
+            $api->get('update_member_info','TestApiController@updateMemberInfo')->name('updateMemberInfo');
         });
         $api->any('oa/push','Oa\MessageController@push')->name("添加web推送授权信息");
 
