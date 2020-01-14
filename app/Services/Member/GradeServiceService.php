@@ -138,14 +138,11 @@ class GradeServiceService extends BaseService
             $this->setMessage('该等级下暂无服务');
             return [];
         }
-        $service_ids = array_column($grade_list,'service_id');
-        if (!$service_list = MemberServiceRepository::getList(['id' => ['in',$service_ids]],['id','name'])){
-            $this->setError('获取失败！');
-            return false;
-        }
+        $service_list = MemberServiceRepository::getAllIndexService();
+        #给服务名字加上父级名称
         foreach ($grade_list as &$value){
-            if ($service = $this->searchArray($service_list,'id',$value['service_id'])){
-                $value['service_name'] = reset($service)['name'];
+            if (isset($service_list[$value['service_id']])){
+                $value['service_name'] = $service_list[$value['service_id']]['name'];
             }
         }
         $this->setMessage('获取成功！');

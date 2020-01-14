@@ -536,9 +536,13 @@ class RegisterService extends BaseService
             'image_url'     => $image_url,
             'is_lottery'    => 0,
             'is_win'        => 0,
-            'is_prize'      => ActivityPrizeRepository::exists(['activity_id' => $activity['id']]) ? 1 : 0,#是否有抽奖活动
             'prize'         => []
         ];
+        #是否有抽奖活动
+        $res['is_prize']    = 0;
+        if (ActivityPrizeRepository::exists(['activity_id' => $register['activity_id']])){
+            $res['is_prize']    = 1;
+        }
         //检查是否已抽奖
         if ($winning = ActivityWinningRepository::getOne(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
             $res['is_lottery'] = 1;#是否抽奖

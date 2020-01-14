@@ -109,5 +109,36 @@ class MemberServiceRepository extends ApiRepository
         }
         return $res;
     }
+
+    protected function getAllIndexService($column = []){
+        if (!$service_list = MemberServiceRepository::getAll(array_merge(['id','name','parent_id'],$column))){
+            return [];
+        }
+        $service_list = createArrayIndex($service_list,'id');
+        foreach ($service_list as &$value){
+            if (!empty($value['parent_id'])){
+                $value['name'] = $this->getParentServiceName($service_list,$value['parent_id']) . '-' . $value['name'];
+            }
+        }
+        return $service_list;
+    }
+
+    /**
+     * 获取父级服务名称
+     * @param $array
+     * @param $parent_id
+     * @return string
+     */
+    function getParentServiceName ($array, $parent_id){
+        if (!isset($array[$parent_id])){
+            return '';
+        }
+        $parent = $array[$parent_id];
+        $parent_name = $parent['name'];
+        if (!empty($parent['parent_id'])){
+            $parent_name = $this->getParentServiceName($array,$parent['parent_id']) . '-' . $parent_name;
+        }
+        return $parent_name;
+    }
 }
             
