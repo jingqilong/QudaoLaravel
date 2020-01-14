@@ -11,6 +11,7 @@ use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
+use EasyWeChat\Kernel\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -135,27 +136,25 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
-        $add_arr  = [
+        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','company_address','ent_title','mobile','type','remark']);
+        $handle_arr = [
             'user_id'         =>  $memberInfo->id,
-            'name'            =>  $data['name'],
-            'mobile'          =>  $data['mobile'],
-            'price'           =>  $data['price'],
-            'ent_name'        =>  $data['ent_name'],
-            'ent_title'       =>  $data['ent_title'],
             'address'         =>  '静安区延安西路300号10楼1001室',
-            'type'            =>  $data['type'],
-            'remark'          =>  $data['remark'] ?? '',
             'status'          =>  LoanEnum::SUBMIT,
             'appointment'     =>  LoanEnum::PLATFORM,
             'reservation_at'  =>  strtotime($data['reservation_at']),
         ];
-        if (LoanPersonalRepository::exists($add_arr)){
+        if ($handle_arr['reservation_at'] < time()){
+            $this->setError('不能预约已经逝去的时间哦!');
+            return false;
+        }
+        if (LoanPersonalRepository::exists(array_merge($handle_arr,$add_arr))){
             $this->setError('您已预约，请勿重复预约!');
             return false;
         }
         $add_arr['created_at'] =  time();
         DB::beginTransaction();
-        if (!$id = LoanPersonalRepository::getAddId($add_arr)){
+        if (!$id = LoanPersonalRepository::getAddId(array_merge($handle_arr,$add_arr))){
             $this->setError('预约失败,请稍后重试！');
             DB::rollBack();
             return false;
