@@ -275,7 +275,6 @@ class MemberService extends BaseService
         }
         foreach ($member_info as &$value) $value = $value ?? '';
         $member_info['grade'] = MemberGradeDefineRepository::getLabelById($member_info['grade'],'普通成员');
-        $member_info['profile'] = strip_tags($member_info['profile']);
         $member_info['avatar_url'] = $member_info['img_url'];//为了和前端统一数据
         unset($member_info['status'],$member_info['img_url']);
         $this->setMessage('获取成功!');
@@ -303,7 +302,6 @@ class MemberService extends BaseService
         $member['sex_name']     = MemberEnum::getSex($member['sex'],'未设置');
         $member['grade']        = MemberGradeDefineRepository::getLabelById($member['grade'],'普通成员');
         $member['category']     = MemberEnum::getCategory($member['category'],'普通成员');
-        $member['profile']      = strip_tags($member['profile']);
         $member['birthday']     = date('Y-m-d',strtotime($member['birthday']));
         foreach ($member as &$value) $value = $value ?? '';
         $this->setMessage('获取成功!');
