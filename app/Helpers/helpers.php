@@ -90,3 +90,20 @@ if (!function_exists('base64UrlEncode')){
         return str_replace($find, $replace, base64_encode($data));
     }
 }
+
+if (!function_exists('createArrayIndex')){
+
+    /**
+     * @desc 以键值为$index重组数组。如同给表创建索引。
+     * @param array $array      源二维数组
+     * @param string $index     索引列
+     * @return array
+     */
+    function createArrayIndex($array, $index){
+        $result_array = [];
+        foreach($array as $item){
+            $result_array[$item[$index]] = $item;
+        }
+        return $result_array;
+    }
+}

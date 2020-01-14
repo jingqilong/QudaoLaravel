@@ -74,4 +74,18 @@ class BaseService
     public function setCode($code){
         $this->code = $code;
     }
+
+    /**
+     * 获取当前传入的分页参数
+     * 如果要分开到变量中：list($page,$page_num) = $this->inputPage();
+     * @param int $per_page
+     * @return array
+     */
+    public function inputPage($per_page = 10){
+        return [
+            'page' =>request('page',1),
+            'page_num' => request('page_num',$per_page)
+        ];
+    }
+
 }
