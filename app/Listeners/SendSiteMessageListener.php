@@ -42,16 +42,6 @@ class SendSiteMessageListener implements ShouldQueue
             $category = MessageEnum::SYSTEMNOTICE;
             $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
             $sendMethod = $data['event_type'] == ProcessPrincipalsEnum::STARTER ? 'sendMessageForMember' : 'sendMessageForEmployee';
-//            if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
-//                app(SendService::class)::sendMessageForMember(
-//                    $receiver['receiver_id'],
-//                    $category,
-//                    $data['title'],
-//                    $messageTemplate->getContent(),
-//                    $data['business_id']
-//                );
-//                return false;
-//            }
             app(SendService::class)::$sendMethod(
                 $receiver['receiver_id'],
                 $category,
