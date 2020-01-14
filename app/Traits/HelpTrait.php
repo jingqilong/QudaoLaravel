@@ -7,7 +7,8 @@ namespace App\Traits;
 use App\Enums\ImageTypeEnum;
 use App\Repositories\CommonAreaRepository;
 use App\Library\Members\Member;
-
+use Illuminate\Support\Carbon;
+use Carbon\CarbonInterval;
 trait HelpTrait
 {
     /**
@@ -170,6 +171,11 @@ trait HelpTrait
         if ($time == 0){
             return $default;
         }
+//        $Interval = CarbonInterval::seconds($time);
+//        $properties = [ 'weeks','daysExcludeWeeks','hours','minutes' ];
+//        $total =['totalWeeks','totalDays','totalHours','totalMinutes'];
+//        $units = ['周','天','小时','分钟' ];
+
         switch ($type){
             case 1:
                 $res = floor($time/60) . '分钟';

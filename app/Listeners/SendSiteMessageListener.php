@@ -8,6 +8,7 @@ use App\Services\Message\MessageTemplate;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\Message\SendService;
+use Illuminate\Support\Facades\Cache;
 use Tolawho\Loggy\Facades\Loggy;
 
 
@@ -41,26 +42,17 @@ class SendSiteMessageListener implements ShouldQueue
             ];
             $category = MessageEnum::SYSTEMNOTICE;
             $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
-            if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
-                app(SendService::class)::sendMessageForMember(
-                    $receiver['receiver_id'],
-                    $category,
-                    $data['title'],
-                    $messageTemplate->getContent(),
-                    $data['business_id']
-                );
-                return false;
-            }
-            app(SendService::class)::sendMessageForEmployee(
+            $sendMethod = $data['event_type'] == ProcessPrincipalsEnum::STARTER ? 'sendMessageForMember' : 'sendMessageForEmployee';
+            app(SendService::class)::$sendMethod(
                 $receiver['receiver_id'],
                 $category,
                 $data['title'],
                 $messageTemplate->getContent(),
                 $data['business_id'],
-                $data['link_url']
+                $data['link_url'] ?? ''
             );
-        }catch (\Exception $e){
-            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'],$e);
+        }catch (\Exception $e){Cache::add('error',$e);
+            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'].'error:'.$e->getMessage(),json_decode(json_encode($e), true));
         }
         return false;
     }
@@ -74,7 +66,7 @@ class SendSiteMessageListener implements ShouldQueue
      */
     public function failed($event, $exception)
     {
-        Loggy::write('process','发送站内信任务执行失败,再次执行！',$exception);
+        Loggy::write('process','发送站内信任务执行失败,再次执行！',json_decode(json_encode($exception), true));
         $this->handle($event);
     }
 }

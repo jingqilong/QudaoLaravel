@@ -979,6 +979,7 @@ class OaMemberController extends ApiController
             'zipcode'         => 'regex:/\d{6}/',
             'grade'           => 'required|integer',
             'end_at'          => 'required',
+            'birthday'        => 'date_format:"Y-m-d"',
         ];
         $messages = [
             'id.required'        => '成员ID不能为空',
@@ -1002,6 +1003,7 @@ class OaMemberController extends ApiController
             'grade.required'     => '成员级别不能为空',
             'grade.integer'      => '成员级别格式不正确',
             'end_at.required'    => '成员等级截止时间不能为空',
+            'birthday.date_format'     => '成员生日格式不正确'
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

@@ -28,15 +28,6 @@ $api->version('v1',function ($api){
 //    })->where(['all' => '([a-zA-Z0-9-]|/)+']);
 
     $api->get('swagger/doc','App\Api\Controllers\SwaggerController@doc');
-    $api->post('send_message',function(){
-        dd(\App\Services\Message\MessageCacheService::increaseCacheMessageCount(0,1));
-        $user_index = base64_encode('oa.1');
-        $key        = 'message_count';
-        $all_message_count = \Illuminate\Support\Facades\Cache::has($key) ? \Illuminate\Support\Facades\Cache::pull($key) : [];
-        $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
-        \Illuminate\Support\Facades\Cache::put($key,$all_message_count);
-        return 'ok';
-    });
     //不需要验签的接口
     $api->group(['prefix' => 'v1','middleware' => 'cors','namespace' => 'App\Api\Controllers\V1'], function ($api) {
         //测试
