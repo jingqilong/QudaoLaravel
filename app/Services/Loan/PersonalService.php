@@ -6,6 +6,7 @@ use App\Enums\LoanEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\LoanPersonalRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -95,6 +96,17 @@ class PersonalService extends BaseService
             $this->setMessage('暂无数据');
             return $list;
         }
+        $list['data'] = MemberBaseRepository::bulkHasOneWalk(
+            $list['data'],
+            ['from' => 'user_id' ,'to' => 'id'],
+            ['id','ch_name','mobile'],
+            [],
+            function ($src_item,$member_base_items){
+                $src_item['recommend_name']   = $member_base_items['ch_name'];
+                $src_item['recommend_mobile'] = $member_base_items['mobile'];
+                return $src_item;
+            }
+        );
         foreach ($list['data'] as &$value)
         {
             $value['type_name']         =   LoanEnum::getType($value['type']);
