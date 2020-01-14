@@ -153,6 +153,8 @@ class RegisterService extends BaseService
         $this->setMessage('报名成功！');
         return [
             'register_id'       => $register_id,
+            'register_audit'    => $add_arr['audit'],
+            'need_audit'        => $activity['need_audit'],
             'register_status'   => $add_arr['status'],
             'order_no'          => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? '' : $order_no,
             'price'             => round($add_arr['member_price'] / 100,2)
