@@ -274,7 +274,7 @@ trait BusinessTrait
 
         //通过 process_id 获取流程名称。NODE 获取动作名称。
         $send_data['process_full_name'] = app(ProcessNodeService::class)->getProcessNodeFullName(
-            $event_params['business_id'],$event_params['node_id']
+            $event_params['process_id'],$event_params['node_id']
         );
         $action_result = OaProcessNodeActionsResultViewRepository::getOne(['id' => $event_params['node_action_result_id']]);
         if (!$action_result){
