@@ -21,7 +21,7 @@ class SendSiteMessageListener implements ShouldQueue
      */
     public function __construct()
     {
-        Loggy::write('process','创建站内信监听器');
+        //
     }
 
     /**
@@ -66,6 +66,6 @@ class SendSiteMessageListener implements ShouldQueue
     public function failed($event, $exception)
     {
         Loggy::write('process','发送站内信任务执行失败,再次执行！',json_decode(json_encode($exception), true));
-        $this->handle($event);
+//        $this->handle($event);
     }
 }
