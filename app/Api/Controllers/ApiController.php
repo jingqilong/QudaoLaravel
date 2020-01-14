@@ -63,4 +63,59 @@ class ApiController extends BaseController
         }
         return $validator;
     }
+
+    /**
+     * 如果不传$keys 则要传入含有所有键值的 $default
+     * @param array|null $keys
+     * @param array|null $default
+     * @return array
+     */
+    public function input($keys = null, $default = null){
+        $request = app('request');
+        if(null === $keys){
+            if(null == $default){
+                return $request->except(['sign','token','page','page_num']);
+            }else{
+                $keys = array_keys($default);
+                return $request->input($keys,$default);
+            }
+        }
+        if(null == $default) {
+            return $request->input($keys);
+        }
+        return $request->input($keys,$default);
+    }
+
+    /**
+     * 获取当前传入的分页参数
+     * 如果要分开到变量中：list($page,$page_num) = $this->inputPage();
+     * @param int $per_page
+     * @return array
+     */
+    public function inputPage($per_page = 10){
+        return [
+            'page' =>request('page',1),
+            'page_num' => request('page_num',$per_page)
+        ];
+    }
+
+    /**
+     * 批量设置默认值的函数
+     * @param null $null_keys , 要设为NULL的键值
+     * @param null $empty_string_keys ,要设为''的键值
+     * @param null $zero_keys ,要设为0的键值
+     * @return array
+     */
+    public function setDefault($null_keys = null,$empty_string_keys = null,$zero_keys = null){
+        $param_array = [$null_keys,$empty_string_keys,$zero_keys];
+        $default = [null,'',0];
+        $return_array = [];
+        for($i=0,$j=count($param_array);$i<$j;$i++){
+            if(null !== $param_array[$i]){
+                $new_array = array_combine($param_array[$i], array_fill(0, count($param_array[$i]), $default[$i]));
+                $return_array = array_merge($return_array,$new_array);
+            }
+        }
+        return $return_array;
+    }
 }
