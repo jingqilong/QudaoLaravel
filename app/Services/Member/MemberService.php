@@ -887,8 +887,7 @@ class MemberService extends BaseService
             'name'  => '全部会员'
         ];
         $ids = MemberGradeDefineRepository::getIdArray();
-
-        foreach ($ids['id_list'] as  $value){
+        foreach ($ids as $value){
             $where = ['grade'=>$value,'status'=>1];
             $res[] = [
                 'value' => MemberGradeRepository::count($where),
