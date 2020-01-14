@@ -2,12 +2,11 @@
 namespace App\Services\Project;
 
 
-use App\Enums\HouseEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Enums\ProjectEnum;
-use App\Repositories\MemberRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\OaProjectOrderRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
@@ -127,9 +126,9 @@ class OaProjectService extends BaseService
         }
         $status = $upd_arr['status'];
         #通知用户
-        if ($member = MemberRepository::getOne(['m_id' => $order_info['user_id']])){
+        if ($member = MemberBaseRepository::getOne(['id' => $order_info['user_id']])){
             $member_name = $order_info['name'];
-            $member_name = $member_name . MemberEnum::getSex($member['m_sex']);
+            $member_name = $member_name . MemberEnum::getSex($member['sex']);
             $sms_template = [
                 ProjectEnum::PASS         =>
                     MessageEnum::getTemplate(
@@ -145,9 +144,9 @@ class OaProjectService extends BaseService
                     ),
             ];
             #短信通知
-            if (!empty($member['m_phone'])){
+            if (!empty($member['mobile'])){
                 $smsService = new SmsService();
-                $smsService->sendContent($member['m_phone'],$sms_template[$status]);
+                $smsService->sendContent($member['mobile'],$sms_template[$status]);
             }
             $title = '项目对接预约通知';
             #发送站内信
