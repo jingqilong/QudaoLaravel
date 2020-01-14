@@ -111,7 +111,8 @@ class PersonalService extends BaseService
         {
             $value['type_name']         =   LoanEnum::getType($value['type']);
             $value['status_name']       =   LoanEnum::getStatus($value['status']);
-            $value['price_name']        =   $value['price'] . '万元';
+            //$value['price_name']        =   $value['price'] . '万元';
+            $value['price_name']        =   LoanEnum::getPrice($value['price']);
             $value['reservation_at']    =   date('Y-m-d H:m:s',$value['reservation_at']);
             $value['created_at']        =   date('Y-m-d H:m:s',$value['created_at']);
             unset( $value['updated_at'], $value['deleted_at'], $value['deleted_at']);
@@ -135,7 +136,8 @@ class PersonalService extends BaseService
             $this->setError('预约信息不存在!');
             return false;
         }
-        $orderInfo['price']             =   $orderInfo['price'] . '万元';
+        //$orderInfo['price']             =   $orderInfo['price'] . '万元';
+        $orderInfo['price']             =   LoanEnum::getPrice($orderInfo['price']);
         $orderInfo['type_name']         =   LoanEnum::getType($orderInfo['type']);
         $orderInfo['status_name']       =   LoanEnum::getStatus($orderInfo['status']);
         $orderInfo['reservation_at']    =   date('Y-m-d H:m:s',$orderInfo['reservation_at']);
@@ -153,7 +155,7 @@ class PersonalService extends BaseService
     public function addLoan(array $data)
     {
         $memberInfo = $this->auth->user();
-        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','company_address','ent_title','type','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','ent_title','type','remark']);
         $handle_arr = [
             'user_id'         =>  $memberInfo->id,
             'address'         =>  '静安区延安西路300号10楼1001室',
@@ -197,7 +199,7 @@ class PersonalService extends BaseService
      */
     public function addLoanActivity(array $data)
     {
-        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','company_address','ent_title','type','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','ent_title','type','remark']);
         $handle_arr = [
             'user_id'         =>  0,
             'address'         =>  '静安区延安西路300号10楼1001室',
@@ -237,7 +239,7 @@ class PersonalService extends BaseService
             $this->setError('预约已审核，请联系客服更改!');
             return false;
         }
-        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','company_address','ent_title','type','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','ent_title','type','remark']);
         $handle_arr = [
             'status'          =>  LoanEnum::SUBMIT,
             'appointment'     =>  LoanEnum::PLATFORM,
@@ -263,7 +265,7 @@ class PersonalService extends BaseService
         if (!LoanPersonalRepository::exists(['id' => $data['id'],'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        $add_arr    = Arr::only($data,['name','mobile','price','type','status','ent_name','company_address','ent_title','address','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','type','status','ent_name','ent_title','address','remark']);
         $handle_arr = [
             'appointment'     =>  LoanEnum::PLATFORM,
             'updated_at'      =>  time(),
@@ -311,7 +313,8 @@ class PersonalService extends BaseService
         $info['type']           =  LoanEnum::getType($info['type']);
         $info['appointment']    =  LoanEnum::getAppointment($info['appointment']);
         $info['status']         =  LoanEnum::getStatus($info['status']);
-        $info['price']          =  $info['price'] . '万元';
+        $info['price']          =   LoanEnum::getPrice($info['price']);
+        //$info['price']          =  $info['price'] . '万元';
         $info['reservation_at'] =  empty($info['reservation_at']) ? '' : date('Y-m-d',$info['reservation_at']);
         $info['created_at']     =  empty($info['created_at']) ? '' : date('Y-m-d H:i:s',$info['created_at']);
         unset($info['updated_at'],$info['deleted_at']);
