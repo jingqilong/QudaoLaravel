@@ -41,26 +41,27 @@ class SendSiteMessageListener implements ShouldQueue
             ];
             $category = MessageEnum::SYSTEMNOTICE;
             $messageTemplate = new MessageTemplate($message_data,$receiver['receiver_iden']);
-            if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
-                app(SendService::class)::sendMessageForMember(
-                    $receiver['receiver_id'],
-                    $category,
-                    $data['title'],
-                    $messageTemplate->getContent(),
-                    $data['business_id']
-                );
-                return false;
-            }
-            app(SendService::class)::sendMessageForEmployee(
+            $sendMethod = $data['event_type'] == ProcessPrincipalsEnum::STARTER ? 'sendMessageForMember' : 'sendMessageForEmployee';
+//            if ($data['event_type'] == ProcessPrincipalsEnum::STARTER){
+//                app(SendService::class)::sendMessageForMember(
+//                    $receiver['receiver_id'],
+//                    $category,
+//                    $data['title'],
+//                    $messageTemplate->getContent(),
+//                    $data['business_id']
+//                );
+//                return false;
+//            }
+            app(SendService::class)::$sendMethod(
                 $receiver['receiver_id'],
                 $category,
                 $data['title'],
                 $messageTemplate->getContent(),
                 $data['business_id'],
-                $data['link_url']
+                $data['link_url'] ?? ''
             );
         }catch (\Exception $e){
-            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'],$e);
+            Loggy::write('process','执行发送站内信事件出错！用户ID：'.$receiver['receiver_id'].'error:'.$e->getMessage(),$e);
         }
         return false;
     }
