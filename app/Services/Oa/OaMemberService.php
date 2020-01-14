@@ -34,12 +34,12 @@ class OaMemberService extends BaseService
      */
     protected $sort = 2;
     /**
-     * 排序默认变量
+     * 分页默认变量
      * @var int
      */
     protected $page = 1;
     /**
-     * 排序默认变量
+     * 分页数量默认变量
      * @var int
      */
     protected $page_num = 20;
@@ -53,134 +53,53 @@ class OaMemberService extends BaseService
     }
 
     /**
-     * 获取成员列表 (拆表后 已修改) （2）
+     * 获取成员列表 (拆表后 已修改)
      * @param array $data
      * @return mixed
      */
     public function memberList(array $data)
     {
-        if (empty($data['asc'])) $data['asc'] = 1;
-        $is_home_detail = $data['is_home_detail'] ?? null;
-        $category       = $data['category'] ?? null;
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $keywords       = $data['keywords'] ?? null;
-        $where          = ['deleted_at' => 0,'is_test' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','avatar_id','address','status','hidden','created_at','category'];
-        if (!empty($category)) $where['category'] = $category;
-        /*if (!empty($is_home_detail)){
-            if (!$list = MemberInfoRepository::getScreenMemberList($is_home_detail, $column, $page, $page_num, 'id', $asc)) {
-                $this->setError('获取失败!');
-                return false;
+        if (empty($data['asc'])) $data['asc'] = $this->sort;
+        $page       = $data['page'] ?? $this->page;
+        $page_num   = $data['page_num'] ?? $this->page_num;
+        $asc        = $data['asc'] == 1 ? 'asc' : 'desc';
+        $where      = ['deleted_at' => 0, 'is_test' => 0];
+        $keywords   = $data['keywords'] ?? null;
+        $column     = ['id', 'card_no', 'ch_name', 'sex', 'mobile', 'img_url', 'address', 'status', 'hidden', 'created_at', 'category'];
+        $where_arr  = Arr::only($data, ['is_home_detail', 'grade', 'category', 'sex']);
+        foreach ($where_arr as $key => $value) {
+            if (!is_null($value)) {
+                $where[$key] = $value;
             }
-        }else{
-            if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
-                $this->setError('获取失败!');
-                return false;
-            }
-        }*/
-        if (!$list = MemberBaseRepository::getMemberList($keywords, $where, $column, $page, $page_num, 'id', $asc)) {
-            $this->setError('获取失败!');
-            return false;
         }
-        $list = $this->removePagingField($list);
-        if (empty($list['data'])){
-            $this->setMessage('获取成功!');
-            return [];
-        }
-        $this->setMessage('获取成功！');
-        return $list;
-    }
-
-
-    /**
-     * 获取OA成员加搜索列表数据
-     * @param $keyword
-     * @param array $where
-     * @param array $column
-     * @param int $page
-     * @param int $page_num
-     * @param string $order
-     * @param string $asc
-     * @return array|bool|mixed
-     */
-    public function getScreenMemberList($keyword, array $where,array $column, int $page, int $page_num, string $order, string $asc)
-    {
-        if (!$list = MemberBaseRepository::search($keyword,$where, $column, $page, $page_num, $order, $asc)) {
-            return false;
-        }
-        $list           = $this->removePagingField($list);
-        $list['data']   = ImagesService::getListImagesConcise($list['data'],['avatar_id' => 'single']);
-        $list['data']   = MemberInfoRepository::bulkHasOneWalk(
-            $list['data'],
-            ['from' => 'id','to' => 'member_id'],
-            ['member_id','is_home_detail','employer'],
-            [],
-            function ($src_item,$member_info_item){
-                $src_item['is_home_detail'] = $member_info_item['is_home_detail'];
-                $src_item['employer']       = $member_info_item['employer'];
-                return $src_item;
-            }
-        );
-        $list['data'] = MemberGradeRepository::bulkHasOneWalk(
-            $list['data'],
-            ['from' => 'id','to' => 'user_id'],
-            ['user_id','grade'],
-            [],
-            function ($src_item,$member_grade_item){
-                $src_item['grade'] = $member_grade_item['grade'];
-                return $src_item;
-            }
-        );dd($list);
-        return $list;
-    }
-  
-
-    /*public function memberList(array $data)
-    {
-        if (empty($data['asc'])) $data['asc'] = 1;
-        $is_home_detail = $data['is_home_detail'] ?? null;
-        $grade          = $data['grade'] ?? null;
-        $category       = $data['category'] ?? null;
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
-        $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $keywords       = $data['keywords'] ?? null;
-        $where          = ['deleted_at' => 0,'is_test' => 0];
-        $column = ['id','card_no','ch_name','sex','mobile','address','status','hidden','created_at','img_url',
-            'end_at','is_recommend','is_home_detail','grade','title','employer','category'];
-        if (!empty($is_home_detail)) $where['is_home_detail'] = $is_home_detail;
-        if (!empty($grade)) $where['grade'] = $grade;
-        if (!empty($category)) $where['category'] = $category;
         if (!empty($keywords)) {
-            $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'grade', 'category']];
+            $keyword = [$keywords => ['card_no', 'ch_name', 'mobile']];
             if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
-        }else{
+        } else {
             if (!$list = MemberOaListViewRepository::getList($where, $column, 'id', $asc, $page, $page_num)) {
                 $this->setError('获取失败!');
                 return false;
             }
         }
         $list = $this->removePagingField($list);
-        if (empty($list['data'])){
+        if (empty($list['data'])) {
             $this->setMessage('获取成功!');
             return [];
         }
-        foreach ($list['data'] as &$value){
-            $value['is_recommend']  = $value['is_recommend'] == 0 ? 0 : 1;
-            //$value['grade_name']    = MemberGradeDefineRepository::getLabelById($value['grade'],'普通成员');
-            $value['category_name'] = MemberEnum::getCategory($value['category'],'普通成员');
-            $value['sex_name']      = MemberEnum::getSex($value['sex'],'未设置');
-            $value['status_name']   = MemberEnum::getStatus($value['status'],'成员');
-            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'],'显示');
+        foreach ($list['data'] as &$value) {
+            if (empty($value['grade'])) $value['grade'] = 0;
+            $value['category_name'] = MemberEnum::getCategory($value['category'], '普通成员');
+            $value['grade_name']    = MemberGradeDefineRepository::getLabelById($value['grade'], '普通成员');
+            $value['sex_name']      = MemberEnum::getSex($value['sex'], '未设置');
+            $value['status_name']   = MemberEnum::getStatus($value['status'], '成员');
+            $value['hidden_name']   = MemberEnum::getHidden($value['hidden'], '显示');
         }
         $this->setMessage('获取成功！');
         return $list;
-    }*/
+    }
 
     /**
      * 获取成员信息 (拆表后 已修改)
@@ -568,5 +487,6 @@ class OaMemberService extends BaseService
         DB::commit();
         return ['member_id' => $request['member_id']];
     }
+
 
 }
