@@ -460,8 +460,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageCacheService::increaseCacheMessageCount($employee_id,MessageEnum::OAEMPLOYEES);
         DB::commit();
+        MessageCacheService::increaseCacheMessageCount($employee_id,MessageEnum::OAEMPLOYEES);
         return true;
     }
     /**
@@ -491,8 +491,8 @@ class SendService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageCacheService::increaseCacheMessageCount($member_id,MessageEnum::MEMBER);
         DB::commit();
+        MessageCacheService::increaseCacheMessageCount($member_id,MessageEnum::MEMBER);
         return true;
     }
 }
