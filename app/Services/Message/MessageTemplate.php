@@ -76,6 +76,6 @@ class MessageTemplate extends BaseService
     public function getContent(){
         $data           = $this->data;
         $template       = $this->getTemplate();
-        return str_replace(['[receiver_name]','[process_full_name]','[precess_result]'],[$data['receiver_name'],$data['process_full_name'],$data['precess_result']],$template);
+        return str_replace(['[receiver_name]','[process_full_name]','[precess_result]'],[$data['receiver_name'] ?? '',$data['process_full_name'] ?? '',$data['precess_result'] ?? ''],$template);
     }
 }
