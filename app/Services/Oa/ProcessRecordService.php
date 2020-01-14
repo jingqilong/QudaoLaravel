@@ -229,7 +229,7 @@ class ProcessRecordService extends BaseService
                 }
             }
         }
-        $recode_list['data'] = $result;
+        $recode_list['data'] = array_values($result);
         $this->setMessage('获取成功！');
         return $recode_list;
     }
