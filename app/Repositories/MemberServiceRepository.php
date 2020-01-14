@@ -42,12 +42,14 @@ class MemberServiceRepository extends ApiRepository
             }
             $service_list[$value['id']] = $value;
         }
+        $all_service_list = $this->getAllIndexService();
         //处理菜单结构
         $res    = [];
         foreach ($service_list as $id => $v){
+            $v['parent_name'] = $v['name'];
             if ($v['parent_id'] == 0){
                 unset($v['path'],$v['level'],$v['parent_id']);
-                $res[] = array_merge($v,['next_level' => $this->levelPartition($service_list,$id)]);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($service_list,$id,$all_service_list)]);
             }
         }
         return $res;
@@ -58,12 +60,13 @@ class MemberServiceRepository extends ApiRepository
      * @param $parent_id
      * @return array
      */
-    function  levelPartition($array, $parent_id){
+    function  levelPartition($array, $parent_id,$all_service_list){
         $res = [];
         foreach ($array as $id => $v){
+            $v['parent_name'] = isset($all_service_list[$v['id']]) ? $all_service_list[$v['id']]['name'] : $v['name'];
             if ($v['parent_id'] == $parent_id){
                 unset($v['path'],$v['level'],$v['parent_id']);
-                $res[] = array_merge($v,['next_level' => $this->levelPartition($array,$id)]);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($array,$id,$all_service_list)]);
                 continue;
             }
         }
@@ -110,6 +113,11 @@ class MemberServiceRepository extends ApiRepository
         return $res;
     }
 
+    /**
+     * 获取所有建立好索引的服务列表
+     * @param array $column
+     * @return array|null
+     */
     protected function getAllIndexService($column = []){
         if (!$service_list = MemberServiceRepository::getAll(array_merge(['id','name','parent_id'],$column))){
             return [];
