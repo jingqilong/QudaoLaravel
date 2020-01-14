@@ -65,7 +65,7 @@ class OaMemberService extends BaseService
         $asc        = $data['asc'] == 1 ? 'asc' : 'desc';
         $where      = ['deleted_at' => 0, 'is_test' => 0];
         $keywords   = $data['keywords'] ?? null;
-        $column     = ['id', 'card_no', 'ch_name', 'sex', 'mobile', 'img_url', 'address', 'status', 'hidden', 'created_at', 'category'];
+        $column     = ['id', 'card_no', 'ch_name', 'sex', 'mobile', 'img_url', 'address', 'is_home_detail', 'status', 'hidden', 'created_at', 'category'];
         $where_arr  = Arr::only($data, ['is_home_detail', 'grade', 'category', 'sex']);
         foreach ($where_arr as $key => $value) {
             if (!is_null($value)) {
