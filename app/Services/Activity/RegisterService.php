@@ -153,6 +153,8 @@ class RegisterService extends BaseService
         $this->setMessage('报名成功！');
         return [
             'register_id'       => $register_id,
+            'register_audit'    => $add_arr['audit'],
+            'need_audit'        => $activity['need_audit'],
             'register_status'   => $add_arr['status'],
             'order_no'          => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? '' : $order_no,
             'price'             => round($add_arr['member_price'] / 100,2)
@@ -536,12 +538,17 @@ class RegisterService extends BaseService
             'is_win'        => 0,
             'prize'         => []
         ];
+        #是否有抽奖活动
+        $res['is_prize']    = 0;
+        if (ActivityPrizeRepository::exists(['activity_id' => $register['activity_id']])){
+            $res['is_prize']    = 1;
+        }
         //检查是否已抽奖
         if ($winning = ActivityWinningRepository::getOne(['member_id' => $member->id,'activity_id' => $register['activity_id']])){
-            $res['is_lottery'] = 1;
+            $res['is_lottery'] = 1;#是否抽奖
             if ($prize = ActivityPrizeRepository::getOne(['id' => $winning['prize_id']],['id','name','odds','image_ids','worth'])){
                 $prize          = ImagesService::getOneImagesConcise($prize,['image_ids' => 'single'],true);
-                $res['is_win']  = $prize['worth'] == 0 ? 0 : 1;
+                $res['is_win']  = $prize['worth'] == 0 ? 0 : 1;#是否中奖
                 $prize['name']  = '价值' . $prize['worth'] . '元的' . $prize['name'];
                 unset($prize['odds'],$prize['id'],$prize['worth']);
                 $res['prize']   = $res['is_win'] == 0 ? [] : $prize;

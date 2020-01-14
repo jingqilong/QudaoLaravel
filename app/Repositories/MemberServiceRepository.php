@@ -42,12 +42,14 @@ class MemberServiceRepository extends ApiRepository
             }
             $service_list[$value['id']] = $value;
         }
+        $all_service_list = $this->getAllIndexService();
         //处理菜单结构
         $res    = [];
         foreach ($service_list as $id => $v){
+            $v['parent_name'] = $v['name'];
             if ($v['parent_id'] == 0){
                 unset($v['path'],$v['level'],$v['parent_id']);
-                $res[] = array_merge($v,['next_level' => $this->levelPartition($service_list,$id)]);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($service_list,$id,$all_service_list)]);
             }
         }
         return $res;
@@ -58,12 +60,13 @@ class MemberServiceRepository extends ApiRepository
      * @param $parent_id
      * @return array
      */
-    function  levelPartition($array, $parent_id){
+    function  levelPartition($array, $parent_id,$all_service_list){
         $res = [];
         foreach ($array as $id => $v){
+            $v['parent_name'] = isset($all_service_list[$v['id']]) ? $all_service_list[$v['id']]['name'] : $v['name'];
             if ($v['parent_id'] == $parent_id){
                 unset($v['path'],$v['level'],$v['parent_id']);
-                $res[] = array_merge($v,['next_level' => $this->levelPartition($array,$id)]);
+                $res[] = array_merge($v,['next_level' => $this->levelPartition($array,$id,$all_service_list)]);
                 continue;
             }
         }
@@ -108,6 +111,42 @@ class MemberServiceRepository extends ApiRepository
             }
         }
         return $res;
+    }
+
+    /**
+     * 获取所有建立好索引的服务列表
+     * @param array $column
+     * @return array|null
+     */
+    protected function getAllIndexService($column = []){
+        if (!$service_list = MemberServiceRepository::getAll(array_merge(['id','name','parent_id'],$column))){
+            return [];
+        }
+        $service_list = createArrayIndex($service_list,'id');
+        foreach ($service_list as &$value){
+            if (!empty($value['parent_id'])){
+                $value['name'] = $this->getParentServiceName($service_list,$value['parent_id']) . '-' . $value['name'];
+            }
+        }
+        return $service_list;
+    }
+
+    /**
+     * 获取父级服务名称
+     * @param $array
+     * @param $parent_id
+     * @return string
+     */
+    function getParentServiceName ($array, $parent_id){
+        if (!isset($array[$parent_id])){
+            return '';
+        }
+        $parent = $array[$parent_id];
+        $parent_name = $parent['name'];
+        if (!empty($parent['parent_id'])){
+            $parent_name = $this->getParentServiceName($array,$parent['parent_id']) . '-' . $parent_name;
+        }
+        return $parent_name;
     }
 }
             
