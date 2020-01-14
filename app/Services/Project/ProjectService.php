@@ -109,8 +109,7 @@ class ProjectService extends BaseService
             DB::rollBack();
             return false;
         }
-//        DB::commit();
-        DB::rollBack();
+        DB::commit();
         $this->setMessage('预约成功!');
         return true;
 
