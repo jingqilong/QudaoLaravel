@@ -21,7 +21,7 @@ class SendSiteMessageListener implements ShouldQueue
      */
     public function __construct()
     {
-        //
+        Loggy::write('process','创建站内信监听器');
     }
 
     /**
