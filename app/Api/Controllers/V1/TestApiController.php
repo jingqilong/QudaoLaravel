@@ -640,32 +640,4 @@ class $serviceName extends BaseService
         return ['code' => 200, 'message' => '成功', 'data' => $data];
 
     }
-
-    /**
-     * @OA\Get(
-     *     path="/api/v1/test/update_member_info",
-     *     tags={"测试"},
-     *     summary="清除成员表个人简介中的html格式",
-     *     description="bardo" ,
-     *     operationId="update_member_info",
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="成功",
-     *     ),
-     * )
-     *
-     */
-    public function updateMemberInfo()
-    {
-        $total = MemberInfoRepository::count(['id' => ['>',0]]);
-        for ($i = 1 ; $i <= $total ; $i++){
-            $info = MemberInfoRepository::getOne(['id' => $i]);
-            if (!is_null($info['profile'])){
-                $upd_profile = strip_tags($info['profile']);
-                MemberInfoRepository::getUpdId(['id' => $info['id']],['profile' => $upd_profile]);
-            }
-        }
-        return ['code' => 200, 'message' => '成功'];
-    }
 }
