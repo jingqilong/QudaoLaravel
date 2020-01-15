@@ -51,7 +51,7 @@ return [
 //        'HOUSE_RELEASE'     => '房源发布',
         9 => [ App\Services\House\DetailsService::class,'getCreatedUser'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
-        10 => [ App\Services\Member\MemberService::class,'getCreatedUser'],
+        10 => [ App\Services\Member\MemberContactServices::class,'getCreatedUser'],
     ],
 
 
@@ -75,7 +75,7 @@ return [
 //        'HOUSE_RELEASE'     => '房源发布',
         9 => [ App\Services\House\DetailsService::class,'getProcessBusinessList'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
-        10 => [ App\Services\Member\MemberService::class,'getProcessBusinessList'],
+        10 => [ App\Services\Member\MemberContactServices::class,'getProcessBusinessList'],
     ],
 
 
@@ -99,7 +99,7 @@ return [
 //        'HOUSE_RELEASE'     => '房源发布',
         9 => [ App\Services\House\DetailsService::class,'auditHouse'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
-        10 => [ App\Services\Member\MemberService::class,'setMemberContact'],
+        10 => [ App\Services\Member\MemberContactServices::class,'setMemberContact'],
     ],
 
     #消息链接后缀
