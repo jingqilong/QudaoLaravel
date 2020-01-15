@@ -189,7 +189,7 @@ class ProcessNodeActionService extends BaseService
                 return false;
             }
             #删除节点动作结果相关的流转
-            if (OaProcessTransitionRepository::delete(['node_action_result_id' => ['in',$node_actions_result_ids]])){
+            if (!OaProcessTransitionRepository::delete(['node_action_result_id' => ['in',$node_actions_result_ids]])){
                 $this->setError('删除失败！');
                 DB::rollBack();
                 Loggy::write('error','流程节点删除动作：删除节点动作结果相关的流转失败！节点动作ID：'.$node_action_id);
