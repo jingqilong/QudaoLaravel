@@ -100,20 +100,23 @@ class GoodsSpecRelateService extends BaseService
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
         $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids);
+        $goods_list         = createArrayIndex($goods_list,'id');
         foreach ($goods_spec_arr as $key => $value){
-            $goods = $this->searchArray($goods_list,'id',$value['goods_id']);
+            $goods = $goods_list[$value['goods_id']];
             if (!isset($value['spec_relate_id'])){
-                if ($value['number'] > reset($goods)['stock']){
-                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+                if ($value['number'] > $goods['stock']){
+                    $this->setError('商品【'.$goods['name'].'】库存不足！');
                     return false;
                 }
                 break;
             }
-            if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                if ($value['number'] > reset($spec_relate)['stock']){
-                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+            if (isset($spec_relate_list[$value['spec_relate_id']])){
+                $spec_relate = $spec_relate_list[$value['spec_relate_id']];
+                if ($value['number'] > $spec_relate['stock']){
+                    $this->setError('商品【'.$goods['name'].'】库存不足！');
                     return false;
                 }
             }

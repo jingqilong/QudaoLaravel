@@ -554,10 +554,10 @@ class EmployeeService extends BaseService
             'updated_at'=> time()
         ];
         if (!OaEmployeeRepository::getUpdId(['id' => $employee->id],$upd)){
-            $this->setError('修改密码失败！');
+            $this->setError('修改手机号失败！');
             return false;
         }
-        $this->setMessage('修改密码成功！');
+        $this->setMessage('修改手机号成功！');
         return true;
     }
 
@@ -595,10 +595,10 @@ class EmployeeService extends BaseService
             'updated_at'    => time()
         ];
         if (!OaEmployeeRepository::getUpdId(['id' => $employee->id],$upd)){
-            $this->setError('修改密码失败！');
+            $this->setError('修改邮箱失败！');
             return false;
         }
-        $this->setMessage('修改密码成功！');
+        $this->setMessage('修改邮箱成功！');
         return true;
     }
 
