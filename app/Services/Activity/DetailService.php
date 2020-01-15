@@ -309,7 +309,7 @@ class DetailService extends BaseService
         if (!is_null($need_audit)){
             $where['need_audit']  = $need_audit;
         }
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','need_audit','created_at','updated_at','deleted_at'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','is_recommend','status','theme_id','signin','firm','is_member','need_audit','stop_selling','max_number','created_at','updated_at','deleted_at'];
         if (!empty($keywords)){
             if ($search_themes = ActivityThemeRepository::getList(['name' => $keywords],['id'])){
                 $theme_ids = array_column($search_themes,'id');
