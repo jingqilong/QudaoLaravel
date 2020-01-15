@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\ActivityStopSellingEnum;
 use App\Enums\CollectTypeEnum;
 use App\Models\ActivityDetailModel;
 use App\Repositories\Traits\RepositoryTrait;
@@ -53,7 +54,7 @@ class ActivityDetailRepository extends ApiRepository
             $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = '进行中';
@@ -65,7 +66,7 @@ class ActivityDetailRepository extends ApiRepository
             $end_time      = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['stop_selling']);
         }
         return $list;
     }
@@ -104,7 +105,7 @@ class ActivityDetailRepository extends ApiRepository
             $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = '进行中';
@@ -116,7 +117,7 @@ class ActivityDetailRepository extends ApiRepository
             $end_time      = date('m月d日',$value['end_time']);
             $value['activity_time'] = $start_time . '～' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['stop_selling']);
         }
         return $list;
     }
@@ -148,7 +149,7 @@ class ActivityDetailRepository extends ApiRepository
             $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
-                $value['status'] = '报名中';
+                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = '进行中';
@@ -162,7 +163,7 @@ class ActivityDetailRepository extends ApiRepository
             $value['type_name'] = CollectTypeEnum::getType($request['type'],'');
             $value['activity_time'] = $start_time . '～' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['stop_selling']);
         }
         return $list;
     }

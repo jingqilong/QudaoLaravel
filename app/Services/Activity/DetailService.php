@@ -5,6 +5,7 @@ namespace App\Services\Activity;
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterAuditEnum;
 use App\Enums\ActivityRegisterStatusEnum;
+use App\Enums\ActivityStopSellingEnum;
 use App\Enums\CollectTypeEnum;
 use App\Repositories\{
     ActivityDetailRepository,
@@ -67,6 +68,8 @@ class DetailService extends BaseService
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
             'need_audit'    => $request['need_audit'],
+            'stop_selling'  => $request['stop_selling'] ?? ActivityStopSellingEnum::NORMAL_SELLING,
+            'max_number'    => $request['max_number'] ?? 0,
         ];
         if (ActivityDetailRepository::exists($add_arr)){
             $this->setError('该活动已添加！');
@@ -124,7 +127,7 @@ class DetailService extends BaseService
                     break;
             }
         }
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
             if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$order,$desc_asc)){
@@ -158,7 +161,7 @@ class DetailService extends BaseService
             $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = 1;
-                $value['status_title'] = '报名中';
+                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = 2;
@@ -172,7 +175,7 @@ class DetailService extends BaseService
             $end_time      = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
             $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code'],$value['stop_selling']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -251,6 +254,8 @@ class DetailService extends BaseService
             'detail'        => $request['detail'] ?? '',
             'is_member'     => $request['is_member'],
             'need_audit'    => $request['need_audit'],
+            'stop_selling'  => $request['stop_selling'] ?? ActivityStopSellingEnum::NORMAL_SELLING,
+            'max_number'    => $request['max_number'] ?? 0,
         ];
         if (ActivityDetailRepository::exists(array_merge($upd_arr,['id' => ['<>',$request['id']]]))){
             $this->setError('该活动已存在！');
@@ -413,7 +418,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail'];
+        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail','stop_selling'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -445,7 +450,7 @@ class DetailService extends BaseService
         }
         if ($activity['start_time'] > time()){
             $activity['status'] = 1;
-            $activity['status_title'] = '报名中';
+            $activity['status_title'] = $activity['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
         }
         if ($activity['start_time'] < time() && $activity['end_time'] > time()){
             $activity['status'] = 2;
@@ -465,7 +470,7 @@ class DetailService extends BaseService
         $activity['activity_time']  = $start_time . '～' . $end_time;
         $activity['day_time']       = date('H:i',$activity['start_time']) .'-'.date('H:i',$activity['end_time']);
         $activity['cover']          = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
-        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code']);
+        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code'],$activity['stop_selling']);
         #获取举办方信息
         $activity['hosts'] = $this->getActivityHosts($id);
 
@@ -515,6 +520,7 @@ class DetailService extends BaseService
         $is_recommend   = $request['is_recommend'] ?? null;
         $is_member      = $request['is_member'] ?? null;
         $need_audit     = $request['need_audit'] ?? null;
+        $stop_selling   = $request['stop_selling'] ?? null;
         if (!ActivityDetailRepository::exists(['id' => $request['id'],'deleted_at' => 0])){
             $this->setError('活动不存在！');
             return false;
@@ -531,6 +537,9 @@ class DetailService extends BaseService
         }
         if (!is_null($need_audit)){
             $upd_arr['need_audit'] = $need_audit;
+        }
+        if (!is_null($stop_selling)){
+            $upd_arr['stop_selling'] = $stop_selling;
         }
         if (!ActivityDetailRepository::getUpdId(['id' => $request['id']],$upd_arr)){
             $this->setError('操作失败！');
