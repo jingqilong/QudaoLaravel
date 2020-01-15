@@ -718,6 +718,9 @@ $api->version('v1',function ($api){
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
+                $api->post('remind_to_ship','OrderController@remindToShip')->name('提醒发货');
+                $api->post('edit_my_order','OrderController@editMyOrder')->name('修改我的订单');
+
                 $api->delete('delete_order','OrderController@deleteOrder')->name('删除订单');
                 $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情');
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');

@@ -600,4 +600,145 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/remind_to_ship",
+     *     tags={"商城"},
+     *     summary="提醒发货",
+     *     description="sang" ,
+     *     operationId="remind_to_ship",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="提醒失败",
+     *     ),
+     * )
+     *
+     */
+    public function remindToShip(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单ID不能为空！',
+            'order_relate_id.integer'   => '订单ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->remindToShip($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/edit_my_order",
+     *     tags={"商城"},
+     *     summary="修改我的订单",
+     *     description="sang" ,
+     *     operationId="edit_my_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="query",
+     *         description="收货地址ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMyOrder(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+            'address_id'        => 'required|integer',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单ID不能为空！',
+            'order_relate_id.integer'   => '订单ID必须为整数！',
+            'address_id.required'       => '收货地址不能为空！',
+            'address_id.integer'        => '收货地址ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->editMyOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
 }

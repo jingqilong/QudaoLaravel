@@ -789,5 +789,42 @@ class OrderRelateService extends BaseService
         }
         return true;
     }
+
+    /**
+     * 提醒发货
+     * @param $order_relate_id
+     * @return bool
+     */
+    public function remindToShip($order_relate_id){
+        #由于没有商家，无法确认提醒通知人，待定
+        $this->setMessage('提醒成功！');
+        return true;
+    }
+
+    /**
+     * 修改我的订单
+     * @param $request
+     * @return bool
+     */
+    public function editMyOrder($request){
+        $member = Auth::guard('member_api')->user();
+        if (!MemberAddressRepository::exists(['id' => $request['address_id'],'member_id' => $member->id])){
+            $this->setError('收货地址不存在！');
+            return false;
+        }
+        if (!$order = ShopOrderRelateRepository::getOne(['id' => $request['order_relate_id'],'member_id' => $member->id])){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order['status'] > ShopOrderEnum::SHIP){
+            $this->setError('此订单已发货，无法修改收货地址');
+        }
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $request['order_relate_id']],['address_id' => $request['address_id'],'updated_at' => time()])){
+            $this->setError('修改失败！');
+            return false;
+        }
+        $this->setMessage('修改成功！');
+        return true;
+    }
 }
             
