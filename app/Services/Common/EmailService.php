@@ -52,7 +52,7 @@ class EmailService extends BaseService
             return false;
         }
         $local_code = Cache::get($key);
-        if ($code != $local_code){
+        if ($code != $local_code['code']){
             $this->setError('验证码不正确！');
             return false;
         }
