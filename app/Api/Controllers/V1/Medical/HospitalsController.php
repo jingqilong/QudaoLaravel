@@ -238,7 +238,7 @@ class HospitalsController extends ApiController
         }
         $res = $this->HospitalsServices->deleteHospitals($this->request['id']);
         if ($res){
-            return ['code' => 200, 'message' => $this->HospitalsServices->message];
+            return ['code' => 200, 'message' => $this->HospitalsServices->message , 'data' => $res];
         }
         return ['code' => 100, 'message' => $this->HospitalsServices->error];
     }
