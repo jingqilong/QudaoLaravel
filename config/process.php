@@ -5,9 +5,9 @@ return [
     //流程发起节点位置
     'start_node_position' => 1,
     'link_url' =>[
-        'test'          =>'http://oa.test.qudaoplus.cn/',
+        'test'          =>'https://oa.test.qudaoplus.cn/',
         'local'         =>'http://oa.qudaoplus.cn/',
-        'production'    =>'http://oa.qudaoplus.cn/'
+        'production'    =>'https://oa.qudaoplus.cn/'
     ],
     'getway' =>[
 //        'MEMBER_UPGRADE'         => '成员升级',
