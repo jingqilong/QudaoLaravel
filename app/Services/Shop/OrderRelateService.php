@@ -240,11 +240,20 @@ class OrderRelateService extends BaseService
             DB::rollBack();
             return false;
         }
-        #扣除库存
-        if (!$goodsSpecRelateService->updStock($goods_json)){
-            $this->setError($goodsSpecRelateService->error);
-            DB::rollBack();
-            return false;
+//        #扣除库存
+//        if (!$goodsSpecRelateService->updStock($goods_json)){
+//            $this->setError($goodsSpecRelateService->error);
+//            DB::rollBack();
+//            return false;
+//        }
+        #锁定库存
+        $shopInventorService = new ShopInventorService();
+        foreach ($goods_json as $value){
+            if (!$shopInventorService->lockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
+                $this->setError('锁定库存失败！');
+                DB::rollBack();
+                return false;
+            }
         }
         //如果是购物车下单，下单完成后删除购物车记录
         $car_ids = $request['car_ids'] ?? null;
