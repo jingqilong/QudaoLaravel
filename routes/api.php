@@ -326,7 +326,7 @@ $api->version('v1',function ($api){
                 $api->post('audit_register','RegisterController@auditRegister')->name('审核活动报名');
 
                 #OA 往期活动管理
-                $api->post('add_activity_pastadd_activity_past','ActivityPastController@addActivityPast')->name('添加往期活动');
+                $api->post('add_activity_past','ActivityPastController@addActivityPast')->name('添加往期活动');
                 $api->post('edit_activity_past','ActivityPastController@editActivityPast')->name('修改往期活动');
                 $api->get('get_activity_past_list','ActivityPastController@getActivityPastList')->name('获取往期活动列表');
                 $api->delete('del_activity_past','ActivityPastController@delActivityPast')->name('删除往期活动');

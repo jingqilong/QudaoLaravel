@@ -216,7 +216,7 @@ class ProcessRecordService extends BaseService
         }
         $result = [];
         foreach ($recode_list['data'] as $key => &$recode){
-            $list = $business_list[$recode['process_category']];
+            $list = $business_list[$recode['process_category']] ?? [];
             foreach ($list as $value){
                 if ($recode['business_id'] == $value['id']){
                     $result[$key]['process_category']= $recode['process_category'];
