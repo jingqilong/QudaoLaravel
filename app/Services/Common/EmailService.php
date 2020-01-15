@@ -21,6 +21,9 @@ class EmailService extends BaseService
             return false;
         }
         $key            = md5('email_code'.$email.$code_type);
+        $email_ttl      = config('common.email.ttl',300);
+        $email_length   = config('common.email.length',4);
+        $code           = $this->buildCode($email_length);
         if (Cache::has($key)){
             $code_info  = Cache::get($key);
             $time       = time();
@@ -30,9 +33,10 @@ class EmailService extends BaseService
                 return false;
             }
         }
-        $event_data = ['email' => $email,'code_type' => $code_type];
+        $event_data = ['email' => $email,'code_type' => $code_type,'code' => $code];
         #异步处理
         event(new SendEmailCode($event_data));
+        Cache::put($key,['code' => $code,'time' => time()],$email_ttl);
         $this->setMessage('发送成功！');
         return true;
     }
@@ -59,5 +63,13 @@ class EmailService extends BaseService
         Cache::forget($key);
         $this->setMessage('验证通过！');
         return true;
+    }
+
+    public function buildCode($length = 4){
+        $code = '';
+        for ($i=0;$i < $length;$i++){
+            $code .= rand(0,9);
+        }
+        return $code;
     }
 }

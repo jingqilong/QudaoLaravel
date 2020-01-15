@@ -35,21 +35,15 @@ class SendEmailCodeListener implements ShouldQueue
             $data       = $event->data;
             $email      = $data['email'];
             $code_type  = $data['code_type'];
-            $email_ttl      = config('common.email.ttl',300);
-            $email_long     = config('common.email.long',4);
-            $key            = md5('email_code'.$email.$code_type);
-            $code = '';
-            for ($i=0;$i < $email_long;$i++){
-                $code .= rand(0,9);
-            }
+            $code       = $data['code'];
+            $email_ttl  = config('common.email.ttl',300);
             $content    = sprintf(EmailEnum::getTemplate($code_type),$code,$email_ttl/60);
             $title      = sprintf(EmailEnum::getTitle($code_type),$code);
             $view       = new CodeEmail($content,$title);
             Mail::to($email)->send($view);
-            Cache::forget($key);
-            Cache::put($key,['code' => $code,'time' => time()],$email_ttl);
-            Loggy::write('process','执行发送邮件验证码成功！接收地址：'.$email,Cache::get($key));
+            Loggy::write('process','执行发送邮件验证码成功！接收地址：'.$email);
         }catch (\Exception $e){
+            Loggy::write('process',$e->getMessage());
             Loggy::write('process','执行发送邮件验证码出错！接收地址：'.$email,json_decode(json_encode($e), true));
         }
         return false;

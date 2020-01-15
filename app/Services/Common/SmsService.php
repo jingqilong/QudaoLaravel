@@ -111,7 +111,7 @@ class SmsService extends BaseService
             }
         }
         $sms_ttl = config('common.sms.ttl',300);
-        $sms_long = config('common.sms.long',4);
+        $sms_long = config('common.sms.length',4);
         if (CommonSmsRepository::exists(['mobile' => $mobile, 'type' => $type, 'status' => 0, 'created_at' => ['>=', time() - $sms_ttl]])){
             return ['code' => 0, 'message' => '验证码已发送，请勿重复操作！'];
         }
