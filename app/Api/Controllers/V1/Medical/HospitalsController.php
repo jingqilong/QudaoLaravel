@@ -437,6 +437,33 @@ class HospitalsController extends ApiController
      *             type="string",
      *         )
      *     ),
+     *      @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="医院类别【1,公立 2，私立 3综合】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="recommend",
+     *         in="query",
+     *         description="是否推荐【0 不推荐 1,推荐】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="department_ids",
+     *         in="query",
+     *         description="科室id",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
@@ -464,12 +491,18 @@ class HospitalsController extends ApiController
      */
     public function hospitalsList(){
         $rules = [
+            'category'      => 'in:1,2,3',
+            'recommend'     => 'in:0,1',
+            'department_ids'=> 'integer',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'page.integer'              => '页码必须为整数',
-            'page_num.integer'          => '每页显示条数必须为整数',
+            'category.in'            => '医院类型不存在',
+            'recommend.in'           => '是否推荐类型不存在',
+            'department_ids.integer' => '科室ID必须为整数',
+            'page.integer'           => '页码必须为整数',
+            'page_num.integer'       => '每页显示条数必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -509,7 +542,7 @@ class HospitalsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索条件【医院名字 擅长 获奖情况 详细地址】",
+     *         description="搜索条件【医院名字 详细地址】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",

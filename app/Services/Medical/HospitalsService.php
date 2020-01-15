@@ -11,6 +11,7 @@ use App\Repositories\MediclaHospitalsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 
 class HospitalsService extends BaseService
 {
@@ -132,9 +133,26 @@ class HospitalsService extends BaseService
     {
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MediclaHospitalsRepository::getList(['deleted_at' => 0],['*'],'id','asc',$page,$page_num)){
-            $this->setError('获取失败！');
-            return false;
+        $where      = ['deleted_at' => 0];
+        $where_arr  = Arr::only($request,['category','recommend']);
+        $department_ids   = $request['department_ids'] ?? null;
+        if (!empty($department_ids)) $where['department_ids'] = ['like','%,' . $department_ids . ',%'];
+        foreach ($where_arr as $key => $value){
+            if (!is_null($value)){
+                $where[$key] = $value;
+            }
+        }
+        if (!empty($keywords)){
+            $keyword = [$keywords => ['name','address']];
+            if (!$list = MediclaHospitalsRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$list = MediclaHospitalsRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
