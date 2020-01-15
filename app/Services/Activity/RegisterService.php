@@ -246,7 +246,7 @@ class RegisterService extends BaseService
      */
     public function getRegisterDetails($register_id){
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
+        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at'];
         if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id],$column)){
             $this->setError('报名信息不存在！');
             return false;
@@ -271,6 +271,7 @@ class RegisterService extends BaseService
         }
         $activity['start_time'] = date('Y年m月d日 H点i分',$activity['start_time']);
         $activity['end_time']   = date('Y年m月d日 H点i分',$activity['end_time']);
+        $activity['created_at'] = date('Y年m月d日 H点i分',$activity['created_at']);
         $activity               = ImagesService::getOneImagesConcise($activity,['cover_id' => 'single'],true);
         $activity['is_member']  = ActivityEnum::getIsMember($activity['is_member']);
         $register['activity_info'] = $activity;
