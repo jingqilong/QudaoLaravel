@@ -129,7 +129,7 @@ class PersonalService extends BaseService
     public function getLoanInfo(string $id)
     {
         $memberInfo = $this->auth->user();
-        $column = ['id','name','mobile','price','type','ent_name','ent_title','address','appointment','status','remark','created_at','reservation_at'];
+        $column = ['id','name','mobile','price','company_address','type','ent_name','ent_title','address','appointment','status','remark','created_at','reservation_at'];
         if (!$orderInfo= LoanPersonalRepository::getOne(['id' => $id,'user_id' => $memberInfo->id],$column)){
             $this->setError('预约信息不存在!');
             return false;
