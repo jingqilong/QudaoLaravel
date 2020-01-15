@@ -362,7 +362,8 @@ trait BusinessTrait
         //邮件标题
         $send_data['title'] = $send_data['process_full_name']['process_name'] . "有一项审核要处理！";
         //跳转链接
-        $send_data['link_url'] = config('process.link_url')[app()['env']];
+        $message_links = config('process.message_link');
+        $send_data['link_url'] = config('process.link_url')[app()['env']] . $message_links[$event_params['process_category']] . '?business_id=' . $event_params['business_id'];
 
         //此处为节点事件的执行，只针对事件通知的人群
         foreach($event_list as $event){
