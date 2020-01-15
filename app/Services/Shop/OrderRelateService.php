@@ -455,7 +455,7 @@ class OrderRelateService extends BaseService
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
-        $column = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at','created_at'];
+        $column = ['id','status','express_company_id','express_price','express_number','address_id','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at','created_at'];
         if (!$order = ShopOrderRelateViewRepository::getOne($where,$column)){
             $this->setError('订单不存在！');
             return false;
