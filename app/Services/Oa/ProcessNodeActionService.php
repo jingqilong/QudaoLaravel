@@ -197,15 +197,14 @@ class ProcessNodeActionService extends BaseService
             }
         }
         #删除节点动作结果
-        if (!OaProcessNodeActionsResultRepository::delete(['node_action_id' => $node_action_id])){
+        if (!OaProcessNodeActionsResultRepository::deleteByActionResult($node_action_id)){
             $this->setError('删除失败！');
             DB::rollBack();
             Loggy::write('error','流程节点删除动作：删除节点动作结果失败！节点动作ID：'.$node_action_id);
             return false;
         }
         #删除动作下负责人记录
-        if (OaProcessActionPrincipalsRepository::exists(['node_action_id' => $node_action_id]))
-        if (!OaProcessActionPrincipalsRepository::delete(['node_action_id' => $node_action_id])){
+        if (!OaProcessActionPrincipalsRepository::deleteByActionResult($node_action_id)){
             $this->setError('删除失败！');
             DB::rollBack();
             Loggy::write('error','流程节点删除动作：删除节点动作负责人失败！节点动作ID：'.$node_action_id);

@@ -663,7 +663,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/api/v1/shop/edit_my_order", 
+     *     path="/api/v1/shop/edit_my_order",
      *     tags={"商城"},
      *     summary="修改我的订单",
      *     description="sang" ,
