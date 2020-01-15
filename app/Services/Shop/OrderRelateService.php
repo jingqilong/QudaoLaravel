@@ -633,7 +633,7 @@ class OrderRelateService extends BaseService
         #通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $order_relate['member_id']])){
             $member_name = $member['ch_name'];
-            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['sex']);
+            $member_name = substr($member_name,0,3) . MemberEnum::getSex($member['sex']);
             $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
             $sms_template =
                 MessageEnum::getTemplate(
