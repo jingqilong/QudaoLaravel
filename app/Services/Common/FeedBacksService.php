@@ -116,7 +116,7 @@ class FeedBacksService extends BaseService
         $request_arr['created_at']    = time();
         $request_arr['created_by']    = time();
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
-            $this->setError('回复失败!');;
+            $this->setError('回复失败!');
             return false;
         }
         $this->setMessage('回复成功!');
