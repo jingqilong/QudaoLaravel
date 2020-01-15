@@ -363,11 +363,19 @@ class OrderRelateService extends BaseService
         }
         #归还库存
         $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
-        $goodsSpecRelateService = new GoodsSpecRelateService();
-        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
-            $this->setError($goodsSpecRelateService->error);
-            DB::rollBack();
-            return false;
+//        $goodsSpecRelateService = new GoodsSpecRelateService();
+//        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
+//            $this->setError($goodsSpecRelateService->error);
+//            DB::rollBack();
+//            return false;
+//        }
+        $shopInventorService = new ShopInventorService();
+        foreach ($order_goods_list as $value){
+            if (!$shopInventorService->unlockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
+                $this->setError('库存退还失败！');
+                DB::rollBack();
+                return false;
+            }
         }
         //退还积分
         if (!empty($order_relate['score_type'])){
