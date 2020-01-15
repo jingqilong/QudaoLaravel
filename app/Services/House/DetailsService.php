@@ -681,7 +681,7 @@ class DetailsService extends BaseService
             $member = $publisher_list[$value['publisher_id']] ?? [];
             $result_list[] = [
                 'id'            => $value['id'],
-                'name'          => '精选生活预约',
+                'name'          => '房源发布',
                 'member_id'     => $value['publisher_id'],
                 'member_name'   => $member['ch_name'] ?? '',
                 'member_mobile' => $member['mobile'] ?? '',

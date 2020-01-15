@@ -324,7 +324,7 @@ class MemberContactServices extends BaseService
             $member = $proposer_list[$value['proposer_id']] ?? [];
             $result_list[] = [
                 'id'            => $value['id'],
-                'name'          => '精选生活预约',
+                'name'          => '成员联系申请',
                 'member_id'     => $value['proposer_id'],
                 'member_name'   => $member['ch_name'] ?? '',
                 'member_mobile' => $member['mobile'] ?? '',
