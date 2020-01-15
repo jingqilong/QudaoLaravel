@@ -476,6 +476,7 @@ class DetailService extends BaseService
         $activity['register_id'] = 0;
         $activity['register_status'] = 0;
         $activity['order_no'] = '';
+        $activity['sign_in_code'] = '';
         $activity_where = [
             'member_id'     => $member->id,
             'activity_id'   => $id,
@@ -485,6 +486,7 @@ class DetailService extends BaseService
             $activity['register_id']     = $register['id'];
             $activity['register_status'] = $register['status'];
             $activity['register_audit']  = $register['audit'];
+            $activity['sign_in_code']    = $register['sign_in_code'];
             if ($register['status'] == ActivityRegisterStatusEnum::EVALUATION || $register['status'] == ActivityRegisterStatusEnum::COMPLETED ){
                 $activity['order_no'] = $register['order_no'];
             }
