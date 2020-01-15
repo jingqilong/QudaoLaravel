@@ -46,7 +46,7 @@ class SendEmailCodeListener implements ShouldQueue
             $title      = sprintf(EmailEnum::getTitle($code_type),$code);
             $view       = new CodeEmail($content,$title);
             Mail::to($email)->send($view);
-            Cache::add($key,$code,$email_ttl);
+            Cache::add($key,['code' => $code,'time' => time()],$email_ttl);
         }catch (\Exception $e){
             Loggy::write('process','执行发送邮件验证码出错！接收地址：'.$email,json_decode(json_encode($e), true));
         }

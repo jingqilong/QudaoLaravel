@@ -22,8 +22,13 @@ class EmailService extends BaseService
         }
         $key            = md5('email_code'.$email.$code_type);
         if (Cache::has($key)){
-            $this->setError('验证码已发送，请耐心等待！');
-            return false;
+            $code_info  = Cache::get($key);
+            $time       = time();
+            $send_time  = $code_info['time'] + 60;#发送频率为60秒
+            if ($send_time > $time){
+                $this->setError(($send_time - $time).'秒以后可再次发送验证码！');
+                return false;
+            }
         }
         $event_data = ['email' => $email,'code_type' => $code_type];
         #异步处理
