@@ -5,9 +5,9 @@ return [
     //流程发起节点位置
     'start_node_position' => 1,
     'link_url' =>[
-        'test'          =>'http://oa.test.qudaoplus.cn/',
+        'test'          =>'https://oa.test.qudaoplus.cn/',
         'local'         =>'http://oa.qudaoplus.cn/',
-        'production'    =>'http://oa.qudaoplus.cn/'
+        'production'    =>'https://oa.qudaoplus.cn/'
     ],
     'getway' =>[
 //        'MEMBER_UPGRADE'         => '成员升级',
@@ -100,5 +100,29 @@ return [
         9 => [ App\Services\House\DetailsService::class,'auditHouse'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberService::class,'setMemberContact'],
+    ],
+
+    #消息链接后缀
+    'message_link' => [
+        //        'MEMBER_UPGRADE'         => '成员升级',
+        1 => '/system/upgrade/index',
+//        'ACTIVITY_REGISTER'      => '活动报名',
+        2 => '/activety/register/index',
+//        'PROJECT_DOCKING'        => '项目对接',
+        3 => '/project/project-appointment/index',
+//        'LOAN_RESERVATION'       => '贷款预约',
+        4 => '/loan/loan-appointment/index',
+//        'ENTERPRISE_CONSULT'     => '企业咨询',
+        5 => '/entrerprise/entrerprise-appointment/index',
+//        'HOUSR_RESERVATION'     => '看房预约',
+        6 => '/house/house-appointment/index',
+//        'HOSPITAL_RESERVATION'     => '医疗预约',
+        7 => '/medical/doctor-appointment/index',
+//        'PRIME_RESERVATION'     => '精选生活预约',
+        8 => '/prime/prime-order/index',
+//        'HOUSE_RELEASE'     => '房源发布',
+        9 => '/house/house/index',
+//        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
+        10 => '/member/member-contact/index',
     ],
 ];
