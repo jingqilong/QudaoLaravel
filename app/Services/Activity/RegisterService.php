@@ -252,8 +252,9 @@ class RegisterService extends BaseService
             return false;
         }
         $register['activity_price'] = empty($register['activity_price']) ? '免费' : round($register['activity_price'] / 100,2).'元';
-        $register['member_price'] = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
+        $register['member_price']   = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
         $register['status']         = ActivityRegisterStatusEnum::getStatus($register['status']);
+        $register['created_at']     = date('Y年m月d日 H点i分',$register['created_at']);
         $activity_column = ['id','name','address','theme_id','start_time','end_time','cover_id','is_member'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id'],'status' => '1','deleted_at' => '0'],$activity_column)){
             $this->setError('报名活动不存在！');
@@ -271,7 +272,6 @@ class RegisterService extends BaseService
         }
         $activity['start_time'] = date('Y年m月d日 H点i分',$activity['start_time']);
         $activity['end_time']   = date('Y年m月d日 H点i分',$activity['end_time']);
-        $activity['created_at'] = date('Y年m月d日 H点i分',$activity['created_at']);
         $activity               = ImagesService::getOneImagesConcise($activity,['cover_id' => 'single'],true);
         $activity['is_member']  = ActivityEnum::getIsMember($activity['is_member']);
         $register['activity_info'] = $activity;
