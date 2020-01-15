@@ -246,14 +246,15 @@ class RegisterService extends BaseService
      */
     public function getRegisterDetails($register_id){
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
+        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at'];
         if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id],$column)){
             $this->setError('报名信息不存在！');
             return false;
         }
         $register['activity_price'] = empty($register['activity_price']) ? '免费' : round($register['activity_price'] / 100,2).'元';
-        $register['member_price'] = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
+        $register['member_price']   = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
         $register['status']         = ActivityRegisterStatusEnum::getStatus($register['status']);
+        $register['created_at']     = date('Y年m月d日 H点i分',$register['created_at']);
         $activity_column = ['id','name','address','theme_id','start_time','end_time','cover_id','is_member'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id'],'status' => '1','deleted_at' => '0'],$activity_column)){
             $this->setError('报名活动不存在！');

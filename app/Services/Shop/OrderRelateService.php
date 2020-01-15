@@ -363,11 +363,19 @@ class OrderRelateService extends BaseService
         }
         #归还库存
         $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
-        $goodsSpecRelateService = new GoodsSpecRelateService();
-        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
-            $this->setError($goodsSpecRelateService->error);
-            DB::rollBack();
-            return false;
+//        $goodsSpecRelateService = new GoodsSpecRelateService();
+//        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
+//            $this->setError($goodsSpecRelateService->error);
+//            DB::rollBack();
+//            return false;
+//        }
+        $shopInventorService = new ShopInventorService();
+        foreach ($order_goods_list as $value){
+            if (!$shopInventorService->unlockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
+                $this->setError('库存退还失败！');
+                DB::rollBack();
+                return false;
+            }
         }
         //退还积分
         if (!empty($order_relate['score_type'])){
@@ -606,14 +614,26 @@ class OrderRelateService extends BaseService
             'shipment_at'       => time(),
             'updated_at'        => time()
         ];
+        DB::beginTransaction();
         if (!ShopOrderRelateRepository::getUpdId($where,$upd_arr)){
             $this->setError('发货失败，请重试！');
+            DB::rollBack();
             return false;
+        }
+        #添加库存台帐变更流水
+        $shopInventorService = new ShopInventorService();
+        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
+        foreach ($order_goods_list as $value){
+            if (!$shopInventorService->updateInventor($order_relate['order_id'],$value['goods_id'],$value['spec_relate_id'],$value['number'],-1)){
+                $this->setError($shopInventorService->error);
+                DB::rollBack();
+                return false;
+            }
         }
         #通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $order_relate['member_id']])){
             $member_name = $member['ch_name'];
-            $member_name = substr($member_name,0,1) . MemberEnum::getSex($member['sex']);
+            $member_name = substr($member_name,0,3) . MemberEnum::getSex($member['sex']);
             $order_no    = MemberOrdersRepository::getField(['id' => $order_relate['order_id']],'order_no');
             $sms_template =
                 MessageEnum::getTemplate(
@@ -631,6 +651,7 @@ class OrderRelateService extends BaseService
             SendService::sendMessage($order_relate['member_id'],MessageEnum::SHOPOORDER,$title,$sms_template,$request['order_relate_id']);
         }
         $this->setMessage('发货成功！');
+        DB::commit();
         return true;
     }
 
