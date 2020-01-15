@@ -371,6 +371,15 @@ class LoanController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
+     *          name="company_address",
+     *          in="query",
+     *          description="公司地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="price",
      *          in="query",
      *          description="贷款金额",
@@ -409,7 +418,7 @@ class LoanController extends ApiController
             'price'             => 'required|integer',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
-            //'company_address'   => 'required',
+            'company_address'   => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -420,7 +429,7 @@ class LoanController extends ApiController
             'price.integer'             => '需求金额数量格式不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
-            //'company_address.required'  => '公司地址不能为空',
+            'company_address.required'  => '公司地址不能为空',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
         ];
@@ -490,6 +499,15 @@ class LoanController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
+     *          name="company_address",
+     *          in="query",
+     *          description="公司地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="price",
      *          in="query",
      *          description="贷款金额",
@@ -537,6 +555,7 @@ class LoanController extends ApiController
             'price'             => 'required|integer',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
+            'company_address'   => 'required',
             'address'           => 'required',
             'reservation_at'    => 'required|date',
         ];
@@ -545,6 +564,7 @@ class LoanController extends ApiController
             'mobile.required'           => '请填写预约手机号',
             'mobile.regex'              => '请正确填写手机号',
             'price.required'            => '请填写贷款金额',
+            'company_address.required'  => '公司地址不能为空',
             'price.integer'             => '请正确填写贷款金额',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
@@ -644,6 +664,15 @@ class LoanController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
+     *          name="company_address",
+     *          in="query",
+     *          description="公司地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="price",
      *          in="query",
      *          description="贷款金额",
@@ -720,6 +749,7 @@ class LoanController extends ApiController
             'ent_name'          => 'required',
             'ent_title'         => 'required',
             'address'           => 'required',
+            'company_address'   => 'required',
             'reservation_at'    => 'required|date',
         ];
         $messages = [
@@ -730,6 +760,7 @@ class LoanController extends ApiController
             'price.required'            => '请正确填写贷款金额',
             'price.integer'             => '金额数量不正确',
             'ent_name.required'         => '请输入企业名称',
+            'company_address.required'  => '请输入公司地址',
             'ent_title.required'        => '请输入职位',
             'address.required'          => '请输入面谈地址',
             'reservation_at.required'   => '请输入预约时间',
@@ -827,6 +858,15 @@ class LoanController extends ApiController
      *          )
      *      ),
      *     @OA\Parameter(
+     *          name="company_address",
+     *          in="query",
+     *          description="公司地址",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
      *          name="price",
      *          in="query",
      *          description="贷款金额",
@@ -902,6 +942,7 @@ class LoanController extends ApiController
             'price'             => 'required|integer',
             'ent_name'          => 'required',
             'ent_title'         => 'required',
+            'company_address'   => 'required',
             'address'           => 'required',
             'reservation_at'    => 'required|date',
         ];
@@ -914,6 +955,7 @@ class LoanController extends ApiController
             'price.integer'             => '金额数量不正确',
             'ent_name.required'         => '请输入企业名称',
             'ent_title.required'        => '请输入职位',
+            'company_address.required'  => '请输入公司地址',
             'address.required'          => '请输入面谈地址',
             'reservation_at.required'   => '请输入预约时间',
             'reservation_at.date'       => '请输入正确预约时间',
