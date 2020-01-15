@@ -614,9 +614,21 @@ class OrderRelateService extends BaseService
             'shipment_at'       => time(),
             'updated_at'        => time()
         ];
+        DB::beginTransaction();
         if (!ShopOrderRelateRepository::getUpdId($where,$upd_arr)){
             $this->setError('发货失败，请重试！');
+            DB::rollBack();
             return false;
+        }
+        #添加库存台帐变更流水
+        $shopInventorService = new ShopInventorService();
+        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
+        foreach ($order_goods_list as $value){
+            if (!$shopInventorService->updateInventor($order_relate['order_id'],$value['goods_id'],$value['spec_relate_id'],$value['number'],-1)){
+                $this->setError($shopInventorService->error);
+                DB::rollBack();
+                return false;
+            }
         }
         #通知用户
         if ($member = MemberBaseRepository::getOne(['id' => $order_relate['member_id']])){
@@ -639,6 +651,7 @@ class OrderRelateService extends BaseService
             SendService::sendMessage($order_relate['member_id'],MessageEnum::SHOPOORDER,$title,$sms_template,$request['order_relate_id']);
         }
         $this->setMessage('发货成功！');
+        DB::commit();
         return true;
     }
 
