@@ -1120,7 +1120,7 @@ class OrderRelateService extends BaseService
             $member = $member_list[$value['member_id']] ?? [];
             $result_list[] = [
                 'id'            => $value['id'],
-                'name'          => '成员联系申请',
+                'name'          => '商品面议',
                 'member_id'     => $value['member_id'],
                 'member_name'   => $member['ch_name'] ?? '',
                 'member_mobile' => $member['mobile'] ?? '',
