@@ -101,6 +101,37 @@ class FeedBacksService extends BaseService
     }
 
     /**
+     * 用户回复员工
+     * @param $request
+     * @return bool
+     */
+    public function callBackEmployee($request)
+    {
+        $member = $this->auth->user();
+        $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
+        if (!CommonFeedbackThreadRepository::exists(['id' => $request_arr['replay_id']]) || !CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
+            $this->setError('没有反馈消息!');
+            return false;
+        }
+        if (CommonFeedbackThreadRepository::exists($request_arr)){
+            $this->setError('这条信息您已经回复过了哦!');
+            return false;
+        }
+        $request_arr['operator_type'] = FeedBacksEnum::MEMBER;
+        $request_arr['status']        = FeedBacksEnum::MANAGE;
+        $request_arr['created_at']    = time();
+        $request_arr['created_by']    = $member->id;
+        if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
+            $this->setError('回复失败!');
+            return false;
+        }
+        $this->setMessage('回复成功!');
+        return true;
+    }
+
+
+
+    /**
      * 客户服务 回复反馈消息
      * @param $request
      * @return bool
