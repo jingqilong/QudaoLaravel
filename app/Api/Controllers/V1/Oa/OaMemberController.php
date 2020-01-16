@@ -976,7 +976,7 @@ class OaMemberController extends ApiController
             'category'        => 'required|integer',
             'status'          => 'required|in:0,1',
             'hidden'          => 'required|in:0,1',
-            'zipcode'         => 'regex:/\d{6}/',
+            'zipcode'         => 'regex:/^\d{6}$/',
             'grade'           => 'required|integer',
             'end_at'          => 'required',
             'birthday'        => 'date_format:"Y-m-d"',
