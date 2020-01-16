@@ -319,6 +319,15 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="id_card",
+     *         in="query",
+     *         description="身份证号",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="zodiac",
      *         in="query",
      *         description="成员生肖",
@@ -358,7 +367,9 @@ class OaMemberController extends ApiController
             'ch_name'         => 'required',
             'sex'             => 'required|in:1,2',
             'avatar_id'       => 'required|integer',
-            'id_card'         => 'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/|unique:member_base',
+            'id_card'         => [
+                'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/',
+            ],
             'category'        => 'required|integer',
             'status'          => 'required|in:0,1',
             'hidden'          => 'required|in:0,1',
@@ -384,6 +395,7 @@ class OaMemberController extends ApiController
             'status.in'          => '成员身份不存在',
             'hidden.required'    => '成员是否隐藏不能为空',
             'hidden.in'          => '成员是否隐藏格式不存在',
+            'id_card.regex'      => '身份证号格式有误',
             'zipcode.regex'      => '成员邮编格式不正确',
             'grade.required'     => '成员等级不能为空',
             'grade.integer'      => '成员等级格式不正确',
@@ -923,6 +935,15 @@ class OaMemberController extends ApiController
      *         )
      *     ),
      *     @OA\Parameter(
+     *         name="id_card",
+     *         in="query",
+     *         description="身份证号",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="birthday",
      *         in="query",
      *         description="成员生日【2018-12-19】",
@@ -974,7 +995,6 @@ class OaMemberController extends ApiController
             'avatar_id'       => 'required|integer',
             'id_card'         => [
                 'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/',
-                'unique:member_base'
             ],
             'category'        => 'required|integer',
             'status'          => 'required|in:0,1',
@@ -1002,6 +1022,7 @@ class OaMemberController extends ApiController
             'status.in'          => '成员身份不存在',
             'hidden.required'    => '成员是否隐藏不能为空',
             'hidden.in'          => '成员是否隐藏格式不存在',
+            'id_card.regex'      => '身份证号格式有误',
             'zipcode.regex'      => '成员邮编格式不正确',
             'grade.required'     => '成员级别不能为空',
             'grade.integer'      => '成员级别格式不正确',
