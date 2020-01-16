@@ -59,18 +59,18 @@ class GoodsSpecRelateService extends BaseService
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $goods  =  reset($goods);
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
+                $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '' : $this->maximumCreditDeductionAmount(
+                    $goods['score_categories'],
+                    $goods['score_deduction'],
+                    $value['number'],
+                    $price
+                );
                 $result[$key] = [
                     'goods_name'      => $goods['name'],
                     'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
                     'number'          => $value['number'],
-                    'deduction_price' =>
-                        $this->maximumCreditDeductionAmount(
-                            $goods['score_categories'],
-                            $goods['score_deduction'],
-                            $value['number'],
-                            $price
-                        )
+                    'deduction_price' => $deduction_price//最高积分抵扣
                 ];
             }
             if (isset($value['order_relate_id'])){
