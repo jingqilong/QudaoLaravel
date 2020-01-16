@@ -495,7 +495,7 @@ class OrderRelateService extends BaseService
      */
     public function orderDetail($order_relate_id, $member_id = null)
     {
-        $where  = ['id' => $order_relate_id,'deleted_at' => 0];
+        $where  = ['id' => $order_relate_id];
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
