@@ -7,6 +7,7 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ScoreEnum;
+use App\Enums\ShopGoodsEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
 use App\Services\BaseService;
@@ -94,6 +95,52 @@ class OrderRelateService extends BaseService
         $res['score_deduction'] = $score_deduction;
         #订单总金额
         $res['total_price']     = $total_price;
+        $this->setMessage('获取成功！');
+        return $res;
+    }
+    /**
+     * 获取下单详情
+     * @param $request
+     * @return mixed
+     */
+    public function getNegotiablePlaceOrderDetail($request)
+    {
+        #检查是否存在非面议商品
+        $goods_param        = json_decode($request['goods_json'],true);
+        $goods_ids          = array_column($goods_param,'goods_id');
+        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = createArrayIndex($goods_list,'id');
+        foreach ($goods_list as $value){
+            if ($value['negotiable'] !== ShopGoodsEnum::NEGOTIABLE){
+                $this->setError('商品【'.$value['name'].'】为非面议商品！');
+                return false;
+            }
+        }
+        #购买所得积分
+        $buy_score          = 0;
+        #邮费
+        $express_price      = 0;
+        foreach ($goods_param as $value){
+            if (isset($goods_list[$value['goods_id']])){
+                $goods          =  $goods_list[$value['goods_id']];
+                $buy_score      += $goods['gift_score'];
+                $express_price  += $goods['express_price'];
+            }
+        }
+        $express_title          = empty($express_price) ? '包邮' : '江浙沪地区包邮，其它地区总邮费：' . sprintf('%.2f',round($express_price / 100,2)).'元';
+        $member                 = Auth::guard('member_api')->user();
+        #收货地址
+        $res['address']         = AddressService::getDefaultAddress($member->id);
+        #商品信息
+        $res['goods_info']      = GoodsSpecRelateService::getNegotiableGoodsInfo($goods_param);
+        #邮费展示标签
+        $res['express_title']   = $express_title;
+        #邮费
+        $res['express_price']   = sprintf('%.2f',round($express_price / 100,2));
+        #购买所得积分
+        $res['buy_score']       = $buy_score;
+        #订单总金额
+        $res['total_price']     = '面议';
         $this->setMessage('获取成功！');
         return $res;
     }
@@ -736,7 +783,7 @@ class OrderRelateService extends BaseService
         }
         return $data;
     }
-    /*
+    /**
      * 删除订单
      * @param $order_relate_id
      * @param $member_id
@@ -765,7 +812,7 @@ class OrderRelateService extends BaseService
     }
 
     /**
-     *
+     * 银联支付回调
      * @param $order_id
      * @param $status
      * @return bool

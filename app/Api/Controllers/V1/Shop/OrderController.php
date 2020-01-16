@@ -741,4 +741,68 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message];
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_negotiable_place_order_detail",
+     *     tags={"商城"},
+     *     summary="获取面议商品下单详情",
+     *     description="sang" ,
+     *     operationId="get_negotiable_place_order_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="goods_json",
+     *         in="query",
+     *         description="商品json信息，",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getNegotiablePlaceOrderDetail(){
+//        $info = [
+//            ['goods_id' => 1,'spec_relate_id' => 1,'number' => 1,'cart_id' => 1],
+//            ['goods_id' => 1,'spec_relate_id' => 2,'number' => 1],
+//        ];
+        $rules = [
+            'goods_json'    => 'required|json'
+        ];
+        $messages = [
+            'goods_json.required'       => '商品json信息不能为空',
+            'goods_json.json'           => '商品json信息必须为json格式'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getNegotiablePlaceOrderDetail($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
 }

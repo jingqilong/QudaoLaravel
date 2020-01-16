@@ -2,8 +2,9 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\ShopGoodsEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\ScoreCategoryRepository;
-use App\Repositories\ShopCartRepository;
 use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
@@ -341,6 +342,48 @@ class GoodsSpecRelateService extends BaseService
         }
 
         return $max_price;
+    }
+
+    /**
+     * 获取面议商品信息
+     * @param array $goods_param
+     * @return array
+     */
+    protected function getNegotiableGoodsInfo($goods_param){
+        $goods_ids          = array_column($goods_param,'goods_id');
+        $goods_column       = ['id','name','price','banner_ids','score_deduction','score_categories'];
+        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids],'negotiable' => ShopGoodsEnum::NEGOTIABLE],$goods_column);
+        array_walk($goods_list, function(&$value) {
+            $banner_ids = trim($value['banner_ids'],',' );
+            $banner_ids = explode(',',$banner_ids);
+            $value['banner_ids'] = reset($banner_ids);
+        });
+        $goods_list         = CommonImagesRepository::bulkHasOneWalk($goods_list, ['from' => 'banner_ids','to' => 'id'], ['img_url','id'],[],
+            function ($src_item,$set_items){
+                $src_item['banner_url'] = $set_items['img_url'];
+                return $src_item;
+            }
+        );
+        $goods_list         = createArrayIndex($goods_list,'id');
+        $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getStrSpecList($spec_relate_ids);
+        $result             = [];
+        foreach ($goods_param as $item){
+            if (!isset($goods_list[$item['goods_id']]))continue;
+            $goods = $goods_list[$item['goods_id']];
+            $result[] = [
+                'goods_id'        => $goods['id'],
+                'goods_name'      => $goods['name'],
+                'goods_price'     => '面议',
+                'main_img_url'    => $goods['banner_url'],
+                'number'          => $item['number'],
+                'spec_relate_id'  => $item['spec_relate_id'] ?? 0,
+                'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
+                'cart_id'         => $item['cart_id'] ?? 0
+                ];
+        }
+        $this->setMessage('获取成功！');
+        return $result;
     }
 }
             

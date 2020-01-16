@@ -712,9 +712,11 @@ $api->version('v1',function ($api){
                 $api->get('shop_car_list','ShopCarController@shopCarList')->name('用户获取购物车商品列表');
 
                 $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
+                $api->get('get_negotiable_place_order_detail','OrderController@getNegotiablePlaceOrderDetail')->name('获取面议商品下单详情');
                 $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
                 $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
+
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
