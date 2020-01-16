@@ -972,11 +972,14 @@ class OaMemberController extends ApiController
             'ch_name'         => 'required',
             'sex'             => 'required|in:1,2',
             'avatar_id'       => 'required|integer',
-            'id_card'         => 'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/|unique:member_base',
+            'id_card'         => [
+                'regex:/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/',
+                'unique:member_base'
+            ],
             'category'        => 'required|integer',
             'status'          => 'required|in:0,1',
             'hidden'          => 'required|in:0,1',
-            'zipcode'         => 'regex:/\d{6}/',
+            'zipcode'         => 'regex:/^\d{6}$/',
             'grade'           => 'required|integer',
             'end_at'          => 'required',
             'birthday'        => 'date_format:"Y-m-d"',
