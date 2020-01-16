@@ -460,6 +460,14 @@ class DetailService extends BaseService
             $activity['status'] = 3;
             $activity['status_title'] = '已结束';
         }
+        $count_where = ['activity_id' => $id,'status' => ['in',[ActivityRegisterStatusEnum::COMPLETED,ActivityRegisterStatusEnum::EVALUATION]],'audit' => ActivityRegisterAuditEnum::PASS];
+        if (!$register_count = ActivityRegisterRepository::count($count_where)){
+            $register_count = 0;
+        }
+        #如果票已卖完，则改活动售票状态为已售罄
+        if (!empty($activity['max_number']) && ($activity['max_number'] <= $register_count)){
+            $activity['stop_selling'] = ActivityStopSellingEnum::STOP_SELLING;
+        }
         #是否收藏
         $activity['is_collect'] = 0;
         if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id,'deleted_at' => 0])){
