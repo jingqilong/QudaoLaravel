@@ -19,6 +19,7 @@ class ProcessCategoryEnum extends BaseEnum
         'PRIME_RESERVATION'      => '精选生活预约',
         'HOUSE_RELEASE'          => '房源发布',
         'MEMBER_CONTACT_REQUEST' => '成员联系请求',
+        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
     ];
 
     public static $data_map = [
@@ -32,6 +33,7 @@ class ProcessCategoryEnum extends BaseEnum
         8 => 'PRIME_RESERVATION',
         9 => 'HOUSE_RELEASE',
         10 => 'MEMBER_CONTACT_REQUEST',
+        11 => 'SHOP_NEGOTIABLE_ORDER',
     ];
     // constants
 
@@ -54,6 +56,8 @@ class ProcessCategoryEnum extends BaseEnum
     const HOUSE_RELEASE            = 9; //房源发布
 
     const MEMBER_CONTACT_REQUEST   = 10;    //成员联系请求
+
+    const SHOP_NEGOTIABLE_ORDER    = 11;    //商城面议订单
 
     /**
      * 获取状态label

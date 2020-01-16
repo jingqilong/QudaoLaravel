@@ -268,7 +268,7 @@ class OaOrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->getShopOrderList($this->request);
+        $res = $this->orderRelateService->getNegotiableOrderList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
@@ -329,6 +329,66 @@ class OaOrderController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->orderRelateService->orderDetail($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_negotiable_order_details",
+     *     tags={"商城后台"},
+     *     summary="获取面议订单详情",
+     *     description="sang" ,
+     *     operationId="get_negotiable_order_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getNegotiableOrderDetails(){
+        $rules = [
+            'order_relate_id'       => 'required|integer'
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getNegotiableOrderDetails($this->request['order_relate_id']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
