@@ -491,7 +491,7 @@ class CommonFeedBacksController extends ApiController
      * @OA\Get(
      *     path="/api/v1/common/get_back_feed_back_list",
      *     tags={"公共"},
-     *     summary="用户 获取反馈的回复详情",
+     *     summary="用户获取反馈详情",
      *     description="jing" ,
      *     operationId="get_back_feed_back_list",
      *     @OA\Parameter(
