@@ -135,6 +135,7 @@ class ReservationService extends BaseService
             DB::rollBack();
             return false;
         }
+        #开启流程
         $start_process_result = $this->addNewProcessRecord($id,ProcessCategoryEnum::PRIME_RESERVATION);
         if (100 == $start_process_result['code']){
             $this->setError('预约失败，请稍后重试！');

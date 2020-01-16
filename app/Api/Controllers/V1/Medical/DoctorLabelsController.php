@@ -135,7 +135,7 @@ class DoctorLabelsController extends ApiController
         }
         $res = $this->DoctorLabelsServices->deleteDoctorLabels($this->request['id']);
         if ($res){
-            return ['code' => 200, 'message' => $this->DoctorLabelsServices->message];
+            return ['code' => 200, 'message' => $this->DoctorLabelsServices->message , 'data' => $res];
         }
         return ['code' => 100, 'message' => $this->DoctorLabelsServices->error];
     }

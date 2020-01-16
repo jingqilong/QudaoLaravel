@@ -35,5 +35,34 @@ class ShopGoodsSpecRelateRepository extends ApiRepository
         }
         return $stock;
     }
+
+    /**
+     * 获取拼装成字符串的规格列表
+     * @param $spec_relate_ids
+     * @return array
+     */
+    protected function getStrSpecList($spec_relate_ids){
+        if (empty($spec_relate_ids)){
+            return [];
+        }
+        if (!$spec_relate_list = $this->getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0])){
+            return [];
+        }
+        $spec_ids  = array_column($spec_relate_list,'spec_ids');
+        foreach ($spec_ids as &$v){$v = trim($v,',');}
+        $spec_ids  = implode(',',$spec_ids);
+        $spec_list = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
+        $spec_list = $this->createArrayIndex($spec_list,'id');
+        $str_spec_list = [];
+        foreach ($spec_relate_list as $spec_relate){
+            $relate_spec_ids = explode(',',trim($spec_relate['spec_ids'],','));
+            $str_spec_list[$spec_relate['id']] = '';
+            foreach ($relate_spec_ids as $id){
+                if (!isset($spec_list[$id]))continue;
+                $str_spec_list[$spec_relate['id']] .= $spec_list[$id]['spec_name'] .':'. $spec_list[$id]['spec_value'] . ';';
+            }
+        }
+        return $str_spec_list;
+    }
 }
             

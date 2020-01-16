@@ -48,7 +48,8 @@ class ActivityRegisterViewModel extends Model
         'created_at',
         'updated_at',
         'ch_name',
-        'mobile'
+        'mobile',
+        'stop_selling'
     ];
 
 

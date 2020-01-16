@@ -650,5 +650,44 @@ class DetailsService extends BaseService
         $this->setMessage('获取成功！');
         return $house;
     }
+
+    /**
+     * 获取发布人ID
+     * @param $house_id
+     * @return mixed
+     */
+    public function getCreatedUser($house_id){
+        return HouseDetailsRepository::getField(['id' => $house_id],'publisher_id');
+    }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $repository_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($repository_ids){
+        if (empty($repository_ids)){
+            return [];
+        }
+        $column     = ['id','publisher_id'];
+        if (!$order_list = HouseDetailsRepository::getAssignList($repository_ids,$column)){
+            return [];
+        }
+        $publisher_ids = array_column($order_list,'publisher_id');
+        $publisher_list= MemberBaseRepository::getAssignList($publisher_ids,['id','ch_name','mobile']);
+        $publisher_list= createArrayIndex($publisher_list,'id');
+        $result_list = [];
+        foreach ($order_list as $value){
+            $member = $publisher_list[$value['publisher_id']] ?? [];
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '房源发布',
+                'member_id'     => $value['publisher_id'],
+                'member_name'   => $member['ch_name'] ?? '',
+                'member_mobile' => $member['mobile'] ?? '',
+            ];
+        }
+        return $result_list;
+    }
 }
             

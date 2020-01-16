@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class CommonFeedBacksViewModel extends Model
+class OaEmployeeListViewModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class CommonFeedBacksViewModel extends Model
      *
      * @var string
      */
-    protected $table = 'common_feed_backs_view';
+    protected $table = 'oa_employee_list_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -34,6 +34,7 @@ class CommonFeedBacksViewModel extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
 
 }
 

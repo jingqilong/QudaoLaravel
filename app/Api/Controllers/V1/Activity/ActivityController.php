@@ -234,6 +234,24 @@ class ActivityController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="stop_selling",
+     *         in="query",
+     *         description="停止售票，默认0正常出售，1停止出售",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="max_number",
+     *         in="query",
+     *         description="最大报名人数，默认0无限制",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="添加失败",
@@ -266,6 +284,8 @@ class ActivityController extends ApiController
             'status'        => 'required|in:1,2',
             'is_member'     => 'required|in:1,2',
             'need_audit'    => 'required|in:0,1',
+            'stop_selling'  => 'in:0,1',
+            'max_number'    => 'min:0',
         ];
         $messages = [
             'name.required'         => '活动名称不能为空',
@@ -295,6 +315,8 @@ class ActivityController extends ApiController
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
             'need_audit.required'   => '是否需要审核不能为空',
             'need_audit.in'         => '是否需要审核取值不在范围内',
+            'stop_selling.in'       => '停止售票取值不在范围内',
+            'max_number.min'        => '最大报名人数最新为0',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -584,6 +606,24 @@ class ActivityController extends ApiController
      *             type="integer"
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="stop_selling",
+     *         in="query",
+     *         description="停止售票，默认0正常出售，1停止出售",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="max_number",
+     *         in="query",
+     *         description="最大报名人数，默认0无限制",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="修改失败",
@@ -617,6 +657,8 @@ class ActivityController extends ApiController
             'status'        => 'required|in:1,2',
             'is_member'     => 'required|in:1,2',
             'need_audit'    => 'required|in:0,1',
+            'stop_selling'  => 'in:0,1',
+            'max_number'    => 'min:0',
         ];
         $messages = [
             'id.required'           => '活动ID不能为空',
@@ -648,6 +690,8 @@ class ActivityController extends ApiController
             'is_member.in'          => '是否允许非会员参加取值不在范围内',
             'need_audit.required'    => '是否需要审核不能为空',
             'need_audit.in'          => '是否需要审核取值不在范围内',
+            'stop_selling.in'       => '停止售票取值不在范围内',
+            'max_number.min'        => '最大报名人数最新为0',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -952,6 +996,15 @@ class ActivityController extends ApiController
      *             type="integer",
      *         )
      *     ),
+     *     @OA\Parameter(
+     *         name="stop_selling",
+     *         in="query",
+     *         description="停止售票，0正常出售，1停止出售",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="操作失败",
@@ -966,6 +1019,7 @@ class ActivityController extends ApiController
             'is_recommend'  => 'in:0,1',
             'is_member'     => 'in:1,2',
             'need_audit'    => 'in:0,1',
+            'stop_selling'  => 'in:0,1',
         ];
         $messages = [
             'id.required'       => '活动ID不能为空',
@@ -974,6 +1028,7 @@ class ActivityController extends ApiController
             'is_recommend.in'   => '推荐取值有误',
             'is_member.in'      => '是否允许非会员参加取值有误',
             'need_audit.in'     => '是否需要审核取值有误',
+            'stop_selling.in'   => '停止售票取值有误',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){

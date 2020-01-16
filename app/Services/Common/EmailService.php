@@ -21,13 +21,22 @@ class EmailService extends BaseService
             return false;
         }
         $key            = md5('email_code'.$email.$code_type);
+        $email_ttl      = config('common.email.ttl',300);
+        $email_length   = config('common.email.length',4);
+        $code           = $this->buildCode($email_length);
         if (Cache::has($key)){
-            $this->setError('验证码已发送，请耐心等待！');
-            return false;
+            $code_info  = Cache::get($key);
+            $time       = time();
+            $send_time  = $code_info['time'] + 60;#发送频率为60秒
+            if ($send_time > $time){
+                $this->setError(($send_time - $time).'秒以后可再次发送验证码！');
+                return false;
+            }
         }
-        $event_data = ['email' => $email,'code_type' => $code_type];
+        $event_data = ['email' => $email,'code_type' => $code_type,'code' => $code];
         #异步处理
         event(new SendEmailCode($event_data));
+        Cache::put($key,['code' => $code,'time' => time()],$email_ttl);
         $this->setMessage('发送成功！');
         return true;
     }
@@ -47,12 +56,20 @@ class EmailService extends BaseService
             return false;
         }
         $local_code = Cache::get($key);
-        if ($code != $local_code){
+        if ($code != $local_code['code']){
             $this->setError('验证码不正确！');
             return false;
         }
         Cache::forget($key);
         $this->setMessage('验证通过！');
         return true;
+    }
+
+    public function buildCode($length = 4){
+        $code = '';
+        for ($i=0;$i < $length;$i++){
+            $code .= rand(0,9);
+        }
+        return $code;
     }
 }

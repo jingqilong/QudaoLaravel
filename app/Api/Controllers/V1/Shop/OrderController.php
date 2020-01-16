@@ -600,4 +600,312 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/remind_to_ship",
+     *     tags={"商城"},
+     *     summary="提醒发货",
+     *     description="sang" ,
+     *     operationId="remind_to_ship",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="提醒失败",
+     *     ),
+     * )
+     *
+     */
+    public function remindToShip(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单ID不能为空！',
+            'order_relate_id.integer'   => '订单ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->remindToShip($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/edit_my_order",
+     *     tags={"商城"},
+     *     summary="修改我的订单",
+     *     description="sang" ,
+     *     operationId="edit_my_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="query",
+     *         description="收货地址ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="修改失败",
+     *     ),
+     * )
+     *
+     */
+    public function editMyOrder(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+            'address_id'        => 'required|integer',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单ID不能为空！',
+            'order_relate_id.integer'   => '订单ID必须为整数！',
+            'address_id.required'       => '收货地址不能为空！',
+            'address_id.integer'        => '收货地址ID必须为整数！',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->editMyOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_negotiable_place_order_detail",
+     *     tags={"商城"},
+     *     summary="获取面议商品下单详情",
+     *     description="sang" ,
+     *     operationId="get_negotiable_place_order_detail",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="goods_json",
+     *         in="query",
+     *         description="商品json信息，",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getNegotiablePlaceOrderDetail(){
+//        $info = [
+//            ['goods_id' => 1,'spec_relate_id' => 1,'number' => 1,'cart_id' => 1],
+//            ['goods_id' => 1,'spec_relate_id' => 2,'number' => 1],
+//        ];
+        $rules = [
+            'goods_json'    => 'required|json'
+        ];
+        $messages = [
+            'goods_json.required'       => '商品json信息不能为空',
+            'goods_json.json'           => '商品json信息必须为json格式'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getNegotiablePlaceOrderDetail($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/submit_negotiable_order",
+     *     tags={"商城"},
+     *     summary="提交面议订单",
+     *     description="sang" ,
+     *     operationId="submit_negotiable_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="query",
+     *         description="收货地址ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="goods_json",
+     *         in="query",
+     *         description="商品json信息，",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="express_type",
+     *         in="query",
+     *         description="邮寄方式，1收费邮寄、2快递到付、3上门自提",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="remarks",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="car_ids",
+     *         in="query",
+     *         description="购物车ID串",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="下单失败",
+     *     ),
+     * )
+     *
+     */
+    public function submitNegotiableOrder(){
+        $rules = [
+            'address_id'        => 'required|integer|exists:member_address,id',
+            'goods_json'        => 'required|json',
+            'express_type'      => 'required|in:1,2,3',
+        ];
+        $messages = [
+            'address_id.required'       => '收货地址不能为空',
+            'address_id.integer'        => '收货地址ID必须为整数',
+            'address_id.unique'         => '收货地址不存在!',
+            'goods_json.required'       => '商品信息不能为空',
+            'goods_json.json'           => '商品信息必须为json格式',
+            'express_type.required'     => '邮寄方式不能为空',
+            'express_type.in'           => '邮寄方式不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->submitNegotiableOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
 }

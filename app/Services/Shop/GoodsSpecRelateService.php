@@ -2,8 +2,9 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\ShopGoodsEnum;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\ScoreCategoryRepository;
-use App\Repositories\ShopCartRepository;
 use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
@@ -24,7 +25,7 @@ class GoodsSpecRelateService extends BaseService
      * @param array $goods_column
      * @return array|bool
      */
-    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction','score_categories']){
+    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction','score_categories','negotiable']){
         foreach ($goods_spec_arr as $value){
             if (!isset($value['goods_id']) || !isset($value['number'])){
                 $this->setError('商品ID和数量不能为空！');
@@ -58,18 +59,18 @@ class GoodsSpecRelateService extends BaseService
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $goods  =  reset($goods);
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
+                $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? 0 : $this->maximumCreditDeductionAmount(
+                    $goods['score_categories'],
+                    $goods['score_deduction'],
+                    $value['number'],
+                    $price
+                );
                 $result[$key] = [
                     'goods_name'      => $goods['name'],
-                    'goods_price'     => sprintf('%.2f',round($price / 100,2)),
+                    'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
                     'number'          => $value['number'],
-                    'deduction_price' =>
-                        $this->maximumCreditDeductionAmount(
-                            $goods['score_categories'],
-                            $goods['score_deduction'],
-                            $value['number'],
-                            $price
-                        )
+                    'deduction_price' => $deduction_price//最高积分抵扣
                 ];
             }
             if (isset($value['order_relate_id'])){
@@ -100,20 +101,23 @@ class GoodsSpecRelateService extends BaseService
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
         $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids);
+        $goods_list         = createArrayIndex($goods_list,'id');
         foreach ($goods_spec_arr as $key => $value){
-            $goods = $this->searchArray($goods_list,'id',$value['goods_id']);
+            $goods = $goods_list[$value['goods_id']];
             if (!isset($value['spec_relate_id'])){
-                if ($value['number'] > reset($goods)['stock']){
-                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+                if ($value['number'] > $goods['stock']){
+                    $this->setError('商品【'.$goods['name'].'】库存不足！');
                     return false;
                 }
                 break;
             }
-            if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                if ($value['number'] > reset($spec_relate)['stock']){
-                    $this->setError('商品【'.reset($goods)['name'].'】库存不足！');
+            if (isset($spec_relate_list[$value['spec_relate_id']])){
+                $spec_relate = $spec_relate_list[$value['spec_relate_id']];
+                if ($value['number'] > $spec_relate['stock']){
+                    $this->setError('商品【'.$goods['name'].'】库存不足！');
                     return false;
                 }
             }
@@ -338,6 +342,48 @@ class GoodsSpecRelateService extends BaseService
         }
 
         return $max_price;
+    }
+
+    /**
+     * 获取面议商品信息
+     * @param array $goods_param
+     * @return array
+     */
+    protected function getNegotiableGoodsInfo($goods_param){
+        $goods_ids          = array_column($goods_param,'goods_id');
+        $goods_column       = ['id','name','price','banner_ids','score_deduction','score_categories'];
+        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids],'negotiable' => ShopGoodsEnum::NEGOTIABLE],$goods_column);
+        array_walk($goods_list, function(&$value) {
+            $banner_ids = trim($value['banner_ids'],',' );
+            $banner_ids = explode(',',$banner_ids);
+            $value['banner_ids'] = reset($banner_ids);
+        });
+        $goods_list         = CommonImagesRepository::bulkHasOneWalk($goods_list, ['from' => 'banner_ids','to' => 'id'], ['img_url','id'],[],
+            function ($src_item,$set_items){
+                $src_item['banner_url'] = $set_items['img_url'];
+                return $src_item;
+            }
+        );
+        $goods_list         = createArrayIndex($goods_list,'id');
+        $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getStrSpecList($spec_relate_ids);
+        $result             = [];
+        foreach ($goods_param as $item){
+            if (!isset($goods_list[$item['goods_id']]))continue;
+            $goods = $goods_list[$item['goods_id']];
+            $result[] = [
+                'goods_id'        => $goods['id'],
+                'goods_name'      => $goods['name'],
+                'goods_price'     => '面议',
+                'main_img_url'    => $goods['banner_url'],
+                'number'          => $item['number'],
+                'spec_relate_id'  => $item['spec_relate_id'] ?? 0,
+                'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
+                'cart_id'         => $item['cart_id'] ?? 0
+                ];
+        }
+        $this->setMessage('获取成功！');
+        return $result;
     }
 }
             

@@ -5,6 +5,7 @@ namespace App\Services\Activity;
 use App\Enums\ActivityEnum;
 use App\Enums\ActivityRegisterAuditEnum;
 use App\Enums\ActivityRegisterStatusEnum;
+use App\Enums\ActivityStopSellingEnum;
 use App\Enums\CommonImagesEnum;
 use App\Enums\CollectTypeEnum;
 use App\Enums\MemberEnum;
@@ -83,6 +84,14 @@ class RegisterService extends BaseService
         }
         if (ActivityRegisterRepository::exists(['activity_id' => $request['activity_id'], 'member_id' => $member->id, 'audit' => ['<>',ActivityRegisterAuditEnum::TURN_DOWN]])){
             $this->setError('您已经报过名了，请勿重复报名！');
+            return false;
+        }
+        $count_where = ['activity_id' => $request['activity_id'],'status' => ['in',[ActivityRegisterStatusEnum::COMPLETED,ActivityRegisterStatusEnum::EVALUATION]],'audit' => ActivityRegisterAuditEnum::PASS];
+        if (!$register_count = ActivityRegisterRepository::count($count_where)){
+            $register_count = 0;
+        }
+        if (!empty($activity['max_number']) && ($activity['max_number'] <= $register_count)){
+            $this->setError('该活动票已售罄！');
             return false;
         }
         $add_arr = [
@@ -246,22 +255,23 @@ class RegisterService extends BaseService
      */
     public function getRegisterDetails($register_id){
         $employee = Auth::guard('oa_api')->user();
-        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at','updated_at'];
+        $column = ['id','activity_id','order_no','name','mobile','activity_price','member_price','status','created_at'];
         if (!$register = ActivityRegisterRepository::getOne(['id' => $register_id],$column)){
             $this->setError('报名信息不存在！');
             return false;
         }
         $register['activity_price'] = empty($register['activity_price']) ? '免费' : round($register['activity_price'] / 100,2).'元';
-        $register['member_price'] = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
+        $register['member_price']   = empty($register['member_price']) ? '免费' : round($register['member_price'] / 100,2).'元';
         $register['status']         = ActivityRegisterStatusEnum::getStatus($register['status']);
-        $activity_column = ['id','name','address','theme_id','start_time','end_time','cover_id','is_member'];
+        $register['created_at']     = date('Y年m月d日 H点i分',$register['created_at']);
+        $activity_column = ['id','name','address','theme_id','start_time','end_time','cover_id','is_member','stop_selling'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $register['activity_id'],'status' => '1','deleted_at' => '0'],$activity_column)){
             $this->setError('报名活动不存在！');
             return false;
         }
         $activity['theme_name'] = ActivityThemeRepository::getField(['id' => $activity['theme_id']],'name');unset($activity['theme_id']);
         if ($activity['start_time'] > time()){
-            $activity['status_title'] = '报名中';
+            $activity['status_title'] = $activity['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
         }
         if ($activity['start_time'] < time() && $activity['end_time'] > time()){
             $activity['status_title'] = '进行中';
@@ -273,6 +283,7 @@ class RegisterService extends BaseService
         $activity['end_time']   = date('Y年m月d日 H点i分',$activity['end_time']);
         $activity               = ImagesService::getOneImagesConcise($activity,['cover_id' => 'single'],true);
         $activity['is_member']  = ActivityEnum::getIsMember($activity['is_member']);
+        unset($activity['stop_selling']);
         $register['activity_info'] = $activity;
         return $this->getBusinessDetailsProcess($register,ProcessCategoryEnum::ACTIVITY_REGISTER,$employee->id);
     }
@@ -448,7 +459,7 @@ class RegisterService extends BaseService
             default:
                 break;
         }
-        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','register_audit','sign_in_code','order_no'];
+        $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','register_audit','sign_in_code','order_no','stop_selling'];
         if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
@@ -467,7 +478,7 @@ class RegisterService extends BaseService
             $value['price']         = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
             if ($value['start_time'] > time()){
                 $value['status'] = 1;
-                $value['status_title'] = '报名中';
+                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
             }
             if ($value['start_time'] < time() && $value['end_time'] > time()){
                 $value['status'] = 2;
@@ -486,7 +497,7 @@ class RegisterService extends BaseService
             $start_time             = date('Y年m/d',$value['start_time']);
             $end_time               = date('m/d',$value['end_time']);
             $value['activity_time'] = $start_time . '-' . $end_time;
-            unset($value['start_time'],$value['end_time'],$value['area_code'],$value['activity_id']);
+            unset($value['start_time'],$value['end_time'],$value['area_code'],$value['activity_id'],$value['stop_selling']);
         }
         $this->setMessage('获取成功！');
         return $register_list;

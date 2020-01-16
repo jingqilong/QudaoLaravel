@@ -294,4 +294,42 @@ class MemberContactServices extends BaseService
         $this->setMessage('获取成功!');
         return $contact_info;
     }
+
+    /**
+     * 获取申请人ID
+     * @param $request_id
+     * @return mixed
+     */
+    public function getCreatedUser($request_id){
+        return MemberContactRequestRepository::getField(['id' => $request_id],'proposer_id');
+    }
+    /**
+     * 返回流程中的业务列表
+     * @param $repository_ids
+     * @return mixed
+     */
+    public function getProcessBusinessList($repository_ids){
+        if (empty($repository_ids)){
+            return [];
+        }
+        $column     = ['id','proposer_id'];
+        if (!$order_list = MemberContactRequestRepository::getAssignList($repository_ids,$column)){
+            return [];
+        }
+        $proposer_ids  = array_column($order_list,'proposer_id');
+        $proposer_list = MemberBaseRepository::getAssignList($proposer_ids,['id','ch_name','mobile']);
+        $proposer_list = createArrayIndex($proposer_list,'id');
+        $result_list = [];
+        foreach ($order_list as $value){
+            $member = $proposer_list[$value['proposer_id']] ?? [];
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '成员联系申请',
+                'member_id'     => $value['proposer_id'],
+                'member_name'   => $member['ch_name'] ?? '',
+                'member_mobile' => $member['mobile'] ?? '',
+            ];
+        }
+        return $result_list;
+    }
 }

@@ -36,7 +36,6 @@ class CommonFeedbackThreadModel extends Model
      */
     protected $casts = [
         'created_at' => 'datetime',
-        'created_by' => 'datetime',
     ];
 
 

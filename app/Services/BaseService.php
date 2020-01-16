@@ -88,4 +88,11 @@ class BaseService
         ];
     }
 
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return __CLASS__;
+    }
 }

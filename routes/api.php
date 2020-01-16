@@ -697,13 +697,17 @@ $api->version('v1',function ($api){
                 $api->get('get_announce_list','OaAnnounceController@getAnnounceList')->name('获取公告列表');
 
                 $api->get('get_shop_order_list','OaOrderController@getShopOrderList')->name('获取商城订单列表');
+                $api->get('get_negotiable_order_list','OaOrderController@getNegotiableOrderList')->name('获取面议订单列表');
                 $api->get('get_order_detail','OaOrderController@getOrderDetail')->name('获取订单详情');
-                $api->post('shipment','OaOrderController@shipment')->name('发货');
-                $api->get('get_oa_order_express_details','OaOrderController@getOaOrderExpressDetails')->name('Oa根据订单号获取物流状态');
-                $api->get('get_express_list','OaOrderController@getExpressList')->name('OA获取快递列表');
+                $api->get('get_negotiable_order_details','OaOrderController@getNegotiableOrderDetails')->name('获取面议订单详情');
+                $api->post('set_negotiable_order_amount','OaOrderController@setNegotiableOrderAmount')->name('设置面议订单金额');
+
                 $api->get('get_shop_inventor_list','OaShopInventorController@getShopInventorList')->name('OA获取商品库存列表');
                 $api->post('change_inventor','OaShopInventorController@changeInventor')->name('OA修改库存');
 
+            });
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('shipment','OaOrderController@shipment')->name('发货');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
@@ -712,12 +716,18 @@ $api->version('v1',function ($api){
                 $api->get('shop_car_list','ShopCarController@shopCarList')->name('用户获取购物车商品列表');
 
                 $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
+                $api->get('get_negotiable_place_order_detail','OrderController@getNegotiablePlaceOrderDetail')->name('获取面议商品下单详情');
                 $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
+                $api->post('submit_negotiable_order','OrderController@submitNegotiableOrder')->name('提交面议订单');
                 $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
+
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
+                $api->post('remind_to_ship','OrderController@remindToShip')->name('提醒发货');
+                $api->post('edit_my_order','OrderController@editMyOrder')->name('修改我的订单');
+
                 $api->delete('delete_order','OrderController@deleteOrder')->name('删除订单');
                 $api->get('get_goods_details','GoodsController@getGoodsDetails')->name('用户获取商品详情');
                 $api->get('get_home','GoodsController@getHome')->name('获取首页');
@@ -762,6 +772,8 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
             $api->get('get_common_service_terms', 'CommonController@getCommonServiceTerms')->name('用户获取渠道平台服务条款');
+            $api->get('get_express_list','CommonExpressController@getExpressList')->name('获取快递列表');
+            $api->get('get_order_express_details','CommonExpressController@getOrderExpressDetails')->name('根据订单号获取物流状态');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 #首页banner设置
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
@@ -790,6 +802,9 @@ $api->version('v1',function ($api){
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
                 $api->get('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
                 $api->post('add_feedBack', 'CommonFeedBacksController@addFeedBack')->name('用户添加反馈');
+                $api->get('get_back_feed_back_list', 'CommonFeedBacksController@getBackFeedBackList')->name('用户获取反馈的回复详情');
+                $api->get('get_call_back_list', 'CommonFeedBacksController@getCallBackList')->name('用户获取反馈列表');
+                $api->post('call_back_employee', 'CommonFeedBacksController@callBackEmployee')->name('用户获取反馈列表');
             });
         });
         //支付模块模块
