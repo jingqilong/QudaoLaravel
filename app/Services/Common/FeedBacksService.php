@@ -171,8 +171,6 @@ class FeedBacksService extends BaseService
      */
     public function getCallBackFeedBack($request)
     {
-        $page     = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $column   = ['id','member_id','content','created_at'];
         if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['id' => $request['feedback_id']],$column)){
             $this->setError('获取失败!');
@@ -180,7 +178,7 @@ class FeedBacksService extends BaseService
         }
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
-        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc',$page,$page_num)){
+        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
             return false;
         }
         $call_back_list = $this->removePagingField($call_back_list);
@@ -239,8 +237,6 @@ class FeedBacksService extends BaseService
     public function getBackFeedBackList($request)
     {
         $member   = $this->auth->user();
-        $page     = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $column   = ['id','member_id','content','created_at'];
         if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['member_id' => $member->id,'id' => $request['feedback_id']],$column)){
             $this->setError('获取失败!');
@@ -248,7 +244,7 @@ class FeedBacksService extends BaseService
         }
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
-        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc',$page,$page_num)){
+        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
             return false;
         }
         $call_back_list = $this->removePagingField($call_back_list);

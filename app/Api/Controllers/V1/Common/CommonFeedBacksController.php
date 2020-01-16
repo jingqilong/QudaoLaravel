@@ -521,24 +521,6 @@ class CommonFeedBacksController extends ApiController
      *             type="integer",
      *         )
      *     ),
-     *      @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="分页页码",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page_num",
-     *         in="query",
-     *         description="分页数量",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="integer",
-     *         )
-     *     ),
      *     @OA\Response(
      *         response=100,
      *         description="发送失败",
@@ -549,14 +531,10 @@ class CommonFeedBacksController extends ApiController
     public function getBackFeedBackList(){
         $rules = [
             'feedback_id'  => 'required|integer',
-            'page'     => 'integer',
-            'page_num' => 'integer',
         ];
         $messages = [
             'feedback_id.required' => '反馈ID不能为空',
             'feedback_id.integer'  => '反馈ID必须为整数',
-            'page.integer'     => '页码必须为整数',
-            'page_num.integer' => '页码数量必须为整数',
         ];
         // 验证参数，如果验证失败，则会抛出 ValidationException 的异常
         $Validate = $this->ApiValidate($rules, $messages);
