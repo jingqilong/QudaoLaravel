@@ -7,6 +7,7 @@ use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Enums\ShopOrderEnum;
+use App\Enums\ShopOrderTypeEnum;
 use App\Enums\TradeEnum;
 use App\Services\BaseService;
 use App\Services\Common\ExpressService;
@@ -54,7 +55,15 @@ class OrderRelateService extends BaseService
         $goods_ids          = array_column($goods_param,'goods_id');
         $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
         $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = createArrayIndex($goods_list,'id');
         $spec_relate_list   = ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
+        foreach ($goods_list as $value){
+            if ($value['negotiable'] == ShopGoodsEnum::NEGOTIABLE){
+                $this->setError('商品【'.$value['name'].'】为面议商品！');
+                return false;
+            }
+        }
         #购买所得积分
         $buy_score          = 0;
         #邮费
@@ -63,15 +72,11 @@ class OrderRelateService extends BaseService
         $total_price        = 0;
         $scoreService = new RecordService();
         foreach ($goods_param as $value){
-            if ($goods = $this->searchArray($goods_list,'id',$value['goods_id'])){
-                $buy_score          += reset($goods)['gift_score'];
-                $express_price      += reset($goods)['express_price'];
-                if (isset($value['spec_relate_id']))
-                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                    $total_price        += (reset($spec_relate)['price'] * $value['number']);continue;
-                }
-                $total_price        += (reset($goods)['price'] * $value['number']);
-            }
+            if(!isset($goods_list[$value['goods_id']]))continue;
+            $goods = $goods_list[$value['goods_id']];
+            $buy_score          += $goods['gift_score'];
+            $express_price      += $goods['express_price'];
+            $total_price        += (isset($spec_relate_list[$value['spec_relate_id']]) ? $spec_relate_list[$value['spec_relate_id']]['price'] : $goods['price']) * $value['number'];
         }
         $total_price            = sprintf('%.2f',round($total_price / 100,2));
         #可抵扣积分
@@ -564,7 +569,7 @@ class OrderRelateService extends BaseService
         $express_company_id = $request['express_company_id'] ?? null;
         $order          = 'id';
         $desc_asc       = 'desc';
-        $where          = ['id' => ['<>',0]];
+        $where          = ['id' => ['<>',0],'order_type' => ShopOrderTypeEnum::ORDINARY];
         $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at'];
         if (!is_null($status)){
             $where['status']  = $status;
