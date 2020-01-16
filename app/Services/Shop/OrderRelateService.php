@@ -2,9 +2,11 @@
 namespace App\Services\Shop;
 
 
+use App\Enums\CommonAuditStatusEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\ShopOrderTypeEnum;
@@ -12,6 +14,7 @@ use App\Enums\TradeEnum;
 use App\Services\BaseService;
 use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
+use App\Traits\BusinessTrait;
 use App\Repositories\{
     CommonExpressRepository,
     MemberAddressRepository,
@@ -31,7 +34,6 @@ use App\Services\Member\TradesService;
 use App\Services\Message\SendService;
 use App\Services\Score\RecordService;
 use App\Traits\HelpTrait;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +41,7 @@ use Tolawho\Loggy\Facades\Loggy;
 
 class OrderRelateService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
 
     #包邮地区编码
     public static $free_shipping_area_code = ['330000','320000','310000'];
@@ -623,6 +625,87 @@ class OrderRelateService extends BaseService
         $this->setMessage('获取成功！');
         return $order_list;
     }
+    /**
+     * 后台获取所有商城订单列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getNegotiableOrderList($request)
+    {
+        $employee       = Auth::guard('oa_api')->user();
+        $page           = $request['page'] ?? 1;
+        $page_num       = $request['page_num'] ?? 20;
+        $keywords       = $request['keywords'] ?? null;
+        $status         = $request['status'] ?? null;
+        $order_no       = $request['order_no'] ?? null;
+        $express_number = $request['express_number'] ?? null;
+        $receive_method = $request['receive_method'] ?? null;
+        $express_company_id = $request['express_company_id'] ?? null;
+        $order          = 'id';
+        $desc_asc       = 'desc';
+        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::NEGOTIABLE];
+        $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at','audit'];
+        if (!is_null($status))              $where['status']  = $status;
+        if (!is_null($order_no))            $where['order_no']  = $order_no;
+        if (!is_null($express_number))      $where['express_number']  = $express_number;
+        if (!is_null($receive_method))      $where['receive_method']  = $receive_method;
+        if (!is_null($express_company_id))  $where['express_company_id']  = $express_company_id;
+        if (!empty($keywords)){
+            $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }else{
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+                $this->setError('获取失败！');
+                return false;
+            }
+        }
+        $order_list = $this->removePagingField($order_list);
+        if (empty($order_list['data'])){
+            $this->setMessage('暂无数据！');
+            return $order_list;
+        }
+        $express_company_ids  = array_column($order_list['data'],'express_company_id');
+        $express_company_list = CommonExpressRepository::getAssignList($express_company_ids);
+        foreach ($order_list['data'] as &$value){
+            $value['amount'] = sprintf('%.2f',round($value['amount'] / 100,2));
+            $value['payment_amount'] = sprintf('%.2f',round($value['payment_amount'] / 100,2));
+            $value['express_price'] = sprintf('%.2f',round($value['express_price'] / 100,2));
+            $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
+            $value['express_company']   = '-';
+            $value['express_company_code']   = '';
+            if ($express_company = $this->searchArray($express_company_list,'id',$value['express_company_id'])){
+                $value['express_company'] = reset($express_company)['company_name'];
+                $value['express_company_code'] = reset($express_company)['code'];
+            }
+            $value['receive_method']    = ShopOrderEnum::getReceiveMethod($value['receive_method']);
+            $value['express_number']    = $value['express_number'] ?? '-';
+            #获取流程信息
+            $value['progress'] = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
+        }
+        $this->setMessage('获取成功！');
+        return $order_list;
+    }
+
+    /**
+     * 获取面议订单详情
+     * @param $order_relate_id
+     * @return array|bool
+     */
+    public function getNegotiableOrderDetails($order_relate_id){
+        $employee = Auth::guard('oa_api')->user();
+        if (!ShopOrderRelateRepository::exists(['id' => $order_relate_id,'order_type' => ShopOrderTypeEnum::NEGOTIABLE])){
+            $this->setError('订单不存在！');
+            return false;
+        }
+        if (!$order_info = $this->orderDetail($order_relate_id)){
+            return false;
+        }
+        $this->setMessage('获取订单成功！');
+        return $this->getBusinessDetailsProcess($order_info,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
+    }
 
     /**
      * 发货
@@ -862,6 +945,8 @@ class OrderRelateService extends BaseService
             'order_id'          => $order_info['id'],
             'member_id'         => $member->id,
             'status'            => ShopOrderEnum::PAYMENT,
+            'audit'             => CommonAuditStatusEnum::SUBMIT,
+            'order_type'        => ShopOrderTypeEnum::NEGOTIABLE,
             'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
             'address_id'        => $request['address_id'],
             'income_score'      => $submit_order_info['buy_score'],#此处赠送积分待支付完成赠送
@@ -896,6 +981,13 @@ class OrderRelateService extends BaseService
         $car_ids = $request['car_ids'] ?? null;
         if (!is_null($car_ids)){
             ShopCartRepository::delete(['id' => ['in',explode(',',$car_ids)]]);
+        }
+        #开启流程
+        $start_process_result = $this->addNewProcessRecord($order_relate_id,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER);
+        if (100 == $start_process_result['code']){
+            $this->setError('预约失败，请稍后重试！');
+            DB::rollBack();
+            return false;
         }
         DB::commit();
         Cache::put($request['token'],$request['token'],5);

@@ -58,7 +58,8 @@ class ShopOrderRelateViewModel extends Model
         'created_at',
         'updated_at',
         'deleted_at',
-        'order_relate_type'
+        'order_relate_type',
+        'audit'
     ];
 
     /**
