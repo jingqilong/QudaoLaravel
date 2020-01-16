@@ -59,7 +59,7 @@ class GoodsSpecRelateService extends BaseService
             if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
                 $goods  =  reset($goods);
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
-                $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '' : $this->maximumCreditDeductionAmount(
+                $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? 0 : $this->maximumCreditDeductionAmount(
                     $goods['score_categories'],
                     $goods['score_deduction'],
                     $value['number'],
