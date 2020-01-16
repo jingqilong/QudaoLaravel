@@ -470,7 +470,7 @@ class DetailService extends BaseService
         $activity['activity_time']  = $start_time . '～' . $end_time;
         $activity['day_time']       = date('H:i',$activity['start_time']) .'-'.date('H:i',$activity['end_time']);
         $activity['cover']          = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
-        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code'],$activity['stop_selling']);
+        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code']);
         #获取举办方信息
         $activity['hosts'] = $this->getActivityHosts($id);
 
