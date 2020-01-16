@@ -150,6 +150,133 @@ class OaOrderController extends ApiController
 
     /**
      * @OA\Get(
+     *     path="/api/v1/shop/get_negotiable_order_list",
+     *     tags={"商城后台"},
+     *     summary="获取面议订单列表",
+     *     description="sang" ,
+     *     operationId="get_negotiable_order_list",
+     *     @OA\Parameter(
+     *          name="sign",
+     *          in="query",
+     *          description="签名",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="keywords",
+     *         in="query",
+     *         description="搜索关键字，【用户姓名、用户手机号、收件人姓名、收件人手机号、收货备注】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="订单状态，0已取消，1待支付，2待发货（已支付），3已发货（待收货），4已收货",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="express_number",
+     *         in="query",
+     *         description="快递单号",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_no",
+     *         in="query",
+     *         description="订单号",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="express_company_id",
+     *         in="query",
+     *         description="快递公司ID",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="receive_method",
+     *         in="query",
+     *         description="收货方式，默认1收费邮寄、2快递到付、3上门自提",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="页码",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page_num",
+     *         in="query",
+     *         description="每页显示条数",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(response=100,description="获取失败",),
+     * )
+     *
+     */
+    public function getNegotiableOrderList(){
+        $rules = [
+            'status'            => 'in:0,1,2,3,4',
+            'receive_method'    => 'in:1,2,3',
+            'express_company_id'=> 'integer',
+            'page'              => 'integer',
+            'page_num'          => 'integer',
+        ];
+        $messages = [
+            'status.in'                 => '订单状态不存在',
+            'receive_method.in'         => '收货方式不存在',
+            'express_company_id.integer'=> '快递公司ID必须为整数',
+            'page.integer'              => '页码必须为整数',
+            'page_num.integer'          => '每页显示条数必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->getShopOrderList($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/shop/get_order_detail",
      *     tags={"商城后台"},
      *     summary="获取订单详情",
