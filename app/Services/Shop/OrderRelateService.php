@@ -2,18 +2,16 @@
 namespace App\Services\Shop;
 
 
-use App\Enums\CommentsEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\OrderEnum;
-use App\Enums\ScoreEnum;
 use App\Enums\ShopGoodsEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
 use App\Services\BaseService;
 use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
-use App\Repositories\{CommonCommentsRepository,
+use App\Repositories\{
     CommonExpressRepository,
     MemberAddressRepository,
     MemberOrdersRepository,
@@ -21,7 +19,6 @@ use App\Repositories\{CommonCommentsRepository,
     MemberTradesRepository,
     ScoreCategoryRepository,
     ShopCartRepository,
-    ShopGoodSpecListViewRepository,
     ShopGoodsRepository,
     ShopGoodsSpecRelateRepository,
     ShopGoodsSpecRepository,
@@ -268,20 +265,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         #添加订单商品信息
-        $order_relate_add_arr = ShopGoodsSpecRepository::bulkHasOneWalk(
-            $submit_order_info['goods_info'],
-            ['from' => 'spec_relate_id','to'=>'id'],
-            ['id','goods_id','spec_name','spec_value'],
-            [],
-            function($src_item,$shop_goods_spec_items) use($order_relate_id) {
-                $src_item['order_relate_id']    = $order_relate_id;
-                $src_item['spec_relate_value']  = $src_item['spec'] ?? '';
-                $spec_arr = Arr::only($src_item,['goods_id','order_relate_id','spec_relate_id','spec_relate_value','number']);
-                $spec_arr['created_at']         = time();
-                return $spec_arr;
-            }
-        );
-        if (!ShopOrderGoodsRepository::create($order_relate_add_arr)){
+        if (!ShopOrderGoodsRepository::addOrderGoods($submit_order_info['goods_info'],$order_relate_id)){
             $this->setError('订单创建失败！');
             Loggy::write('order','创建订单商品记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
             DB::rollBack();
@@ -872,6 +856,92 @@ class OrderRelateService extends BaseService
         }
         $this->setMessage('修改成功！');
         return true;
+    }
+
+    /**
+     * 提交面议订单
+     * @param $request
+     * @return bool|mixed
+     */
+    public function submitNegotiableOrder($request){
+        if (Cache::has($request['token'])){
+            $this->setError('请勿重复提交！');
+            return false;
+        }
+        $member = Auth::guard('member_api')->user();
+        $goods_json = json_decode($request['goods_json'],true);
+        #检查库存
+        $goodsSpecRelateService = new GoodsSpecRelateService();
+        if (!$goodsSpecRelateService->checkStock($goods_json)){
+            $this->setError($goodsSpecRelateService->error);
+            return false;
+        }
+        $submit_order_info  = $this->getNegotiablePlaceOrderDetail($request);
+        $express_price      = $submit_order_info['express_price'];
+        DB::beginTransaction();
+        #创建订单
+        if (!$order_info = MemberOrdersRepository::addNegotiableGoodsOrder($member->id)){
+            $this->setError('订单创建失败！');
+            Loggy::write('order','创建总订单记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
+            DB::rollBack();
+            return false;
+        }
+        #创建交易记录
+        $TradesService = new TradesService();
+        if (!$TradesService->tradesUpdOrder($order_info['id'],$member->id,0,0,'+',0,TradeEnum::STATUSTRADING)){
+            $this->setError('订单创建失败！');
+            Loggy::write('order','创建交易记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
+            DB::rollBack();
+            return false;
+        }
+        #添加订单关联信息
+        $order_relate_arr = [
+            'order_id'          => $order_info['id'],
+            'member_id'         => $member->id,
+            'status'            => ShopOrderEnum::PAYMENT,
+            'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
+            'address_id'        => $request['address_id'],
+            'income_score'      => $submit_order_info['buy_score'],#此处赠送积分待支付完成赠送
+            'remarks'           => $request['remarks'] ?? '',
+            'receive_method'    => $request['express_type'],
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ];
+        if (!$order_relate_id = ShopOrderRelateRepository::getAddId($order_relate_arr)){
+            $this->setError('订单创建失败！');
+            Loggy::write('order','创建订单关联记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
+            DB::rollBack();
+            return false;
+        }
+        #添加订单商品信息
+        if (!ShopOrderGoodsRepository::addOrderGoods($submit_order_info['goods_info'],$order_relate_id)){
+            $this->setError('订单创建失败！');
+            Loggy::write('order','创建订单商品记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
+            DB::rollBack();
+            return false;
+        }
+        #锁定库存
+        $shopInventorService = new ShopInventorService();
+        foreach ($goods_json as $value){
+            if (!$shopInventorService->lockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
+                $this->setError('锁定库存失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
+        //如果是购物车下单，下单完成后删除购物车记录
+        $car_ids = $request['car_ids'] ?? null;
+        if (!is_null($car_ids)){
+            ShopCartRepository::delete(['id' => ['in',explode(',',$car_ids)]]);
+        }
+        DB::commit();
+        Cache::put($request['token'],$request['token'],5);
+        $this->setMessage('下单成功！');
+        return [
+            'order_relate_id'   => $order_relate_id,
+            'status'            => 1,#此状态1表示不需要支付，2表示需要支付
+            'order_no'          => $order_info['order_no']
+        ];
     }
 }
             
