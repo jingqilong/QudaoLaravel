@@ -50,18 +50,18 @@ class FeedBacksService extends BaseService
             return false;
         }
         $request_arr['created_at'] = time();
-        //DB::beginTransaction();
+        DB::beginTransaction();
         if (!$id = CommonFeedBacksRepository::getAddId($request_arr)){
             $this->setError('信息提交失败!');
-            //DB::rollBack();
+            DB::rollBack();
             return false;
         }
-        /*$feedback_thread_arr = [
+        $feedback_thread_arr = [
             'feedback_id'   => $id,
             'replay_id'     => $id,
-            'content'       => '',
+            'content'       => $request_arr['content'],
             'status'        => FeedBacksEnum::SUBMIT,
-            'operator_type' => FeedBacksEnum::MANAGE,
+            'operator_type' => FeedBacksEnum::MEMBER,
             'created_at'    => time(),
             'created_by'    => $member->id,
         ];
@@ -69,7 +69,8 @@ class FeedBacksService extends BaseService
             $this->setError('信息提交失败!');
             DB::rollBack();
             return false;
-        }*/
+        }
+        DB::commit();
         $this->setMessage('感谢您的反馈!');
         return true;
     }
@@ -148,7 +149,7 @@ class FeedBacksService extends BaseService
 
 
     /**
-     * OA回复反馈消息
+     * 员工回复用户
      * @param $request
      * @return bool
      */
