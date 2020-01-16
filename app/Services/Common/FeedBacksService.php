@@ -118,7 +118,7 @@ class FeedBacksService extends BaseService
             return false;
         }
         $request_arr['operator_type'] = FeedBacksEnum::MEMBER;
-        $request_arr['status']        = FeedBacksEnum::MANAGE;
+        $request_arr['status']        = FeedBacksEnum::SUBMIT;
         $request_arr['created_at']    = time();
         $request_arr['created_by']    = $member->id;
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
