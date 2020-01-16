@@ -800,6 +800,7 @@ $api->version('v1',function ($api){
                 $api->post('add_feedBack', 'CommonFeedBacksController@addFeedBack')->name('用户添加反馈');
                 $api->get('get_back_feed_back_list', 'CommonFeedBacksController@getBackFeedBackList')->name('用户获取反馈的回复详情');
                 $api->get('get_call_back_list', 'CommonFeedBacksController@getCallBackList')->name('用户获取反馈列表');
+                $api->post('call_back_employee', 'CommonFeedBacksController@callBackEmployee')->name('用户获取反馈列表');
             });
         });
         //支付模块模块
