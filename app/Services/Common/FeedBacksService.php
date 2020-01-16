@@ -165,7 +165,7 @@ class FeedBacksService extends BaseService
     }
 
     /**
-     * 获取OA反馈的回复详情
+     * OA反馈的回复详情
      * @param $request
      * @return mixed
      */
@@ -181,12 +181,8 @@ class FeedBacksService extends BaseService
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
             return false;
         }
-        $call_back_list = $this->removePagingField($call_back_list);
-        if (empty($call_back_list['data'])){
-            return $call_back_list;
-        }
         $member_ids = [];
-        Arr::where($call_back_list['data'],function (&$value) use (&$member_ids){
+        Arr::where($call_back_list,function (&$value) use (&$member_ids){
             if ($value['operator_type'] == FeedBacksEnum::MEMBER){
                 $member_ids[] = $value['created_by'];
                 return $value;
@@ -195,7 +191,7 @@ class FeedBacksService extends BaseService
         $member_list = MemberOaListViewRepository::getList(['id' => ['in',$member_ids]],['id','img_url']);
         $member_list = createArrayIndex($member_list,'id');
         $default_avatar = url('images/service_default_avatar.jpeg');
-        foreach ($call_back_list['data'] as &$value){
+        foreach ($call_back_list as &$value){
             $value['avatar_url'] = ($value['operator_type'] == FeedBacksEnum::MEMBER) ? ($member_list[$value['created_by']]['img_url'] ?? $default_avatar) : $default_avatar;
             unset($value['created_by']);
         }
@@ -247,12 +243,8 @@ class FeedBacksService extends BaseService
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
             return false;
         }
-        $call_back_list = $this->removePagingField($call_back_list);
-        if (empty($call_back_list['data'])){
-            return $call_back_list;
-        }
         $member_ids = [];
-        Arr::where($call_back_list['data'],function (&$value) use (&$member_ids){
+        Arr::where($call_back_list,function (&$value) use (&$member_ids){
             if ($value['operator_type'] == FeedBacksEnum::MEMBER){
                 $member_ids[] = $value['created_by'];
                 return $value;
@@ -261,7 +253,7 @@ class FeedBacksService extends BaseService
         $member_list = MemberOaListViewRepository::getList(['id' => ['in',$member_ids]],['id','img_url']);
         $member_list = createArrayIndex($member_list,'id');
         $default_avatar = url('images/service_default_avatar.jpeg');
-        foreach ($call_back_list['data'] as &$value){
+        foreach ($call_back_list as &$value){
             $value['avatar_url'] = ($value['operator_type'] == FeedBacksEnum::MEMBER) ? ($member_list[$value['created_by']]['img_url'] ?? $default_avatar) : $default_avatar;
             unset($value['created_by']);
         }
