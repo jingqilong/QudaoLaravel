@@ -35,7 +35,7 @@ class FeedBacksService extends BaseService
         $this->oa_auth  = Auth::guard('oa_api');
     }
     /**
-     * 添加用户反馈
+     * 用户添加反馈
      * @param $request
      * @return bool
      */
@@ -50,16 +50,32 @@ class FeedBacksService extends BaseService
             return false;
         }
         $request_arr['created_at'] = time();
-        if (!CommonFeedBacksRepository::getAddId($request_arr)){
+        //DB::beginTransaction();
+        if (!$id = CommonFeedBacksRepository::getAddId($request_arr)){
             $this->setError('信息提交失败!');
+            //DB::rollBack();
             return false;
         }
+        /*$feedback_thread_arr = [
+            'feedback_id'   => $id,
+            'replay_id'     => $id,
+            'content'       => '',
+            'status'        => FeedBacksEnum::SUBMIT,
+            'operator_type' => FeedBacksEnum::MANAGE,
+            'created_at'    => time(),
+            'created_by'    => $member->id,
+        ];
+        if (!CommonFeedbackThreadRepository::getAddId($feedback_thread_arr)){
+            $this->setError('信息提交失败!');
+            DB::rollBack();
+            return false;
+        }*/
         $this->setMessage('感谢您的反馈!');
         return true;
     }
 
     /**
-     * oa 获取成员反馈
+     * oa 获取成员反馈列表
      * @param $request
      * @return bool|mixed|null
      */
@@ -68,7 +84,7 @@ class FeedBacksService extends BaseService
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
-        $where      = ['id' => ['>',1]];
+        $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword   = [$keywords => ['ch_name','mobile','content']];
             if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
@@ -132,7 +148,7 @@ class FeedBacksService extends BaseService
 
 
     /**
-     * 客户服务 回复反馈消息
+     * OA回复反馈消息
      * @param $request
      * @return bool
      */
@@ -179,6 +195,7 @@ class FeedBacksService extends BaseService
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
+            $this->setError('没有反馈消息!');
             return false;
         }
         $member_ids = [];
@@ -226,7 +243,7 @@ class FeedBacksService extends BaseService
     }
 
     /**
-     * 用户获取反馈与客服对话聊天详细信息
+     * 用户获取反馈详情
      * @param $request
      * @return array|bool|mixed|null
      */
@@ -235,12 +252,13 @@ class FeedBacksService extends BaseService
         $member   = $this->auth->user();
         $column   = ['id','member_id','content','created_at'];
         if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['member_id' => $member->id,'id' => $request['feedback_id']],$column)){
-            $this->setError('获取失败!');
+            $this->setError('没有反馈消息!');
             return false;
         }
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
+            $this->setError('暂时没有回复消息!');
             return false;
         }
         $member_ids = [];
