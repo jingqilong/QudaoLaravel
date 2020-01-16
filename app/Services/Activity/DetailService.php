@@ -375,7 +375,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit'];
+        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit','stop_selling','max_number'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -460,6 +460,14 @@ class DetailService extends BaseService
             $activity['status'] = 3;
             $activity['status_title'] = '已结束';
         }
+        $count_where = ['activity_id' => $id,'status' => ['in',[ActivityRegisterStatusEnum::COMPLETED,ActivityRegisterStatusEnum::EVALUATION]],'audit' => ActivityRegisterAuditEnum::PASS];
+        if (!$register_count = ActivityRegisterRepository::count($count_where)){
+            $register_count = 0;
+        }
+        #如果票已卖完，则改活动售票状态为已售罄
+        if (!empty($activity['max_number']) && ($activity['max_number'] <= $register_count)){
+            $activity['stop_selling'] = ActivityStopSellingEnum::STOP_SELLING;
+        }
         #是否收藏
         $activity['is_collect'] = 0;
         if (MemberCollectRepository::exists(['type' => CollectTypeEnum::ACTIVITY,'target_id' => $activity['id'],'member_id' => $member->id,'deleted_at' => 0])){
@@ -470,7 +478,7 @@ class DetailService extends BaseService
         $activity['activity_time']  = $start_time . '～' . $end_time;
         $activity['day_time']       = date('H:i',$activity['start_time']) .'-'.date('H:i',$activity['end_time']);
         $activity['cover']          = empty($activity['cover_id']) ? '':CommonImagesRepository::getField(['id' => $activity['cover_id']],'img_url');
-        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code'],$activity['stop_selling']);
+        unset($activity['theme_id'],$activity['start_time'],$activity['end_time'],$activity['cover_id'],$activity['banner_ids'],$activity['image_ids'],$activity['area_code']);
         #获取举办方信息
         $activity['hosts'] = $this->getActivityHosts($id);
 
