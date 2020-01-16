@@ -144,19 +144,23 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
-        if (CommonFeedbackThreadRepository::exists($request_arr)){
-            $this->setError('这条信息您已经回复过了哦!');
-            return false;
-        }
         $request_arr['operator_type'] = FeedBacksEnum::OA;
         $request_arr['status']        = FeedBacksEnum::MANAGE;
         $request_arr['created_at']    = time();
         $request_arr['created_by']    = $employee->id;
+        DB::beginTransaction();
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
             $this->setError('回复失败!');
+            DB::rollBack();
+            return false;
+        }
+        if (!CommonFeedBacksRepository::getUpdId(['id' => $request_arr['feedback_id']],['status' => FeedBacksEnum::MANAGE])){
+            $this->setError('回复失败!');
+            DB::rollBack();
             return false;
         }
         $this->setMessage('回复成功!');
+        DB::commit();
         return true;
     }
 
@@ -174,7 +178,7 @@ class FeedBacksService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $list_where  = ['feedback_id' => $call_back_info['id'],'status' => FeedBacksEnum::MANAGE];
+        $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc',$page,$page_num)){
             return false;
