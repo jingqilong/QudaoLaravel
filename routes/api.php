@@ -700,10 +700,14 @@ $api->version('v1',function ($api){
                 $api->get('get_negotiable_order_list','OaOrderController@getNegotiableOrderList')->name('获取面议订单列表');
                 $api->get('get_order_detail','OaOrderController@getOrderDetail')->name('获取订单详情');
                 $api->get('get_negotiable_order_details','OaOrderController@getNegotiableOrderDetails')->name('获取面议订单详情');
-                $api->post('shipment','OaOrderController@shipment')->name('发货');
+                $api->post('set_negotiable_order_amount','OaOrderController@setNegotiableOrderAmount')->name('设置面议订单金额');
+
                 $api->get('get_shop_inventor_list','OaShopInventorController@getShopInventorList')->name('OA获取商品库存列表');
                 $api->post('change_inventor','OaShopInventorController@changeInventor')->name('OA修改库存');
 
+            });
+            $api->group(['middleware' => 'oa.jwt.auth'],function($api) {
+                $api->post('shipment','OaOrderController@shipment')->name('发货');
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->post('add_shop_car','ShopCarController@addShopCar')->name('用户添加商品至购物车');
