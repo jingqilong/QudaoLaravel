@@ -76,9 +76,10 @@ class OrderRelateService extends BaseService
         foreach ($goods_param as $value){
             if(!isset($goods_list[$value['goods_id']]))continue;
             $goods = $goods_list[$value['goods_id']];
+            $spec_relate_id     =  $value['spec_relate_id']??0;
             $buy_score          += $goods['gift_score'];
             $express_price      += $goods['express_price'];
-            $total_price        += (isset($spec_relate_list[$value['spec_relate_id']]) ? $spec_relate_list[$value['spec_relate_id']]['price'] : $goods['price']) * $value['number'];
+            $total_price        += (isset($spec_relate_list[$spec_relate_id]) ? $spec_relate_list[$spec_relate_id]['price'] : $goods['price']) * $value['number'];
         }
         $total_price            = sprintf('%.2f',round($total_price / 100,2));
         #可抵扣积分
@@ -446,7 +447,7 @@ class OrderRelateService extends BaseService
         if (!is_null($status)){
             $where['status']    = $status;
         }
-        $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no'];
+        $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no','order_relate_type','audit'];
         #获取订单列表
         if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败！');
@@ -478,6 +479,9 @@ class OrderRelateService extends BaseService
                 $value['company_code'] = empty($express_company) ? '' : reset($express_company)['code'];
             }
             $value['status_title'] = ShopOrderEnum::getStatus($value['status']);
+            if ($value['order_relate_type'] == ShopOrderTypeEnum::NEGOTIABLE && $value['audit'] !== CommonAuditStatusEnum::PASS){
+                $value['payment_amount'] = '面议';
+            }
         }
         $this->setMessage('获取成功！');
         return $order_list;
