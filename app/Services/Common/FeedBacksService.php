@@ -10,6 +10,7 @@ use App\Repositories\CommonFeedBacksViewRepository;
 use App\Repositories\CommonFeedbackThreadRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
+use App\Repositories\MemberOaListViewRepository;
 use App\Repositories\OaEmployeeListViewRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
@@ -188,29 +189,27 @@ class FeedBacksService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $list_where = ['feedback_id' => $call_back_info['id'],'status' => FeedBacksEnum::MANAGE];
-        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,['*'],'id','asc',$page,$page_num)){
+        $list_where  = ['feedback_id' => $call_back_info['id'],'status' => FeedBacksEnum::MANAGE];
+        $list_column = ['id','content','status','operator_type','created_at','created_by'];
+        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc',$page,$page_num)){
             return false;
         }
         $call_back_list = $this->removePagingField($call_back_list);
         if (empty($call_back_list['data'])){
             return $call_back_list;
         }
-        $call_back_list['data'] = OaEmployeeListViewRepository::bulkHasManyWalk(
-            $call_back_list['data'],
-            ['from' => 'created_by','to' => 'id'],
-            ['id','real_name','work_title','img_url'],
-            [],
-            function ($src_item,$oa_employee_items){
-                $oa_employee = $oa_employee_items[$src_item['created_by']];
-                $src_item['employee_name'] = $oa_employee['real_name'];
-                $src_item['employee_work_title'] = $oa_employee['work_title'];
-                $src_item['employee_img_url'] = $oa_employee['img_url'];
-                return $src_item;
+        $member_ids = [];
+        Arr::where($call_back_list['data'],function (&$value) use (&$member_ids){
+            if ($value['operator_type'] == FeedBacksEnum::MEMBER){
+                $member_ids[] = $value['created_by'];
+                return $value;
             }
-        );
+        });
+        $member_list = MemberOaListViewRepository::getList(['id' => ['in',$member_ids]],['id','img_url']);
+        $member_list = createArrayIndex($member_list,'id');
+        $default_avatar = url('images/service_default_avatar.jpeg');
         foreach ($call_back_list['data'] as &$value){
-            $value['operator_type_name'] = FeedBacksEnum::getOperatorType($value['operator_type']);
+            $value['avatar_url'] = ($value['operator_type'] == FeedBacksEnum::MEMBER) ? ($member_list[$value['created_by']]['img_url'] ?? $default_avatar) : $default_avatar;
             unset($value['created_by']);
         }
         $this->setMessage('获取成功!');
