@@ -185,7 +185,7 @@ class FeedBacksService extends BaseService
         $page     = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $column   = ['id','member_id','content','img_url','created_at'];
-        if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['member_id' => $member->id],$column)){
+        if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['member_id' => $member->id,'id' => $request['feedback_id']],$column)){
             $this->setError('获取失败!');
             return false;
         }

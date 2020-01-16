@@ -428,6 +428,15 @@ class CommonFeedBacksController extends ApiController
      *         )
      *     ),
      *      @OA\Parameter(
+     *         name="feedback_id",
+     *         in="query",
+     *         description="feedback_id",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *      @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="分页页码",
@@ -454,10 +463,13 @@ class CommonFeedBacksController extends ApiController
      */
     public function getBackFeedBackList(){
         $rules = [
+            'feedback_id'  => 'required|integer',
             'page'     => 'integer',
             'page_num' => 'integer',
         ];
         $messages = [
+            'feedback_id.required' => '反馈ID不能为空',
+            'feedback_id.integer'  => '反馈ID必须为整数',
             'page.integer'     => '页码必须为整数',
             'page_num.integer' => '页码数量必须为整数',
         ];
