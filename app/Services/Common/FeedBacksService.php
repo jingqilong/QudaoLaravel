@@ -215,7 +215,7 @@ class FeedBacksService extends BaseService
         $where    = ['member_id' => $member->id];
         if (empty($status)) $where['status'] = ['<', FeedBacksEnum::CLOSE]; else $where['status'] = $request['status'];
         $column   = ['id','member_id','content','img_url','created_at'];
-        if (!$list = CommonFeedBacksViewRepository::getList(['member_id' => $member->id],$column,'id','desc',$page,$page_num)){
+        if (!$list = CommonFeedBacksViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
             $this->setError('获取失败!');
             return false;
         }
