@@ -75,7 +75,7 @@ class FeedBacksService extends BaseService
     }
 
     /**
-     * oa 获取成员反馈
+     * oa 获取成员反馈列表
      * @param $request
      * @return bool|mixed|null
      */
@@ -84,7 +84,7 @@ class FeedBacksService extends BaseService
         $page       = $request['page'] ?? 1;
         $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
-        $where      = ['id' => ['>',1]];
+        $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword   = [$keywords => ['ch_name','mobile','content']];
             if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
