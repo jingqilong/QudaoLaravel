@@ -194,7 +194,7 @@ class ProcessRecordService extends BaseService
     {
         $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
         $column= ['id','business_id','process_id','process_category','position','created_at'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc',$page,$page_num)){
+        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
             $this->setError('获取失败！');
             return false;
         }
