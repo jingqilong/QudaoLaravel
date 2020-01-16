@@ -257,6 +257,8 @@ class OrderRelateService extends BaseService
             'order_id'          => $order_id,
             'member_id'         => $member->id,
             'status'            => $order_add_arr == OrderEnum::STATUSSUCCESS ? ShopOrderEnum::SHIP : ShopOrderEnum::PAYMENT,
+            'audit'             => CommonAuditStatusEnum::PASS,
+            'order_type'        => ShopOrderTypeEnum::ORDINARY,
             'express_price'     => ($request['express_type'] == 1) ? $express_price * 100 : 0,
             'address_id'        => $request['address_id'],
             'income_score'      => $submit_order_info['buy_score'],#此处赠送积分待支付完成赠送
@@ -719,8 +721,12 @@ class OrderRelateService extends BaseService
             return false;
         }
         $where = ['id' => $request['order_relate_id'],'deleted_at' => 0];
-        if (!$order_relate = ShopOrderRelateRepository::getOne($where)){
+        if (!$order_relate = ShopOrderRelateViewRepository::getOne($where)){
             $this->setError('订单不存在！');
+            return false;
+        }
+        if ($order_relate['audit'] !== CommonAuditStatusEnum::PASS){
+            $this->setError('该订单未通过审核，不能发货！');
             return false;
         }
         if ($order_relate['status'] !== ShopOrderEnum::SHIP){
@@ -997,6 +1003,126 @@ class OrderRelateService extends BaseService
             'status'            => 1,#此状态1表示不需要支付，2表示需要支付
             'order_no'          => $order_info['order_no']
         ];
+    }
+
+    /**
+     * 审核面议订单
+     * @param $order_relate_id
+     * @param $audit
+     * @return bool
+     */
+    public function auditNegotiableOrder($order_relate_id, $audit){
+        if (!$order_info = ShopOrderRelateViewRepository::getOne(['id' => $order_relate_id,'deleted_at' => 0])){
+            $this->setError('订单信息不存在！');
+            return false;
+        }
+        if ($order_info['audit'] > CommonAuditStatusEnum::SUBMIT){
+            $this->setError('订单已审核！');
+            return false;
+        }
+        #更新订单状态
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at'])){
+            $this->setError('面议订单审核失败！');
+            return false;
+        }
+        $this->setMessage('审核成功！');
+        return true;
+    }
+
+    /**
+     * 设置面议订单金额（审核通过后）
+     * @param $request
+     * @return bool
+     */
+    public function setNegotiableOrderAmount($request){
+        $order_relate_id = $request['order_relate_id'];
+        $amount          = $request['amount'];
+        $express_price   = $request['express_price'] ?? null;
+        if (!$order_info = ShopOrderRelateViewRepository::getOne(['id' => $order_relate_id,'deleted_at' => 0])){
+            $this->setError('订单信息不存在！');
+            return false;
+        }
+        if ($order_info['audit'] !== CommonAuditStatusEnum::SUBMIT){
+            $this->setError('该订单还未审核，不能进行此操作！');
+            return false;
+        }
+        if ($order_info['audit'] !== CommonAuditStatusEnum::PASS){
+            $this->setError('该订单审核未通过，不能进行此操作！');
+            return false;
+        }
+        DB::beginTransaction();
+        #更新订单信息
+        $upd_order_relate = ['status' => ShopOrderEnum::SHIP,'updated_at' => time()];
+        if (!is_null($express_price)) $upd_order_relate['express_price'] = $express_price * 100;
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],$upd_order_relate)){
+            $this->setError('操作失败！');
+            DB::rollBack();
+            Loggy::write('order','设置面议订单金额失败！原因：更新订单相关表失败！order_relate_id:'.$order_relate_id);
+            return false;
+        }
+        #更新总订单信息
+        $payment_amount = (is_null($express_price) ? $order_info['express_price'] : ($express_price * 100)) + ($amount * 100);
+        $upd_order = [
+            'amount' => $payment_amount,
+            'payment_amount' => $payment_amount,
+            'status' => OrderEnum::STATUSSUCCESS,
+            'updated_at' => time()
+        ];
+        if (!MemberOrdersRepository::getUpdId(['id' => $order_info['order_id']],$upd_order)){
+            $this->setError('操作失败！');
+            DB::rollBack();
+            Loggy::write('order','设置面议订单金额失败！原因：更新总订单信息失败！order_relate_id:'.$order_relate_id.',order_no:'.$order_info['order_no']);
+            return false;
+        }
+        #更新交易信息
+        $upd_trad = [];
+        if (!MemberTradesRepository::getUpdId(['id' => $order_info['trade_id']],$upd_trad)){
+            $this->setError('操作失败！');
+            DB::rollBack();
+            Loggy::write('order','设置面议订单金额失败！原因：更新交易信息失败！order_relate_id:'.$order_relate_id.',trade_id:'.$order_info['trade_id']);
+            return false;
+        }
+        $this->setMessage('操作成功！');
+        return false;
+    }
+
+    /**
+     * 获取申请人ID
+     * @param $order_relate_id
+     * @return mixed
+     */
+    public function getCreatedUser($order_relate_id){
+        return ShopOrderRelateRepository::getField(['id' => $order_relate_id],'member_id');
+    }
+
+    /**
+     * 返回流程中的业务列表
+     * @param $order_relate_ids
+     * @return array
+     */
+    public function getProcessBusinessList($order_relate_ids){
+        if (empty($order_relate_ids)){
+            return [];
+        }
+        $column     = ['id','member_id'];
+        if (!$order_list = ShopOrderRelateRepository::getAssignList($order_relate_ids,$column)){
+            return [];
+        }
+        $member_ids  = array_column($order_list,'member_id');
+        $member_list = MemberBaseRepository::getAssignList($member_ids,['id','ch_name','mobile']);
+        $member_list = createArrayIndex($member_list,'id');
+        $result_list = [];
+        foreach ($order_list as $value){
+            $member = $member_list[$value['member_id']] ?? [];
+            $result_list[] = [
+                'id'            => $value['id'],
+                'name'          => '成员联系申请',
+                'member_id'     => $value['member_id'],
+                'member_name'   => $member['ch_name'] ?? '',
+                'member_mobile' => $member['mobile'] ?? '',
+            ];
+        }
+        return $result_list;
     }
 }
             

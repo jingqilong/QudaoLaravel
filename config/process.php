@@ -52,6 +52,8 @@ return [
         9 => [ App\Services\House\DetailsService::class,'getCreatedUser'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberContactServices::class,'getCreatedUser'],
+//        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
+        11 => [ App\Services\Shop\OrderRelateService::class,'getCreatedUser'],
     ],
 
 
@@ -76,6 +78,8 @@ return [
         9 => [ App\Services\House\DetailsService::class,'getProcessBusinessList'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberContactServices::class,'getProcessBusinessList'],
+//        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
+        11 => [ App\Services\Shop\OrderRelateService::class,'getProcessBusinessList'],
     ],
 
 
@@ -100,6 +104,8 @@ return [
         9 => [ App\Services\House\DetailsService::class,'auditHouse'],
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberContactServices::class,'setMemberContact'],
+//        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
+        11 => [ App\Services\Shop\OrderRelateService::class,'auditNegotiableOrder'],
     ],
 
     #消息链接后缀
@@ -124,5 +130,7 @@ return [
         9 => '/house/house/index',
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => '/member/member-contact/index',
+//        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
+        11 => '/shop/negotiable-order',
     ],
 ];

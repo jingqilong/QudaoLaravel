@@ -478,4 +478,87 @@ class OaOrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/set_negotiable_order_amount",
+     *     tags={"商城后台"},
+     *     summary="设置面议订单金额",
+     *     description="sang" ,
+     *     operationId="set_negotiable_order_amount",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="OA token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单关联ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="amount",
+     *         in="query",
+     *         description="总金额（不含邮费）",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="express_price",
+     *         in="query",
+     *         description="邮费，不填写则使用下单时的邮费",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function setNegotiableOrderAmount(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+            'amount'            => 'required|amount',
+            'express_price'     => 'amount',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单关联ID不能为空',
+            'order_relate_id.integer'   => '订单关联ID必须为整数',
+            'amount.required'           => '总金额不能为空',
+            'amount.amount'             => '总金额格式有误',
+            'express_price.amount'      => '邮费格式有误'
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->setNegotiableOrderAmount($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message];
+    }
 }
