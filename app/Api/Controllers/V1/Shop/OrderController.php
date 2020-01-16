@@ -805,4 +805,107 @@ class OrderController extends ApiController
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/shop/submit_negotiable_order",
+     *     tags={"商城"},
+     *     summary="提交面议订单",
+     *     description="sang" ,
+     *     operationId="submit_negotiable_order",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="query",
+     *         description="收货地址ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="goods_json",
+     *         in="query",
+     *         description="商品json信息，",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="express_type",
+     *         in="query",
+     *         description="邮寄方式，1收费邮寄、2快递到付、3上门自提",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="remarks",
+     *         in="query",
+     *         description="备注",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="car_ids",
+     *         in="query",
+     *         description="购物车ID串",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="下单失败",
+     *     ),
+     * )
+     *
+     */
+    public function submitNegotiableOrder(){
+        $rules = [
+            'address_id'        => 'required|integer|exists:member_address,id',
+            'goods_json'        => 'required|json',
+            'express_type'      => 'required|in:1,2,3',
+        ];
+        $messages = [
+            'address_id.required'       => '收货地址不能为空',
+            'address_id.integer'        => '收货地址ID必须为整数',
+            'address_id.unique'         => '收货地址不存在!',
+            'goods_json.required'       => '商品信息不能为空',
+            'goods_json.json'           => '商品信息必须为json格式',
+            'express_type.required'     => '邮寄方式不能为空',
+            'express_type.in'           => '邮寄方式不存在',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderRelateService->submitNegotiableOrder($this->request);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderRelateService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
 }

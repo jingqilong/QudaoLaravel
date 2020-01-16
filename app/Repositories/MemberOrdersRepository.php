@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Enums\OrderEnum;
 use App\Models\MemberOrdersModel;
 use App\Repositories\Traits\RepositoryTrait;
 use Illuminate\Support\Facades\Cache;
@@ -64,6 +65,26 @@ class MemberOrdersRepository extends ApiRepository
             return self::getOrderNo($length);
         }
         return $num;
+    }
+
+    protected function addNegotiableGoodsOrder($member_id){
+        $order_add_arr = [
+            'order_no'          => MemberOrdersRepository::getOrderNo(),
+            'user_id'           => $member_id,
+            'order_type'        => OrderEnum::SHOP,
+            'amount'            => 0,
+            'payment_amount'    => 0,
+            'score_deduction'   => 0,
+            'score_type'        => 0,
+            'status'            => OrderEnum::STATUSTRADING,
+            'create_at'         => time(),
+            'updated_at'        => time(),
+        ];
+        if (!$order_id = $this->getAddId($order_add_arr)){
+            return false;
+        }
+        $order_add_arr['id'] = $order_id;
+        return $order_add_arr;
     }
 }
             

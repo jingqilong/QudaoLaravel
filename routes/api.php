@@ -712,6 +712,7 @@ $api->version('v1',function ($api){
                 $api->get('get_place_order_detail','OrderController@getPlaceOrderDetail')->name('获取下单详情');
                 $api->get('get_negotiable_place_order_detail','OrderController@getNegotiablePlaceOrderDetail')->name('获取面议商品下单详情');
                 $api->post('submit_order','OrderController@submitOrder')->name('提交订单');
+                $api->post('submit_negotiable_order','OrderController@submitNegotiableOrder')->name('提交面议订单');
                 $api->post('goods_receiving','OrderController@goodsReceiving')->name('确认收货');
                 $api->post('cancel_order','OrderController@cancelOrder')->name('取消订单');
 
