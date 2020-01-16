@@ -10,6 +10,8 @@ use App\Repositories\CommonFeedBacksViewRepository;
 use App\Repositories\CommonFeedbackThreadRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
+use App\Repositories\OaEmployeeListViewRepository;
+use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Arr;
@@ -21,13 +23,15 @@ class FeedBacksService extends BaseService
 {
     use HelpTrait;
     public $auth;
+    public $oa_auth;
 
     /**
      * CollectService constructor.
      */
     public function __construct()
     {
-        $this->auth = Auth::guard('member_api');
+        $this->auth     = Auth::guard('member_api');
+        $this->oa_auth  = Auth::guard('oa_api');
     }
     /**
      * 添加用户反馈
@@ -102,6 +106,7 @@ class FeedBacksService extends BaseService
      */
     public function addCallBackFeedBack($request)
     {
+        $employee = $this->oa_auth->user();
         $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
         if (!CommonFeedbackThreadRepository::exists(['id' => $request_arr['replay_id']]) || !CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
             $this->setError('没有反馈消息!');
@@ -114,7 +119,7 @@ class FeedBacksService extends BaseService
         $request_arr['operator_type'] = FeedBacksEnum::OA;
         $request_arr['status']        = FeedBacksEnum::MANAGE;
         $request_arr['created_at']    = time();
-        $request_arr['created_by']    = time();
+        $request_arr['created_by']    = $employee->id;
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
             $this->setError('回复失败!');
             return false;
@@ -141,4 +146,75 @@ class FeedBacksService extends BaseService
         $this->setMessage('获取成功!');
         return $list;
     }
+
+    /**
+     * 用户获取反馈列表
+     * @param $request
+     * @return bool|mixed|null
+     */
+    public function getCallBackList($request)
+    {
+        $member   = $this->auth->user();
+        $page     = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $status   = $request['status'] ?? null;
+        $where    = ['member_id' => $member->id];
+        if (empty($status)) $where['status'] = ['<', FeedBacksEnum::CLOSE]; else $where['status'] = $request['status'];
+        $column   = ['id','member_id','content','img_url','created_at'];
+        if (!$list = CommonFeedBacksViewRepository::getList(['member_id' => $member->id],$column,'id','desc',$page,$page_num)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list = $this->removePagingField($list);
+        if (empty($list['data'])){
+            return $list;
+        }
+        $this->setMessage('获取成功!');
+        return $list;
+    }
+
+    /**
+     * 用户获取反馈与客服对话聊天详细信息
+     * @param $request
+     * @return array|bool|mixed|null
+     */
+    public function getBackFeedBackList($request)
+    {
+        $member   = $this->auth->user();
+        $page     = $request['page'] ?? 1;
+        $page_num = $request['page_num'] ?? 20;
+        $column   = ['id','member_id','content','img_url','created_at'];
+        if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['member_id' => $member->id],$column)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $list_where = ['feedback_id' => $call_back_info['id'],'status' => FeedBacksEnum::MANAGE];
+        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,['*'],'id','asc',$page,$page_num)){
+            return false;
+        }
+        $call_back_list = $this->removePagingField($call_back_list);
+        if (empty($call_back_list['data'])){
+            return $call_back_list;
+        }
+        $call_back_list['data'] = OaEmployeeListViewRepository::bulkHasManyWalk(
+            $call_back_list['data'],
+            ['from' => 'created_by','to' => 'id'],
+            ['id','real_name','work_title','img_url'],
+            [],
+            function ($src_item,$oa_employee_items){
+                $oa_employee = $oa_employee_items[$src_item['created_by']];
+                $src_item['employee_name'] = $oa_employee['real_name'];
+                $src_item['employee_work_title'] = $oa_employee['work_title'];
+                $src_item['employee_img_url'] = $oa_employee['img_url'];
+                return $src_item;
+            }
+        );
+        foreach ($call_back_list['data'] as &$value){
+            $value['operator_type_name'] = FeedBacksEnum::getOperatorType($value['operator_type']);
+            unset($value['created_by']);
+        }
+        $this->setMessage('获取成功!');
+        return ['member_call_back' => $call_back_info,'oa_call_back' => $call_back_list];
+    }
+
 }
