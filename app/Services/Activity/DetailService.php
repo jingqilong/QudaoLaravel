@@ -375,7 +375,7 @@ class DetailService extends BaseService
      */
     public function activityDetail($id)
     {
-        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit'];
+        $column = ['id','name','area_code','longitude','latitude','address','price','theme_id','signin','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','status','firm','notice','detail','is_member','need_audit','stop_selling','max_number'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
