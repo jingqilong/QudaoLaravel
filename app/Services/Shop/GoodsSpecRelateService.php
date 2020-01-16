@@ -25,7 +25,7 @@ class GoodsSpecRelateService extends BaseService
      * @param array $goods_column
      * @return array|bool
      */
-    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction','score_categories']){
+    protected function getListCommonInfo($goods_spec_arr, $goods_column=['id','name','price','banner_ids','score_deduction','score_categories','negotiable']){
         foreach ($goods_spec_arr as $value){
             if (!isset($value['goods_id']) || !isset($value['number'])){
                 $this->setError('商品ID和数量不能为空！');
@@ -61,7 +61,7 @@ class GoodsSpecRelateService extends BaseService
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
                 $result[$key] = [
                     'goods_name'      => $goods['name'],
-                    'goods_price'     => sprintf('%.2f',round($price / 100,2)),
+                    'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
                     'number'          => $value['number'],
                     'deduction_price' =>
