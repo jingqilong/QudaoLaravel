@@ -544,6 +544,7 @@ class OrderRelateService extends BaseService
      * @param $code
      * @param $number
      * @return bool
+     * @deprecated true
      */
     public function getOrderExpressDetails($code, $number)
     {
@@ -700,49 +701,6 @@ class OrderRelateService extends BaseService
         $this->setMessage('发货成功！');
         DB::commit();
         return true;
-    }
-
-    /**
-     * Oa根据订单号获取物流状态
-     * @param $code
-     * @param $number
-     * @return bool
-     */
-    public function getOaOrderExpressDetails($code, $number)
-    {
-        if (!$expressInfo = CommonExpressRepository::getOne(['code' => $code,'status' => 1])){
-            $this->setError('快递公司不存在!');
-            return false;
-        }
-        if (!ShopOrderRelateRepository::exists(['express_number' => $number])){
-            $this->setError('快递单号不存在!');
-            return false;
-        }
-        $expressDetail = ExpressService::getExpressDetails($code, $number);
-        if ($expressDetail['message'] != 'ok'){
-            $this->setError($expressDetail['message']);
-            return false;
-        }
-        $result['express_name'] = $expressInfo['company_name'];
-        $result['express_number'] = empty($expressDetail['nu']) ? '' : $expressDetail['nu'];
-        $result['ischeck'] = $expressDetail['ischeck'] == 0 ? '未签收' : '已签收';
-        $result['data'] = $expressDetail['data'];
-        $this->setMessage('获取成功!');
-        return $result;
-    }
-
-    /**
-     * OA获取快递列表
-     * @return bool|null
-     */
-    public function getExpressList()
-    {
-        if (!$list = CommonExpressRepository::getList(['id' => ['>',1],'status' => 1],['*'],'id','asc')){
-            $this->setError('获取失败!');
-            return false;
-        }
-        $this->setMessage('获取成功!');
-        return $list;
     }
 
     /**

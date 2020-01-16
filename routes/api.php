@@ -699,8 +699,6 @@ $api->version('v1',function ($api){
                 $api->get('get_shop_order_list','OaOrderController@getShopOrderList')->name('获取商城订单列表');
                 $api->get('get_order_detail','OaOrderController@getOrderDetail')->name('获取订单详情');
                 $api->post('shipment','OaOrderController@shipment')->name('发货');
-                $api->get('get_oa_order_express_details','OaOrderController@getOaOrderExpressDetails')->name('Oa根据订单号获取物流状态');
-                $api->get('get_express_list','OaOrderController@getExpressList')->name('OA获取快递列表');
                 $api->get('get_shop_inventor_list','OaShopInventorController@getShopInventorList')->name('OA获取商品库存列表');
                 $api->post('change_inventor','OaShopInventorController@changeInventor')->name('OA修改库存');
 
@@ -767,6 +765,8 @@ $api->version('v1',function ($api){
             $api->get('home', 'CommonController@home')->name('获取首页');
             $api->get('get_contact', 'CommonController@getContact')->name('获取管家联系方式');
             $api->get('get_common_service_terms', 'CommonController@getCommonServiceTerms')->name('用户获取渠道平台服务条款');
+            $api->get('get_express_list','CommonExpressController@getExpressList')->name('获取快递列表');
+            $api->get('get_order_express_details','CommonExpressController@getOrderExpressDetails')->name('根据订单号获取物流状态');
             $api->group(['middleware' => ['oa.jwt.auth','oa.perm']],function($api) {
                 #首页banner设置
                 $api->post('add_home_banner', 'BannerController@addBanners')->name('添加首页banner');
