@@ -578,7 +578,7 @@ class OrderRelateService extends BaseService
         $express_company_id = $request['express_company_id'] ?? null;
         $order          = 'id';
         $desc_asc       = 'desc';
-        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::ORDINARY];
+        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::ORDINARY,'deleted_at' => 0];
         $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at'];
         if (!is_null($status)){
             $where['status']  = $status;
@@ -632,7 +632,7 @@ class OrderRelateService extends BaseService
         return $order_list;
     }
     /**
-     * 后台获取所有商城订单列表
+     * 后台获取面议订单列表
      * @param $request
      * @return bool|mixed|null
      */
@@ -649,7 +649,7 @@ class OrderRelateService extends BaseService
         $express_company_id = $request['express_company_id'] ?? null;
         $order          = 'id';
         $desc_asc       = 'desc';
-        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::NEGOTIABLE];
+        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::NEGOTIABLE,'deleted_at' => 0];
         $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at','audit'];
         if (!is_null($status))              $where['status']  = $status;
         if (!is_null($order_no))            $where['order_no']  = $order_no;
