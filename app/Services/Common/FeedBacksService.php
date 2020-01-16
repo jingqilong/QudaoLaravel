@@ -167,7 +167,6 @@ class FeedBacksService extends BaseService
      */
     public function getCallBackFeedBack($request)
     {
-
         $page     = $request['page'] ?? 1;
         $page_num = $request['page_num'] ?? 20;
         $column   = ['id','member_id','content','created_at'];
@@ -243,7 +242,7 @@ class FeedBacksService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $list_where  = ['feedback_id' => $call_back_info['id'],'status' => FeedBacksEnum::MANAGE];
+        $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc',$page,$page_num)){
             return false;
