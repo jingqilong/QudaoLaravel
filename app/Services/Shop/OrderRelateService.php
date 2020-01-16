@@ -570,7 +570,7 @@ class OrderRelateService extends BaseService
         $express_company_id = $request['express_company_id'] ?? null;
         $order          = 'id';
         $desc_asc       = 'desc';
-        $where          = ['id' => ['<>',0],'order_type' => ShopOrderTypeEnum::ORDINARY];
+        $where          = ['id' => ['<>',0],'order_relate_type' => ShopOrderTypeEnum::ORDINARY];
         $column         = ['id','status','express_company_id','express_price','express_number','remarks','receive_method','order_no','amount','payment_amount','receive_name','receive_mobile','member_name','member_mobile','created_at'];
         if (!is_null($status)){
             $where['status']  = $status;
