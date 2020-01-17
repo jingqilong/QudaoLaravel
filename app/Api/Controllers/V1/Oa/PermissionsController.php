@@ -342,7 +342,7 @@ class PermissionsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->getPermissionList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->adminPermissionService->getPermissionList();
         if (!$res){
             return ['code' => 100, 'message' => $this->adminPermissionService->error];
         }
@@ -401,7 +401,7 @@ class PermissionsController extends ApiController
      *
      */
     public function operationLog(){
-        $res = $this->adminOperationLogService->getOperationLog(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->adminOperationLogService->getOperationLog();
         if (!$res){
             return ['code' => 100, 'message' => $this->adminOperationLogService->error];
         }

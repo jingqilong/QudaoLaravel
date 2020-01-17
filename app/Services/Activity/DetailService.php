@@ -93,6 +93,7 @@ class DetailService extends BaseService
      */
     public function getHomeList($request)
     {
+        $this->setPerPage($request['page_num']);
         $theme_id       = $request['theme_id'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
         $price          = $request['price'] ?? null;

@@ -390,7 +390,7 @@ class RecordService extends BaseService
             $this->setError('查看天数不能低于1天');
             return false;
         }
-        if (!$score_types = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
+        if (!$score_types = ScoreCategoryRepository::getAllList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
             $this->setError('没有积分类别可查看');
             return false;
         }
@@ -401,7 +401,7 @@ class RecordService extends BaseService
             'score_type'    => ['in',array_column($score_types,'id')],
             'created_at'    => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
-        $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
+        $list = ScoreRecordRepository::getAllList($where,['score_type','action_score','created_at']) ?? [];
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));

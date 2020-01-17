@@ -41,8 +41,8 @@ class OaProjectService extends BaseService
         if (empty($data['asc'])){
             $data['asc'] = 1;
         }
-        // TODO asc desc
-        $asc = $data['asc_desc']??'desc';
+
+        $asc = $data['asc'];
 
         $keywords    =   $data['keywords'] ?? null;
         $status      =   $data['status'] ?? null;

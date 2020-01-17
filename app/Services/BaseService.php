@@ -25,6 +25,22 @@ class BaseService
     public $code;
 
     /**
+     * @param $num
+     */
+    protected function setPage($num ){
+        $request = request();
+        $request['page'] = $num;
+    }
+
+    /**
+     * @param $num
+     */
+    protected function setPerPage($num ){
+        $request = request();
+        $request['page_num'] = $num;
+    }
+
+    /**
      * @param $method
      * @param $parameters
      * @return mixed

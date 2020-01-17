@@ -95,7 +95,7 @@ class CollectService extends BaseService
         if (!$list = MemberCollectRepository::getList($where)){
             $this->setMessage('暂无数据！');
             list($page,$page_num) = $this->inputPage();
-            return ['current_page' => $page,'data' => [],'last_page' => $page,'per_page' => $page_num,'total' => 0];
+            return ['current_page' => $page,'data' => [],'last_page' => $page,'page_num' => $page_num,'total' => 0];
         }
         $activity_ids = array_column($list,'target_id');
         $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id'];
