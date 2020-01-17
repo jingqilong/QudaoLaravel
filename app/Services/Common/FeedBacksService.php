@@ -102,14 +102,16 @@ class FeedBacksService extends BaseService
         if (empty($list['data'])){
             return $list;
         }
-        $list['data'] = MemberGradeRepository::bulkHasManyWalk(
+
+        $list['data'] = MemberOaListViewRepository::bulkHasManyWalk(
             $list['data'],
-            ['from' => 'member_id','to' => 'user_id'],
-            ['user_id','grade'],
+            ['from' => 'member_id','to' => 'id'],
+            ['id','grade'],
             [],
             function($src_item,$member_grade_items){
-                $grade = Arr::only($member_grade_items[$src_item['member_id']],'grade');
-                $src_item['grade'] = MemberGradeDefineRepository::getLabelById((int)$grade,'普通成员');
+                foreach ($member_grade_items as &$value){
+                    $src_item['grade'] = MemberGradeDefineRepository::getLabelById((int)$value['grade'],'普通成员');
+                }
                 return $src_item;
             }
         );
