@@ -5,6 +5,7 @@ namespace App\Traits;
 
 
 use App\Enums\ImageTypeEnum;
+use App\Library\DataStructure\SortedList;
 use App\Repositories\CommonAreaRepository;
 use App\Library\Members\Member;
 use Illuminate\Support\Carbon;
@@ -282,9 +283,11 @@ trait HelpTrait
         }
         $area_list  = CommonAreaRepository::getAllList($where,['code','name']);
         $area_address = '';
+        $name_list = SortedList::oneOfKey($area_list,'code');//dd($name_list);
         foreach ($area_codes as $code){
-            if ($area = $this->searchArray($area_list,'code',$code)){
-                $area_address .= reset($area)['name'];
+            //if ($area = $this->searchArray($area_list,'code',$code)){
+            if(isset($name_list[$code])){
+                $area_address .= $name_list[$code]['name'];
             }
         }
         return $area_address;
