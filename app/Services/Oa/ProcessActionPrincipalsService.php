@@ -200,7 +200,7 @@ class ProcessActionPrincipalsService extends BaseService
             return false;
         }
         $start_user_id = $target_object->$function($business_id);
-        return MemberBaseRepository::find($start_user_id);
+        return MemberBaseRepository::getOne(['id' => $start_user_id]);
     }
 
     /**
