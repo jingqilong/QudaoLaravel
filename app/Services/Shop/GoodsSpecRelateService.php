@@ -69,6 +69,7 @@ class GoodsSpecRelateService extends BaseService
                     'goods_name'      => $goods['name'],
                     'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
+                    'negotiable'      => $goods['negotiable'],
                     'number'          => $value['number'],
                     'deduction_price' => $deduction_price//最高积分抵扣
                 ];

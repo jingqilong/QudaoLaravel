@@ -67,6 +67,7 @@ trait BusinessTrait
                 'process_id'        	=> $process_id,
                 'process_category'  	=> $process_category,
                 'node_id'           	=> $start_node['id'],
+                'path'                  => $start_node['id'],
                 'position'           	=> $start_node_position,
                 'operator_id'       	=> $operator['principal_id'],
             ];

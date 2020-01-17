@@ -404,12 +404,6 @@ class OrderRelateService extends BaseService
         }
         #归还库存
         $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
-//        $goodsSpecRelateService = new GoodsSpecRelateService();
-//        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
-//            $this->setError($goodsSpecRelateService->error);
-//            DB::rollBack();
-//            return false;
-//        }
         $shopInventorService = new ShopInventorService();
         foreach ($order_goods_list as $value){
             if (!$shopInventorService->unlockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
@@ -427,6 +421,7 @@ class OrderRelateService extends BaseService
                 return false;
             }
         }
+        #面议订单需要结束流程
         $this->setMessage('取消订单成功！');
         DB::commit();
         return true;

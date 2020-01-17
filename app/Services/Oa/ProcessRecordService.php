@@ -27,39 +27,35 @@ class ProcessRecordService extends BaseService
         }
         $process_record_data['created_at'] = time();
         $process_record_data['updated_at'] = time();
-        if (empty($node_id)){
-            $check_process = OaProcessDefinitionRepository::isEnabled($process_record_data['process_id']);
-            if ($check_process['code'] == 100){
-                Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
-                $this->setError('当前流程已被禁用，无法添加该流程！');
-                return false;
-            }
-
-        }else{
-            if (!$node = OaProcessNodeRepository::getOne(['process_id' => $process_record_data['process_id'],'id' => $node_id])){
-                Loggy::write('process','该流程下不存在此节点！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$node_id);
-                $this->setError('该流程下不存在此节点！');
-                return false;
-            }
+        $check_process = OaProcessDefinitionRepository::isEnabled($process_record_data['process_id']);
+        if ($check_process['code'] == 100){
+            Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
+            $this->setError('当前流程已被禁用，无法添加该流程！');
+            return false;
+        }
+        if (!isset($process_record_data['path'])){
             if (!$last_record = OaProcessRecordRepository::getOrderOne(
                 ['process_id' => $process_record_data['process_id'],'business_id' => $process_record_data['business_id']],
                 'id',
                 'desc'
             )){
-                Loggy::write('process','该业务还没有添加流程，请先添加一个流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$node_id);
+                Loggy::write('process','该业务还没有添加流程，请先添加一个流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
                 $this->setError('该业务还没有添加流程，请先添加一个流程！');
                 return false;
             }
-
-            $process_record_data['position']        = $node['position'];
-            $process_record_data['node_id']         = $node['id'];
-            $process_record_data['path']            = $last_record['path']  . ',' . $node_id;
+            $process_record_data['path']        = $last_record['path']  . ',' . $process_record_data['node_id'];
         }
-        if (!OaProcessRecordRepository::getAddId($process_record_data)){
-            Loggy::write('process','流程进度记录失败！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['business_id'].'，执行步骤：'.$node_id);
+        if (!OaProcessNodeRepository::exists(['process_id' => $process_record_data['process_id'],'id' => $process_record_data['node_id']])){
+            Loggy::write('process','该流程下不存在此节点！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
+            $this->setError('该流程下不存在此节点！');
+            return false;
+        }
+        if (!$record_id = OaProcessRecordRepository::getAddId($process_record_data)){
+            Loggy::write('process','流程进度记录失败！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['business_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
             $this->setError('流程进度记录失败！');
             return false;
         }
+        #更新路径
         $this->setMessage('流程进度记录成功！');
         return true;
     }
