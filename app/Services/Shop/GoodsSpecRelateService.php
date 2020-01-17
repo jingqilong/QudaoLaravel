@@ -8,6 +8,7 @@ use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
+use App\Repositories\ShopGoodsSpecViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
@@ -264,36 +265,38 @@ class GoodsSpecRelateService extends BaseService
      */
     public function getGoodsSpecList($goods_id)
     {
-        //从视图中取出记录
-        if (!$spec_list = ShopGoodSpecListViewRepository::getAllList(
-                ['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],
-                ['id','goods_id','price','stock','spec_ids','attribute_id','image_id','spec_name','spec_value'],
-                ['id','attribute_id'],
-                ['asc','asc']
+        if(!$spec_list = ShopGoodsSpecViewRepository::getAllList(
+            ['goods_id' => $goods_id,'spec_stock' => ['>',0]],
+            ['spec_id','goods_id','spec_price','spec_stock','spec_ids','negotiable'],
+            ['spec_id'],['asc']
         )){
             $this->setMessage('暂无规格！');
             return [];
-        }
-        $result = $last_item = $new_item =  $attributes = [];
-        $last_id = 0;
-        //因为视图是联表查询，所以，这里要合并记录
-        foreach ($spec_list as $item){
-            if($last_id != $item['id']){
-                $new_item['attributes'] = implode('； ',$attributes);
-                $last_id = $item['id'];
-                $new_item = & $result[];
-                $new_item = Arr::only($item,['id','goods_id','price','stock','image_id']);
-                $new_item['price']  = number_format($new_item['price']/100,2 );
-                $attributes = array_flip(explode(',',trim($item['spec_ids'],','))) ;
-            }
-            $attributes[$item['attribute_id']]  =  $item['spec_name'] ."：" .$item['spec_value'] ;
-            if($new_item['image_id'] == 0){
-                if( $item['image_id']!=0){
-                    $new_item['image_id'] = $item['image_id'];
+        };
+        $result = ShopGoodsSpecRepository::bulkHasManyWalk(
+            $spec_list,
+            ['from' => 'spec_ids','to' => 'id' ],
+            [ 'id', 'goods_id', 'image_id', 'spec_name', 'spec_value'],
+            ['goods_id'=>$goods_id],
+            function($src_list, $attr_list){
+                $ret_data['id']  =   $src_list['spec_id'] ;
+                $ret_data['goods_id']  =   $src_list['goods_id'] ;
+                $ret_data['stock']  =   $src_list['spec_stock'] ;
+                $ret_data['price']  =   number_format($src_list['spec_price']/100,2 );
+                if(1 == $src_list['negotiable']){
+                    $ret_data['price'] = '面议';
                 }
+                $attributes = [];
+                foreach($attr_list as $attr_item){
+                    $attributes[$attr_item['id']]  =  $attr_item['spec_name'] ."：" .$attr_item['spec_value'] ;
+                    if( $attr_item['image_id']!=0){
+                        $ret_data['image_id'] = $attr_item['image_id'];
+                    }
+                }
+                $ret_data['attributes'] = implode('； ',$attributes);
+                return $ret_data;
             }
-        }
-        $new_item['attributes'] = implode('； ',$attributes);
+        );
         //获取图片
         $result  = ImagesService::getListImages($result,['image_id' => 'single']);
         $this->setMessage('获取成功！');
