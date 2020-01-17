@@ -395,10 +395,14 @@ class OaMemberService extends BaseService
         $base_upd  = [];
         $member_base_fields  = MemberBaseRepository::getFields();
         if ($request['end_at'] == MemberEnum::PERMANENT) $request['end_at'] = 0; else $request['end_at'] = strtotime($request['end_at']);
-        foreach($member_base_fields as $v){
-            if (isset($request[$v]) && $member_base[$v] !== $request[$v]){
-                $base_upd[$v] = $request[$v];
+        foreach($member_base_fields as $field){
+            if (isset($request[$field]) && $member_base[$field] !== $request[$field]){
+                $base_upd[$field] = $request[$field];
             }
+        }
+        if (isset($base_upd['id_card']) && MemberBaseRepository::exists(['id_card' => $base_upd['id_card']])){
+            $this->setError('身份证号已存在!');
+            return false;
         }
         $grade_upd = [
             'grade'      => $request['grade'] ?? MemberGradeDefineRepository::DEFAULT(),

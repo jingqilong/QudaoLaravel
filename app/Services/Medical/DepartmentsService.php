@@ -46,12 +46,12 @@ class DepartmentsService extends BaseService
     public function deleteDepartments($id)
     {
         if (!MedicalDepartmentsRepository::exists(['id' => $id])){
-            $this->setError('医疗科室已删除！');
+            $this->setError('医疗科室已删除或不存在！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['department_ids' => ['like','%,' . $id . ',%']])){
-            $this->setError('该医疗科室已被医生使用，无法删除！');
-            return false;
+        if ($list = MedicalDoctorsRepository::getList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
+            $this->setMessage('该医疗科室已被医生使用，无法删除！');
+            return $list;
         }
         if (MedicalDepartmentsRepository::delete(['id' => $id])){
             $this->setMessage('删除成功！');

@@ -157,7 +157,7 @@ class DepartmentsController extends ApiController
         }
         $res = $this->departmentsServices->deleteDepartments($this->request['id']);
         if ($res){
-            return ['code' => 200, 'message' => $this->departmentsServices->message];
+            return ['code' => 200, 'message' => $this->departmentsServices->message ,'data' => $res];
         }
         return ['code' => 100, 'message' => $this->departmentsServices->error];
     }

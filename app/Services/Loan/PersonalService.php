@@ -47,7 +47,6 @@ class PersonalService extends BaseService
         }
         foreach ($list as &$value)
         {
-            $value['price']          =   $value['price'] . '万元';
             $value['status_name']    =   LoanEnum::getStatus($value['status']);
             $value['type_name']      =   LoanEnum::getType($value['type']);
             $value['reservation_at'] =   date('Y年m月d日',$value['reservation_at']);
@@ -130,12 +129,11 @@ class PersonalService extends BaseService
     public function getLoanInfo(string $id)
     {
         $memberInfo = $this->auth->user();
-        $column = ['id','name','mobile','price','type','ent_name','ent_title','address','appointment','status','remark','created_at','reservation_at'];
+        $column = ['id','name','mobile','price','company_address','type','ent_name','ent_title','address','appointment','status','remark','created_at','reservation_at'];
         if (!$orderInfo= LoanPersonalRepository::getOne(['id' => $id,'user_id' => $memberInfo->id],$column)){
             $this->setError('预约信息不存在!');
             return false;
         }
-        $orderInfo['price']             =   $orderInfo['price'] . '万元';
         $orderInfo['type_name']         =   LoanEnum::getType($orderInfo['type']);
         $orderInfo['status_name']       =   LoanEnum::getStatus($orderInfo['status']);
         $orderInfo['reservation_at']    =   date('Y-m-d H:m:s',$orderInfo['reservation_at']);
@@ -237,7 +235,7 @@ class PersonalService extends BaseService
             $this->setError('预约已审核，请联系客服更改!');
             return false;
         }
-        $add_arr    = Arr::only($data,['name','mobile','price','ent_name','company_address','ent_title','type','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','company_address','ent_name','ent_title','type','remark']);
         $handle_arr = [
             'status'          =>  LoanEnum::SUBMIT,
             'appointment'     =>  LoanEnum::PLATFORM,
@@ -263,7 +261,7 @@ class PersonalService extends BaseService
         if (!LoanPersonalRepository::exists(['id' => $data['id'],'deleted_at' => 0])){
             $this->setError('该订单不存在!');
         }
-        $add_arr    = Arr::only($data,['name','mobile','price','type','status','ent_name','company_address','ent_title','address','remark']);
+        $add_arr    = Arr::only($data,['name','mobile','price','company_address','type','status','ent_name','ent_title','address','remark']);
         $handle_arr = [
             'appointment'     =>  LoanEnum::PLATFORM,
             'updated_at'      =>  time(),
@@ -311,7 +309,6 @@ class PersonalService extends BaseService
         $info['type']           =  LoanEnum::getType($info['type']);
         $info['appointment']    =  LoanEnum::getAppointment($info['appointment']);
         $info['status']         =  LoanEnum::getStatus($info['status']);
-        $info['price']          =  $info['price'] . '万元';
         $info['reservation_at'] =  empty($info['reservation_at']) ? '' : date('Y-m-d',$info['reservation_at']);
         $info['created_at']     =  empty($info['created_at']) ? '' : date('Y-m-d H:i:s',$info['created_at']);
         unset($info['updated_at'],$info['deleted_at']);

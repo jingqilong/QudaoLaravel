@@ -42,5 +42,13 @@ class AppServiceProvider extends ServiceProvider
             }
             return true;
         });
+        //检查金额
+        Validator::extend('amount', function($attribute,$value, $parameters,$validator) {
+            $mobile_regex = '/^\-?\d+(\.\d{1,2})?$/';
+            if (!preg_match($mobile_regex, $value)) {
+                return false;
+            }
+            return true;
+        });
     }
 }

@@ -42,12 +42,12 @@ class DoctorLabelsService extends BaseService
     public function deleteDoctorLabels($id)
     {
         if (!MedicalDoctorLabelsRepository::exists(['id' => $id])){
-            $this->setError('医生标签已删除！');
+            $this->setError('医生标签不存在或已删除！');
             return false;
         }
-        if (MedicalDoctorsRepository::exists(['department_ids' => ['like','%'.$id.',']])){
-            $this->setError('该医生标签已使用，无法删除！');
-            return false;
+        if ($list = MedicalDoctorsRepository::getList(['label_ids' => ['like','%,'.$id.',']],['id','name'])){
+            $this->setMessage('该医生标签已使用，无法删除！');
+            return $list;
         }
         if (MedicalDoctorLabelsRepository::delete(['id' => $id])){
             $this->setMessage('删除成功！');
