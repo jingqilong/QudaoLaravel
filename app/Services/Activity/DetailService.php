@@ -129,12 +129,12 @@ class DetailService extends BaseService
         $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$order,$desc_asc)){
+            if (!$list = ActivityDetailRepository::searchAll($keyword,$where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc)){
+            if (!$list = ActivityDetailRepository::getAllList($where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
