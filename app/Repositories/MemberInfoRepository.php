@@ -38,9 +38,9 @@ class MemberInfoRepository extends ApiRepository
             return false;
         }
         $member_ids  = array_column($list['data'],'member_id');
-        $member_base_list  = MemberBaseRepository::getList(['id' => ['in',$member_ids]],$column);
+        $member_base_list  = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],$column);
         $member_base_info  = ImagesService::getListImagesConcise($member_base_list,['avatar_id' => 'single']);
-        if (empty($member_grade_list = MemberGradeRepository::getList(['user_id' => ['in',$member_ids]],['user_id','grade']))){
+        if (empty($member_grade_list = MemberGradeRepository::getAllList(['user_id' => ['in',$member_ids]],['user_id','grade']))){
             $member_grade_list = ['user_id' => 0,'grade' => 0,];
         }
         $member_base_arr  = [];

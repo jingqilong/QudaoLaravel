@@ -37,7 +37,7 @@ class CommonAreaRepository extends ApiRepository
         if (is_string($codes)){
             $code_arr = explode(',',$codes);
         }
-        if (!$area_list = $this->getList(['code' => ['in',$code_arr]],['code','name'])){
+        if (!$area_list = $this->getAllList(['code' => ['in',$code_arr]],['code','name'])){
             return '';
         }
         foreach ($area_list as $area){

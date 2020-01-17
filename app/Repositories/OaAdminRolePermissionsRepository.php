@@ -67,7 +67,7 @@ class OaAdminRolePermissionsRepository extends ApiRepository
      */
     protected function getPermissionIds($role_id, $string_or_array = true)
     {
-        if (!$list = $this->getList(['role_id' => $role_id])){
+        if (!$list = $this->getAllList(['role_id' => $role_id])){
             return $string_or_array ? '' : [];
         }
         $permission_ids = array_column($list,'permission_id');
