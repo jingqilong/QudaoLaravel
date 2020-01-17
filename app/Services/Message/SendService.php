@@ -148,19 +148,19 @@ class SendService extends BaseService
         $member_list = [];
         if ($member_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::MEMBER)){
             $member_ids = array_column($member_message_list,'user_id');
-            $member_list = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name','mobile']);
+            $member_list = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name','mobile']);
         }
         #获取相关商户列表
         $merchant_list = [];
         if ($merchant_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::MERCHANT)){
             $merchant_ids = array_column($merchant_message_list,'user_id');
-            $merchant_list = PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name','mobile']);
+            $merchant_list = PrimeMerchantRepository::getAllList(['id' => ['in',$merchant_ids]],['id','name','mobile']);
         }
         #获取相关OA员工列表
         $oa_list = [];
         if ($oa_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::OAEMPLOYEES)){
             $oa_ids = array_column($oa_message_list,'user_id');
-            $oa_list = OaEmployeeRepository::getList(['id' => ['in',$oa_ids]],['id','real_name','mobile']);
+            $oa_list = OaEmployeeRepository::getAllList(['id' => ['in',$oa_ids]],['id','real_name','mobile']);
         }
         foreach ($list['data'] as &$value){
             #匹配会员信息
@@ -253,7 +253,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function memberMessageList($request)
+    public function memberMessageList()
     {
         $member             = Auth::guard('member_api')->user();
         $member_id          = $member->id;
@@ -269,7 +269,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $member_id,'user_type' => MessageEnum::MEMBER]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $member_id,'user_type' => MessageEnum::MEMBER]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
@@ -287,7 +287,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function merchantMessageList($request)
+    public function merchantMessageList()
     {
         $prime             = Auth::guard('prime_api')->user();
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
@@ -302,7 +302,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $prime->id,'user_type' => MessageEnum::MERCHANT]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $prime->id,'user_type' => MessageEnum::MERCHANT]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
@@ -320,7 +320,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function oaMessageList($request)
+    public function oaMessageList()
     {
         $oa                 = Auth::guard('oa_api')->user();
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
@@ -335,7 +335,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $oa->id,'user_type' => MessageEnum::OAEMPLOYEES]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $oa->id,'user_type' => MessageEnum::OAEMPLOYEES]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){

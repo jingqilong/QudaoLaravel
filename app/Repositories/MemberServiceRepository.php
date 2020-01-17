@@ -28,7 +28,7 @@ class MemberServiceRepository extends ApiRepository
      * @return array
      */
     protected function getServiceList(array $where, $column = ['id', 'name', 'desc', 'path', 'level','parent_id']){
-        if (!$list = $this->getList($where,$column)){
+        if (!$list = $this->getAllList($where,$column)){
             return [];
         }
         $parent_ids = array_column($list,'parent_id');
@@ -87,7 +87,7 @@ class MemberServiceRepository extends ApiRepository
         $info['next_level'] = [];
         $info['created_at'] = date('Y-m-d H:m:s', $info['created_at']);
         $info['updated_at'] = date('Y-m-d H:m:s', $info['updated_at']);
-        if ($next_list = $this->getList(['parent_id' => $info['id']])){//dd($next_list);
+        if ($next_list = $this->getAllList(['parent_id' => $info['id']])){//dd($next_list);
             $info['next_level'] = $this->levelDetail($next_list,$info['id']);
         }
         unset($info['path'],$info['level']);

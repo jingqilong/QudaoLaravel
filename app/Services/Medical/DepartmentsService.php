@@ -7,7 +7,6 @@ use App\Repositories\MedicalDoctorsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use function Sodium\add;
 
 class DepartmentsService extends BaseService
 {
@@ -49,7 +48,7 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已删除或不存在！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
             $this->setMessage('该医疗科室已被医生使用，无法删除！');
             return $list;
         }

@@ -214,7 +214,8 @@ class ProcessActionEventService extends BaseService
             unset($where['node_action_result_id']);
         }
         $where['event_type']=$event_type;
-        $event_list = OaProcessActionEventRepository::getAllList($where,['*'],'id','asc');
+        $this->setPerPage(40);
+        $event_list = OaProcessActionEventRepository::getList($where,['*'],'id','asc');
         $event_ids  = array_column($event_list['data'],'event_id');
         if ($event_ids){
             $event_defined_list = OaProcessEventsRepository::getAssignList($event_ids);

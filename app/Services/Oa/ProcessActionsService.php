@@ -2,8 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessActionEnum;
-use App\Enums\ProcessActionStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
@@ -122,7 +121,7 @@ class ProcessActionsService extends BaseService
             if ($results = $this->searchArray($action_results_list,'action_id',$value['id'])){
                 $value['results'] = $results;
             }
-            $value['status_title']  = ProcessActionStatusEnum::getLabelByValue($value['status']);
+            $value['status_title']  = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }

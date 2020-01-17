@@ -38,11 +38,8 @@ class OaProjectService extends BaseService
     public function getProjectOrderList(array $data)
     {
         $employee = Auth::guard('oa_api')->user();
-        if (empty($data['asc'])){
-            $data['asc'] = 1;
-        }
-
-        $asc = $data['asc'];
+        $asc = $data['asc'] ?? 1;
+        $asc = ($asc == 1) ? 'asc' : 'desc';
 
         $keywords    =   $data['keywords'] ?? null;
         $status      =   $data['status'] ?? null;

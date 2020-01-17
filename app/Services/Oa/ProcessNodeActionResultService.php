@@ -2,7 +2,6 @@
 namespace App\Services\Oa;
 
 use App\Services\BaseService;
-use Tolawho\Loggy\Facades\Loggy;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 
 /**

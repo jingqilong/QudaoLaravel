@@ -4,7 +4,6 @@
 namespace App\Services\Common;
 
 
-use App\Enums\CommonImagesEnum;
 use App\Enums\ImageTypeEnum;
 use App\Enums\QiNiuEnum;
 use App\Repositories\CommonImagesRepository;

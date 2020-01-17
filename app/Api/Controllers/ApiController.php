@@ -2,8 +2,6 @@
 namespace App\Api\Controllers;
 
 use App\Exceptions\FieldDoesNotExistException;
-use Dingo\Api\Http\Request;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -85,8 +83,8 @@ class ApiController extends BaseController
         }
         return $request->input($keys,$default);
     }
-
-    /**
+    
+     /**
      * 获取当前传入的分页参数
      * 如果要分开到变量中：list($page,$page_num) = $this->inputPage();
      * @param int $per_page
@@ -94,10 +92,11 @@ class ApiController extends BaseController
      */
     public function inputPage($per_page = 10){
         return [
-            'page' =>request('page',1),
-            'page_num' => request('page_num',$per_page)
+            request('page',1),
+            request('page_num',$per_page)
         ];
     }
+
 
     /**
      * 批量设置默认值的函数

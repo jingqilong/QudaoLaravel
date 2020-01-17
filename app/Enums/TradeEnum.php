@@ -16,6 +16,7 @@ class TradeEnum extends BaseEnum
         'WECHANT'           => '微信支付',
         'SCORE'             => '积分支付',
         'UNION'             => '银联支付',
+        'OFFLINE'           => '线下支付',
     ];
 
     public static $status = [
@@ -28,6 +29,7 @@ class TradeEnum extends BaseEnum
         1 => 'WECHANT',
         2 => 'SCORE',
         3 => 'UNION',
+        4 => 'OFFLINE',
     ];
 
     // constants
@@ -43,6 +45,8 @@ class TradeEnum extends BaseEnum
     const SCORE                 = 2;    //交易方式-积分支付
 
     const UNION                 = 3;    //交易方式-银联支付
+
+    const OFFLINE               = 4;    //交易方式-线下支付
 
 
     /**

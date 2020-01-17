@@ -10,7 +10,6 @@ use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeDefineRepository;
-use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Services\BaseService;
 use App\Services\Member\MemberService;

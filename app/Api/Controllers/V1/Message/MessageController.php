@@ -84,7 +84,7 @@ class MessageController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
 
-        $res = $this->sendService->memberMessageList($this->request);
+        $res = $this->sendService->memberMessageList();
         if ($res === false){
             return ['code' => 100,'message' => $this->sendService->error];
         }
@@ -268,7 +268,7 @@ class MessageController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
 
-        $res = $this->sendService->merchantMessageList($this->request);
+        $res = $this->sendService->merchantMessageList();
         if ($res === false){
             return ['code' => 100,'message' => $this->sendService->error];
         }
@@ -451,7 +451,7 @@ class MessageController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
 
-        $res = $this->sendService->oaMessageList($this->request);
+        $res = $this->sendService->oaMessageList();
         if ($res === false){
             return ['code' => 100,'message' => $this->sendService->error];
         }

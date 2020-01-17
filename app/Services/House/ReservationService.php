@@ -7,11 +7,9 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\CommonAreaRepository;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
@@ -100,7 +98,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $house_ids = array_column($list['data'],'house_id');
-        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
+        $house_list = HouseDetailsRepository::getAllList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
         $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['condo_name']   = '';
@@ -165,7 +163,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $house_ids = array_column($list['data'],'house_id');
-        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
+        $house_list = HouseDetailsRepository::getAllList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
         $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['condo_name']   = '';
@@ -286,7 +284,7 @@ class ReservationService extends BaseService
     public function isReservationList($request)
     {
         $member     = Auth::guard('member_api')->user();
-        if (!$house_list = HouseDetailsRepository::getList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
+        if (!$house_list = HouseDetailsRepository::getAllList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
             $this->setMessage('您还没有发布过房源!');
             return [];
         }

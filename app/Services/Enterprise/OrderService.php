@@ -9,7 +9,6 @@ use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\EnterpriseOrderRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -42,7 +41,7 @@ class OrderService extends BaseService
         $member = $this->auth->user();
         $where  = ['deleted_at' => 0,'user_id' => $member->id];
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
-        if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc')){
+        if (!$list = EnterpriseOrderRepository::getAllList($where,$column,'created_at','desc')){
             $this->setMessage('没有数据！');
             return [];
         }

@@ -7,9 +7,7 @@ use App\Enums\CommentsEnum;
 use App\Enums\CommonHomeEnum;
 use App\Enums\ShopActivityEnum;
 use App\Enums\ShopGoodsEnum;
-use App\Models\MemberGradeViewModel;
 use App\Repositories\CommonCommentsRepository;
-use App\Repositories\CommonHomeBannersRepository;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberCollectRepository;
 use App\Repositories\ShopActivityRepository;
@@ -17,13 +15,11 @@ use App\Repositories\ShopGoodsCategoryRepository;
 use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
-use App\Repositories\ShopGoodsSpecRepository;
 use App\Repositories\ShopOrderGoodsRepository;
 use App\Services\BaseService;
 use App\Services\Common\HomeBannersService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use Encore\Admin\Grid\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -110,7 +106,7 @@ class GoodsService extends BaseService
             }
         }
         #如果商品有规格  处理库存价格
-        if ($spec_value = ShopGoodSpecListViewRepository::getList(['goods_id' => $goods_id])){
+        if ($spec_value = ShopGoodSpecListViewRepository::getAllList(['goods_id' => $goods_id])){
             $spec_stock = array_sum(Arr::pluck($spec_value,'stock'));
             $spec_price = min(Arr::pluck($spec_value,'price'));
             $upd_arr = ['price' => $spec_price,'stock' => $spec_stock];
@@ -251,7 +247,7 @@ class GoodsService extends BaseService
             }
         }
         #如果商品有规格  处理库存价格
-        if ($spec_value = ShopGoodSpecListViewRepository::getList(['goods_id' => $goods_id])){
+        if ($spec_value = ShopGoodSpecListViewRepository::getAllList(['goods_id' => $goods_id])){
             $spec_stock = array_sum(Arr::pluck($spec_value,'stock'));
             $spec_price = min(Arr::pluck($spec_value,'price'));
             $upd_arr = ['price' => $spec_price,'stock' => $spec_stock];
@@ -339,8 +335,8 @@ class GoodsService extends BaseService
         $goods['category_title'] = $category['name'] ?? '';
         $goods['category_icon']  = isset($category['icon_id']) ? CommonImagesRepository::getField(['id' => $category['icon_id']],'img_url') : '';
         $goods['price']          = empty($goods['price']) ? 0 : round($goods['price'] / 100,2);
-        $goods['banner_list']    = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
-        $goods['image_list']     = CommonImagesRepository::getList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
+        $goods['banner_list']    = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$goods['banner_ids'])]],['id','img_url']);
+        $goods['image_list']     = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$goods['image_ids'])]],['id','img_url']);
         $goods['express_price']  = empty($value['express_price']) ? 0 : round($value['express_price'] / 100,2);
         $goods['is_recommend']   = $goods['is_recommend'] == 0 ? 2 : 1;
         $goods['status_title']   = ShopGoodsEnum::getStatus($goods['status']);
@@ -375,12 +371,13 @@ class GoodsService extends BaseService
         }
         $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (is_null($count)){
-            if (!$list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc')){
+            if (!$list = ShopGoodsRepository::getAllList($where,$column,'is_recommend','desc')){
                 $this->setMessage('暂无数据！');
                 return [];
             }
         }else{
-            if (!$goods_list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc',1,16)){
+            $this->setPerPage(16);
+            if (!$goods_list = ShopGoodsRepository::getList($where,$column,'is_recommend','desc')){
                 $this->setError('获取失败！');
                 return [];
             }
@@ -424,7 +421,7 @@ class GoodsService extends BaseService
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['collect']        = MemberCollectRepository::exists(['type' => CollectTypeEnum::SHOP,'target_id' => $request['id'],'member_id' => $member_id,'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        $goods_detail['recommend']      = ShopGoodsRepository::getAllList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
         $goods_detail['stock']          = ShopGoodsSpecRelateRepository::getStockCount($goods_detail['id'],$goods_detail['stock']);
         foreach ($goods_detail['recommend'] as &$value){
             $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
@@ -505,7 +502,7 @@ class GoodsService extends BaseService
         $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        $goods_detail['recommend']      = ShopGoodsRepository::getAllList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
         foreach ($goods_detail['recommend'] as &$value){
             $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));

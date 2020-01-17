@@ -67,9 +67,9 @@ class ReservationService extends BaseService
         }
         $list['data'] = CommonImagesService::getListImages($list['data'], ['order_image_ids'=>'several']);
         $merchant_ids = array_column($list['data'],'merchant_id');
-        $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
+        $merchant_list= PrimeMerchantRepository::getAllList(['id' => ['in',$merchant_ids]],['id','name']);
         $order_nos = array_column($list['data'],'order_no');
-        $order_list= MemberOrdersRepository::getList(['order_no' => ['in',$order_nos]],['order_no','amount','payment_amount','status']);
+        $order_list= MemberOrdersRepository::getAllList(['order_no' => ['in',$order_nos]],['order_no','amount','payment_amount','status']);
         foreach ($list['data'] as &$value){
             $value['merchant_name'] = '';
             if ($merchant = $this->searchArray($merchant_list,'id',$value['merchant_id'])){

@@ -148,7 +148,7 @@ class MerchantProductsService extends BaseService
         }
         $list['data'] = CommonImagesService::getListImages($list['data'], ['image_ids'=>'several']);
         $merchant_ids = array_column($list['data'],'merchant_id');
-        $merchant_list= PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name']);
+        $merchant_list= PrimeMerchantRepository::getAllList(['id' => ['in',$merchant_ids]],['id','name']);
         foreach ($list['data'] as &$value){
             $value['merchant_name'] = '';
             if ($merchant = $this->searchArray($merchant_list,'id',$value['merchant_id'])){

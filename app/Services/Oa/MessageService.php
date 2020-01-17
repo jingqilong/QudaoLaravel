@@ -2,9 +2,6 @@
 namespace App\Services\Oa;
 
 use App\Models\OaEmployeeModel;
-use App\Repositories\OaEmployeeRepository;
-use App\Repositories\OaMessageDefRepository;
-use App\Repositories\OaMessageSendRepository;
 use App\Repositories\OaPushSubscriptionsRepository;
 use App\Traits\HelpTrait;
 use ErrorException;
@@ -12,11 +9,9 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Minishlink\WebPush\MessageSentReport;
 use Minishlink\WebPush\Subscription;
-use Minishlink\WebPush\VAPID;
 use Minishlink\WebPush\WebPush;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
-use Tolawho\Loggy\Facades\Loggy;
 
 class MessageService extends Notification
 {
@@ -102,21 +97,21 @@ class MessageService extends Notification
              * 检查发送的结果
              * @var MessageSentReport $report
              */
-            foreach ($webPush->flush() as $report) {
-                $endpoint = $report->getRequest()->getUri()->__toString();
-                if ($report->isSuccess()) {
-                    if ($def_id = OaMessageDefRepository::addMessage(json_decode($payload))){
-                        OaMessageSendRepository::getAddId(['user_id' => $user_id, 'message_id' => $def_id, 'created_at' => date('Y-m-d H:m:s')]);
-                    }
-                    echo "[v] Message sent successfully for subscription {$endpoint}.";
-                    $this->message = '发送成功！';
-                    return true;
-                } else {
-                    echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
-                    $this->error = '发送失败！';
-                    return false;
-                }
-            }
+//            foreach ($webPush->flush() as $report) {
+//                $endpoint = $report->getRequest()->getUri()->__toString();
+//                if ($report->isSuccess()) {
+//                    if ($def_id = OaMessageDefRepository::addMessage(json_decode($payload))){
+//                        OaMessageSendRepository::getAddId(['user_id' => $user_id, 'message_id' => $def_id, 'created_at' => date('Y-m-d H:m:s')]);
+//                    }
+//                    echo "[v] Message sent successfully for subscription {$endpoint}.";
+//                    $this->message = '发送成功！';
+//                    return true;
+//                } else {
+//                    echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
+//                    $this->error = '发送失败！';
+//                    return false;
+//                }
+//            }
         } catch (ErrorException $e) {
             $this->error = $e->getMessage();
             return false;

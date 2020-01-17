@@ -135,13 +135,13 @@ class MemberContactServices extends BaseService
 
     /**
      * 获取成员查看成员的联系列表
-     * @return bool|null
+     * @return mixed
      */
     public function getMemberContact()
     {
         $member = $this->auth->user();
         $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
-        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id],$column)){
+        if (!$list = MemberContactRequestRepository::getAllList(['proposer_id' => $member->id],$column)){
             $this->setError('获取失败!');
             return false;
         }
@@ -231,7 +231,7 @@ class MemberContactServices extends BaseService
         $member_base_list   = MemberBaseRepository::getAssignList($member_ids,['id','ch_name']);
         $member_base_list   = MemberBaseRepository::createArrayIndex($member_base_list,'id');
         $grade_where        = ['user_id' => ['in',$member_ids],'status' => MemberGradeEnum::PASS,'end_at' => ['range',['-1',time()]]];
-        $member_grade_list  = MemberGradeRepository::getList($grade_where,['user_id','grade']);
+        $member_grade_list  = MemberGradeRepository::getAllList($grade_where,['user_id','grade']);
         $member_grade_list  = MemberGradeRepository::createArrayIndex($member_grade_list,'user_id');
         $detail = [
             'id'            => $contact_info['id'],

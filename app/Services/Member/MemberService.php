@@ -2,17 +2,12 @@
 namespace App\Services\Member;
 
 
-use App\Enums\CommonAuditStatusEnum;
 use App\Enums\MemberEnum;
-use App\Enums\MemberGradeEnum;
 use App\Enums\MemberIsTestEnum;
-use App\Enums\ProcessCategoryEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
-use App\Repositories\MemberContactRequestRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;
@@ -806,9 +801,11 @@ class MemberService extends BaseService
      * @param $count
      * @return array
      */
-    public static function getHomeShowMemberList($count){
+    protected function getHomeShowMemberList($count){
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
-        if (!$view_user_list = MemberGradeViewRepository::getAllList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
+        $this->setPage(1);
+        $this->setPerPage($count);
+        if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc')){
             return [];
         }
         if (empty($view_user_list['data'])){

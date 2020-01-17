@@ -131,6 +131,6 @@ return [
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => '/member/member-contact/index',
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
-        11 => '/shop/negotiable-order',
+        11 => '/shop/shop-negotiable-order/index',
     ],
 ];

@@ -181,7 +181,7 @@ class ProcessNodeActionService extends BaseService
             return false;
         }
         DB::beginTransaction();
-        if ($node_actions_results = OaProcessNodeActionsResultRepository::getList(['node_action_id' => $node_action_id])){
+        if ($node_actions_results = OaProcessNodeActionsResultRepository::getAllList(['node_action_id' => $node_action_id])){
             $node_actions_result_ids = array_column($node_actions_results,'id');
             if (OaProcessTransitionRepository::exists(['node_action_result_id' => ['in',$node_actions_result_ids],'next_node' => ['<>',0]])){
                 $this->setError('当前动作的结果已关联到下一节点，需要先删除下一节点！');

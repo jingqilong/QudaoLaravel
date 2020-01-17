@@ -70,7 +70,7 @@ class PrimeMerchantRepository extends ApiRepository
         $banner_ids         = explode(',',$user_info['banner_ids']);
         $display_img_ids    = explode(',',$user_info['display_img_ids']);
         $image_ids          = array_merge([$user_info['logo_id'],$user_info['license_img_id']],$banner_ids,$display_img_ids);
-        $image_list         = CommonImagesRepository::getList(['id' => ['in',$image_ids]],['id','img_url']);
+        $image_list         = CommonImagesRepository::getAllList(['id' => ['in',$image_ids]],['id','img_url']);
         $user_info['logo']  = '';
         if ($logo = $this->searchArray($image_list,'id',$user_info['logo_id'])){
             $user_info['logo'] = reset($logo)['img_url'];

@@ -325,7 +325,7 @@ class HomeBannersService extends BaseService
         foreach ($banner_type_to_repository as $type => $repository){
             if (${$type."banners"} = $this->searchArray($banner_list,'link_type',$type)){
                 ${$type."_ids"} = array_column(${$type."banners"},'related_id');
-                $related_infos[$type]  = $repository::getlist(['id' => ['in',${$type."_ids"}]]);
+                $related_infos[$type]  = $repository::getAllList(['id' => ['in',${$type."_ids"}]]);
             }
         }
         //将相关的信息写入列表
