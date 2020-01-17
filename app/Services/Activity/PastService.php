@@ -150,7 +150,7 @@ class PastService extends BaseService
     {
         $where      = ['activity_id' => $request['activity_id']];
         $column     = ['resource_ids','presentation','hidden','top'];
-        if (!$list = ActivityPastRepository::getList($where,$column)){
+        if (!$list = ActivityPastRepository::getAllList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
         }
@@ -183,7 +183,7 @@ class PastService extends BaseService
         $res['banner']      = [];
         $res['video_list']  = [];
         $res['images_list'] = [];
-        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+        if (!$list = ActivityPastRepository::getAllList($where,$column,'top','desc')){
             $this->setError('获取失败');
             return false;
         }
