@@ -129,7 +129,7 @@ class GoodsCategoryService extends BaseService
     public function getHomeCategoryList(){
         $where = ['deleted_at' => 0];
         $column = ['id','name','icon_id'];
-        if (!$list = ShopGoodsCategoryRepository::getList($where,$column)){
+        if (!$list = ShopGoodsCategoryRepository::getAllList($where,$column)){
             $this->setMessage('暂无数据！');
             return [];
         }
