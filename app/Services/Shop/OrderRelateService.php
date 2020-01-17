@@ -1035,11 +1035,11 @@ class OrderRelateService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::SUBMIT){
+        if ($order_info['audit'] != CommonAuditStatusEnum::SUBMIT){
             $this->setError('该订单还未审核，不能进行此操作！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::PASS){
+        if ($order_info['audit'] != CommonAuditStatusEnum::PASS){
             $this->setError('该订单审核未通过，不能进行此操作！');
             return false;
         }
