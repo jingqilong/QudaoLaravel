@@ -36,7 +36,7 @@ class HouseDetailsRepository extends ApiRepository
         $order      = 'id';
         $desc_asc   = 'desc';
         $column = ['id','title','area','area_code','describe','rent','tenancy','decoration','image_ids','storey','condo_name','category'];
-        if (!$list = $this->getList($where,$column,$order,$desc_asc)){
+        if (!$list = $this->getAllList($where,$column,$order,$desc_asc)){
             return [];
         }
         $list = $this->removePagingField($list);

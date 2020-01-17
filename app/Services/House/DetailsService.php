@@ -128,7 +128,7 @@ class DetailsService extends BaseService
 
         $house['decoration'] = HouseEnum::getDecoration($house['decoration']);
         $house['area']          = $house['area'] .'㎡'   ;
-        $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]]);
+        $image_list = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$house['image_ids'])]]);
         $house['images']        = array_column($image_list,'img_url');
         $house['storey']        = $house['storey'] .'层';
         $house['category']      = HouseEnum::getCategory($house['category']);
@@ -297,7 +297,7 @@ class DetailsService extends BaseService
             $value['rent_tenancy']      = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
             $value['tenancy_title']     = HouseEnum::getTenancy($value['tenancy']);
             $value['decoration_title']  = HouseEnum::getDecoration($value['decoration']);
-            $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
+            $image_list                 = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
             $value['images']            = $image_list;
             $value['category_title']    = HouseEnum::getCategory($value['category']);
             $value['publisher_title']   = HouseEnum::getPublisher($value['publisher']);
@@ -344,7 +344,7 @@ class DetailsService extends BaseService
         $house['status']            = HouseEnum::getStatus($house['status']);
         $house['created_at']        = date('Y-m-d H:i:s',$house['created_at']);
         $house['updated_at']        = date('Y-m-d H:i:s',$house['updated_at']);
-        $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]],['img_url']);
+        $image_list                 = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$house['image_ids'])]],['img_url']);
         $house['images']            = empty($image_list) ? [] : Arr::flatten($image_list);
         $house['facilities']        = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']),['title','icon_id']);
         unset($house['area_code'],$house['rent'],$house['tenancy'],$house['image_ids'],$house['facilities_ids'],$house['publisher_id'],$house['rent'],$house['rent']);
@@ -426,7 +426,7 @@ class DetailsService extends BaseService
             #处理价格
             $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
             $value['decoration'] = HouseEnum::getDecoration($value['decoration']);
-            $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]]);
+            $image_list = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$value['image_ids'])]]);
             $value['images']        = array_column($image_list,'img_url');
             $value['category']      = HouseEnum::getCategory($value['category']);
             unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);

@@ -45,7 +45,7 @@ class MerchantInfoService extends BaseService
         #获取推荐产品
         $merchant['products'] = [];
         $product_column = ['id','title','describe','image_ids'];
-        if ($products = PrimeMerchantProductsRepository::getList(['merchant_id' => $merchant_id,'is_recommend' => ['>',0]],$product_column)){
+        if ($products = PrimeMerchantProductsRepository::getAllList(['merchant_id' => $merchant_id,'is_recommend' => ['>',0]],$product_column)){
             $products = CommonImagesService::getListImages($products,['image_ids' => 'single']);
             $merchant['products'] = $products;
         }

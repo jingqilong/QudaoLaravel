@@ -322,7 +322,7 @@ class OrdersService extends BaseService
         $member    = $this->auth->user();
         $where     = ['member_id' => $member->id, 'deleted_at' => 0];
         $column    = ['id','name','mobile','longitude','latitude','sex','age','type','end_time','hospital_name','departments_name','doctor_head_url','doctor_name','doctor_title','appointment_at','status','created_at'];
-        if (!$list = MedicalOrdersViewRepository::getList($where,$column,'id','desc')) {
+        if (!$list = MedicalOrdersViewRepository::getAllList($where,$column,'id','desc')) {
             $this->setMessage('暂时没有预约订单');
             return [];
         }
@@ -418,7 +418,7 @@ class OrdersService extends BaseService
         }
         $department_ids               = MedicalDoctorsRepository::getField(['id' => $orderInfo['doctor_id']],'department_ids');
         $department_list              = explode(',',trim($department_ids,','));
-        $orderInfo['department_arr']  = MedicalDepartmentsRepository::getList(['id' => ['in',$department_list]],['id','name']);
+        $orderInfo['department_arr']  = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department_list]],['id','name']);
         $orderInfo['status_name']     = DoctorEnum::getStatus($orderInfo['status']);
         $orderInfo['type_name']       = DoctorEnum::getType($orderInfo['type']);
         $orderInfo['sex_name']        = DoctorEnum::getSex($orderInfo['sex']);

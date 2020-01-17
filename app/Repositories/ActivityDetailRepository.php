@@ -41,9 +41,9 @@ class ActivityDetailRepository extends ApiRepository
             return $list;
         }
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $themes     = ActivityThemeRepository::getAllList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
         $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        $icons      = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]]);
         foreach ($list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)
@@ -90,9 +90,9 @@ class ActivityDetailRepository extends ApiRepository
             return $list;
         }
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $themes     = ActivityThemeRepository::getAllList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
         $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        $icons      = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]]);
         foreach ($list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)
@@ -134,9 +134,9 @@ class ActivityDetailRepository extends ApiRepository
             return $list;
         }
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $themes     = ActivityThemeRepository::getAllList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
         $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        $icons      = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]]);
         foreach ($list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)

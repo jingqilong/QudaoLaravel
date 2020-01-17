@@ -107,7 +107,7 @@ class FacilitiesService extends BaseService
             return $list;
         }
         $icon_ids   = array_column($list['data'],'icon_id');
-        $icon_list  = CommonImagesRepository::getList(['id' => ['in',$icon_ids]],['id','img_url']);
+        $icon_list  = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]],['id','img_url']);
         foreach ($list['data'] as &$value){
             $value['icon'] = '';
             if ($icon = $this->searchArray($icon_list,'id',$value['icon_id'])){
@@ -126,12 +126,12 @@ class FacilitiesService extends BaseService
      */
     public function allFacilityList()
     {
-        if (!$list = HouseFacilitiesRepository::getList(['id' => ['>',0]],['id','title','icon_id'])){
+        if (!$list = HouseFacilitiesRepository::getAllList(['id' => ['>',0]],['id','title','icon_id'])){
             $this->setError('获取失败！');
             return false;
         }
         $icon_ids   = array_column($list,'icon_id');
-        $icon_list  = CommonImagesRepository::getList(['id' => ['in',$icon_ids]],['id','img_url']);
+        $icon_list  = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]],['id','img_url']);
         foreach ($list as &$value){
             $value['icon'] = '';
             if ($icon = $this->searchArray($icon_list,'id',$value['icon_id'])){

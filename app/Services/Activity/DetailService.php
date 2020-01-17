@@ -331,9 +331,9 @@ class DetailService extends BaseService
         $theme_ids      = array_column($list['data'],'theme_id');
         $themes         = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name']);
         $activity_ids   = array_column($list['data'],'id');
-        $host_list      = ActivityHostsRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','type','name','logo_id']);
+        $host_list      = ActivityHostsRepository::getAllList(['activity_id' => ['in',$activity_ids]],['activity_id','type','name','logo_id']);
         $host_list      = ImagesService::getListImages($host_list,['logo_id' => 'single']);
-        $link_list      = ActivityLinksRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','title','url','image_id']);
+        $link_list      = ActivityLinksRepository::getAllList(['activity_id' => ['in',$activity_ids]],['activity_id','title','url','image_id']);
         $link_list      = ImagesService::getListImages($link_list,['image_id' => 'single']);
         foreach ($list['data'] as &$value){
             $value['hosts'] = '';

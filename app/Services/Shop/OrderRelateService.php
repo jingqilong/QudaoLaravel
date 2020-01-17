@@ -56,9 +56,9 @@ class OrderRelateService extends BaseService
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_ids          = array_column($goods_param,'goods_id');
         $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = ShopGoodsRepository::getAllList(['id' => ['in',$goods_ids]]);
         $goods_list         = createArrayIndex($goods_list,'id');
-        $spec_relate_list   = ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getAllList(['id' => ['in',$spec_relate_ids]]);
         $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
         foreach ($goods_list as $value){
             if ($value['negotiable'] == ShopGoodsEnum::NEGOTIABLE){
@@ -113,7 +113,7 @@ class OrderRelateService extends BaseService
         #检查是否存在非面议商品
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_ids          = array_column($goods_param,'goods_id');
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = ShopGoodsRepository::getAllList(['id' => ['in',$goods_ids]]);
         $goods_list         = createArrayIndex($goods_list,'id');
         foreach ($goods_list as $value){
             if ($value['negotiable'] !== ShopGoodsEnum::NEGOTIABLE){
@@ -403,7 +403,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         #归还库存
-        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
+        $order_goods_list = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order_relate['id']]);
         $shopInventorService = new ShopInventorService();
         foreach ($order_goods_list as $value){
             if (!$shopInventorService->unlockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
@@ -453,10 +453,10 @@ class OrderRelateService extends BaseService
         }
         #获取物流公司列表
         $express_company_ids   = array_column($order_list['data'],'express_company_id');
-        $express_company_list  = CommonExpressRepository::getList(['id' => ['in',$express_company_ids]]);
+        $express_company_list  = CommonExpressRepository::getAllList(['id' => ['in',$express_company_ids]]);
         #获取订单中的商品列表
         $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $order_goods_list   = ShopOrderGoodsRepository::getAllList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = $value['status'] == ShopOrderEnum::FINISHED ? 1 : 0;
@@ -522,7 +522,7 @@ class OrderRelateService extends BaseService
             $order['express_company_code'] = CommonExpressRepository::getField(['id' => $order['express_company_id']],'code');
         }
         list($order['receive_area_address'])  = $this->makeAddress($order['receive_area_code'],$order['receive_address']);
-        $order_goods_list       = ShopOrderGoodsRepository::getList(['order_relate_id' => $order['id']]);
+        $order_goods_list       = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order['id']]);
         $order['goods_list']    = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         unset($order['receive_area_code'],$order['receive_address'],$order['express_company_id']);
         $this->setMessage('获取成功！');
@@ -741,7 +741,7 @@ class OrderRelateService extends BaseService
         }
         #添加库存台帐变更流水
         $shopInventorService = new ShopInventorService();
-        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
+        $order_goods_list = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order_relate['id']]);
         foreach ($order_goods_list as $value){
             if (!$shopInventorService->updateInventor($order_relate['order_id'],$value['goods_id'],$value['spec_relate_id'],$value['number'],-1)){
                 $this->setError($shopInventorService->error);
@@ -790,8 +790,8 @@ class OrderRelateService extends BaseService
             $goods_ids[] = end($related_arr);
         }
         $order_goods_where = ['order_relate_id' => ['in', $order_ids], 'goods_id' => ['in', $goods_ids]];
-        $order_goods_list = ShopOrderGoodsRepository::getList($order_goods_where);
-        $spec_relate_list = ShopGoodsSpecRelateRepository::getList(['id' => ['in', array_column($order_goods_list, 'spec_relate_id')]]);
+        $order_goods_list = ShopOrderGoodsRepository::getAllList($order_goods_where);
+        $spec_relate_list = ShopGoodsSpecRelateRepository::getAllList(['id' => ['in', array_column($order_goods_list, 'spec_relate_id')]]);
         $spec_ids = implode(',', array_column($spec_relate_list, 'spec_ids'));
         $spec_list = ShopGoodsSpecRepository::getAssignList(explode(',', $spec_ids), ['id', 'spec_value', 'spec_name']);
         foreach ($data as &$value) {

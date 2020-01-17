@@ -222,9 +222,9 @@ class RegisterService extends BaseService
         $audited_by     = array_column($list['data'],'audited_by');
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
-        $activities     = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
-        $members        = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
-        $audits         = OaEmployeeRepository::getList(['id' => ['in',$audited_by]],['id','real_name']);
+        $activities     = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]],['id','name']);
+        $members        = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $audits         = OaEmployeeRepository::getAllList(['id' => ['in',$audited_by]],['id','real_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $member   = $this->searchArray($members,'id',$value['member_id']);
