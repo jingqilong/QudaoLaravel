@@ -135,13 +135,13 @@ class MemberContactServices extends BaseService
 
     /**
      * 获取成员查看成员的联系列表
-     * @return bool|null
+     * @return mixed
      */
     public function getMemberContact()
     {
         $member = $this->auth->user();
         $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
-        if (!$list = MemberContactRequestRepository::getList(['proposer_id' => $member->id],$column)){
+        if (!$list = MemberContactRequestRepository::getAllList(['proposer_id' => $member->id],$column)){
             $this->setError('获取失败!');
             return false;
         }
