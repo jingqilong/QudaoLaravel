@@ -1023,7 +1023,7 @@ class OrderRelateService extends BaseService
     }
 
     /**
-     * 设置面议订单金额（审核通过后）
+     * 录入面议订单金额（审核通过后）
      * @param $request
      * @return bool
      */
@@ -1033,6 +1033,10 @@ class OrderRelateService extends BaseService
         $express_price   = $request['express_price'] ?? null;
         if (!$order_info = ShopOrderRelateViewRepository::getOne(['id' => $order_relate_id,'deleted_at' => 0])){
             $this->setError('订单信息不存在！');
+            return false;
+        }
+        if ($order_info['order_status'] != OrderEnum::STATUSTRADING){
+            $this->setError('该订单已录入订单金额，不能重复操作！');
             return false;
         }
         if ($order_info['audit'] == CommonAuditStatusEnum::SUBMIT){
@@ -1082,7 +1086,7 @@ class OrderRelateService extends BaseService
         }
         DB::commit();
         $this->setMessage('操作成功！');
-        return false;
+        return true;
     }
 
     /**
