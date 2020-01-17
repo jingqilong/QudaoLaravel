@@ -808,8 +808,8 @@ class MemberService extends BaseService
      */
     protected function getHomeShowMemberList($count){
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
-        $this->setPerPage($count);
         $this->setPage(1);
+        $this->setPerPage($count);
         if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc')){
             return [];
         }
