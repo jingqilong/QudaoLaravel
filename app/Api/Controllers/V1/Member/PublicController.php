@@ -6,8 +6,6 @@ namespace App\Api\Controllers\V1\Member;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Member\PublicService;
-use Illuminate\Http\JsonResponse;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PublicController extends ApiController
 {

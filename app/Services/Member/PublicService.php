@@ -3,14 +3,9 @@ namespace App\Services\Member;
 
 
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\OaMemberRepository;
 use App\Services\BaseService;
-use App\Services\Common\QiNiuService;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Intervention\Image\ImageCache;
 use SimpleSoftwareIO\QrCode\BaconQrCodeGenerator;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PublicService extends BaseService
 {

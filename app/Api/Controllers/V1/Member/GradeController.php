@@ -5,10 +5,8 @@ namespace App\Api\Controllers\V1\Member;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Member\GradeDefineService;
 use App\Services\Member\GradeOrdersService;
 use App\Services\Member\GradeServiceService;
-use Illuminate\Http\JsonResponse;
 
 class GradeController extends ApiController
 {

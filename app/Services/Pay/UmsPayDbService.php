@@ -3,26 +3,18 @@
 
 namespace App\Services\Pay;
 use App\Enums\OrderEnum;
-use App\Enums\PayMethodEnum;
 use App\Enums\ShopOrderEnum;
 use App\Enums\TradeEnum;
 use App\Exceptions\PayException\OrderNotExistException;
 use App\Exceptions\PayException\OrderUpdateFailedException;
 use App\Exceptions\PayException\TradeUpdateFailedException;
-use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberOrdersRepository;
-use App\Repositories\MemberTradesLogRepository;
 use App\Repositories\MemberTradesRepository;
 use App\Services\Activity\RegisterService;
 use App\Services\BaseService;
 use App\Services\Shop\OrderRelateService;
-use EasyWeChat\Factory;
-use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
-use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Tolawho\Loggy\Facades\Loggy;
 
 class UmsPayDbService extends BaseService

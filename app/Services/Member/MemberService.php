@@ -2,17 +2,12 @@
 namespace App\Services\Member;
 
 
-use App\Enums\CommonAuditStatusEnum;
 use App\Enums\MemberEnum;
-use App\Enums\MemberGradeEnum;
 use App\Enums\MemberIsTestEnum;
-use App\Enums\ProcessCategoryEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
-use App\Repositories\MemberContactRequestRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
 use App\Repositories\MemberGradeViewRepository;

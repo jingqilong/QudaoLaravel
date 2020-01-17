@@ -5,7 +5,6 @@ namespace App\Services\Oa;
 use App\Repositories\OaDepartmentRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentService extends BaseService

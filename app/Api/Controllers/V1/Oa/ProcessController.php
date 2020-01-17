@@ -13,7 +13,6 @@ use App\Services\Oa\ProcessDefinitionService;
 use App\Services\Oa\ProcessNodeActionService;
 use App\Services\Oa\ProcessNodeService;
 use App\Services\Oa\ProcessRecordService;
-use Illuminate\Support\Facades\Auth;
 
 class ProcessController extends ApiController
 {
