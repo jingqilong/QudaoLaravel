@@ -458,7 +458,7 @@ class SuppliesController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->suppliesService->getSuppliesList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->suppliesService->getSuppliesList();
         if ($res === false){
             return ['code' => 100, 'message' => $this->suppliesService->error];
         }

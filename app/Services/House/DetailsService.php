@@ -458,8 +458,7 @@ class DetailsService extends BaseService
     {
         $category = $data['category'] ?? null;
         $where    = ['deleted_at' => 0,'status' => HouseEnum::PASS];
-        $request = request();
-        $request ['page_num'] = 4;
+        $this->setPerPage(4);
         $column   = ['id','title','rent','tenancy','image_ids'];
         if (!empty($category)){
             $where['category'] = $category;

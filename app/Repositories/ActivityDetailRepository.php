@@ -126,7 +126,7 @@ class ActivityDetailRepository extends ApiRepository
     protected function getCollectList($request)
     {
         $column = ['id','name','address','address','price','start_time','end_time','cover_id','theme_id','status'];
-        if (!$list = $this->getList(['id' => ['in',$request['collect_ids']],'deleted_at' => 0],$column,'id','desc',$request['page'],$request['page_num'])){
+        if (!$list = $this->getList(['id' => ['in',$request['collect_ids']],'deleted_at' => 0],$column,'id','desc')){
             return [];
         }
         $list = $this->removePagingField($list);

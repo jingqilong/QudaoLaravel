@@ -362,7 +362,7 @@ class ProcessController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processDefinitionService->getProcessList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->processDefinitionService->getProcessList();
         if ($res === false){
             return ['code' => 100,'message' => $this->processDefinitionService->error];
         }

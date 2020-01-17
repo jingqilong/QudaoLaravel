@@ -149,7 +149,7 @@ class PrimeMerchantRepository extends ApiRepository
         $desc_asc   = 'desc';
         $where      = ['id' => ['in',$request['collect_ids']],'disabled' => 0];
         $column     = ['id','name','type','banner_ids','address','star','expect_spend','discount'];
-        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$request['page'],$request['page_num'])){
+        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc)){
             return [];
         }
         $list = $this->removePagingField($list);

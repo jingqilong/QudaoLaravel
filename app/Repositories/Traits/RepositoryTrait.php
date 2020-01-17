@@ -17,6 +17,16 @@ trait RepositoryTrait
      */
     protected $model;
 
+    protected function setPage($num ){
+        $request = request();
+        $request['page'] = $num;
+    }
+
+    protected function setPerPage($num ){
+        $request = request();
+        $request['page_num'] = $num;
+    }
+
     /**
      * 获取当前传入的分页参数
      * 如果要分开到变量中：list($page,$page_num) = $this->inputPage();
@@ -88,7 +98,8 @@ trait RepositoryTrait
      * @return array
      */
     protected function getFirst(array $where,array $order,array $desc,array $column=['*']){
-        $result = $this->getList($where,$column,$order, $desc,1,1);
+        $this->setPerPage(1);
+        $result = $this->getList($where,$column,$order, $desc);
         if(isset($result['data'][0])){
             return $result['data'][0];
         }
@@ -411,7 +422,7 @@ trait RepositoryTrait
             $all_ids = array_merge($all_ids,$str_arr);
         }
         $all_ids = array_unique($all_ids);
-        $list = $this->getList([$where_id => ['in',$all_ids]],$column);
+        $list = $this->getAllList([$where_id => ['in',$all_ids]],$column);
         return $list;
     }
 

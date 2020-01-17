@@ -335,7 +335,7 @@ class ProcessCategoriesController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processCategoriesService->getCategoriesList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->processCategoriesService->getCategoriesList();
         if ($res === false){
             return ['code' => 100,'message' => $this->processCategoriesService->error];
         }

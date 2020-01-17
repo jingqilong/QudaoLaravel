@@ -341,9 +341,7 @@ class ProcessActionPrincipalsController extends ApiController
         }
         $res = $this->processActionPrincipalsService->getPrincipalList(
             $this->request['node_action_id'],
-            $this->request['principal_iden'] ?? null,
-            $this->request['page'] ?? 1,
-            $this->request['page_num'] ?? 20
+            $this->request['principal_iden'] ?? null
         );
         if ($res){
             return ['code' => 200,'message' => $this->processActionPrincipalsService->message,'data' => $res];

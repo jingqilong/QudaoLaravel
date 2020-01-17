@@ -57,7 +57,7 @@ class ShopGoodsRepository extends ApiRepository
     protected function getCollectList($request)
     {
         $column = ['id', 'name','negotiable', 'category', 'banner_ids', 'price', 'score_deduction', 'score_categories'];
-        if (!$list = $this->getList(['id' => ['in', $request['collect_ids']], 'deleted_at' => 0], $column,'id','desc',$request['page'],$request['page_num'])) {
+        if (!$list = $this->getList(['id' => ['in', $request['collect_ids']], 'deleted_at' => 0], $column,'id','desc')) {
             return [];
         }
         $list = $this->removePagingField($list);
