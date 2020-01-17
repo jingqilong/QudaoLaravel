@@ -83,8 +83,8 @@ class BaseService
      */
     public function inputPage($per_page = 10){
         return [
-            'page' =>request('page',1),
-            'page_num' => request('page_num',$per_page)
+            request('page',1),
+            request('page_num',$per_page)
         ];
     }
 
