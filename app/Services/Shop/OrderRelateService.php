@@ -1025,7 +1025,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新订单状态
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at'])){
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at' => time()])){
             $this->setError('面议订单审核失败！');
             return false;
         }
