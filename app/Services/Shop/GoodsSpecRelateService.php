@@ -33,31 +33,26 @@ class GoodsSpecRelateService extends BaseService
             }
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
-        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0]);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getStrSpecList($spec_relate_ids);
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
-        $goods_list         = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);
-        $spec_ids           = implode(',',array_column($spec_relate_list,'spec_ids'));
-        $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
+        array_walk($goods_list, function(&$value) {
+            $banner_ids = trim($value['banner_ids'],',' );
+            $banner_ids = explode(',',$banner_ids);
+            $value['banner_ids'] = reset($banner_ids);
+        });
+        $goods_list         = CommonImagesRepository::bulkHasOneWalk($goods_list, ['from' => 'banner_ids','to' => 'id'], ['img_url','id'],[],
+            function ($src_item,$set_items){
+                $src_item['banner_url'] = $set_items['img_url'];
+                return $src_item;
+            }
+        );
+        $goods_list         = createArrayIndex($goods_list,'id');
         $result             = [];
         foreach ($goods_spec_arr as $key => $value){
-            $spec_str       = '件';
             $price          = 0;
-            if (isset($value['spec_relate_id'])){
-                $spec_str = '';
-                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                    $price = reset($spec_relate)['price'];
-                    $value_spec_ids = explode(',',trim(reset($spec_relate)['spec_ids'],','));
-                    foreach ($value_spec_ids as $value_spec_id){
-                        if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
-                            $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
-                        }
-                    }
-                }
-            }
-
-            if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
-                $goods  =  reset($goods);
+            if (isset($goods_list[$value['goods_id']])){
+                $goods  =  $goods_list[$value['goods_id']];
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
                 $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? 0 : $this->maximumCreditDeductionAmount(
                     $goods['score_categories'],
@@ -66,12 +61,15 @@ class GoodsSpecRelateService extends BaseService
                     $price
                 );
                 $result[$key] = [
+                    'goods_id'        => $goods['id'],
                     'goods_name'      => $goods['name'],
-                    'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
+                    'goods_price'     => ($goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE) ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
                     'negotiable'      => $goods['negotiable'],
                     'number'          => $value['number'],
-                    'deduction_price' => $deduction_price//最高积分抵扣
+                    'deduction_price' => $deduction_price,//最高积分抵扣
+                    'spec_relate_id'  => $value['spec_relate_id'] ?? 0,
+                    'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
                 ];
             }
             if (isset($value['order_relate_id'])){
@@ -80,9 +78,6 @@ class GoodsSpecRelateService extends BaseService
             if (isset($value['cart_id'])){
                 $result[$key]['cart_id']       = $value['cart_id'];
             }
-            $result[$key]['goods_id']           = $value['goods_id'];
-            $result[$key]['spec_relate_id']     = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
-            $result[$key]['spec']               = $spec_str;
         }
         $this->setMessage('获取成功!');
         return $result;
