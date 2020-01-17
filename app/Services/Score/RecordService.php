@@ -447,12 +447,12 @@ class RecordService extends BaseService
             'total_score'    => 0,
             'score_list'     => []
         ];
-        if (!$score_categories = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
+        if (!$score_categories = ScoreCategoryRepository::getAllList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
             $this->setMessage('暂无积分类别');
             return false;
         }
         $where      = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'score_type' => ['in',array_column($score_categories,'id')]];
-        $score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc');
+        $score_list = ScoreRecordViewRepository::getAllList($where,['score_type','score_name','remnant_score'],'score_type','asc');
         foreach ($score_categories as $category){
             if (empty($score_list) || !$this->existsArray($score_list,'score_type',$category['id'])){
                 $score_list[] = [
