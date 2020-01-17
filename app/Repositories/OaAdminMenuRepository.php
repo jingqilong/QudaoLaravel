@@ -55,12 +55,12 @@ class OaAdminMenuRepository extends ApiRepository
      * @return array
      */
     protected function getMenuList(array $where, $column = ['id', 'primary_key', 'type', 'parent_id', 'path','vue_route', 'level', 'title', 'icon', 'method', 'url']){
-        if (!$list = $this->getList($where,$column,'order','asc')){
+        if (!$list = $this->getAllList($where,$column,'order','asc')){
             return [];
         }
         $parent_ids = array_unique(array_column($list,'parent_id'));
         $menu_ids   = array_column($list,'id');
-        $parent_list= $this->getList(['id' => ['in',array_diff($parent_ids,$menu_ids)]],$column,'order','asc');
+        $parent_list= $this->getAllList(['id' => ['in',array_diff($parent_ids,$menu_ids)]],$column,'order','asc');
         $menu_list = [];
         //查询填补上级菜单
         foreach ($list as &$value){
