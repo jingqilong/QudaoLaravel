@@ -483,7 +483,7 @@ class OaOrderController extends ApiController
      * @OA\Post(
      *     path="/api/v1/shop/set_negotiable_order_amount",
      *     tags={"商城后台"},
-     *     summary="设置面议订单金额",
+     *     summary="录入面议订单金额",
      *     description="sang" ,
      *     operationId="set_negotiable_order_amount",
      *     @OA\Parameter(

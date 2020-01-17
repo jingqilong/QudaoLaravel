@@ -1023,7 +1023,7 @@ class OrderRelateService extends BaseService
     }
 
     /**
-     * 设置面议订单金额（审核通过后）
+     * 录入面议订单金额（审核通过后）
      * @param $request
      * @return bool
      */
@@ -1035,11 +1035,15 @@ class OrderRelateService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::SUBMIT){
+        if ($order_info['order_status'] != OrderEnum::STATUSTRADING){
+            $this->setError('该订单已录入订单金额，不能重复操作！');
+            return false;
+        }
+        if ($order_info['audit'] == CommonAuditStatusEnum::SUBMIT){
             $this->setError('该订单还未审核，不能进行此操作！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::PASS){
+        if ($order_info['audit'] != CommonAuditStatusEnum::PASS){
             $this->setError('该订单审核未通过，不能进行此操作！');
             return false;
         }
@@ -1056,10 +1060,10 @@ class OrderRelateService extends BaseService
         #更新总订单信息
         $payment_amount = (is_null($express_price) ? $order_info['express_price'] : ($express_price * 100)) + ($amount * 100);
         $upd_order = [
-            'amount' => $payment_amount,
-            'payment_amount' => $payment_amount,
-            'status' => OrderEnum::STATUSSUCCESS,
-            'updated_at' => time()
+            'amount'        => $payment_amount,
+            'payment_amount'=> $payment_amount,
+            'status'        => OrderEnum::STATUSSUCCESS,
+            'updated_at'    => time()
         ];
         if (!MemberOrdersRepository::getUpdId(['id' => $order_info['order_id']],$upd_order)){
             $this->setError('操作失败！');
@@ -1068,15 +1072,21 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新交易信息
-        $upd_trad = [];
+        $upd_trad = [
+            'amount'        => $payment_amount,
+            'trade_method'  => TradeEnum::OFFLINE,
+            'status'        => TradeEnum::STATUSSUCCESS,
+            'end_at'        => time()
+        ];
         if (!MemberTradesRepository::getUpdId(['id' => $order_info['trade_id']],$upd_trad)){
             $this->setError('操作失败！');
             DB::rollBack();
             Loggy::write('order','设置面议订单金额失败！原因：更新交易信息失败！order_relate_id:'.$order_relate_id.',trade_id:'.$order_info['trade_id']);
             return false;
         }
+        DB::commit();
         $this->setMessage('操作成功！');
-        return false;
+        return true;
     }
 
     /**

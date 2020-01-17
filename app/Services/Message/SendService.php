@@ -253,7 +253,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function memberMessageList($request)
+    public function memberMessageList()
     {
         $member             = Auth::guard('member_api')->user();
         $member_id          = $member->id;
@@ -287,7 +287,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function merchantMessageList($request)
+    public function merchantMessageList()
     {
         $prime             = Auth::guard('prime_api')->user();
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
@@ -320,7 +320,7 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function oaMessageList($request)
+    public function oaMessageList()
     {
         $oa                 = Auth::guard('oa_api')->user();
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
