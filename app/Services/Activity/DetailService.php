@@ -93,8 +93,6 @@ class DetailService extends BaseService
      */
     public function getHomeList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $theme_id       = $request['theme_id'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
         $price          = $request['price'] ?? null;
@@ -130,12 +128,12 @@ class DetailService extends BaseService
         $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -278,8 +276,6 @@ class DetailService extends BaseService
      */
     public function getActivityList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $start_time     = $request['start_time'] ?? null;
         $end_time       = $request['end_time'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
@@ -316,12 +312,12 @@ class DetailService extends BaseService
                 $where['theme_id'] = ['in',$theme_ids];
             }
             $keyword = [$keywords => ['name', 'address', 'price','firm']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$sort,$asc)){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$sort,$asc,$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }

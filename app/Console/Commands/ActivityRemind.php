@@ -50,14 +50,14 @@ class ActivityRemind extends Command
         $tomorrow_end   = strtotime('+1 day '.date('Y-m-d')."24:00:00");
         $where          = ['start_time' => ['range',[$tomorrow_start,$tomorrow_end]],'status' => ActivityEnum::OPEN,'deleted_at' => 0];
         //获取第二天即将开始的活动列表
-        if (!$activity_list = ActivityDetailRepository::getList($where,['id','name','area_code','address','start_time'])){
+        if (!$activity_list = ActivityDetailRepository::getAllList($where,['id','name','area_code','address','start_time'])){
             return true;
         }
         $SmsService     = new SmsService();
         $MessageService = new SendService();
         foreach ($activity_list as $activity){
             //获取已经参加活动的用户
-            if (!$register_list = ActivityRegisterRepository::getList(['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::EVALUATION]]])){
+            if (!$register_list = ActivityRegisterRepository::getAllList(['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::EVALUATION]]])){
                 continue;
             }
             list($area) = $this->makeAddress($activity['area_code'],$activity['address'],3);

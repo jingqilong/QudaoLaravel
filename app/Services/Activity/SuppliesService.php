@@ -160,12 +160,10 @@ class SuppliesService extends BaseService
 
     /**
      * 获取场景列表
-     * @param $page
-     * @param $page_num
      * @return bool|null
      */
-    public function getSuppliesList($page, $page_num){
-        if (!$list = ActivitySuppliesRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+    public function getSuppliesList(){
+        if (!$list = ActivitySuppliesRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

@@ -48,7 +48,7 @@ class ActivityRegister extends Command
     {
         $where          = ['end_time' => ['>',time()],'status' => ActivityEnum::OPEN,'deleted_at' => 0];
         //获取第二天即将开始的活动列表
-        if (!$activity_list = ActivityDetailRepository::getList($where,['id','name','start_time','signin'])){
+        if (!$activity_list = ActivityDetailRepository::getAllList($where,['id','name','start_time','signin'])){
             return true;
         }
         $SmsService     = new SmsService();
@@ -59,7 +59,7 @@ class ActivityRegister extends Command
             }
             //获取已经参加活动的用户
             $activity_where = ['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::EVALUATION,ActivityRegisterStatusEnum::COMPLETED]]];
-            if (!$register_list = ActivityRegisterRepository::getList($activity_where)){
+            if (!$register_list = ActivityRegisterRepository::getAllList($activity_where)){
                 continue;
             }
             $sms_content    = '尊敬的用户您好！您参加的活动《'.$activity['name'].'》可以开始签到了，打开微信进入公众号->我的->活动报名->立即签到，前往公众号即可签到！';

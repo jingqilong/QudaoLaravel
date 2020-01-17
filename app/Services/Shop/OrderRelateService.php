@@ -440,8 +440,6 @@ class OrderRelateService extends BaseService
     public function getMyOrderList($request)
     {
         $member     = Auth::guard('member_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
         $where      = ['member_id' => $member->id,'deleted_at' => 0];
         if (!is_null($status)){
@@ -449,7 +447,7 @@ class OrderRelateService extends BaseService
         }
         $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no','order_relate_type','audit'];
         #获取订单列表
-        if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -568,8 +566,6 @@ class OrderRelateService extends BaseService
      */
     public function getShopOrderList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $status         = $request['status'] ?? null;
         $order_no       = $request['order_no'] ?? null;
@@ -597,12 +593,12 @@ class OrderRelateService extends BaseService
         }
         if (!empty($keywords)){
             $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
-            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -639,8 +635,6 @@ class OrderRelateService extends BaseService
     public function getNegotiableOrderList($request)
     {
         $employee       = Auth::guard('oa_api')->user();
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $status         = $request['status'] ?? null;
         $order_no       = $request['order_no'] ?? null;
@@ -658,12 +652,12 @@ class OrderRelateService extends BaseService
         if (!is_null($express_company_id))  $where['express_company_id']  = $express_company_id;
         if (!empty($keywords)){
             $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
-            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }

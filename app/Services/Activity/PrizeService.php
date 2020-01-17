@@ -132,8 +132,6 @@ class PrizeService extends BaseService
      */
     public function getPrizeList($request)
     {
-        $page       = $request['page'] ?? 1 ;
-        $page_num   = $request['page_num'] ?? 20;
         $activity_id= $request['activity_id'] ?? 0;
         $where      = ['id' => ['>',0]];
         if (!empty($activity_id)){
@@ -143,7 +141,7 @@ class PrizeService extends BaseService
             }
             $where = ['activity_id' => $activity_id];
         }
-        if (!$list = ActivityPrizeRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+        if (!$list = ActivityPrizeRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -249,8 +247,6 @@ class PrizeService extends BaseService
      */
     public function getWinningList($request)
     {
-        $page       = $request['page'] ?? 1 ;
-        $page_num   = $request['page_num'] ?? 20;
         $activity_id= $request['activity_id'] ?? 0;
         $where      = ['id' => ['>',0]];
         if (!empty($activity_id)){
@@ -260,7 +256,7 @@ class PrizeService extends BaseService
             }
             $where = ['activity_id' => $activity_id];
         }
-        if (!$list = ActivityWinningRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+        if (!$list = ActivityWinningRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

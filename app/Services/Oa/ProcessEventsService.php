@@ -101,13 +101,11 @@ class ProcessEventsService extends BaseService
 
     /**
      * 获取事件列表
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getEventList($page, $pageNum)
+    public function getEventList()
     {
-        if (!$event_list = OaProcessEventsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$event_list = OaProcessEventsRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

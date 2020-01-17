@@ -55,7 +55,7 @@ trait BusinessTrait
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getList(['node_id' => $start_node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
+        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getAllList(['node_id' => $start_node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
             $message = '该流程节点没有动作执行人，流程发起失败';
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
@@ -156,7 +156,7 @@ trait BusinessTrait
      * @return array
      */
     public function getNodeActionResult($node_action_id){
-        if(!$node_action_result_res = OaProcessNodeActionsResultRepository::getList(['node_action_id'=>$node_action_id])){
+        if(!$node_action_result_res = OaProcessNodeActionsResultRepository::getAllList(['node_action_id'=>$node_action_id])){
             return ['code'=>100,  'message' => "获取失败！" ];
         }
         $node_action_result_list = [];
@@ -202,7 +202,7 @@ trait BusinessTrait
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
         }
-        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getList(['node_id' => $node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
+        if (!$operator_list = OaProcessNodeEventPrincipalsRepository::getAllList(['node_id' => $node['id'],'principal_iden' => ProcessPrincipalsEnum::EXECUTOR])){
             $message = '该流程节点没有动作执行人，流程发起失败';
             Loggy::write("error",$message);
             return ['code'=>100,  'message' => $message ];
@@ -421,13 +421,11 @@ trait BusinessTrait
     /**
      * @desc DASHBOARD 仪表板中的我的审核列表
      * @param $user_id
-     * @param int $page
-     * @param int $page_num
      * @return array
      */
-    public function getNodeListByUserId($user_id,$page = 1,$page_num = 20){
+    public function getNodeListByUserId($user_id){
         $processRecordService = new ProcessRecordService();
-        $recode_list = $processRecordService->getNodeListByUserId($user_id,$page,$page_num);
+        $recode_list = $processRecordService->getNodeListByUserId($user_id);
         if ($recode_list == false){
             return ['code' => 100,'message' => $processRecordService->error];
         }
@@ -464,7 +462,7 @@ trait BusinessTrait
     public function getActionResultList($process_record_id){
         $actions_result_column = ['node_actions_result_id','actions_result_name'];
         #如果查看的人是操作人，返回这个操作列表
-        if (!$action_result_list = OaProcessRecordActionsResultViewRepository::getList(['record_id' => $process_record_id],$actions_result_column)){
+        if (!$action_result_list = OaProcessRecordActionsResultViewRepository::getAllList(['record_id' => $process_record_id],$actions_result_column)){
             $action_result_list = [];
         }
         return $action_result_list;

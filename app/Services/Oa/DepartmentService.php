@@ -108,14 +108,12 @@ class DepartmentService extends BaseService
     }
 
     /**
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getDepartList($page,$pageNum)
+    public function getDepartList()
     {
 
-        if (!$depart_list = OaDepartmentRepository::getList(['id' => ['>',0]],['field' => '*'],'','',$page,$pageNum)){
+        if (!$depart_list = OaDepartmentRepository::getList(['id' => ['>',0]],['field' => '*'],'','')){
                 $this->setError('获取失败!');
                 return false;
         }
@@ -132,7 +130,7 @@ class DepartmentService extends BaseService
         {
             $path_data['path']    = explode(',',$value['path']);
             $value['parent']      = OaDepartmentRepository::getField(['id' => $value['parent_id']],'name');
-            $depart_name          = OaDepartmentRepository::getList(['id' => ['in',$path_data['path']]],['name']);
+            $depart_name          = OaDepartmentRepository::getAllList(['id' => ['in',$path_data['path']]],['name']);
             $value['path']        = array_column($depart_name,'name');
             $value['created_at']  = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']  = date('Y-m-d H:m:s',$value['updated_at']);

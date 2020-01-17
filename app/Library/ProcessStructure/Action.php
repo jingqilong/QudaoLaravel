@@ -67,7 +67,7 @@ class Action
             $this->status       = $action['status'];
             $this->description  = $action['description'];
         }
-        if ($node_action_results = OaProcessNodeActionsResultRepository::getList(['node_action_id' => $this->node_action_id])){
+        if ($node_action_results = OaProcessNodeActionsResultRepository::getAllList(['node_action_id' => $this->node_action_id])){
             foreach ($node_action_results as $node_action_result){
                 $action_result = new ActionResult($node_action_result['id'],$node_action_result['action_result_id'],$this);
                 $action_result->setData();

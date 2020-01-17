@@ -70,20 +70,18 @@ class AnnounceService extends BaseService
      */
     public function getAnnounceList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $where      = ['id' => ['>',0]];
         $order      = 'id';
         $desc_asc   = 'desc';
         $column     = ['*'];
         if (!empty($keywords)){
-            if (!$list = ShopAnnounceRepository::search([$keywords => ['content']],$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = ShopAnnounceRepository::search([$keywords => ['content']],$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ShopAnnounceRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = ShopAnnounceRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }

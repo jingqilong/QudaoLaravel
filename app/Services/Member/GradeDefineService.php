@@ -114,12 +114,10 @@ class GradeDefineService extends BaseService
      */
     public function getGradeList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['id' => ['<>',0]];
         $free       = $request['free'] ?? null;
         if (!empty($free)) $where['is_buy'] = 0;
-        if (!$list = MemberGradeDefineRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+        if (!$list = MemberGradeDefineRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败！');
             return true;
         }

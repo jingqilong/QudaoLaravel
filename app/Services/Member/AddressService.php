@@ -133,11 +133,9 @@ class AddressService extends BaseService
     public function addressList($request)
     {
         $memberInfo   = $this->auth->user();
-        $page         = $request['page'] ?? 1;
-        $page_num     = $request['page_num'] ?? 20;
         $column       = ['id','name','mobile','area_code','address','default'];
         $where        = ['deleted_at' => 0,'member_id' => $memberInfo->id];
-        if (!$list = MemberAddressRepository::getList($where,$column,null,null,$page,$page_num)){
+        if (!$list = MemberAddressRepository::getList($where,$column,null,null)){
             $this->setError('获取失败!');
             return false;
         }
@@ -169,20 +167,18 @@ class AddressService extends BaseService
      */
     public function listAddress($request)
     {
-        $page         = $request['page'] ?? 1;
-        $page_num     = $request['page_num'] ?? 20;
         $column       = ['id','name','mobile','area_code','address','default','created_at','updated_at'];
         $where        = ['deleted_at' => 0];
         $keywords     = $request['keywords'] ?? null;
         $asc          = isset($request['asc']) ? ($request['asc'] == 1 ? 'asc' : 'desc' ) : 'asc';
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','mobile']];
-            if (!$list = MemberAddressRepository::search($keyword,$where,$column,$page,$page_num,'id',$asc)){
+            if (!$list = MemberAddressRepository::search($keyword,$where,$column,'id',$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = MemberAddressRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+            if (!$list = MemberAddressRepository::getList($where,$column,'id',$asc)){
                 $this->setError('获取失败!');
                 return false;
             }

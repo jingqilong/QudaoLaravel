@@ -133,10 +133,8 @@ class CollectService extends BaseService
             return false;
         }
         $member     = $this->auth->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where = ['type' => $request['type'],'member_id' => $member->id,'deleted_at' => 0];
-        if (!$collect_list = MemberCollectRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+        if (!$collect_list = MemberCollectRepository::getList($where,['*'],'id','desc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -148,8 +146,6 @@ class CollectService extends BaseService
         $collect_ids = array_column($collect_list['data'],'target_id');
         $request = [
             'collect_ids'   => $collect_ids,
-            'page'          => $page,
-            'page_num'      => $page_num,
             'type'          => $request['type'],
         ];
         switch ($request['type']){
@@ -181,8 +177,6 @@ class CollectService extends BaseService
      */
     public function commentsList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['$keywords'] ?? null;
         $type       = $request['type'] ?? null;
         $where      = ['deleted_at' => 0];
@@ -192,12 +186,12 @@ class CollectService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['comment_name']];
-            if (!$comment_list = CommonCommentsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$comment_list = CommonCommentsRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -231,11 +225,9 @@ class CollectService extends BaseService
             $this->setError('暂无此评论类别');
             return false;
         }
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['related_id' => ['like','%,'.$request['id']],'type' => $request['type'],'hidden' => 0,'deleted_at' => 0];
         $column     = ['id','related_id','content','comment_avatar','comment_name','comment_name','image_ids','created_at'];
-        if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败!');
             return false;
         }

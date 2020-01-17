@@ -49,7 +49,7 @@ class ProcessNodeActionService extends BaseService
             $this->setError('该动作已添加，请勿重复添加！');
             return false;
         }
-        if (!$results = OaProcessActionsResultRepository::getList(['action_id' => $action_id])){
+        if (!$results = OaProcessActionsResultRepository::getAllList(['action_id' => $action_id])){
             $this->setError('该动作没有执行结果，无法添加！');
             return false;
         }

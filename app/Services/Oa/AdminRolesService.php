@@ -16,13 +16,11 @@ class AdminRolesService extends BaseService
 
     /**
      * 获取角色列表
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
-    public function getRoleList($page,$pageNum)
+    public function getRoleList()
     {
-        if (!$roles_list = OaAdminRolesRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$roles_list = OaAdminRolesRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -35,12 +33,12 @@ class AdminRolesService extends BaseService
             return $roles_list;
         }
         foreach ($roles_list['data'] as &$value){
-            $perm = OaAdminRolePermissionsRepository::getList(['role_id' => $value['id']]);
+            $perm = OaAdminRolePermissionsRepository::getAllList(['role_id' => $value['id']]);
             $perm_ids = array_column($perm,'permission_id');
             $value['permission_name'] = [];
             $value['permission_slug'] = [];
             if (!empty($perm_ids)){
-                $perm_list = OaAdminPermissionsRepository::getList(['id' => ['in', $perm_ids]]);
+                $perm_list = OaAdminPermissionsRepository::getAllList(['id' => ['in', $perm_ids]]);
                 $value['permission_name'] = array_column($perm_list,'name');
                 $value['permission_slug'] = array_column($perm_list,'slug');
             }

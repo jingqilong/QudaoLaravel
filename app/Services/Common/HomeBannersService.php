@@ -30,7 +30,7 @@ class HomeBannersService extends BaseService
     public static function getHomeBanners($module = CommonHomeEnum::MAINHOME,$count = 4){
         $column = ['id','link_type','related_id','image_id','url'];
         $where = ['page_space' => $module,'status' => CommonHomeEnum::SHOW];
-        if (!$banners = CommonHomeBannersRepository::getList($where,$column,'sort','asc')){
+        if (!$banners = CommonHomeBannersRepository::getAllList($where,$column,'sort','asc')){
             return [];
         }
         $banners = ImagesService::getListImagesConcise($banners,['image_id' => 'single'],true);
@@ -202,8 +202,6 @@ class HomeBannersService extends BaseService
      * @return bool|mixed|null
      */
     public function getBannerList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $page_space = $request['page_space'] ?? null;
         $link_type  = $request['link_type'] ?? null;
         $status     = $request['status'] ?? null;
@@ -217,7 +215,7 @@ class HomeBannersService extends BaseService
         if (!empty($status)){
             $where['status'] = $status;
         }
-        if (!$list = CommonHomeBannersRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+        if (!$list = CommonHomeBannersRepository::getList($where,['*'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -246,7 +244,7 @@ class HomeBannersService extends BaseService
      * @return bool
      */
     public function deleteBeforeCheck($type, $related_id){
-        if ($banner_list = CommonHomeBannersRepository::getList(['link_type' => $type,'related_id' => $related_id])){
+        if ($banner_list = CommonHomeBannersRepository::getAllList(['link_type' => $type,'related_id' => $related_id])){
             foreach ($banner_list as $value){
                 $this->setError('当前数据已在' . CommonHomeEnum::getBannerModule($value['module']) . '展示，请先取消展示后再删除！');
                 return false;

@@ -30,12 +30,10 @@ class ActivityDetailRepository extends ApiRepository
      * @param $column
      * @param $order
      * @param $desc_asc
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
-    protected function getActivityList($where,array $column=['*'], $order=null, $desc_asc=null, $page=null, $pageNum=null){
-        if (!$list = ActivityDetailRepository::getList($where,$column,$order,$desc_asc,$page,$pageNum)){
+    protected function getActivityList($where,array $column=['*'], $order=null, $desc_asc=null){
+        if (!$list = ActivityDetailRepository::getList($where,$column,$order,$desc_asc)){
             return false;
         }
         $list = $this->removePagingField($list);
@@ -78,12 +76,10 @@ class ActivityDetailRepository extends ApiRepository
      * @param array $column
      * @param $order
      * @param $desc_asc
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
-    protected function getSearchActivityList(array $keywords,$where,array $column=['*'], $order=null, $desc_asc=null, $page=null, $pageNum=null){
-        if (!$list = ActivityDetailRepository::search($keywords,$where,$column,$order,$desc_asc,$page,$pageNum)){
+    protected function getSearchActivityList(array $keywords,$where,array $column=['*'], $order=null, $desc_asc=null){
+        if (!$list = ActivityDetailRepository::search($keywords,$where,$column,$order,$desc_asc)){
             return false;
         }
         unset($list['first_page_url'], $list['from'],

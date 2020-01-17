@@ -123,12 +123,12 @@ class PreferenceService extends BaseService
      */
     public function getPreferenceList()
     {
-        if (!$list = MemberPreferenceTypeRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
+        if (!$list = MemberPreferenceTypeRepository::getAllList(['id' => ['<>',0]],['*'],'id','asc')){
             $this->setError('没有数据!');
             return false;
         }
         $type_id = array_column($list,'id');
-        if (!$type_list = MemberPreferenceValueRepository::getList(['type_id' => ['in',$type_id]])){
+        if (!$type_list = MemberPreferenceValueRepository::getAllList(['type_id' => ['in',$type_id]])){
             $this->setError('没有数据!');
             return false;
         }
@@ -248,7 +248,7 @@ class PreferenceService extends BaseService
             $this->setError('偏好类型不存在!');
             return false;
         }
-        if (!$list = MemberPreferenceValueRepository::getList(['type_id' => $request['type']],['*'],'id','asc')){
+        if (!$list = MemberPreferenceValueRepository::getAllList(['type_id' => $request['type']],['*'],'id','asc')){
             $this->setError('暂无数据');
             return [];
         }

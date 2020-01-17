@@ -32,22 +32,20 @@ class MemberBaseRepository extends ApiRepository
      * @param $keywords
      * @param $where
      * @param $column
-     * @param $page
-     * @param $page_num
      * @param $order
      * @param $asc
      * @return bool|mixed|null
      */
-    protected function getMemberList($keywords, $where, $column, $page, $page_num, $order, $asc)
+    protected function getMemberList($keywords, $where, $column, $order, $asc)
     {
         $where['id'] = ['>',1];
         if (!empty($keywords)){
             $keyword = [$keywords => ['card_no', 'mobile', 'ch_name', 'category']];
-            if (!$list = $this->search($keyword, $where, $column, $page, $page_num, $order, $asc)) {
+            if (!$list = $this->search($keyword, $where, $column,  $order, $asc)) {
                  return false;
             }
         }else{
-            if (!$list = $this->getList($where, $column, $order, $asc, $page, $page_num)) {
+            if (!$list = $this->getList($where, $column, $order, $asc)) {
                 return false;
             }
         }

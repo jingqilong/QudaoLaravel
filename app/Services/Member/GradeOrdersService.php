@@ -93,8 +93,6 @@ class GradeOrdersService extends BaseService
     public function getUpgradeApplyList($request)
     {
         $employee   = Auth::guard('oa_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $grade      = $request['grade'] ?? null;
         $status     = $request['status'] ?? null;
@@ -112,12 +110,12 @@ class GradeOrdersService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['mobile','ch_name']];
-            if (!$list = MemberGradeOrdersViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = MemberGradeOrdersViewRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MemberGradeOrdersViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = MemberGradeOrdersViewRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -253,8 +251,6 @@ class GradeOrdersService extends BaseService
      */
     public function getMemberGradeList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $grade      = $request['grade'] ?? null;
         $where      = ['user_id' => ['>',0]];
@@ -263,12 +259,12 @@ class GradeOrdersService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['card_no','mobile','email','ch_name','en_name','grade_title']];
-            if (!$grade_list = MemberGradeDetailViewRepository::search($keyword,$where,['*'],$page,$page_num,'user_id','asc')){
+            if (!$grade_list = MemberGradeDetailViewRepository::search($keyword,$where,['*'],'user_id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$grade_list = MemberGradeDetailViewRepository::getList($where,['*'],'user_id','asc',$page,$page_num)){
+            if (!$grade_list = MemberGradeDetailViewRepository::getList($where,['*'],'user_id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }

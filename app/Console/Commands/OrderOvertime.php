@@ -47,7 +47,7 @@ class OrderOvertime extends Command
         $yesterday_start = strtotime(date('Y-m-d H:i')) - 86400;
         $yesterday_end   = strtotime(date('Y-m-d H:i')) - 86340;
         $where = ['status' => ShopOrderEnum::PAYMENT,'created_at' => ['range',[$yesterday_start,$yesterday_end]]];
-        if (!$order_list = ShopOrderRelateViewRepository::getList($where,['*'])){
+        if (!$order_list = ShopOrderRelateViewRepository::getAllList($where,['*'])){
             return true;
         }
         print '有符合条件订单  ';

@@ -20,8 +20,6 @@ class ImagesService extends BaseService
     public function getImageRepository($request)
     {
         $order      = $request['order'] ?? 'asc';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['id' => ['>',0]];
         if (isset($request['type'])){
             if (!CommonImagesEnum::isset($request['type'])){
@@ -30,7 +28,7 @@ class ImagesService extends BaseService
             }
             $where['type'] = $request['type'];
         }
-        if (!$list = CommonImagesRepository::getList($where,['*'],'id',$order,$page,$page_num)){
+        if (!$list = CommonImagesRepository::getList($where,['*'],'id',$order)){
             $this->setError('获取失败！');
             return false;
         }
@@ -70,7 +68,7 @@ class ImagesService extends BaseService
             $all_str .= rtrim($part_str,',') . ',';
         }
         $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
-        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
+        $all_image_list = CommonImagesRepository::getAllList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
 
         foreach ($list as &$item){
             foreach ($column as $k=>$v){
@@ -127,7 +125,7 @@ class ImagesService extends BaseService
             $all_str .= rtrim($part_str,',') . ',';
         }
         $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
-        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
+        $all_image_list = CommonImagesRepository::getAllList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
 
         foreach ($list as &$item){
             foreach ($column as $k=>$v){
@@ -176,7 +174,7 @@ class ImagesService extends BaseService
             $all_str .= trim($image_str,',') . ',';
         }
         $all_image_ids = array_unique(explode(',',rtrim($all_str,',')));
-        $all_image_list = CommonImagesRepository::getList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
+        $all_image_list = CommonImagesRepository::getAllList(['id' => ['in',$all_image_ids]],['id','img_url','file_type']);
         foreach ($column as $k=>$v){
             if (array_key_exists($k, $info)){
                 if ($v == 'single'){

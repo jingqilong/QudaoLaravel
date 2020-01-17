@@ -112,8 +112,6 @@ class MerchantProductsService extends BaseService
      * @return bool|mixed|null
      */
     public function productList($request,$merchant_id = null){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'] ?? null;
         $is_recommend= $request['is_recommend'] ?? null;
         $keywords   = $request['keywords'] ?? null;
@@ -133,12 +131,12 @@ class MerchantProductsService extends BaseService
         }
         if (!empty($keywords)){
             $keywords = [$keywords => ['title','describe']];
-            if (!$list = PrimeMerchantProductsRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = PrimeMerchantProductsRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = PrimeMerchantProductsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = PrimeMerchantProductsRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }

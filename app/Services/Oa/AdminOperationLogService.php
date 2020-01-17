@@ -13,13 +13,11 @@ class AdminOperationLogService extends BaseService
 
     /**
      * 获取操作日志
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getOperationLog($page, $pageNum)
+    public function getOperationLog()
     {
-        if (!$list = OaAdminOperationLogRepository::getList(['id' => ['>',0]],['*'],'id','desc',$page,$pageNum)){
+        if (!$list = OaAdminOperationLogRepository::getList(['id' => ['>',0]],['*'],'id','desc')){
             $this->setError('获取失败!');
             return false;
         }

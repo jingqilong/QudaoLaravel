@@ -181,7 +181,7 @@ class ProcessNodeService extends BaseService
             return false;
         }
         #如果该节点有添加动作，删除相应的信息
-        if ($node_action_list = OaProcessNodeActionRepository::getList(['node_id' => $node_id],['id'])){
+        if ($node_action_list = OaProcessNodeActionRepository::getAllList(['node_id' => $node_id],['id'])){
             $node_action_ids = array_column($node_action_list,'id');
 
             #删除节点动作结果事件

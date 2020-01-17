@@ -178,12 +178,10 @@ class MemberContactServices extends BaseService
     {
         $employee = Auth::guard('oa_api')->user();
         $status    = $request['status'] ?? null;
-        $page      = $request['page'] ?? 1;
-        $page_num  = $request['page_num'] ?? 20;
         $where  = ['id' => ['<>',0]];
         $column = ['id','proposer_id','contact_id','needs_value','status','created_at'];
         if (!is_null($status)) $where['status'] = $status;
-        if (!$list = MemberContactRequestRepository::getList($where,$column,'id','asc',$page,$page_num)){
+        if (!$list = MemberContactRequestRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

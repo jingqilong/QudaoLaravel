@@ -88,8 +88,6 @@ class CommonUserSurveyService extends BaseService
      * @return bool|mixed|null
      */
     public function getUserSurveyList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $hear_from  = $request['hear_from'] ?? null;
         $status     = $request['status'] ?? null;
@@ -105,12 +103,12 @@ class CommonUserSurveyService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','mobile','request']];
-            if (!$list = CommonUserSurveyRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
+            if (!$list = CommonUserSurveyRepository::search($keyword,$where,$column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = CommonUserSurveyRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
+            if (!$list = CommonUserSurveyRepository::getList($where,$column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }

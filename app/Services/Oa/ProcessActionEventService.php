@@ -137,8 +137,6 @@ class ProcessActionEventService extends BaseService
      */
     public function getActionEventList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $node_action_result_id = $request['node_action_result_id'] ?? 0;
         $where      = [
             'node_id'                   => $request['node_id'],
@@ -150,7 +148,7 @@ class ProcessActionEventService extends BaseService
             $where['event_type']            = ProcessActionEventTypeEnum::ACTION_RESULT_EVENT;
         }
         $column = ['*'];
-        if (!$process_event_list = OaProcessActionEventRepository::getList($where,$column,'id','asc',$page,$page_num)){
+        if (!$process_event_list = OaProcessActionEventRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -160,7 +158,7 @@ class ProcessActionEventService extends BaseService
             return $process_event_list;
         }
         $event_ids  = array_column($process_event_list['data'],'event_id');
-        $event_list = OaProcessEventsRepository::getList(['id' => ['in',$event_ids]],['id','name','event_type','status']);
+        $event_list = OaProcessEventsRepository::getAllList(['id' => ['in',$event_ids]],['id','name','event_type','status']);
         foreach ($process_event_list['data'] as &$value){
             $value['principals_type_title'] = ProcessPrincipalsEnum::getPprincipalLabel($value['principals_type']);
             $value['event_name']            = '';
@@ -216,9 +214,7 @@ class ProcessActionEventService extends BaseService
             unset($where['node_action_result_id']);
         }
         $where['event_type']=$event_type;
-        $page = 1;
-        $pageNum= 100;
-        $event_list = OaProcessActionEventRepository::getList($where,['*'],'id','asc',$page,$pageNum);
+        $event_list = OaProcessActionEventRepository::getAllList($where,['*'],'id','asc');
         $event_ids  = array_column($event_list['data'],'event_id');
         if ($event_ids){
             $event_defined_list = OaProcessEventsRepository::getAssignList($event_ids);

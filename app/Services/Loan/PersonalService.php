@@ -41,7 +41,7 @@ class PersonalService extends BaseService
         $memberInfo = $this->auth->user();
         $type       = $data['type'];
         $where      = ['user_id' => $memberInfo->id,'type' => $type,'deleted_at' => 0];
-        if (!$list  = LoanPersonalRepository::getList($where)){
+        if (!$list  = LoanPersonalRepository::getAllList($where)){
             $this->setMessage('没有数据！');
             return [];
         }
@@ -67,8 +67,6 @@ class PersonalService extends BaseService
         $employee = Auth::guard('oa_api')->user();
         if (empty($data['asc']))  $data['asc'] = 2;
         $asc        = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $page       = $data['page'] ?? 1;
-        $page_num   = $data['page_num'] ?? 20;
         $keywords   = $data['keywords'] ?? null;
         $column     = ['*'];
         $where      = ['deleted_at' => 0];
@@ -80,12 +78,12 @@ class PersonalService extends BaseService
         }
         if (!is_null($keywords)){
             $keyword = [$keywords => ['name','mobile']];
-            if (!$list = LoanPersonalRepository::search($keyword,$where,$column,$page,$page_num,'id',$asc)){
+            if (!$list = LoanPersonalRepository::search($keyword,$where,$column,'id',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+            if (!$list = LoanPersonalRepository::getList($where,$column,'id',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }

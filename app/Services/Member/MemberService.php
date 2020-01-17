@@ -217,8 +217,6 @@ class MemberService extends BaseService
         $member    = $this->auth->user();
         $keywords  = $data['keywords'] ?? null;
         $category  = $data['category'] ?? null;
-        $page      = $data['page'] ?? 1;
-        $page_num  = $data['page_num'] ?? 20;
         $where     = ['deleted_at' => 0 ,'hidden' => 0,'is_test' => 0];
         if(!empty($category)) $where['category'] = $category;
         $column = ['id','ch_name','img_url','grade','is_recommend','title','category','status','created_at'];
@@ -231,16 +229,16 @@ class MemberService extends BaseService
         }
         $member_grade = $this->getCurrentMemberGrade($member->id);
         $grade_where = ['grade' => $member_grade];
-        $show_grade = Arr::flatten(OaGradeViewRepository::getList($grade_where,['value']));
+        $show_grade = Arr::flatten(OaGradeViewRepository::getAllList($grade_where,['value']));
         if (is_array($show_grade)) $where['grade'] = ['in',$show_grade];
         if (!empty($keywords)){
             $keyword  = [$keywords => ['ch_name','category','mobile']];
-            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
+            if(!$list = MemberGradeViewRepository::search($keyword,$where,$column,$sort,$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
         }else {
-            if (!$list = MemberGradeViewRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
+            if (!$list = MemberGradeViewRepository::getList($where,$column,$sort,$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -810,7 +808,7 @@ class MemberService extends BaseService
      */
     public static function getHomeShowMemberList($count){
         $column         = ['id','ch_name','img_url','grade','title','category','status','created_at'];
-        if (!$view_user_list = MemberGradeViewRepository::getList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
+        if (!$view_user_list = MemberGradeViewRepository::getAllList(['is_home_detail' => 1],$column,'id','asc',1,$count)){
             return [];
         }
         if (empty($view_user_list['data'])){

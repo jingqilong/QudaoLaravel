@@ -73,7 +73,7 @@ class MessageService extends Notification
      */
     public function push($user_id,WebPushMessage $webPushMessage){
         $payload = json_encode($webPushMessage->toArray());
-        if (!$push_subscriptions = OaPushSubscriptionsRepository::getList(['subscribable_id' => $user_id])){
+        if (!$push_subscriptions = OaPushSubscriptionsRepository::getAllList(['subscribable_id' => $user_id])){
             $this->error = '用户未授权！';
             return false;
         }

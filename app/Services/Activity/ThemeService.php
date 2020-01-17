@@ -94,13 +94,11 @@ class ThemeService extends BaseService
 
     /**
      * 获取主题列表
-     * @param $page
-     * @param $page_num
      * @return bool
      */
-    public function getThemeList($page, $page_num)
+    public function getThemeList()
     {
-        if (!$list = ActivityThemeRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$list = ActivityThemeRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

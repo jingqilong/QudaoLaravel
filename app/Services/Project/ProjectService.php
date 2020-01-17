@@ -32,10 +32,8 @@ class ProjectService extends BaseService
     public function getProjectList($request)
     {
         $user = $this->auth->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where = ['user_id' => $user->id,'deleted_at' => 0];
-        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc',$page,$page_num)){
+        if (!$list = ProjectOrderRepository::getList($where,['*'],'created_at','desc')){
             $this->setError('获取失败！');
             return false;
         }

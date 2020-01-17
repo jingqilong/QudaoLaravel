@@ -185,8 +185,6 @@ class RegisterService extends BaseService
         $status_arr     = $request['status_arr'] ?? '';
         $activity_id    = $request['activity_id'] ?? '';
         $is_sign        = $request['is_sign'] ?? '';
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $where          = ['id' => ['>',0]];
         if (!empty($status)){
             $where['status'] = $status;
@@ -208,9 +206,9 @@ class RegisterService extends BaseService
             }
         }
         if (!empty($keywords)){
-            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],$page,$page_num,'id','desc');
+            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],'id','desc');
         }else{
-            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc',$page,$page_num);
+            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc');
         }
         if (!$list){
             $this->setError('获取失败！');
@@ -393,10 +391,8 @@ class RegisterService extends BaseService
      */
     public function signList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page'] ?? 20;
         $where = ['is_register' => ['<>',0],'activity_id' => $request['activity_id']];
-        if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc',$page,$page_num)){
+        if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -441,8 +437,6 @@ class RegisterService extends BaseService
      */
     public function getMyActivityList($request){
         $member     = $this->auth->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
         $where      = ['member_id' => $member->id];
         switch ($status){
@@ -460,7 +454,7 @@ class RegisterService extends BaseService
                 break;
         }
         $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','register_audit','sign_in_code','order_no','stop_selling'];
-        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }

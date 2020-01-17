@@ -272,8 +272,6 @@ class GoodsService extends BaseService
      * @return bool|mixed|null
      */
     public function getGoodsList($request){
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $keywords = $request['keywords'] ?? null;
         $category = $request['category'] ?? null;
         $status   = $request['status'] ?? null;
@@ -292,12 +290,12 @@ class GoodsService extends BaseService
             $where['score_deduction'] = $score_deduction == 1 ? ['>',0] : 0;
         }
         if (!empty($keywords)){
-            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
+            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$order,$asc_desc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc,$page,$page_num)){
+            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -446,8 +444,6 @@ class GoodsService extends BaseService
      * @return bool|mixed|null
      */
     public function goodsList($request){
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $keywords = $request['keywords'] ?? null;
         $category = $request['category'] ?? null;
         $price_sort = $request['price_sort'] ?? null;
@@ -463,12 +459,12 @@ class GoodsService extends BaseService
         }
         $column = ['id','name','price','negotiable','banner_ids','labels'];
         if (!empty($keywords)){
-            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$page,$page_num,$order,$asc_desc)){
+            if (!$list = ShopGoodsRepository::search([$keywords => ['keywords']],$where,$column,$order,$asc_desc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc,$page,$page_num)){
+            if (!$list = ShopGoodsRepository::getList($where,$column,$order,$asc_desc)){
                 $this->setError('获取失败！');
                 return false;
             }

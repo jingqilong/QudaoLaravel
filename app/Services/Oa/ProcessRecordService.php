@@ -108,16 +108,14 @@ class ProcessRecordService extends BaseService
     /**
      * @desc 获取审核记录列表
      * @param $where
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getRecordList($where, $page, $pageNum)
+    public function getRecordList($where)
     {
         if (empty($where)){
             $where=['id' => ['>',0]];
         }
-        if (!$action_list = OaProcessRecordRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
+        if (!$action_list = OaProcessRecordRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -155,14 +153,14 @@ class ProcessRecordService extends BaseService
         }
         $where = ['business_id' => $request['business_id'],'process_category' => $request['process_category']];
         $column= ['id','node_id','node_action_result_id','operator_id','note','operation_at'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc')){
+        if (!$recode_list = OaProcessRecordRepository::getAllList($where,$column,'created_at','asc')){
             $this->setMessage('暂无数据！');
             return [];
         }
         $node_ids               = array_column($recode_list,'node_id');
-        $node_list              = OaProcessNodeRepository::getList(['id' => ['in',$node_ids]]);
+        $node_list              = OaProcessNodeRepository::getAllList(['id' => ['in',$node_ids]]);
         $node_action_result_ids = array_column($recode_list,'node_action_result_id');
-        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getList(['id' => ['in',$node_action_result_ids]]);
+        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getAllList(['id' => ['in',$node_action_result_ids]]);
         $recode_list            = EmployeeService::getListOperationByName($recode_list,['operator_id' => 'operator']);
         foreach ($recode_list as &$recode){
             foreach ($node_list as $node){
@@ -186,15 +184,13 @@ class ProcessRecordService extends BaseService
     /**
      * 仪表板中的我的审核列表
      * @param $user_id
-     * @param $page
-     * @param $page_num
      * @return mixed
      */
-    public function getNodeListByUserId($user_id,$page,$page_num)
+    public function getNodeListByUserId($user_id)
     {
         $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
         $column= ['id','business_id','process_id','process_category','position','created_at'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
+        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -274,7 +270,7 @@ class ProcessRecordService extends BaseService
     {
         $where = ['business_id' => $business_id,'process_category' => $process_category];
         $column= ['*'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column)){
+        if (!$recode_list = OaProcessRecordRepository::getAllList($where,$column)){
             $this->setError('该业务未开启流程！');
             return false;
         }

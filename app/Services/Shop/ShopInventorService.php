@@ -137,8 +137,6 @@ class ShopInventorService extends BaseService
      * @return bool|mixed|null
      */
     public function getInventorList($request){
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $where = Arr::only($request,['goods_id', 'spec_id']);
         foreach ($where as $key => $value) {
             if(empty($value)){
@@ -149,7 +147,7 @@ class ShopInventorService extends BaseService
             $where['name'] = ['like',$request['name']];
         }
         $columns = ['goods_id','spec_id','name','spec_ids' ,'category' ,'goods_stock','spec_stock','spec_inventor','goods_inventor','image_ids'];
-        if (!$list = ShopGoodsSpecViewRepository::getList($where,$columns,['goods_id','spec_id'],['desc','desc'],$page,$page_num)){
+        if (!$list = ShopGoodsSpecViewRepository::getList($where,$columns,['goods_id','spec_id'],['desc','desc'])){
             $this->setError('获取失败！');
             return false;
         }

@@ -94,9 +94,7 @@ class LeasingService extends BaseService
      */
     public function getLeaseList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$list = HouseLeasingRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$list = HouseLeasingRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

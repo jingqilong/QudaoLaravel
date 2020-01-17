@@ -261,8 +261,6 @@ class DetailsService extends BaseService
         $decoration = $request['decoration'] ?? '';
         $publisher  = $request['publisher'] ?? '';
         $status     = $request['status'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0];
         if (!empty($decoration)){
             $where['decoration'] = $decoration;
@@ -276,12 +274,12 @@ class DetailsService extends BaseService
         $column = ['*'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['title', 'address', 'tenancy', 'leasing', 'unit', 'toward', 'tenancy']];
-            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -365,8 +363,6 @@ class DetailsService extends BaseService
         $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
         $_order     = $request['order'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $order      = 'id';
         $desc_asc   = 'desc';
@@ -407,12 +403,12 @@ class DetailsService extends BaseService
         $column = ['id','title','area_code','area','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['title','leasing', 'unit', 'toward','condo_name']];
-            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -462,13 +458,13 @@ class DetailsService extends BaseService
     {
         $category = $data['category'] ?? null;
         $where    = ['deleted_at' => 0,'status' => HouseEnum::PASS];
-        $page     = '1';
-        $page_num = '4';
+        $request = request();
+        $request ['page_num'] = 4;
         $column   = ['id','title','rent','tenancy','image_ids'];
         if (!empty($category)){
             $where['category'] = $category;
         }
-        if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -549,8 +545,6 @@ class DetailsService extends BaseService
     public function getCodeList($request)
     {
         $area_code  = $request['area_code'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $order      = 'id';
         $desc_asc   = 'desc';
@@ -563,7 +557,7 @@ class DetailsService extends BaseService
         if (!empty($area_code)){
             $where['area_code'] = ['like',$area_code.',%'];
         }
-        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
             $this->setError('获取失败!');
             return false;
         }
@@ -596,13 +590,11 @@ class DetailsService extends BaseService
     public function getMyHouseList($request)
     {
         $member_id = Auth::guard('member_api')->user()->id;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'publisher' => HouseEnum::PERSON,'publisher_id' => $member_id];
         $order      = 'id';
         $desc_asc   = 'desc';
         $column = ['id','title','area_code','rent','tenancy','leasing','decoration','area','image_ids','storey','condo_name','category','status'];
-        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
             $this->setError('获取失败！');
             return false;
         }

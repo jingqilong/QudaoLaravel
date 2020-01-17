@@ -172,9 +172,7 @@ class OrdersService extends BaseService
     {
         $employee = Auth::guard('oa_api')->user();
         if (empty($data['asc'])) $data['asc']  = 1;
-        $page           = $data['page'] ?? 1;
         $asc            = $data['asc'] ==  1 ? 'asc' : 'desc';
-        $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $status         = $data['status'] ?? null;
         $type           = $data['type'] ?? null;
@@ -184,12 +182,12 @@ class OrdersService extends BaseService
         if ($type !== null) $where['type'] = $type;
         if (!empty($keywords)) {
             $keyword = [$keywords => ['name', 'mobile']];
-            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column, $page, $page_num, 'id', $asc)) {
+            if (!$list = MedicalOrdersRepository::search($keyword, $where, $column,  'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = MedicalOrdersRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+            if (!$list = MedicalOrdersRepository::getList($where,$column,'id',$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -348,8 +346,6 @@ class OrdersService extends BaseService
         $keywords       = $data['keywords'] ?? null;
         $hospital_id    = $data['hospital_id'] ?? null;
         $department_id  = $data['department_id'] ?? null;
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
         $where          = ['deleted_at' => 0,];
         $column         = ['id','name','img_id','title','good_at','introduction','hospitals_id','department_ids'];
         if (!empty($hospital_id)){
@@ -368,12 +364,12 @@ class OrdersService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','title','good_at']];
-            if (!$list = MedicalDoctorsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败');
                 return false;
             }
         }else{
-            if (!$list = MedicalDoctorsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = MedicalDoctorsRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败');
                 return false;
             }

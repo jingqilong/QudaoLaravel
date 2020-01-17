@@ -334,8 +334,6 @@ class MerchantService extends BaseService
      * @return bool|mixed|null
      */
     public function merchantList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'] ?? null;
         $area_code  = $request['area_code'] ?? null;
         $disabled   = $request['disabled'] ?? null;
@@ -355,12 +353,12 @@ class MerchantService extends BaseService
         }
         if (!empty($keywords)){
             $keywords = [$keywords => ['name','mobile','realname','license']];
-            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -427,8 +425,6 @@ class MerchantService extends BaseService
      * @return bool|mixed|null
      */
     protected function getHomeList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'] ?? null;
         $keywords   = $request['keywords'] ?? null;
         $order      = 'id';
@@ -440,12 +436,12 @@ class MerchantService extends BaseService
         }
         if (!empty($keywords)){
             $keywords = [$keywords => ['name','mobile','realname','license']];
-            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = PrimeMerchantViewRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }

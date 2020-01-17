@@ -47,7 +47,7 @@ class ExpressService extends BaseService
      */
     public function getExpressList()
     {
-        if (!$list = CommonExpressRepository::getList(['id' => ['>',1],'status' => 1],['*'],'id','asc')){
+        if (!$list = CommonExpressRepository::getAllList(['id' => ['>',1],'status' => 1],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

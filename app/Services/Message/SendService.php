@@ -124,8 +124,6 @@ class SendService extends BaseService
      */
     public function getAllMessageList($request)
     {
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $user_type          = $request['user_type'] ?? null;
         $message_category   = $request['message_category'] ?? null;
         $where              = ['id' => ['<>',0]];
@@ -135,7 +133,7 @@ class SendService extends BaseService
         if (!is_null($message_category)){
             $where['category_id'] = $message_category;
         }
-        if (!$list = MessageSendViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,['*'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -259,11 +257,9 @@ class SendService extends BaseService
     {
         $member             = Auth::guard('member_api')->user();
         $member_id          = $member->id;
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -294,11 +290,9 @@ class SendService extends BaseService
     public function merchantMessageList($request)
     {
         $prime             = Auth::guard('prime_api')->user();
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -329,11 +323,9 @@ class SendService extends BaseService
     public function oaMessageList($request)
     {
         $oa                 = Auth::guard('oa_api')->user();
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }

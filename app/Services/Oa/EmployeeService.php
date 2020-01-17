@@ -109,13 +109,9 @@ class EmployeeService extends BaseService
 
     /**
      * 权限管理中的获取用户列表
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
     public function getPermUserList($request){
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $department_id  = $request['department_id'] ?? null;
         $created_at_sort= $request['created_at_sort'] ?? 1;
@@ -128,12 +124,12 @@ class EmployeeService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['username','real_name','mobile','email','work_title']];
-            if (!$user_list = OaEmployeeRepository::search($keyword,$where,$column,$page,$page_num,$sort,$asc)){
+            if (!$user_list = OaEmployeeRepository::search($keyword,$sort,$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$user_list = OaEmployeeRepository::getList($where,$column,$sort,$asc,$page,$page_num)){
+            if (!$user_list = OaEmployeeRepository::getList($where,$column,$sort,$asc)){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -145,7 +141,7 @@ class EmployeeService extends BaseService
         }
         //获取部门
         $department_ids = array_column($user_list['data'],'department_id');
-        $department_list = OaDepartmentRepository::getList(['id' => ['in',$department_ids]],['id','name']);
+        $department_list = OaDepartmentRepository::getAllList(['id' => ['in',$department_ids]],['id','name']);
         //获取角色和权限
         list($role_ids,$permission_ids) = $this->getArrayIds($user_list['data'],['role_ids','permission_ids']);
         $role_list          = OaAdminRolesRepository::getAssignList($role_ids,['id','name']);
@@ -399,14 +395,14 @@ class EmployeeService extends BaseService
         $user['roles'] = [];
         if (!empty($user['role_ids'])){
             $role_ids = explode(',',trim($user['role_ids'],','));
-            if ($roles = OaAdminRolesRepository::getList(['id' => ['in',$role_ids]],['id','name'])){
+            if ($roles = OaAdminRolesRepository::getAllList(['id' => ['in',$role_ids]],['id','name'])){
                 $user['roles']  = $roles;
             }
         }
         $user['permissions'] = [];
         if (!empty($user['permission_ids'])){
             $permission_ids = explode(',',trim($user['permission_ids'],','));
-            if ($permission = OaAdminPermissionsRepository::getList(['id' => ['in',$permission_ids]],['id','name'])){
+            if ($permission = OaAdminPermissionsRepository::getAllList(['id' => ['in',$permission_ids]],['id','name'])){
                 $user['permissions']    = $permission;
             }
         }
@@ -431,7 +427,7 @@ class EmployeeService extends BaseService
             $column_employee_ids = array_column($list,$column);
             $employee_ids = array_merge($employee_ids,$column_employee_ids);
         }
-        $employee_list  = OaEmployeeRepository::getList(['id' => ['in',$employee_ids]]);
+        $employee_list  = OaEmployeeRepository::getAllList(['id' => ['in',$employee_ids]]);
         foreach ($list as &$datum){
             foreach ($columns as $column => $alias){
                 $datum[$alias] = '';

@@ -121,16 +121,14 @@ class ProcessActionResultsService extends BaseService
     /**
      * @desc 获取动作结果列表
      * @param $where
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getActionResultList($where, $page, $pageNum)
+    public function getActionResultList($where)
     {
         if (empty($where)){
             $where=['id' => ['>',0]];
         }
-        if (!$action_list = OaProcessActionsResultRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
+        if (!$action_list = OaProcessActionsResultRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

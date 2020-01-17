@@ -94,11 +94,9 @@ class DepartmentsService extends BaseService
      */
     public function departmentsList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon','created_at'];
         $where      = ['id' => ['>',0]];
-        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -122,18 +120,16 @@ class DepartmentsService extends BaseService
     public function getDepartmentsList($request)
     {
         $keywords   = $request['keywords'] ?? null;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon'];
         $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name']];
-            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
+            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,'id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }

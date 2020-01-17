@@ -72,8 +72,6 @@ class OrderService extends BaseService
     public function getEnterpriseOrderList(array $data)
     {
         $employee = Auth::guard('oa_api')->user();
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $type           = $data['type'] ?? null;
         $status         = $data['status'] ?? null;
@@ -87,12 +85,12 @@ class OrderService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
-            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setMessage('没有数据！');
                 return [];
             }
         }else{
-            if (!$list = EnterpriseOrderRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = EnterpriseOrderRepository::getList($where,$column,'id','desc')){
                 $this->setError('没有数据！');
                 return false;
             }

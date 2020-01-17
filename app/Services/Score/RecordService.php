@@ -160,8 +160,6 @@ class RecordService extends BaseService
      * @return bool|mixed|null
      */
     public function getScoreRecordList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $score_type = $request['score_type'] ?? null;
         $latest     = $request['latest'] ?? null;
         $keywords   = $request['keywords'] ?? null;
@@ -174,12 +172,12 @@ class RecordService extends BaseService
         }
         if (!is_null($keywords)){
             $keywords = [$keywords => ['member_name','member_mobile','explain']];
-            if (!$list = ScoreRecordViewRepository::search($keywords,$where,['*'],$page,$page_num,'id','desc')){
+            if (!$list = ScoreRecordViewRepository::search($keywords,$where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ScoreRecordViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+            if (!$list = ScoreRecordViewRepository::getList($where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -248,9 +246,7 @@ class RecordService extends BaseService
      */
     public function getScoreCategoryList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$score_category_list = ScoreCategoryRepository::getList(['id' => ['<>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$score_category_list = ScoreCategoryRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -483,13 +479,11 @@ class RecordService extends BaseService
     {
         $member     = Auth::guard('member_api')->user();
         $score_type = $request['score_type'] ?? null;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['member_id' => $member->id];
         if (!is_null($score_type)){
             $where['score_type'] = $score_type;
         }
-        if (!$record_list = ScoreRecordRepository::getList($where,['action','action_score','explain','created_at'],'created_at','desc',$page,$page_num)){
+        if (!$record_list = ScoreRecordRepository::getList($where,['action','action_score','explain','created_at'],'created_at','desc')){
             $this->setError('获取失败！');
             return false;
         }

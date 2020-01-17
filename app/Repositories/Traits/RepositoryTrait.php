@@ -18,6 +18,19 @@ trait RepositoryTrait
     protected $model;
 
     /**
+     * 获取当前传入的分页参数
+     * 如果要分开到变量中：list($page,$page_num) = $this->inputPage();
+     * @param int $per_page
+     * @return array
+     */
+    public function inputPage($per_page = 20){
+        return [
+            'page' =>request('page',1),
+            'page_num' => request('page_num',$per_page)
+        ];
+    }
+
+    /**
      * 获取主键
      * @return string
      */
@@ -115,21 +128,16 @@ trait RepositoryTrait
      * @param array $column
      * @param null $order
      * @param null $desc_asc
-     * @param null $page
-     * @param null $pageNum
      * @return null
      */
-    protected function getList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null, $page=null, $pageNum=null){
+    protected function getList(array $where=['1'=>1],array $column=['*'], $order=null, $desc_asc=null){
+        list($page,$page_num) = $this->inputPage();
         $model = self::addWhere($this->model,$where);
         if ($order!=null && $desc_asc!=null){
             $model = $this->addOrderBy($model,$order,$desc_asc);
         }
-        if (null!=$page && null!=$pageNum){
-            $model = $model->paginate($pageNum,$column,'*',$page);
-            return $model ? $model->toArray() : null;
-        }
-        $result = $model->get($column);
-        return $result ? $result->toArray() : null;
+        $model = $model->paginate($page_num,$column,'*',$page);
+        return $model ? $model->toArray() : null;
     }
 
     /**
@@ -322,19 +330,16 @@ trait RepositoryTrait
         return $model;
     }
 
-
     /**
      * 关键字搜索【不适合大量数据查询】
      * @param array $keywords   格式：array('搜索关键字' => array('搜索字段1','搜索字段2'))
      * @param array $where      搜索时的附加条件
      * @param array $column
-     * @param null $page
-     * @param null $pageNum
      * @param null $order
      * @param null $desc_asc
      * @return mixed
      */
-    protected function search(array $keywords, $where = [], $column = ['*'], $page=null, $pageNum=null, $order=null, $desc_asc=null){
+    protected function searchAll(array $keywords, $where = [], $column = ['*'], $order=null, $desc_asc=null){
         $model = $this->model;
         if (!empty($where)){
             $model = self::addWhere($this->model,$where);
@@ -352,12 +357,41 @@ trait RepositoryTrait
         if ($order!=null && $desc_asc!=null){
             $model = $this->addOrderBy($model,$order,$desc_asc);
         }
-        if (null!=$page && null!=$pageNum){
-            $model = $model->paginate($pageNum,$column,'*',$page);
-            return $model ? $model->toArray() : null;
-        }
         $result = $model->get($column);
         return $result ? $result->toArray() : null;
+    }
+
+
+    /**
+     * 关键字搜索【不适合大量数据查询】
+     * @param array $keywords   格式：array('搜索关键字' => array('搜索字段1','搜索字段2'))
+     * @param array $where      搜索时的附加条件
+     * @param array $column
+     * @param null $order
+     * @param null $desc_asc
+     * @return mixed
+     */
+    protected function search(array $keywords, $where = [], $column = ['*'], $order=null, $desc_asc=null){
+        list($page,$page_num) = $this->inputPage();
+        $model = $this->model;
+        if (!empty($where)){
+            $model = self::addWhere($this->model,$where);
+        }
+        foreach ($keywords as $keyword => $columns){
+            if (!is_array($columns)){
+                return false;
+            }
+            $model = $model->where(function ($query)use ($columns,$keyword){
+                foreach ($columns as $value) {
+                    $query->orWhere($value, 'like', '%' . $keyword . '%');
+                }
+            });
+        }
+        if ($order!=null && $desc_asc!=null){
+            $model = $this->addOrderBy($model,$order,$desc_asc);
+        }
+        $model = $model->paginate($page_num,$column,'*',$page);
+        return $model ? $model->toArray() : null;
     }
 
     /**

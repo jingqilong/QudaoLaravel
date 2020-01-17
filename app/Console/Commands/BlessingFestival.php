@@ -57,7 +57,7 @@ class BlessingFestival extends Command
             ]
         ];
         //$where = ['id' => 314];
-        if (!$member_list = MemberViewRepository::getList($where)){
+        if (!$member_list = MemberViewRepository::getAllList($where)){
             print '没有符合条件预约  ';
             return true;
         }

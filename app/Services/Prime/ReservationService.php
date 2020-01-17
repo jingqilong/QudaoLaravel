@@ -35,8 +35,6 @@ class ReservationService extends BaseService
     public function reservationList($request)
     {
         $employee = Auth::guard('oa_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
         $keywords   = $request['keywords'] ?? null;
         $merchant_id= $request['merchant_id'] ?? null;
@@ -52,12 +50,12 @@ class ReservationService extends BaseService
         }
         if (!empty($keywords)){
             $keywords = [$keywords => ['order_no','name','mobile','memo']];
-            if (!$list = PrimeReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = PrimeReservationRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = PrimeReservationRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -302,8 +300,6 @@ class ReservationService extends BaseService
      */
     public function myReservationList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'] ?? null;
         $order      = 'id';
         $desc_asc   = 'desc';
@@ -312,7 +308,7 @@ class ReservationService extends BaseService
         if (!is_null($type)){
             $where['type'] = $type;
         }
-        if (!$list = PrimeReservationViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = PrimeReservationViewRepository::getList($where,$column,$order,$desc_asc)){
             $this->setError('获取失败！');
             return false;
         }

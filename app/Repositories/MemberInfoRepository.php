@@ -27,16 +27,14 @@ class MemberInfoRepository extends ApiRepository
      * 首页显示是否的OA列表
      * @param $is_home_detail
      * @param $column
-     * @param $page
-     * @param $page_num
      * @param $order
      * @param $asc
      * @return bool|mixed|null
      */
-    protected function getScreenMemberList($is_home_detail,$column, $page, $page_num, $order, $asc)
+    protected function getScreenMemberList($is_home_detail,$column, $order, $asc)
     {
         $info_column = ['member_id','is_recommend','is_home_detail','employer'];
-        if (!$list = $this->getList(['is_home_detail' => $is_home_detail], $info_column, $order, $asc, $page, $page_num )) {
+        if (!$list = $this->getList(['is_home_detail' => $is_home_detail], $info_column, $order, $asc)) {
             return false;
         }
         $member_ids  = array_column($list['data'],'member_id');
