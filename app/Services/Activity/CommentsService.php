@@ -104,7 +104,7 @@ class CommentsService extends BaseService
             'deleted_at'    => 0
         ];
         $comment_column = ['id','content','comment_name','comment_avatar','member_id','created_at'];
-        if (!$comment_list = ActivityCommentsRepository::getList($comment_where,$comment_column,'id','asc')){
+        if (!$comment_list = ActivityCommentsRepository::getAllList($comment_where,$comment_column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -130,7 +130,7 @@ class CommentsService extends BaseService
      */
     public function getCommentList($request)
     {
-        if (!$comment_list = ActivityCommentsRepository::getList(['id' => ['>',0]],['*'],'id','desc')){
+        if (!$comment_list = ActivityCommentsRepository::getAllList(['id' => ['>',0]],['*'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }

@@ -231,7 +231,7 @@ class MemberContactServices extends BaseService
         $member_base_list   = MemberBaseRepository::getAssignList($member_ids,['id','ch_name']);
         $member_base_list   = MemberBaseRepository::createArrayIndex($member_base_list,'id');
         $grade_where        = ['user_id' => ['in',$member_ids],'status' => MemberGradeEnum::PASS,'end_at' => ['range',['-1',time()]]];
-        $member_grade_list  = MemberGradeRepository::getList($grade_where,['user_id','grade']);
+        $member_grade_list  = MemberGradeRepository::getAllList($grade_where,['user_id','grade']);
         $member_grade_list  = MemberGradeRepository::createArrayIndex($member_grade_list,'user_id');
         $detail = [
             'id'            => $contact_info['id'],

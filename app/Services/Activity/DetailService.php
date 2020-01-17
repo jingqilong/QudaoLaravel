@@ -386,7 +386,7 @@ class DetailService extends BaseService
         $activity['images']        = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['id','img_url'])){
 //                $image_list     = array_column($image_list,'img_url');
                 $activity['images']= $image_list;
             }
@@ -394,7 +394,7 @@ class DetailService extends BaseService
         $activity['banners'] = [];
         if (!empty($activity['banner_ids'])){
             $image_ids = explode(',',$activity['banner_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['id','img_url'])){
                 $activity['banners']= $image_list;
             }
         }
@@ -432,7 +432,7 @@ class DetailService extends BaseService
         $activity['images']     = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                 $image_list         = array_column($image_list,'img_url');
                 $activity['images'] = $image_list;
             }
@@ -440,7 +440,7 @@ class DetailService extends BaseService
         $activity['banners'] = [];
         if (!empty($activity['banner_ids'])){
             $image_ids = explode(',',$activity['banner_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                 $image_list         = array_column($image_list,'img_url');
                 $activity['banners']= $image_list;
             }
@@ -561,7 +561,7 @@ class DetailService extends BaseService
      */
     public function getActivityLinks($activity_id){
         $links = [];
-        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $activity_id],['id','title','url','image_id'])){
+        if ($link_list = ActivityLinksRepository::getAllList(['activity_id' => $activity_id],['id','title','url','image_id'])){
             foreach ($link_list as &$value){
                 $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
             }
@@ -577,7 +577,7 @@ class DetailService extends BaseService
      */
     public function getActivityHosts($activity_id){
         $hosts = [];
-        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $activity_id,'type' => 1],['name','type','logo_id'])){
+        if ($host_list = ActivityHostsRepository::getAllList(['activity_id' => $activity_id,'type' => 1],['name','type','logo_id'])){
             foreach ($host_list as &$value){
                 $value['logo'] = CommonImagesRepository::getField(['id' => $value['logo_id']],'img_url');
             }

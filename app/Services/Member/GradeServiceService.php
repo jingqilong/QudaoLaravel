@@ -134,7 +134,7 @@ class GradeServiceService extends BaseService
             $this->setError('会员等级不存在!');
             return false;
         }
-        if (!$grade_list = MemberGradeServiceRepository::getList(['grade' => $grade],['id','grade','service_id','status','number','cycle'])){
+        if (!$grade_list = MemberGradeServiceRepository::getAllList(['grade' => $grade],['id','grade','service_id','status','number','cycle'])){
             $this->setMessage('该等级下暂无服务');
             return [];
         }
@@ -161,7 +161,7 @@ class GradeServiceService extends BaseService
             return false;
         }
         $where = ['grade' => $grade,'status' => GradeServiceEnum::USABLE];
-        if (!$grade_list = MemberGradeServiceViewRepository::getList($where,['service_name','service_desc','number','cycle'])){
+        if (!$grade_list = MemberGradeServiceViewRepository::getAllList($where,['service_name','service_desc','number','cycle'])){
             $this->setMessage('该等级下暂无服务');
             return [];
         }
@@ -176,7 +176,7 @@ class GradeServiceService extends BaseService
     public function getGradeCardList()
     {
         $column = ['iden','title','amount','image_id'];
-        if (!$list = MemberGradeDefineRepository::getList(['status' => MemberGradeEnum::ENABLE,'is_buy' => MemberGradeEnum::CANBUY],$column)){
+        if (!$list = MemberGradeDefineRepository::getAllList(['status' => MemberGradeEnum::ENABLE,'is_buy' => MemberGradeEnum::CANBUY],$column)){
             $this->setMessage('暂无等级！');
             return [];
         }

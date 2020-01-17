@@ -51,7 +51,7 @@ class MemberBaseRepository extends ApiRepository
         }
         $list['data'] = ImagesService::getListImagesConcise($list['data'],['avatar_id' => 'single']);
         $member_ids  = array_column($list['data'],'id');
-        if (empty($member_info_list  = MemberInfoRepository::getList(['member_id' => ['in',$member_ids]],['member_id','is_recommend','is_home_detail','employer']))){
+        if (empty($member_info_list  = MemberInfoRepository::getAllList(['member_id' => ['in',$member_ids]],['member_id','is_recommend','is_home_detail','employer']))){
             $member_info_list = [
                 'member_id'     => 0,
                 'is_recommend'  => 0,
@@ -59,7 +59,7 @@ class MemberBaseRepository extends ApiRepository
                 'employer'      => '',
             ];
         }
-        if (empty($member_grade_list = MemberGradeRepository::getList(['user_id' => ['in',$member_ids]],['user_id','grade']))){
+        if (empty($member_grade_list = MemberGradeRepository::getAllList(['user_id' => ['in',$member_ids]],['user_id','grade']))){
             $member_grade_list = [
                 'user_id' => 0,
                 'grade' => 0,

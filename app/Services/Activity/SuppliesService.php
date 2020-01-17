@@ -181,13 +181,13 @@ class SuppliesService extends BaseService
             $value['images']     = [];
             if (!empty($value['images_ids'])){
                 $image_ids = explode(',',$value['images_ids']);
-                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                     $image_list     = array_column($image_list,'img_url');
                     $value['images']= $image_list;
                 }
             }
             $value['parameter'] = [];
-            if ($parameter = ActivitySuppliesParameterRepository::getList(['supplies_id' => $value['id']],['key','value'])){
+            if ($parameter = ActivitySuppliesParameterRepository::getAllList(['supplies_id' => $value['id']],['key','value'])){
                 $value['parameter'] = $parameter;
             }
             $value['source']        = ActivityEnum::getStatus($value['source']);

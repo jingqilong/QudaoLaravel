@@ -506,7 +506,7 @@ class GoodsService extends BaseService
         $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail['recommend']      = ShopGoodsRepository::getList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        $goods_detail['recommend']      = ShopGoodsRepository::getAllList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
         foreach ($goods_detail['recommend'] as &$value){
             $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));

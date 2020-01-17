@@ -151,14 +151,14 @@ class PrizeService extends BaseService
             return $list;
         }
         $activity_ids = array_column($list['data'],'activity_id');
-        $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
+        $activities = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]],['id','name']);
         foreach ($list['data'] as &$value){
             $value['images']     = [];
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';
             if (!empty($value['image_ids'])){
                 $image_ids = explode(',',$value['image_ids']);
-                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
+                if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['id','img_url'])){
                     $value['images']= $image_list;
                 }
             }
@@ -203,7 +203,7 @@ class PrizeService extends BaseService
             return false;
         }
         //获取当前活动所有奖品列表
-        $prize_all = ActivityPrizeRepository::getList(['activity_id' => $activity_id],['id','name','number','odds','image_ids','worth']);
+        $prize_all = ActivityPrizeRepository::getAllList(['activity_id' => $activity_id],['id','name','number','odds','image_ids','worth']);
         foreach ($prize_all as $key => &$prize){
             if ($prize['number'] !== 0 && ($prize['number'] <= ActivityWinningRepository::count(['prize_id' => $prize['id']]))){
                 unset($prize_all[$key]);
@@ -266,11 +266,11 @@ class PrizeService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $members = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $members = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name']);
         $activity_ids = array_column($list['data'],'activity_id');
-        $activities = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
+        $activities = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]],['id','name']);
         $prize_ids = array_column($list['data'],'prize_id');
-        $prizes = ActivityPrizeRepository::getList(['id' => ['in',$prize_ids]],['id','name','title','image_ids']);
+        $prizes = ActivityPrizeRepository::getAllList(['id' => ['in',$prize_ids]],['id','name','title','image_ids']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $value['activity_name'] = $activity ? reset($activity)['name'] : '活动已被删除';

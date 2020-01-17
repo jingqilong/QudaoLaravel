@@ -402,7 +402,7 @@ class RegisterService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $member_list = MemberBaseRepository::getList(['id' => $member_ids],['id','ch_name']);
+        $member_list = MemberBaseRepository::getAllList(['id' => $member_ids],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $value['member_name'] = '';
             if ($member = $this->searchArray($member_list,'id',$value['member_id'])){
@@ -668,7 +668,7 @@ class RegisterService extends BaseService
         $res['banner']      = [];
         $res['video_list']  = [];
         $res['images_list'] = [];
-        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+        if (!$list = ActivityPastRepository::getAllList($where,$column,'top','desc')){
             $this->setError('获取失败');
             return false;
         }
@@ -857,7 +857,7 @@ class RegisterService extends BaseService
     {
         $where      = ['activity_id' => $request['activity_id']];
         $column     = ['resource_ids','presentation','hidden','top'];
-        if (!$list = ActivityPastRepository::getList($where,$column)){
+        if (!$list = ActivityPastRepository::getAllList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
         }

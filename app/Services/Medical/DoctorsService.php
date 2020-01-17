@@ -225,11 +225,11 @@ class DoctorsService extends BaseService
         $doctorInfo['img_url']          = CommonImagesRepository::getField(['id' => $doctorInfo['img_id']],'img_url');
         $hospital                       = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']]);
         $department_arr = explode(',',trim($doctorInfo['department_ids'],','));
-        if(!$department = MedicalDepartmentsRepository::getList(['id' => ['in',$department_arr]],['id','name'])){
+        if(!$department = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department_arr]],['id','name'])){
             return [];
         }
         $labels_arr = explode(',',$doctorInfo['label_ids']);
-        if(!$labels = MedicalDoctorLabelsRepository::getList(['id' => ['in',$labels_arr]],['id','name'])){
+        if(!$labels = MedicalDoctorLabelsRepository::getAllList(['id' => ['in',$labels_arr]],['id','name'])){
             return [];
         }
         $doctorInfo['departments']    = $department;
