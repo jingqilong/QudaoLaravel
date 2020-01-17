@@ -28,12 +28,13 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * SortedList constructor.
      * @param $data
      */
-    public function __construct($data)
+    private function __construct($data)
     {
         $this->data = $data;
     }
 
     /**
+     * 一箇鍵值有一第記錄
      * @param $src_array
      * @param $key
      * @return SortedList
@@ -48,6 +49,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * 每條記錄均使用多箇鍵值排序。
      * @param $src_array
      * @param $keys
      * @param $level
@@ -68,6 +70,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * 通過一箇鍵查到多條記錄幷存在此鍵值爲KEY數組中
      * @param $src_array
      * @param $key
      * @return SortedList
@@ -83,8 +86,21 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * 創建一條以傳入的鍵生成的空記彔的對像
+     * @param $keys
+     * @param string $default
+     * @return SortedList
+     */
+    public function createEmpty($keys,$default=''){
+        $values = array_fill(0, count($keys), $default);
+        $data[0] = array_combine($keys, $values);
+        $instance = new self($data);
+        return $instance;
+    }
+
+    /**
      * Get a data by key
-     *
+     * 通過 $obj->key 獲得數據
      * @param $key  ,tring The key data to retrieve
      * @access public
      * @return mixed
@@ -98,6 +114,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * 傳入 "key1.key2.key3" 進行搜索
      * @param $keyString
      * @return array
      */
@@ -105,7 +122,9 @@ class SortedList implements ArrayAccess,Countable,Iterator
         $keys= explode('.',$keyString);
         return $this->findByKeys($keys);
     }
+
     /**
+     * 傳入['1','2','3'...]進行搜索
      * @param $keys ,從根節點到葉節點的KEY的數組
      * @param int $level
      * @return array
@@ -126,6 +145,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * 通過 where(['key1'=>'value1','key2'=>'value2','key3'=>'value3'])進行搜索
      * @param $keys
      * @param int $level
      * @return array|mixed
@@ -275,14 +295,22 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @return array
      */
     public function toArray(){
-        return $this->data;
+        $result = [];
+        foreach($this->data as $key => $value){
+            if($value instanceof SortedList){
+                $result[$key] = $value->toArray();
+            }else{
+                $result = $value;
+            }
+        }
+        return $result;
     }
 
     /**
      * @return false|string
      */
     public function toString(){
-        return json_encode($this->data);
+        return json_encode($this->toArray());
     }
 
     /**
