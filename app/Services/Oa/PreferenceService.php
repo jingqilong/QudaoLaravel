@@ -119,7 +119,7 @@ class PreferenceService extends BaseService
     }
     /**
      * 获取偏好类别列表分类树（优化）
-     * @return bool
+     * @return mixed
      */
     public function getPreferenceList()
     {

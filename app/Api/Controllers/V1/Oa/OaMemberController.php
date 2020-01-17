@@ -1775,7 +1775,7 @@ class OaMemberController extends ApiController
      * @OA\Get(
      *     path="/api/v1/oa/get_member_grade_view_list",
      *     tags={"OA成员管理"},
-     *     summary="获取成员可查看会员权限列表",
+     *     summary="获取成员可查看会员权限列表🐀🐂🐅🐇🐉🐍🐎🐏🙈🐓🐕🐖",
      *     operationId="get_member_grade_view_list",
      *     @OA\Parameter(
      *         name="sign",

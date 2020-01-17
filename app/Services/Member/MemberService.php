@@ -1024,7 +1024,7 @@ class MemberService extends BaseService
     }
 
     /**
-     * 成员登录检查等级并且更新
+     * 成员检查等级并且更新
      * @param $user_id
      * @return int
      */
