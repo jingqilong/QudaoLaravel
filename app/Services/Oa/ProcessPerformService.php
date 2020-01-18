@@ -82,7 +82,7 @@ class ProcessPerformService extends BaseService
     public function getMyAuditList($request)
     {
         $employee = Auth::guard('oa_api')->user();
-        $result = $this->getNodeListByUserId($employee->id,$request['page'] ?? 1,$request['page_num'] ?? 20);
+        $result = $this->getNodeListByUserId($employee->id);
         if (100 == $result['code']){
             $this->setError($result['message']);
             return false;

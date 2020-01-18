@@ -2,8 +2,7 @@
 namespace App\Services\Oa;
 
 
-use App\Enums\ProcessActionEnum;
-use App\Enums\ProcessActionStatusEnum;
+use App\Enums\ProcessCommonStatusEnum;
 use App\Enums\ProcessPrincipalsEnum;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\OaProcessActionPrincipalsRepository;
@@ -102,13 +101,11 @@ class ProcessActionsService extends BaseService
 
     /**
      * 获取动作列表
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getActionList($page, $pageNum)
+    public function getActionList()
     {
-        if (!$action_list = OaProcessActionsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$action_list = OaProcessActionsRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -118,13 +115,13 @@ class ProcessActionsService extends BaseService
             return $action_list;
         }
         $action_ids = array_column($action_list['data'],'id');
-        $action_results_list = OaProcessActionsResultRepository::getList(['action_id' => ['in',$action_ids]],['id','action_id','name']);
+        $action_results_list = OaProcessActionsResultRepository::getAllList(['action_id' => ['in',$action_ids]],['id','action_id','name']);
         foreach ($action_list['data'] as &$value){
             $value['results']       = [];
             if ($results = $this->searchArray($action_results_list,'action_id',$value['id'])){
                 $value['results'] = $results;
             }
-            $value['status_title']  = ProcessActionStatusEnum::getLabelByValue($value['status']);
+            $value['status_title']  = ProcessCommonStatusEnum::getLabelByValue($value['status']);
             $value['created_at']    = date('Y-m-d H:m:s',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:s',$value['updated_at']);
         }
@@ -147,7 +144,7 @@ class ProcessActionsService extends BaseService
             return false;
         }
         $principal_ids = explode(',',$principal_ids);
-        $employee_list = OaEmployeeRepository::getList(['id' => ['in', $principal_ids]]);
+        $employee_list = OaEmployeeRepository::getAllList(['id' => ['in', $principal_ids]]);
         if (empty($employee_list) || count($principal_ids) != count($employee_list)){
             $this->setError('负责人不存在！');
             return false;

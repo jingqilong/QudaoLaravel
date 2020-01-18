@@ -6,7 +6,6 @@ namespace App\Api\Controllers\V1\Shop;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Shop\AnnounceService;
-use App\Services\Shop\GoodsCategoryService;
 
 class OaAnnounceController extends ApiController
 {

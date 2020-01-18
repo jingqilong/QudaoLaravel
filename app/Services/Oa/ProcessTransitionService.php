@@ -102,16 +102,14 @@ class ProcessTransitionService extends BaseService
     /**
      * @desc 获取流转列表
      * @param array $where
-     * @param int $page
-     * @param int $pageNum
      * @return bool|null
      */
-    public function getTransitionList($where,$page, $pageNum)
+    public function getTransitionList($where)
     {
         if (empty($where)){
             $where=['id' => ['>',0]];
         }
-        if (!$transition_list = OaProcessTransitionRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
+        if (!$transition_list = OaProcessTransitionRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

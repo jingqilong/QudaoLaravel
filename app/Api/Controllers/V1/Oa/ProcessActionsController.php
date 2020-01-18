@@ -318,7 +318,7 @@ class ProcessActionsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->processActionsService->getActionList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->processActionsService->getActionList();
         if ($res === false){
             return ['code' => 100,'message' => $this->processActionsService->error];
         }

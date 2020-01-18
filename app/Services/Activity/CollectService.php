@@ -73,8 +73,6 @@ class CollectService extends BaseService
      */
     public function collectList($request)
     {
-        $page       = $request['page'] ?? 1 ;
-        $page_num   = $request['page_num'] ?? 20;
         $type       = $request['type'];
         $member     = $this->auth->user();
         $where      = ['type' => CollectTypeEnum::ACTIVITY,'member_id' => $member->id,'deleted_at' => 0];
@@ -96,11 +94,12 @@ class CollectService extends BaseService
         }
         if (!$list = MemberCollectRepository::getList($where)){
             $this->setMessage('暂无数据！');
-            return ['current_page' => $page,'data' => [],'last_page' => $page,'per_page' => $page_num,'total' => 0];
+            list($page,$page_num) = $this->inputPage();
+            return ['current_page' => $page,'data' => [],'last_page' => $page,'page_num' => $page_num,'total' => 0];
         }
-        $activity_ids = array_column($list,'target_id');
+        $activity_ids = array_column($list['data'],'target_id');
         $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id'];
-        if (!$activities = ActivityDetailRepository::getActivityList(array_merge($activity_where,['id' => ['in',$activity_ids]]),$activity_column,'start_time','desc',$page,$page_num)){
+        if (!$activities = ActivityDetailRepository::getActivityList(array_merge($activity_where,['id' => ['in',$activity_ids]]),$activity_column,'start_time','desc')){
             $this->setError('获取失败！');
             return false;
         }

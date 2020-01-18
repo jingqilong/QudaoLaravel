@@ -93,8 +93,7 @@ class DetailService extends BaseService
      */
     public function getHomeList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
+        $this->setPerPage($request['page_num']);
         $theme_id       = $request['theme_id'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
         $price          = $request['price'] ?? null;
@@ -130,25 +129,25 @@ class DetailService extends BaseService
         $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }
-       $list = $this->removePagingField($list);
+        $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $themes     = ActivityThemeRepository::getAllList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
         $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getList(['id' => ['in',$icon_ids]]);
+        $icons      = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]]);
         foreach ($list['data'] as &$value){
             $theme = $this->searchArray($themes,'id',$value['theme_id']);
             if ($theme)
@@ -278,8 +277,6 @@ class DetailService extends BaseService
      */
     public function getActivityList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $start_time     = $request['start_time'] ?? null;
         $end_time       = $request['end_time'] ?? null;
         $is_recommend   = $request['is_recommend'] ?? null;
@@ -316,12 +313,12 @@ class DetailService extends BaseService
                 $where['theme_id'] = ['in',$theme_ids];
             }
             $keyword = [$keywords => ['name', 'address', 'price','firm']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$page,$page_num,$sort,$asc)){
+            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$sort,$asc,$page,$page_num)){
+            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$sort,$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -334,9 +331,9 @@ class DetailService extends BaseService
         $theme_ids      = array_column($list['data'],'theme_id');
         $themes         = ActivityThemeRepository::getList(['id' => ['in',$theme_ids]],['id','name']);
         $activity_ids   = array_column($list['data'],'id');
-        $host_list      = ActivityHostsRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','type','name','logo_id']);
+        $host_list      = ActivityHostsRepository::getAllList(['activity_id' => ['in',$activity_ids]],['activity_id','type','name','logo_id']);
         $host_list      = ImagesService::getListImages($host_list,['logo_id' => 'single']);
-        $link_list      = ActivityLinksRepository::getList(['activity_id' => ['in',$activity_ids]],['activity_id','title','url','image_id']);
+        $link_list      = ActivityLinksRepository::getAllList(['activity_id' => ['in',$activity_ids]],['activity_id','title','url','image_id']);
         $link_list      = ImagesService::getListImages($link_list,['image_id' => 'single']);
         foreach ($list['data'] as &$value){
             $value['hosts'] = '';
@@ -389,7 +386,7 @@ class DetailService extends BaseService
         $activity['images']        = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['id','img_url'])){
 //                $image_list     = array_column($image_list,'img_url');
                 $activity['images']= $image_list;
             }
@@ -397,7 +394,7 @@ class DetailService extends BaseService
         $activity['banners'] = [];
         if (!empty($activity['banner_ids'])){
             $image_ids = explode(',',$activity['banner_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['id','img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['id','img_url'])){
                 $activity['banners']= $image_list;
             }
         }
@@ -435,7 +432,7 @@ class DetailService extends BaseService
         $activity['images']     = [];
         if (!empty($activity['image_ids'])){
             $image_ids = explode(',',$activity['image_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                 $image_list         = array_column($image_list,'img_url');
                 $activity['images'] = $image_list;
             }
@@ -443,7 +440,7 @@ class DetailService extends BaseService
         $activity['banners'] = [];
         if (!empty($activity['banner_ids'])){
             $image_ids = explode(',',$activity['banner_ids']);
-            if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+            if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                 $image_list         = array_column($image_list,'img_url');
                 $activity['banners']= $image_list;
             }
@@ -564,7 +561,7 @@ class DetailService extends BaseService
      */
     public function getActivityLinks($activity_id){
         $links = [];
-        if ($link_list = ActivityLinksRepository::getList(['activity_id' => $activity_id],['id','title','url','image_id'])){
+        if ($link_list = ActivityLinksRepository::getAllList(['activity_id' => $activity_id],['id','title','url','image_id'])){
             foreach ($link_list as &$value){
                 $value['image'] = CommonImagesRepository::getField(['id' => $value['image_id']],'img_url');
             }
@@ -580,7 +577,7 @@ class DetailService extends BaseService
      */
     public function getActivityHosts($activity_id){
         $hosts = [];
-        if ($host_list = ActivityHostsRepository::getList(['activity_id' => $activity_id,'type' => 1],['name','type','logo_id'])){
+        if ($host_list = ActivityHostsRepository::getAllList(['activity_id' => $activity_id,'type' => 1],['name','type','logo_id'])){
             foreach ($host_list as &$value){
                 $value['logo'] = CommonImagesRepository::getField(['id' => $value['logo_id']],'img_url');
             }

@@ -28,7 +28,7 @@ class OaGradeViewRepository extends ApiRepository
      */
     protected function showGrade($where = null, $column = ['*'])
     {
-        if (!$grade = $this->getList($where,$column)){
+        if (!$grade = $this->getAllList($where,$column)){
             return false;
         }
         return array_column($grade,'value');

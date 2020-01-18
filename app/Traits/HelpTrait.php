@@ -280,7 +280,7 @@ trait HelpTrait
         if (!empty($max_level)){
             $where['level'] = ['<=',$max_level];
         }
-        $area_list  = CommonAreaRepository::getList($where,['code','name']);
+        $area_list  = CommonAreaRepository::getAllList($where,['code','name']);
         $area_address = '';
         foreach ($area_codes as $code){
             if ($area = $this->searchArray($area_list,'code',$code)){
@@ -310,7 +310,7 @@ trait HelpTrait
                 $where['level'] = $level;
             }
         }
-        $area_list  = CommonAreaRepository::getList($where,['code','name','lng','lat']);
+        $area_list  = CommonAreaRepository::getAllList($where,['code','name','lng','lat']);
         $area_address = '';
         foreach ($area_codes as $code){
             if ($area = $this->searchArray($area_list,'code',$code)){

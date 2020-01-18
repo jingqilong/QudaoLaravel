@@ -49,13 +49,11 @@ class AdminPermissionsService extends BaseService
 
     /**
      * 获取权限列表
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
-    public function getPermissionList($page,$pageNum)
+    public function getPermissionList()
     {
-        if (!$perm_list = OaAdminPermissionsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$perm_list = OaAdminPermissionsRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

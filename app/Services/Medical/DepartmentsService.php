@@ -7,7 +7,6 @@ use App\Repositories\MedicalDoctorsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use function Sodium\add;
 
 class DepartmentsService extends BaseService
 {
@@ -49,7 +48,7 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已删除或不存在！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
             $this->setMessage('该医疗科室已被医生使用，无法删除！');
             return $list;
         }
@@ -94,11 +93,9 @@ class DepartmentsService extends BaseService
      */
     public function departmentsList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon','created_at'];
         $where      = ['id' => ['>',0]];
-        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+        if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -122,18 +119,16 @@ class DepartmentsService extends BaseService
     public function getDepartmentsList($request)
     {
         $keywords   = $request['keywords'] ?? null;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $column     = ['id','name','describe','icon'];
         $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name']];
-            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,$page,$page_num,'id','asc')){
+            if (!$list = MedicalDepartmentsRepository::search($keyword,$where,$column,'id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc',$page,$page_num)){
+            if (!$list = MedicalDepartmentsRepository::getList($where,$column,'id','asc')){
                 $this->setError('获取失败！');
                 return false;
             }

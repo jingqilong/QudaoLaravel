@@ -47,13 +47,11 @@ class ProcessActionPrincipalsService extends BaseService
     /**
      * @desc 获取员工列表
      * @param $department_id
-     * @param $page
-     * @param $pageNum
      * @return mixed
      */
-    public function getEmployeeList($department_id,$page,$pageNum){
+    public function getEmployeeList($department_id){
         $column = ['id','real_name','mobile'];
-        if (!$employee_list = OaEmployeeRepository::getList(['department_id'=>$department_id],$column,'id','asc',$page,$pageNum)){
+        if (!$employee_list = OaEmployeeRepository::getList(['department_id'=>$department_id],$column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -140,18 +138,16 @@ class ProcessActionPrincipalsService extends BaseService
     /**
      * @param $node_action_id
      * @param int $principal_iden
-     * @param $page
-     * @param $pageNum
      * @return mixed
      * @desc 根据指定的action_id 以及 $principal_type 获取相关人列表
      */
-    public function getPrincipalList($node_action_id,$principal_iden,$page,$pageNum){
+    public function getPrincipalList($node_action_id,$principal_iden){
         $where = ['node_action_id' => $node_action_id];
         if(!empty($principal_iden)){
             $where ['principal_iden']=$principal_iden;
         }
         $column = ['id', 'node_action_id', 'principal_id','principal_iden', 'created_at', 'updated_at'];
-        if (!$principal_list = OaProcessActionPrincipalsRepository::getList($where,$column,'id','asc',$page,$pageNum)){
+        if (!$principal_list = OaProcessActionPrincipalsRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -162,7 +158,7 @@ class ProcessActionPrincipalsService extends BaseService
         }
         //TODO 这里最好改为视图。
         $employee_ids = array_column($principal_list['data'],'principal_id');
-        $employee_list = OaEmployeeRepository::getList(['id'=>['in',$employee_ids]],['id','real_name','department_id'],'id','asc');
+        $employee_list = OaEmployeeRepository::getAllList(['id'=>['in',$employee_ids]],['id','real_name','department_id'],'id','asc');
         foreach($principal_list['data'] as &$principal){
             $principal['principal_iden_label']  = ProcessPrincipalsEnum::getPprincipalLabel($principal['principal_iden']);
             $principal['real_name']             = '';
@@ -204,7 +200,7 @@ class ProcessActionPrincipalsService extends BaseService
             return false;
         }
         $start_user_id = $target_object->$function($business_id);
-        return MemberBaseRepository::find($start_user_id);
+        return MemberBaseRepository::getOne(['id' => $start_user_id]);
     }
 
     /**
@@ -216,7 +212,7 @@ class ProcessActionPrincipalsService extends BaseService
      */
     public function getNodeEventPrincipals($node_id,$business_id,$process_category){
         //获取所有的参与人
-        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_id'=> $node_id])){
+        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getAllList(['node_id'=> $node_id])){
             Loggy::write("error","本节点缺少参与人！Node_id::" . $node_id);
             return [];
         }
@@ -254,7 +250,7 @@ class ProcessActionPrincipalsService extends BaseService
             Loggy::write("error","流程节点动作结果查找失败！！node_action_result_id::" . $node_action_result_id);
             return [];
         }
-        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getList(['node_action_id'=> $node_action_id])){
+        if(!$stakeholders = OaProcessNodeEventPrincipalsRepository::getAllList(['node_action_id'=> $node_action_id])){
             Loggy::write("error","本节点缺少参与人！node_action_result_id::" . $node_action_result_id);
             return [];
         }

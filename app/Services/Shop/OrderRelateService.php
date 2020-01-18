@@ -56,9 +56,9 @@ class OrderRelateService extends BaseService
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_ids          = array_column($goods_param,'goods_id');
         $spec_relate_ids    = array_column($goods_param,'spec_relate_id');
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = ShopGoodsRepository::getAllList(['id' => ['in',$goods_ids]]);
         $goods_list         = createArrayIndex($goods_list,'id');
-        $spec_relate_list   = ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getAllList(['id' => ['in',$spec_relate_ids]]);
         $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
         foreach ($goods_list as $value){
             if ($value['negotiable'] == ShopGoodsEnum::NEGOTIABLE){
@@ -113,7 +113,7 @@ class OrderRelateService extends BaseService
         #检查是否存在非面议商品
         $goods_param        = json_decode($request['goods_json'],true);
         $goods_ids          = array_column($goods_param,'goods_id');
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids]]);
+        $goods_list         = ShopGoodsRepository::getAllList(['id' => ['in',$goods_ids]]);
         $goods_list         = createArrayIndex($goods_list,'id');
         foreach ($goods_list as $value){
             if ($value['negotiable'] !== ShopGoodsEnum::NEGOTIABLE){
@@ -403,13 +403,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         #归还库存
-        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
-//        $goodsSpecRelateService = new GoodsSpecRelateService();
-//        if (!$goodsSpecRelateService->updStock($order_goods_list,'+')){
-//            $this->setError($goodsSpecRelateService->error);
-//            DB::rollBack();
-//            return false;
-//        }
+        $order_goods_list = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order_relate['id']]);
         $shopInventorService = new ShopInventorService();
         foreach ($order_goods_list as $value){
             if (!$shopInventorService->unlockStock($value['goods_id'],$value['spec_relate_id'] ?? 0,$value['number'])){
@@ -427,6 +421,7 @@ class OrderRelateService extends BaseService
                 return false;
             }
         }
+        #面议订单需要结束流程
         $this->setMessage('取消订单成功！');
         DB::commit();
         return true;
@@ -440,8 +435,6 @@ class OrderRelateService extends BaseService
     public function getMyOrderList($request)
     {
         $member     = Auth::guard('member_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
         $where      = ['member_id' => $member->id,'deleted_at' => 0];
         if (!is_null($status)){
@@ -449,7 +442,7 @@ class OrderRelateService extends BaseService
         }
         $column = ['id','status','payment_amount','income_score','express_number','express_company_id','order_no','order_relate_type','audit'];
         #获取订单列表
-        if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -460,10 +453,10 @@ class OrderRelateService extends BaseService
         }
         #获取物流公司列表
         $express_company_ids   = array_column($order_list['data'],'express_company_id');
-        $express_company_list  = CommonExpressRepository::getList(['id' => ['in',$express_company_ids]]);
+        $express_company_list  = CommonExpressRepository::getAllList(['id' => ['in',$express_company_ids]]);
         #获取订单中的商品列表
         $order_relate_ids   = array_column($order_list['data'],'id');
-        $order_goods_list   = ShopOrderGoodsRepository::getList(['order_relate_id' => ['in',$order_relate_ids]]);
+        $order_goods_list   = ShopOrderGoodsRepository::getAllList(['order_relate_id' => ['in',$order_relate_ids]]);
         $goods_list         = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         foreach ($order_list['data'] as &$value){
             $value['is_comment'] = $value['status'] == ShopOrderEnum::FINISHED ? 1 : 0;
@@ -529,7 +522,7 @@ class OrderRelateService extends BaseService
             $order['express_company_code'] = CommonExpressRepository::getField(['id' => $order['express_company_id']],'code');
         }
         list($order['receive_area_address'])  = $this->makeAddress($order['receive_area_code'],$order['receive_address']);
-        $order_goods_list       = ShopOrderGoodsRepository::getList(['order_relate_id' => $order['id']]);
+        $order_goods_list       = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order['id']]);
         $order['goods_list']    = GoodsSpecRelateService::getListCommonInfo($order_goods_list);
         unset($order['receive_area_code'],$order['receive_address'],$order['express_company_id']);
         $this->setMessage('获取成功！');
@@ -568,8 +561,6 @@ class OrderRelateService extends BaseService
      */
     public function getShopOrderList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $status         = $request['status'] ?? null;
         $order_no       = $request['order_no'] ?? null;
@@ -597,12 +588,12 @@ class OrderRelateService extends BaseService
         }
         if (!empty($keywords)){
             $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
-            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -639,8 +630,6 @@ class OrderRelateService extends BaseService
     public function getNegotiableOrderList($request)
     {
         $employee       = Auth::guard('oa_api')->user();
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $status         = $request['status'] ?? null;
         $order_no       = $request['order_no'] ?? null;
@@ -658,12 +647,12 @@ class OrderRelateService extends BaseService
         if (!is_null($express_company_id))  $where['express_company_id']  = $express_company_id;
         if (!empty($keywords)){
             $keywords_column = [$keywords => ['member_name','member_mobile','receive_name','receive_mobile','remarks']];
-            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$order_list = ShopOrderRelateViewRepository::search($keywords_column,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$order_list = ShopOrderRelateViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -752,7 +741,7 @@ class OrderRelateService extends BaseService
         }
         #添加库存台帐变更流水
         $shopInventorService = new ShopInventorService();
-        $order_goods_list = ShopOrderGoodsRepository::getList(['order_relate_id' => $order_relate['id']]);
+        $order_goods_list = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order_relate['id']]);
         foreach ($order_goods_list as $value){
             if (!$shopInventorService->updateInventor($order_relate['order_id'],$value['goods_id'],$value['spec_relate_id'],$value['number'],-1)){
                 $this->setError($shopInventorService->error);
@@ -801,8 +790,8 @@ class OrderRelateService extends BaseService
             $goods_ids[] = end($related_arr);
         }
         $order_goods_where = ['order_relate_id' => ['in', $order_ids], 'goods_id' => ['in', $goods_ids]];
-        $order_goods_list = ShopOrderGoodsRepository::getList($order_goods_where);
-        $spec_relate_list = ShopGoodsSpecRelateRepository::getList(['id' => ['in', array_column($order_goods_list, 'spec_relate_id')]]);
+        $order_goods_list = ShopOrderGoodsRepository::getAllList($order_goods_where);
+        $spec_relate_list = ShopGoodsSpecRelateRepository::getAllList(['id' => ['in', array_column($order_goods_list, 'spec_relate_id')]]);
         $spec_ids = implode(',', array_column($spec_relate_list, 'spec_ids'));
         $spec_list = ShopGoodsSpecRepository::getAssignList(explode(',', $spec_ids), ['id', 'spec_value', 'spec_name']);
         foreach ($data as &$value) {
@@ -1025,7 +1014,7 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新订单状态
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at'])){
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at' => time()])){
             $this->setError('面议订单审核失败！');
             return false;
         }
@@ -1034,7 +1023,7 @@ class OrderRelateService extends BaseService
     }
 
     /**
-     * 设置面议订单金额（审核通过后）
+     * 录入面议订单金额（审核通过后）
      * @param $request
      * @return bool
      */
@@ -1046,11 +1035,15 @@ class OrderRelateService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::SUBMIT){
+        if ($order_info['order_status'] != OrderEnum::STATUSTRADING){
+            $this->setError('该订单已录入订单金额，不能重复操作！');
+            return false;
+        }
+        if ($order_info['audit'] == CommonAuditStatusEnum::SUBMIT){
             $this->setError('该订单还未审核，不能进行此操作！');
             return false;
         }
-        if ($order_info['audit'] !== CommonAuditStatusEnum::PASS){
+        if ($order_info['audit'] != CommonAuditStatusEnum::PASS){
             $this->setError('该订单审核未通过，不能进行此操作！');
             return false;
         }
@@ -1067,10 +1060,10 @@ class OrderRelateService extends BaseService
         #更新总订单信息
         $payment_amount = (is_null($express_price) ? $order_info['express_price'] : ($express_price * 100)) + ($amount * 100);
         $upd_order = [
-            'amount' => $payment_amount,
-            'payment_amount' => $payment_amount,
-            'status' => OrderEnum::STATUSSUCCESS,
-            'updated_at' => time()
+            'amount'        => $payment_amount,
+            'payment_amount'=> $payment_amount,
+            'status'        => OrderEnum::STATUSSUCCESS,
+            'updated_at'    => time()
         ];
         if (!MemberOrdersRepository::getUpdId(['id' => $order_info['order_id']],$upd_order)){
             $this->setError('操作失败！');
@@ -1079,15 +1072,21 @@ class OrderRelateService extends BaseService
             return false;
         }
         #更新交易信息
-        $upd_trad = [];
+        $upd_trad = [
+            'amount'        => $payment_amount,
+            'trade_method'  => TradeEnum::OFFLINE,
+            'status'        => TradeEnum::STATUSSUCCESS,
+            'end_at'        => time()
+        ];
         if (!MemberTradesRepository::getUpdId(['id' => $order_info['trade_id']],$upd_trad)){
             $this->setError('操作失败！');
             DB::rollBack();
             Loggy::write('order','设置面议订单金额失败！原因：更新交易信息失败！order_relate_id:'.$order_relate_id.',trade_id:'.$order_info['trade_id']);
             return false;
         }
+        DB::commit();
         $this->setMessage('操作成功！');
-        return false;
+        return true;
     }
 
     /**

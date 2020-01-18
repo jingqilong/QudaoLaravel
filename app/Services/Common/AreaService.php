@@ -19,7 +19,7 @@ class AreaService extends BaseService
     public function getAreaList($parent_code,$add_arr = [])
     {
         $column    = ['id','code','name','memo','image_url','short_name','lng','lat'];
-        if (!$list = CommonAreaRepository::getList(array_merge(['parent_code' => $parent_code],$add_arr),$column,'sort','asc')){
+        if (!$list = CommonAreaRepository::getAllList(array_merge(['parent_code' => $parent_code],$add_arr),$column,'sort','asc')){
             $this->setMessage('暂无信息！');
             return [];
         }

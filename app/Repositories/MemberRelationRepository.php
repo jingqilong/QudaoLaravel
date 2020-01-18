@@ -32,11 +32,11 @@ class MemberRelationRepository extends ApiRepository
         $relation_column = ['member_id', 'parent_id', 'path', 'level'];
         $member_column = ['m_id', 'm_cname', 'm_groupname', 'm_phone'];
         //获取直接推荐人
-        if (!$direct_relation = $this->getList(['path' => ['like', $path.',%'],'parent_id' => $user_id],$relation_column)){
+        if (!$direct_relation = $this->getAllList(['path' => ['like', $path.',%'],'parent_id' => $user_id],$relation_column)){
             return [];
         }
         $direct_ids = array_column($direct_relation,'member_id');
-        $direct_users = OaMemberRepository::getList(['m_id' => ['in' , $direct_ids]],$member_column);
+        $direct_users = OaMemberRepository::getAllList(['m_id' => ['in' , $direct_ids]],$member_column);
         //获取间接推荐人
         foreach ($direct_relation as &$v){
             $path = $v['path'];
@@ -46,12 +46,12 @@ class MemberRelationRepository extends ApiRepository
                     break;
                 }
             }
-            if (!$indirect_users = $this->getList(['path' => ['like' , $path.',%']],$relation_column)){
+            if (!$indirect_users = $this->getAllList(['path' => ['like' , $path.',%']],$relation_column)){
                 $v['next_level'] = [];
                 continue;
             }
             $indirect_ids = array_column($indirect_users,'member_id');
-            $v['next_level'] = OaMemberRepository::getList(['m_id' => ['in' , $indirect_ids]],$member_column);
+            $v['next_level'] = OaMemberRepository::getAllList(['m_id' => ['in' , $indirect_ids]],$member_column);
         }
         return $direct_relation;
     }
@@ -67,11 +67,11 @@ class MemberRelationRepository extends ApiRepository
         }
         $relation_column = ['member_id', 'parent_id', 'path', 'level'];
         $member_column = ['m_id', 'm_cname', 'm_groupname', 'm_phone'];
-        if (!$relation_list = $this->getList(['path' => ['like', $path.',%']],$relation_column)){
+        if (!$relation_list = $this->getAllList(['path' => ['like', $path.',%']],$relation_column)){
             return [];
         }
         $direct_ids = array_column($relation_list,'member_id');
-        $all_users = OaMemberRepository::getList(['m_id' => ['in',$direct_ids]],$member_column);
+        $all_users = OaMemberRepository::getAllList(['m_id' => ['in',$direct_ids]],$member_column);
         foreach ($relation_list as &$v){
             foreach ($all_users as $user){
                 if ($v['member_id'] == $user['m_id']){

@@ -9,7 +9,6 @@ use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\EnterpriseOrderRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\SmsService;
 use App\Services\Message\SendService;
@@ -42,7 +41,7 @@ class OrderService extends BaseService
         $member = $this->auth->user();
         $where  = ['deleted_at' => 0,'user_id' => $member->id];
         $column = ['id','name','mobile','enterprise_name','service_type','remark','status','reservation_at','created_at','updated_at','deleted_at'];
-        if (!$list = EnterpriseOrderRepository::getList($where,$column,'created_at','desc')){
+        if (!$list = EnterpriseOrderRepository::getAllList($where,$column,'created_at','desc')){
             $this->setMessage('没有数据！');
             return [];
         }
@@ -72,8 +71,6 @@ class OrderService extends BaseService
     public function getEnterpriseOrderList(array $data)
     {
         $employee = Auth::guard('oa_api')->user();
-        $page           = $data['page'] ?? 1;
-        $page_num       = $data['page_num'] ?? 20;
         $keywords       = $data['keywords'] ?? null;
         $type           = $data['type'] ?? null;
         $status         = $data['status'] ?? null;
@@ -87,12 +84,12 @@ class OrderService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['enterprise_name']];
-            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = EnterpriseOrderRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setMessage('没有数据！');
                 return [];
             }
         }else{
-            if (!$list = EnterpriseOrderRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = EnterpriseOrderRepository::getList($where,$column,'id','desc')){
                 $this->setError('没有数据！');
                 return false;
             }

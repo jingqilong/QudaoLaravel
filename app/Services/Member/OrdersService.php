@@ -65,8 +65,6 @@ class OrdersService extends BaseService
         $order_type = $request['order_type'] ?? null;
         $score_type = $request['score_type'] ?? null;
         $status     = $request['status'] ?? null;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['id' => ['<>',0]];
         $column     = ['*'];
         if (!is_null($order_no)) $where['order_no'] = $order_no;
@@ -74,7 +72,7 @@ class OrdersService extends BaseService
         if (!is_null($order_type)) $where['order_type'] = $order_type;
         if (!is_null($score_type)) $where['score_type'] = $score_type;
         if (!is_null($status)) $where['status'] = $status;
-        if (!$order_list = MemberOrdersViewRepository::getList($where,$column,'create_at','desc',$page,$page_num)){
+        if (!$order_list = MemberOrdersViewRepository::getList($where,$column,'create_at','desc')){
             $this->setError('获取失败！');
             return false;
         }

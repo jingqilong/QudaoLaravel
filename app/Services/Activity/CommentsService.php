@@ -97,8 +97,6 @@ class CommentsService extends BaseService
      */
     public function getActivityComment($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page'] ?? 20;
         $comment_where = [
             'activity_id'   => $request['activity_id'],
             'status'        => ActivityCommentEnum::PASS,
@@ -106,7 +104,7 @@ class CommentsService extends BaseService
             'deleted_at'    => 0
         ];
         $comment_column = ['id','content','comment_name','comment_avatar','member_id','created_at'];
-        if (!$comment_list = ActivityCommentsRepository::getList($comment_where,$comment_column,'id','asc',$page,$page_num)){
+        if (!$comment_list = ActivityCommentsRepository::getList($comment_where,$comment_column,'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -132,9 +130,7 @@ class CommentsService extends BaseService
      */
     public function getCommentList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$comment_list = ActivityCommentsRepository::getList(['id' => ['>',0]],['*'],'id','desc',$page,$page_num)){
+        if (!$comment_list = ActivityCommentsRepository::getList(['id' => ['>',0]],['*'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -147,7 +143,7 @@ class CommentsService extends BaseService
             return $comment_list;
         }
         $activity_ids = array_column($comment_list['data'],'activity_id');
-        $activity_list = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]]);
+        $activity_list = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]]);
         foreach ($comment_list['data'] as &$value){
             $value['activity_name'] = '';
             if ($activity = $this->searchArray($activity_list,'id',$value['activity_id'])){

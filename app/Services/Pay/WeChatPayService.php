@@ -18,7 +18,6 @@ use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Tolawho\Loggy\Facades\Loggy;
 
 class WeChatPayService extends BaseService

@@ -185,8 +185,6 @@ class RegisterService extends BaseService
         $status_arr     = $request['status_arr'] ?? '';
         $activity_id    = $request['activity_id'] ?? '';
         $is_sign        = $request['is_sign'] ?? '';
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $where          = ['id' => ['>',0]];
         if (!empty($status)){
             $where['status'] = $status;
@@ -208,9 +206,9 @@ class RegisterService extends BaseService
             }
         }
         if (!empty($keywords)){
-            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],$page,$page_num,'id','desc');
+            $list = ActivityRegisterRepository::search([$keywords => ['name','mobile','sign_in_code']],$where,['*'],'id','desc');
         }else{
-            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc',$page,$page_num);
+            $list = ActivityRegisterRepository::getList($where,['*'],'id','desc');
         }
         if (!$list){
             $this->setError('获取失败！');
@@ -224,9 +222,9 @@ class RegisterService extends BaseService
         $audited_by     = array_column($list['data'],'audited_by');
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
-        $activities     = ActivityDetailRepository::getList(['id' => ['in',$activity_ids]],['id','name']);
-        $members        = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name']);
-        $audits         = OaEmployeeRepository::getList(['id' => ['in',$audited_by]],['id','real_name']);
+        $activities     = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]],['id','name']);
+        $members        = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $audits         = OaEmployeeRepository::getAllList(['id' => ['in',$audited_by]],['id','real_name']);
         foreach ($list['data'] as &$value){
             $activity = $this->searchArray($activities,'id',$value['activity_id']);
             $member   = $this->searchArray($members,'id',$value['member_id']);
@@ -393,10 +391,8 @@ class RegisterService extends BaseService
      */
     public function signList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page'] ?? 20;
         $where = ['is_register' => ['<>',0],'activity_id' => $request['activity_id']];
-        if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc',$page,$page_num)){
+        if (!$list = ActivityRegisterRepository::getList($where,['id','member_id','is_register'],'is_register','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -406,7 +402,7 @@ class RegisterService extends BaseService
             return $list;
         }
         $member_ids = array_column($list['data'],'member_id');
-        $member_list = MemberBaseRepository::getList(['id' => $member_ids],['id','ch_name']);
+        $member_list = MemberBaseRepository::getAllList(['id' => $member_ids],['id','ch_name']);
         foreach ($list['data'] as &$value){
             $value['member_name'] = '';
             if ($member = $this->searchArray($member_list,'id',$value['member_id'])){
@@ -441,8 +437,6 @@ class RegisterService extends BaseService
      */
     public function getMyActivityList($request){
         $member     = $this->auth->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
         $where      = ['member_id' => $member->id];
         switch ($status){
@@ -460,7 +454,7 @@ class RegisterService extends BaseService
                 break;
         }
         $column = ['id','activity_id','name','area_code','address','price','start_time','end_time','cover_url','theme_name','theme_icon','register_status','register_audit','sign_in_code','order_no','stop_selling'];
-        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$register_list = ActivityRegisterViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -674,7 +668,7 @@ class RegisterService extends BaseService
         $res['banner']      = [];
         $res['video_list']  = [];
         $res['images_list'] = [];
-        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+        if (!$list = ActivityPastRepository::getAllList($where,$column,'top','desc')){
             $this->setError('获取失败');
             return false;
         }
@@ -863,7 +857,7 @@ class RegisterService extends BaseService
     {
         $where      = ['activity_id' => $request['activity_id']];
         $column     = ['resource_ids','presentation','hidden','top'];
-        if (!$list = ActivityPastRepository::getList($where,$column)){
+        if (!$list = ActivityPastRepository::getAllList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
         }

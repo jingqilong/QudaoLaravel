@@ -160,8 +160,6 @@ class RecordService extends BaseService
      * @return bool|mixed|null
      */
     public function getScoreRecordList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $score_type = $request['score_type'] ?? null;
         $latest     = $request['latest'] ?? null;
         $keywords   = $request['keywords'] ?? null;
@@ -174,12 +172,12 @@ class RecordService extends BaseService
         }
         if (!is_null($keywords)){
             $keywords = [$keywords => ['member_name','member_mobile','explain']];
-            if (!$list = ScoreRecordViewRepository::search($keywords,$where,['*'],$page,$page_num,'id','desc')){
+            if (!$list = ScoreRecordViewRepository::search($keywords,$where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ScoreRecordViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+            if (!$list = ScoreRecordViewRepository::getList($where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -228,7 +226,7 @@ class RecordService extends BaseService
     {
         $column = ['score_type','score_name','remnant_score','expense_rate','cashing_rate'];
         $where  = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'status' => ScoreEnum::OPEN,'remnant_score' => ['<>',0]];
-        if (!$list = ScoreRecordViewRepository::getList($where,$column)){
+        if (!$list = ScoreRecordViewRepository::getAllList($where,$column)){
             $this->setMessage('暂无积分可使用！');
             return [];
         }
@@ -248,9 +246,7 @@ class RecordService extends BaseService
      */
     public function getScoreCategoryList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$score_category_list = ScoreCategoryRepository::getList(['id' => ['<>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$score_category_list = ScoreCategoryRepository::getList(['id' => ['<>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -394,7 +390,7 @@ class RecordService extends BaseService
             $this->setError('查看天数不能低于1天');
             return false;
         }
-        if (!$score_types = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
+        if (!$score_types = ScoreCategoryRepository::getAllList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
             $this->setError('没有积分类别可查看');
             return false;
         }
@@ -405,7 +401,7 @@ class RecordService extends BaseService
             'score_type'    => ['in',array_column($score_types,'id')],
             'created_at'    => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
-        $list = ScoreRecordRepository::getList($where,['score_type','action_score','created_at']) ?? [];
+        $list = ScoreRecordRepository::getAllList($where,['score_type','action_score','created_at']) ?? [];
         #总积分消费记录
         for ($i = $day;$i >= 0;$i--){
             $date_time              = date('Y-m-d',strtotime('-'.$i.' day'));
@@ -451,12 +447,12 @@ class RecordService extends BaseService
             'total_score'    => 0,
             'score_list'     => []
         ];
-        if (!$score_categories = ScoreCategoryRepository::getList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
+        if (!$score_categories = ScoreCategoryRepository::getAllList(['status' => ScoreEnum::OPEN],['*'],'id','asc')){
             $this->setMessage('暂无积分类别');
             return false;
         }
         $where      = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'score_type' => ['in',array_column($score_categories,'id')]];
-        $score_list = ScoreRecordViewRepository::getList($where,['score_type','score_name','remnant_score'],'score_type','asc');
+        $score_list = ScoreRecordViewRepository::getAllList($where,['score_type','score_name','remnant_score'],'score_type','asc');
         foreach ($score_categories as $category){
             if (empty($score_list) || !$this->existsArray($score_list,'score_type',$category['id'])){
                 $score_list[] = [
@@ -483,13 +479,11 @@ class RecordService extends BaseService
     {
         $member     = Auth::guard('member_api')->user();
         $score_type = $request['score_type'] ?? null;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['member_id' => $member->id];
         if (!is_null($score_type)){
             $where['score_type'] = $score_type;
         }
-        if (!$record_list = ScoreRecordRepository::getList($where,['action','action_score','explain','created_at'],'created_at','desc',$page,$page_num)){
+        if (!$record_list = ScoreRecordRepository::getList($where,['action','action_score','explain','created_at'],'created_at','desc')){
             $this->setError('获取失败！');
             return false;
         }

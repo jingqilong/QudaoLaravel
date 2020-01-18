@@ -139,9 +139,7 @@ class DoctorsService extends BaseService
     public function getDoctorsListPage($request)
     {
         if (empty($request['asc'])) $request['asc'] = 1;
-        $page           = $request['page'] ?? 1;
         $asc            = $request['asc'] ==  1 ? 'asc' : 'desc';
-        $page_num       = $request['page_num'] ?? 20;
         $keywords       = $request['keywords'] ?? null;
         $departments_id = $request['departments_id'] ?? null;
         $where          = ['deleted_at' => 0];
@@ -149,12 +147,12 @@ class DoctorsService extends BaseService
         if (!empty($request['sex'])) $where['sex'] = $request['sex'];
         if (!empty($keywords)){
             $keyword        = [$keywords => ['name','title']];
-            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],$page,$page_num,'id',$asc)){
+            if (!$list = MedicalDoctorsRepository::search($keyword,$where,['*'],'id',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'id',$asc,$page,$page_num)){
+            if (!$list = MedicalDoctorsRepository::getList($where,['*'],'id',$asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -227,11 +225,11 @@ class DoctorsService extends BaseService
         $doctorInfo['img_url']          = CommonImagesRepository::getField(['id' => $doctorInfo['img_id']],'img_url');
         $hospital                       = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']]);
         $department_arr = explode(',',trim($doctorInfo['department_ids'],','));
-        if(!$department = MedicalDepartmentsRepository::getList(['id' => ['in',$department_arr]],['id','name'])){
+        if(!$department = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department_arr]],['id','name'])){
             return [];
         }
         $labels_arr = explode(',',$doctorInfo['label_ids']);
-        if(!$labels = MedicalDoctorLabelsRepository::getList(['id' => ['in',$labels_arr]],['id','name'])){
+        if(!$labels = MedicalDoctorLabelsRepository::getAllList(['id' => ['in',$labels_arr]],['id','name'])){
             return [];
         }
         $doctorInfo['departments']    = $department;
@@ -278,8 +276,6 @@ class DoctorsService extends BaseService
      */
     public function getDepartmentsDoctor($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         if (!MedicalDepartmentsRepository::exists(['id' => $request['departments_id']])){
             $this->setError('科室不存在!');
             return false;
@@ -290,7 +286,7 @@ class DoctorsService extends BaseService
         }
         $column = ['id','name','title','good_at','label_ids','department_ids','img_id'];
         $check_where = ['hospitals_id' => $request['hospital_id'],'deleted_at' => 0,'department_ids' => ['like','%,' . $request['departments_id'] . ',%']];
-        if (!$list = MedicalDoctorsRepository::getList($check_where,$column,'id','asc',$page,$page_num)){
+        if (!$list = MedicalDoctorsRepository::getList($check_where,$column,'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

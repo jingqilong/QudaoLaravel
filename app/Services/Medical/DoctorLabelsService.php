@@ -45,7 +45,7 @@ class DoctorLabelsService extends BaseService
             $this->setError('医生标签不存在或已删除！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getList(['label_ids' => ['like','%,'.$id.',']],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['label_ids' => ['like','%,'.$id.',']],['id','name'])){
             $this->setMessage('该医生标签已使用，无法删除！');
             return $list;
         }
@@ -92,9 +92,7 @@ class DoctorLabelsService extends BaseService
      */
     public function getDoctorLabelsList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$list = MedicalDoctorLabelsRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+        if (!$list = MedicalDoctorLabelsRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

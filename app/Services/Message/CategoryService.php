@@ -101,14 +101,12 @@ class CategoryService extends BaseService
      * @return bool|mixed|null
      */
     public function getCategoryList($request){
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $status     = $request['status'] ?? null;
         $where      = ['id' => ['<>',0]];
         if (!is_null($status)){
             $where['status'] = $status;
         }
-        if (!$list = MessageCategoryRepository::getList($where,['*'],'id','asc',$page,$page_num)){
+        if (!$list = MessageCategoryRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }

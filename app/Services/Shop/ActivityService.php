@@ -6,7 +6,6 @@ use App\Enums\ShopActivityEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopActivityRepository;
 use App\Repositories\ShopActivityViewRepository;
-use App\Repositories\ShopGoodsCommonRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
@@ -39,7 +38,7 @@ class ActivityService extends BaseService
     public static function getHomeRecommendGoods(){
         $where  = ['type' => ShopActivityEnum::GOOD_RECOMMEND,'status' => ShopActivityEnum::OPEN,'deleted_at' => 0];
         $column = ['goods_id','name','price','banner_ids','labels'];
-        if (!$activity_goods = ShopActivityViewRepository::getList($where,$column)){
+        if (!$activity_goods = ShopActivityViewRepository::getAllList($where,$column)){
 //            self::setMessage('没有活动商品！');
             return [];
         }
@@ -113,8 +112,6 @@ class ActivityService extends BaseService
      */
     public function getActivityGoodsList($request)
     {
-        $page           = $request['page'] ?? 1;
-        $page_num       = $request['page_num'] ?? 20;
         $type           = $request['type'] ?? null;
         $keywords       = $request['keywords'] ?? null;
         $where          = ['id' => ['>',0]];
@@ -125,12 +122,12 @@ class ActivityService extends BaseService
         }
         $column = ['id','name','price','type','show_image','status','created_at','updated_at'];
         if (!empty($keywords)){
-            if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = ShopActivityViewRepository::search([$keywords => ['name']],$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ShopActivityViewRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = ShopActivityViewRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -156,7 +153,7 @@ class ActivityService extends BaseService
      * @return bool
      */
     public function deleteBeforeCheck($goods_id){
-        if ($banner_list = ShopActivityRepository::getList(['goods_id' => $goods_id])){
+        if ($banner_list = ShopActivityRepository::getAllList(['goods_id' => $goods_id])){
             foreach ($banner_list as $value){
                 if (ShopActivityEnum::SCORE_EXCHANGE == $value['type']){
                     continue;

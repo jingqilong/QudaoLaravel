@@ -45,7 +45,7 @@ class PrimeReserve extends Command
         $tomorrow_start = strtotime('+1 day '.date('Y-m-d')."00:00:00");
         $tomorrow_end   = strtotime('+1 day '.date('Y-m-d')."24:00:00");
         $where = ['state' => PrimeTypeEnum::RESERVATIONOK,'time' => ['range',[$tomorrow_start,$tomorrow_end]]];
-        if (!$reserve_list = PrimeReservationRepository::getList($where)){
+        if (!$reserve_list = PrimeReservationRepository::getAllList($where)){
             print '没有符合条件预约  ';
             return true;
         }

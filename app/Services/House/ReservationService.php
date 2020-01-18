@@ -7,11 +7,9 @@ use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Repositories\CommonAreaRepository;
-use App\Repositories\CommonImagesRepository;
 use App\Repositories\HouseDetailsRepository;
 use App\Repositories\HouseReservationRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\MemberRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
@@ -70,8 +68,6 @@ class ReservationService extends BaseService
      */
     public function reservationList($request, $member_id = 0)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
         $keywords   = $request['keywords'] ?? null;
         $order      = 'id';
@@ -86,12 +82,12 @@ class ReservationService extends BaseService
         $column = ['id','house_id','name','mobile','time','memo','state'];
         if (!empty($keywords)){
             $keywords = [$keywords => ['name','mobile','memo']];
-            if (!$list = HouseReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = HouseReservationRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = HouseReservationRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -102,7 +98,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $house_ids = array_column($list['data'],'house_id');
-        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
+        $house_list = HouseDetailsRepository::getAllList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
         $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['condo_name']   = '';
@@ -140,8 +136,6 @@ class ReservationService extends BaseService
     public function oaReservationList($request)
     {
         $employee = Auth::guard('oa_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $state      = $request['state'] ?? null;
         $keywords   = $request['keywords'] ?? null;
         $order      = 'id';
@@ -153,12 +147,12 @@ class ReservationService extends BaseService
         $column = ['id','house_id','name','mobile','time','memo','state'];
         if (!empty($keywords)){
             $keywords = [$keywords => ['name','mobile','memo']];
-            if (!$list = HouseReservationRepository::search($keywords,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = HouseReservationRepository::search($keywords,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseReservationRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = HouseReservationRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -169,7 +163,7 @@ class ReservationService extends BaseService
             return $list;
         }
         $house_ids = array_column($list['data'],'house_id');
-        $house_list = HouseDetailsRepository::getList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
+        $house_list = HouseDetailsRepository::getAllList(['id' => ['in',$house_ids]],['id','title','category','area','condo_name','decoration','image_ids','area_code','address','rent','tenancy']);
         $house_list =  ImagesService::getListImagesConcise($house_list,['image_ids' => 'single']);
         foreach ($list['data'] as &$value){
             $value['condo_name']   = '';
@@ -290,14 +284,12 @@ class ReservationService extends BaseService
     public function isReservationList($request)
     {
         $member     = Auth::guard('member_api')->user();
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
-        if (!$house_list = HouseDetailsRepository::getList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
+        if (!$house_list = HouseDetailsRepository::getAllList(['publisher' => HouseEnum::PERSON,'publisher_id' => $member->id])){
             $this->setMessage('您还没有发布过房源!');
             return [];
         }
         $house_ids = array_column($house_list,'id');
-        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time','name','house_id'],'id','desc',$page,$page_num)){
+        if (!$reservation_list = HouseReservationRepository::getList(['house_id' => ['in',$house_ids],'state' => HouseEnum::RESERVATIONOK],['id','time','name','house_id'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }

@@ -9,7 +9,6 @@ use App\Enums\MemberEnum;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
-use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOaListViewRepository;
 use App\Repositories\MemberPersonalServiceRepository;
@@ -33,16 +32,6 @@ class OaMemberService extends BaseService
      * @var int
      */
     protected $sort = 2;
-    /**
-     * 分页默认变量
-     * @var int
-     */
-    protected $page = 1;
-    /**
-     * 分页数量默认变量
-     * @var int
-     */
-    protected $page_num = 20;
 
     /**
      * OaMemberService constructor.
@@ -60,8 +49,6 @@ class OaMemberService extends BaseService
     public function memberList(array $data)
     {
         if (empty($data['asc'])) $data['asc'] = $this->sort;
-        $page       = $data['page'] ?? $this->page;
-        $page_num   = $data['page_num'] ?? $this->page_num;
         $asc        = $data['asc'] == 1 ? 'asc' : 'desc';
         $where      = ['deleted_at' => 0, 'is_test' => 0];
         $keywords   = $data['keywords'] ?? null;
@@ -74,12 +61,12 @@ class OaMemberService extends BaseService
         }
         if (!empty($keywords)) {
             $keyword = [$keywords => ['card_no', 'ch_name', 'mobile']];
-            if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, $page, $page_num, 'id', $asc)) {
+            if (!$list = MemberOaListViewRepository::search($keyword, $where, $column, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
         } else {
-            if (!$list = MemberOaListViewRepository::getList($where, $column, 'id', $asc, $page, $page_num)) {
+            if (!$list = MemberOaListViewRepository::getList($where, $column, 'id', $asc)) {
                 $this->setError('获取失败!');
                 return false;
             }
@@ -277,11 +264,9 @@ class OaMemberService extends BaseService
      */
     public function getMemberGradeViewList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['id' => ['>',0]];
         $column     = ['id','grade','type','value','created_at'];
-        if (!$list = OaGradeViewRepository::getList($where,$column,'id','asc',$page,$page_num)){
+        if (!$list = OaGradeViewRepository::getList($where,$column,'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

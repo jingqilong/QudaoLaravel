@@ -27,39 +27,35 @@ class ProcessRecordService extends BaseService
         }
         $process_record_data['created_at'] = time();
         $process_record_data['updated_at'] = time();
-        if (empty($node_id)){
-            $check_process = OaProcessDefinitionRepository::isEnabled($process_record_data['process_id']);
-            if ($check_process['code'] == 100){
-                Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
-                $this->setError('当前流程已被禁用，无法添加该流程！');
-                return false;
-            }
-
-        }else{
-            if (!$node = OaProcessNodeRepository::getOne(['process_id' => $process_record_data['process_id'],'id' => $node_id])){
-                Loggy::write('process','该流程下不存在此节点！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$node_id);
-                $this->setError('该流程下不存在此节点！');
-                return false;
-            }
+        $check_process = OaProcessDefinitionRepository::isEnabled($process_record_data['process_id']);
+        if ($check_process['code'] == 100){
+            Loggy::write('process','流程已被禁用，无法添加该流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$process_record_data['node_id']);
+            $this->setError('当前流程已被禁用，无法添加该流程！');
+            return false;
+        }
+        if (!isset($process_record_data['path'])){
             if (!$last_record = OaProcessRecordRepository::getOrderOne(
                 ['process_id' => $process_record_data['process_id'],'business_id' => $process_record_data['business_id']],
                 'id',
                 'desc'
             )){
-                Loggy::write('process','该业务还没有添加流程，请先添加一个流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤：'.$node_id);
+                Loggy::write('process','该业务还没有添加流程，请先添加一个流程！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
                 $this->setError('该业务还没有添加流程，请先添加一个流程！');
                 return false;
             }
-
-            $process_record_data['position']        = $node['position'];
-            $process_record_data['node_id']         = $node['id'];
-            $process_record_data['path']            = $last_record['path']  . ',' . $node_id;
+            $process_record_data['path']        = $last_record['path']  . ',' . $process_record_data['node_id'];
         }
-        if (!OaProcessRecordRepository::getAddId($process_record_data)){
-            Loggy::write('process','流程进度记录失败！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['business_id'].'，执行步骤：'.$node_id);
+        if (!OaProcessNodeRepository::exists(['process_id' => $process_record_data['process_id'],'id' => $process_record_data['node_id']])){
+            Loggy::write('process','该流程下不存在此节点！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['process_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
+            $this->setError('该流程下不存在此节点！');
+            return false;
+        }
+        if (!$record_id = OaProcessRecordRepository::getAddId($process_record_data)){
+            Loggy::write('process','流程进度记录失败！业务ID：'.$process_record_data['business_id'].'，流程ID：'.$process_record_data['business_id'].'，执行步骤node_id：'.$process_record_data['node_id']);
             $this->setError('流程进度记录失败！');
             return false;
         }
+        #更新路径
         $this->setMessage('流程进度记录成功！');
         return true;
     }
@@ -108,16 +104,14 @@ class ProcessRecordService extends BaseService
     /**
      * @desc 获取审核记录列表
      * @param $where
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getRecordList($where, $page, $pageNum)
+    public function getRecordList($where)
     {
         if (empty($where)){
             $where=['id' => ['>',0]];
         }
-        if (!$action_list = OaProcessRecordRepository::getList($where,['*'],'id','asc',$page,$pageNum)){
+        if (!$action_list = OaProcessRecordRepository::getList($where,['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -155,14 +149,14 @@ class ProcessRecordService extends BaseService
         }
         $where = ['business_id' => $request['business_id'],'process_category' => $request['process_category']];
         $column= ['id','node_id','node_action_result_id','operator_id','note','operation_at'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','asc')){
+        if (!$recode_list = OaProcessRecordRepository::getAllList($where,$column,'created_at','asc')){
             $this->setMessage('暂无数据！');
             return [];
         }
         $node_ids               = array_column($recode_list,'node_id');
-        $node_list              = OaProcessNodeRepository::getList(['id' => ['in',$node_ids]]);
+        $node_list              = OaProcessNodeRepository::getAllList(['id' => ['in',$node_ids]]);
         $node_action_result_ids = array_column($recode_list,'node_action_result_id');
-        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getList(['id' => ['in',$node_action_result_ids]]);
+        $node_action_result_list= OaProcessNodeActionsResultViewRepository::getAllList(['id' => ['in',$node_action_result_ids]]);
         $recode_list            = EmployeeService::getListOperationByName($recode_list,['operator_id' => 'operator']);
         foreach ($recode_list as &$recode){
             foreach ($node_list as $node){
@@ -186,15 +180,13 @@ class ProcessRecordService extends BaseService
     /**
      * 仪表板中的我的审核列表
      * @param $user_id
-     * @param $page
-     * @param $page_num
      * @return mixed
      */
-    public function getNodeListByUserId($user_id,$page,$page_num)
+    public function getNodeListByUserId($user_id)
     {
         $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
         $column= ['id','business_id','process_id','process_category','position','created_at'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc',$page,$page_num)){
+        if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -274,7 +266,7 @@ class ProcessRecordService extends BaseService
     {
         $where = ['business_id' => $business_id,'process_category' => $process_category];
         $column= ['*'];
-        if (!$recode_list = OaProcessRecordRepository::getList($where,$column)){
+        if (!$recode_list = OaProcessRecordRepository::getAllList($where,$column)){
             $this->setError('该业务未开启流程！');
             return false;
         }

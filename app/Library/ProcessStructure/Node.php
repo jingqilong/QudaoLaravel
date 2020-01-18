@@ -80,7 +80,7 @@ class Node
      *生成动作
      */
     public function buildAction(){
-        if ($node_actions = OaProcessNodeActionRepository::getList(['node_id' => $this->node_id])){
+        if ($node_actions = OaProcessNodeActionRepository::getAllList(['node_id' => $this->node_id])){
             foreach ($node_actions as $node_action){
                 $action = new Action($node_action['action_id'],$node_action['id'],$this);
                 $action->setData();

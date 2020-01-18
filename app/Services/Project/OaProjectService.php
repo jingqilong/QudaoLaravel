@@ -38,13 +38,9 @@ class OaProjectService extends BaseService
     public function getProjectOrderList(array $data)
     {
         $employee = Auth::guard('oa_api')->user();
-        if (empty($data['asc'])){
-            $data['asc'] = 1;
-        }
+        $asc = $data['asc'] ?? 1;
+        $asc = ($asc == 1) ? 'asc' : 'desc';
 
-        $asc         =   $data['asc'] == 1 ? 'asc' : 'desc';
-        $page        =   $data['page'] ?? 1;
-        $page_num    =   $data['page_num'] ?? 20;
         $keywords    =   $data['keywords'] ?? null;
         $status      =   $data['status'] ?? null;
         $column      =   ['*'];
@@ -55,12 +51,12 @@ class OaProjectService extends BaseService
         }
         if (!empty($keywords)){
             $keyword     =   [$keywords => ['name','mobile','project_name']];
-            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,$page,$page_num,'id',$asc)) {
+            if (!$list = OaProjectOrderRepository::search($keyword,$where,$column,'id',$asc)) {
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-                if (!$list = OaProjectOrderRepository::getList($where,$column,'id',$asc,$page,$page_num)){
+                if (!$list = OaProjectOrderRepository::getList($where,$column,'id',$asc)){
                     $this->setError('获取失败！');
                     return false;
                 }

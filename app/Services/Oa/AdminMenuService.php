@@ -7,7 +7,6 @@ use App\Repositories\OaAdminMenuRepository;
 use App\Repositories\OaAdminPermissionsRepository;
 use App\Repositories\OaAdminRoleMenuRepository;
 use App\Repositories\OaAdminRolePermissionsRepository;
-use App\Repositories\OaAdminRolesRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
@@ -104,7 +103,7 @@ class AdminMenuService extends BaseService
         $menu_list = [];
         if (!empty($user->permission_ids)){
             $permissions_ids = explode(',', $user->permission_ids);
-            if (!empty($permissions = OaAdminPermissionsRepository::getList(['id' => ['in', $permissions_ids]],['slug']))){
+            if (!empty($permissions = OaAdminPermissionsRepository::getAllList(['id' => ['in', $permissions_ids]],['slug']))){
                 $permissions_slugs = array_column($permissions,'slug');
                 $menu_list = OaAdminMenuRepository::getMenuList(['permission' => ['in', $permissions_slugs]]);
             }
@@ -114,9 +113,9 @@ class AdminMenuService extends BaseService
             return [];//没有可以展示的列表
         }
         #检验是否有超级权限
-        if ($role_perm = OaAdminRolePermissionsRepository::getList(['role_id' => explode(',',trim($user->role_ids,','))],['permission_id'])){
+        if ($role_perm = OaAdminRolePermissionsRepository::getAllList(['role_id' => explode(',',trim($user->role_ids,','))],['permission_id'])){
             $perm_ids  = array_column($role_perm,'permission_id');
-            $perm_infos= OaAdminPermissionsRepository::getList(['id' => ['in', $perm_ids],'slug' => '*']);
+            $perm_infos= OaAdminPermissionsRepository::getAllList(['id' => ['in', $perm_ids],'slug' => '*']);
             if (!empty($perm_infos)){
                 #此处有所有权限，直接返回所有菜单
                 $this->setMessage('获取成功！');
@@ -124,7 +123,7 @@ class AdminMenuService extends BaseService
             }
         }
 
-        $menu_info   = OaAdminRoleMenuRepository::getList(['role_id' => explode(',',trim($user->role_ids,','))],['menu_id']);
+        $menu_info   = OaAdminRoleMenuRepository::getAllList(['role_id' => explode(',',trim($user->role_ids,','))],['menu_id']);
         $menu_ids = array_column($menu_info,'menu_id');
         $menu_list  += OaAdminMenuRepository::getMenuList(['id' => ['in' , $menu_ids]]);
         if (empty($menu_list)){
@@ -164,12 +163,12 @@ class AdminMenuService extends BaseService
                 $res[] = ['id'    => 0, 'title' => '顶级菜单', 'icon'  => ''];
                 break;
         }
-        if (!$list = OaAdminMenuRepository::getList($where,['id','title','icon','parent_id'])){
+        if (!$list = OaAdminMenuRepository::getAllList($where,['id','title','icon','parent_id'])){
             $this->setMessage('暂无数据！');
             return [];
         }
         $parent_ids = array_column($list,'parent_id');
-        $parent_list = OaAdminMenuRepository::getList(['id' => ['in',$parent_ids]],['id','title']);
+        $parent_list = OaAdminMenuRepository::getAllList(['id' => ['in',$parent_ids]],['id','title']);
         foreach ($list as &$value){
             if ($value['parent_id'] == 0){
                 $value['title'] = reset($res)['title'] . ' - ' . $value['title'];

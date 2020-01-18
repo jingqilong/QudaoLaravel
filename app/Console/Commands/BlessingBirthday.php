@@ -46,7 +46,7 @@ class BlessingBirthday extends Command
         $lunar_time = date('m-d',app(Lunar::class)->S2L(date('Y-m-d'))).' 00:00:00';
         $where = ['birthday' => ['like','%'.$lunar_time]];
         $where = ['id' => 314];
-        if (!$member_list = MemberViewRepository::getList($where)){
+        if (!$member_list = MemberViewRepository::getAllList($where)){
             print '没有符合条件会员  ';
             return true;
         }

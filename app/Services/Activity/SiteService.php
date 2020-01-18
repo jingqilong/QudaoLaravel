@@ -102,12 +102,10 @@ class SiteService extends BaseService
 
     /**
      * 获取场景列表
-     * @param $page
-     * @param $page_num
      * @return bool|null
      */
-    public function getSiteList($page, $page_num){
-        if (!$list = ActivitySiteRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$page_num)){
+    public function getSiteList(){
+        if (!$list = ActivitySiteRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -124,7 +122,7 @@ class SiteService extends BaseService
             $value['images']     = [];
             if (!empty($value['images_ids'])){
                 $image_ids = explode(',',$value['images_ids']);
-                if ($image_list = CommonImagesRepository::getList(['id' => ['in', $image_ids]],['img_url'])){
+                if ($image_list = CommonImagesRepository::getAllList(['id' => ['in', $image_ids]],['img_url'])){
                     $image_list     = array_column($image_list,'img_url');
                     $value['images']= $image_list;
                 }

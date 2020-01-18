@@ -29,7 +29,7 @@ class ApiPaginator extends BasePaginator
 
             $options = [
                 'path' => Paginator::resolveCurrentPath(),
-                'pageName' => $pageName,
+                'pageName' => Name,
             ];
 
             return Container::getInstance()->makeWith(ApiPaginator::class, compact(

@@ -124,8 +124,6 @@ class SendService extends BaseService
      */
     public function getAllMessageList($request)
     {
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $user_type          = $request['user_type'] ?? null;
         $message_category   = $request['message_category'] ?? null;
         $where              = ['id' => ['<>',0]];
@@ -135,7 +133,7 @@ class SendService extends BaseService
         if (!is_null($message_category)){
             $where['category_id'] = $message_category;
         }
-        if (!$list = MessageSendViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,['*'],'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -150,19 +148,19 @@ class SendService extends BaseService
         $member_list = [];
         if ($member_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::MEMBER)){
             $member_ids = array_column($member_message_list,'user_id');
-            $member_list = MemberBaseRepository::getList(['id' => ['in',$member_ids]],['id','ch_name','mobile']);
+            $member_list = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name','mobile']);
         }
         #获取相关商户列表
         $merchant_list = [];
         if ($merchant_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::MERCHANT)){
             $merchant_ids = array_column($merchant_message_list,'user_id');
-            $merchant_list = PrimeMerchantRepository::getList(['id' => ['in',$merchant_ids]],['id','name','mobile']);
+            $merchant_list = PrimeMerchantRepository::getAllList(['id' => ['in',$merchant_ids]],['id','name','mobile']);
         }
         #获取相关OA员工列表
         $oa_list = [];
         if ($oa_message_list = $this->searchArray($list['data'],'user_type',MessageEnum::OAEMPLOYEES)){
             $oa_ids = array_column($oa_message_list,'user_id');
-            $oa_list = OaEmployeeRepository::getList(['id' => ['in',$oa_ids]],['id','real_name','mobile']);
+            $oa_list = OaEmployeeRepository::getAllList(['id' => ['in',$oa_ids]],['id','real_name','mobile']);
         }
         foreach ($list['data'] as &$value){
             #匹配会员信息
@@ -255,15 +253,13 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function memberMessageList($request)
+    public function memberMessageList()
     {
         $member             = Auth::guard('member_api')->user();
         $member_id          = $member->id;
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$member_id,0]],'user_type' => MessageEnum::MEMBER,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -273,7 +269,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $member_id,'user_type' => MessageEnum::MEMBER]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $member_id,'user_type' => MessageEnum::MEMBER]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
@@ -291,14 +287,12 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function merchantMessageList($request)
+    public function merchantMessageList()
     {
         $prime             = Auth::guard('prime_api')->user();
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$prime->id,0]],'user_type' => MessageEnum::MERCHANT,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -308,7 +302,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $prime->id,'user_type' => MessageEnum::MERCHANT]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $prime->id,'user_type' => MessageEnum::MERCHANT]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){
@@ -326,14 +320,12 @@ class SendService extends BaseService
      * @param $request
      * @return bool|mixed|null
      */
-    public function oaMessageList($request)
+    public function oaMessageList()
     {
         $oa                 = Auth::guard('oa_api')->user();
-        $page               = $request['page'] ?? 1;
-        $page_num           = $request['page_num'] ?? 20;
         $where              = ['user_id' => ['in',[$oa->id,0]],'user_type' => MessageEnum::OAEMPLOYEES,'deleted_at' => null];
         $column             = ['id','message_id','message_category','category_id','title','content','created_at'];
-        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = MessageSendViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -343,7 +335,7 @@ class SendService extends BaseService
             return $list;
         }
         $send_ids = array_column($list['data'],'id');
-        $read_list = MessageReadRepository::getList(['send_id' => ['in',$send_ids],'user_id' => $oa->id,'user_type' => MessageEnum::OAEMPLOYEES]);
+        $read_list = MessageReadRepository::getAllList(['send_id' => ['in',$send_ids],'user_id' => $oa->id,'user_type' => MessageEnum::OAEMPLOYEES]);
         foreach ($list['data'] as &$value){
             $value['is_read'] = 0;
             if ($read = $this->searchArray($read_list,'send_id',$value['id'])){

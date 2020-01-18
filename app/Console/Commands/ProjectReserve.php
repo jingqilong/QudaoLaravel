@@ -45,7 +45,7 @@ class ProjectReserve extends Command
         $tomorrow_start = strtotime('+1 day '.date('Y-m-d')."00:00:00");
         $tomorrow_end   = strtotime('+1 day '.date('Y-m-d')."24:00:00");
         $where = ['status' => ProjectEnum::PASS,'deleted_at' => 0,'reservation_at' => ['range',[$tomorrow_start,$tomorrow_end]]];
-        if (!$reserve_list = ProjectOrderRepository::getList($where)){
+        if (!$reserve_list = ProjectOrderRepository::getAllList($where)){
             print '没有符合条件预约  ';
             return true;
         }

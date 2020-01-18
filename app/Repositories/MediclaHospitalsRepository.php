@@ -35,7 +35,7 @@ class MediclaHospitalsRepository extends ApiRepository
             $all_department_ids = array_merge($all_department_ids,$str_arr);
         }
         $all_department_ids = array_unique($all_department_ids);
-        $list = $this->getList(['id' => ['in',$all_department_ids]],$column);
+        $list = $this->getAllList(['id' => ['in',$all_department_ids]],$column);
         return $list;
     }
 }

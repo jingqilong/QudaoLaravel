@@ -64,12 +64,12 @@ class PastService extends BaseService
             return false;
         }
         if (!ActivityPastRepository::create($add_arr)){
-            $this->setError('添加失败!');
+            $this->setError('上传失败!');
             DB::rollBack();
             return false;
         }
         DB::commit();
-        $this->setMessage('添加成功!');
+        $this->setMessage('上传成功!');
         return true;
     }
 
@@ -150,7 +150,7 @@ class PastService extends BaseService
     {
         $where      = ['activity_id' => $request['activity_id']];
         $column     = ['resource_ids','presentation','hidden','top'];
-        if (!$list = ActivityPastRepository::getList($where,$column)){
+        if (!$list = ActivityPastRepository::getAllList($where,$column)){
             $this->setMessage('获取成功');
             return json_encode($list);
         }
@@ -183,7 +183,7 @@ class PastService extends BaseService
         $res['banner']      = [];
         $res['video_list']  = [];
         $res['images_list'] = [];
-        if (!$list = ActivityPastRepository::getList($where,$column,'top','desc')){
+        if (!$list = ActivityPastRepository::getAllList($where,$column,'top','desc')){
             $this->setError('获取失败');
             return false;
         }

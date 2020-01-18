@@ -82,18 +82,16 @@ class FeedBacksService extends BaseService
      */
     public function feedBackList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $where      = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword   = [$keywords => ['ch_name','mobile','content']];
-            if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
+            if (!$list = CommonFeedBacksViewRepository::search($keyword,$where,['*'],'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = CommonFeedBacksViewRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+            if (!$list = CommonFeedBacksViewRepository::getList($where,['*'],'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -102,14 +100,16 @@ class FeedBacksService extends BaseService
         if (empty($list['data'])){
             return $list;
         }
-        $list['data'] = MemberGradeRepository::bulkHasManyWalk(
+
+        $list['data'] = MemberOaListViewRepository::bulkHasManyWalk(
             $list['data'],
-            ['from' => 'member_id','to' => 'user_id'],
-            ['user_id','grade'],
+            ['from' => 'member_id','to' => 'id'],
+            ['id','grade'],
             [],
             function($src_item,$member_grade_items){
-                $grade = Arr::only($member_grade_items[$src_item['member_id']],'grade');
-                $src_item['grade'] = MemberGradeDefineRepository::getLabelById((int)$grade,'普通成员');
+                foreach ($member_grade_items as &$value){
+                    $src_item['grade'] = MemberGradeDefineRepository::getLabelById((int)$value['grade'],'普通成员');
+                }
                 return $src_item;
             }
         );
@@ -195,7 +195,7 @@ class FeedBacksService extends BaseService
         }
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
-        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
+        if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
             $this->setError('没有反馈消息!');
             return false;
         }
@@ -206,7 +206,7 @@ class FeedBacksService extends BaseService
                 return $value;
             }
         });
-        $member_list = MemberOaListViewRepository::getList(['id' => ['in',$member_ids]],['id','img_url']);
+        $member_list = MemberOaListViewRepository::getAllList(['id' => ['in',$member_ids]],['id','img_url']);
         $member_list = createArrayIndex($member_list,'id');
         $default_avatar = url('images/service_default_avatar.jpeg');
         foreach ($call_back_list as &$value){
@@ -225,13 +225,11 @@ class FeedBacksService extends BaseService
     public function getCallBackList($request)
     {
         $member   = $this->auth->user();
-        $page     = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $status   = $request['status'] ?? null;
         $where    = ['member_id' => $member->id];
         if (empty($status)) $where['status'] = ['<', FeedBacksEnum::CLOSE]; else $where['status'] = $request['status'];
         $column   = ['id','member_id','content','img_url','created_at'];
-        if (!$list = CommonFeedBacksViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = CommonFeedBacksViewRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -258,7 +256,7 @@ class FeedBacksService extends BaseService
         }
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
-        if (!$call_back_list = CommonFeedbackThreadRepository::getList($list_where,$list_column,'created_at','asc')){
+        if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
             $this->setError('暂时没有回复消息!');
             return false;
         }
@@ -269,7 +267,7 @@ class FeedBacksService extends BaseService
                 return $value;
             }
         });
-        $member_list = MemberOaListViewRepository::getList(['id' => ['in',$member_ids]],['id','img_url']);
+        $member_list = MemberOaListViewRepository::getAllList(['id' => ['in',$member_ids]],['id','img_url']);
         $member_list = createArrayIndex($member_list,'id');
         $default_avatar = url('images/service_default_avatar.jpeg');
         foreach ($call_back_list as &$value){

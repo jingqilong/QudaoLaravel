@@ -101,13 +101,11 @@ class ProcessCategoriesService extends BaseService
 
     /**
      * 获取分类列表
-     * @param $page
-     * @param $pageNum
      * @return bool|null
      */
-    public function getCategoriesList($page, $pageNum)
+    public function getCategoriesList()
     {
-        if (!$cate_list = OaProcessCategoriesRepository::getList(['id' => ['>',0]],['*'],'id','asc',$page,$pageNum)){
+        if (!$cate_list = OaProcessCategoriesRepository::getList(['id' => ['>',0]],['*'],'id','asc')){
             $this->setError('获取失败!');
             return false;
         }

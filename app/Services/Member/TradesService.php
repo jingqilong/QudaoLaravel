@@ -12,10 +12,7 @@ use App\Repositories\MemberOrdersRepository;
 use App\Repositories\MemberRelationRepository;
 use App\Repositories\MemberTradeListViewRepository;
 use App\Repositories\MemberTradesRepository;
-use App\Repositories\ShopGoodsSpecRelateRepository;
-use App\Repositories\ShopGoodsSpecRepository;
 use App\Repositories\ShopOrderRelateNameViewRepository;
-use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Arr;
@@ -85,7 +82,7 @@ class TradesService extends BaseService
             'trade_method'  => ['<>',TradeEnum::SCORE],
             'create_at'     => ['range',[$today['start'] - ($day * 86400),$today['end'] + ($day * 86400)]]
         ];
-        $list = MemberTradesRepository::getList($where,['amount','trade_method','create_at']) ?? [];
+        $list = MemberTradesRepository::getAllList($where,['amount','trade_method','create_at']) ?? [];
         #总收入
         for ($i = $day;$i >= 0;$i--){
             $date_time                  = date('Y-m-d',strtotime('-'.$i.' day'));
@@ -131,19 +128,17 @@ class TradesService extends BaseService
     public function getTradeList($request)
     {
         $request_arr = Arr::only($request,['trade_no','order_type','keywords','transaction_no','fund_flow','trade_method','status']);
-        $page        = $request['page'] ?? 1;
-        $page_num    = $request['page_num'] ?? 20;
         $where       = ['id' => ['>',0]];
         $column      = ['*'];
         foreach ($request_arr as $key => $value) $where[$key] = $value;
         if (!empty($request_arr['keywords'])){
             $keyword = [$request_arr['keywords'] => ['pay_user_name','mobile']];
-            if (!$trade_list = MemberTradeListViewRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$trade_list = MemberTradeListViewRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$trade_list = MemberTradeListViewRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$trade_list = MemberTradeListViewRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }

@@ -136,11 +136,9 @@ class CartService extends BaseService
     {
         $memberInfo = $this->auth->user();
         $member_id  = $memberInfo->id;
-        $page         = $request['page'] ?? 1;
-        $page_num     = $request['page_num'] ?? 20;
         $where        = ['member_id' => $member_id];
         $column       = ['id','goods_id','spec_relate_id','number'];
-        if (!$list = ShopCartRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = ShopCartRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败!');
             return false;
         }
@@ -172,18 +170,16 @@ class CartService extends BaseService
      */
     public function listShopCar($request)
     {
-        $page         = $request['page'] ?? 1;
-        $page_num     = $request['page_num'] ?? 20;
         $keywords     = $request['keywords'] ?? null;
         $where        = ['id' => ['>',0]];
         if (!empty($keywords)){
             $keyword   = [$keywords => ['name','mobile']];
-            if (!$list = ShopCartRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
+            if (!$list = ShopCartRepository::search($keyword,$where,['*'],'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$list = ShopCartRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+            if (!$list = ShopCartRepository::getList($where,['*'],'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }

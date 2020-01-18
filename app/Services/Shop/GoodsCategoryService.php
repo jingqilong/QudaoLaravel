@@ -98,18 +98,16 @@ class GoodsCategoryService extends BaseService
      */
     public function getCategoryList($request)
     {
-        $page = $request['page'] ?? 1;
-        $page_num = $request['page_num'] ?? 20;
         $keywords = $request['keywords'] ?? null;
         $where = ['deleted_at' => 0];
         $column = ['id','name','icon_id','created_at','updated_at'];
         if (!empty($keywords)){
-            if (!$list = ShopGoodsCategoryRepository::search([$keywords => ['name']],$where,$column,$page,$page_num)){
+            if (!$list = ShopGoodsCategoryRepository::search([$keywords => ['name']],$where,$column)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = ShopGoodsCategoryRepository::getList($where,$column,null,null,$page,$page_num)){
+            if (!$list = ShopGoodsCategoryRepository::getList($where,$column,null,null)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -131,7 +129,7 @@ class GoodsCategoryService extends BaseService
     public function getHomeCategoryList(){
         $where = ['deleted_at' => 0];
         $column = ['id','name','icon_id'];
-        if (!$list = ShopGoodsCategoryRepository::getList($where,$column)){
+        if (!$list = ShopGoodsCategoryRepository::getAllList($where,$column)){
             $this->setMessage('暂无数据！');
             return [];
         }

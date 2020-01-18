@@ -418,7 +418,7 @@ class SiteController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->siteService->getSiteList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->siteService->getSiteList();
         if ($res === false){
             return ['code' => 100, 'message' => $this->siteService->error];
         }

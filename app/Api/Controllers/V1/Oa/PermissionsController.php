@@ -5,11 +5,8 @@ namespace App\Api\Controllers\V1\Oa;
 
 
 use App\Api\Controllers\ApiController;
-use App\Services\Oa\AdminMenuService;
 use App\Services\Oa\AdminOperationLogService;
 use App\Services\Oa\AdminPermissionsService;
-use App\Services\Oa\AdminRolesService;
-use App\Services\Oa\EmployeeService;
 
 class PermissionsController extends ApiController
 {
@@ -342,7 +339,7 @@ class PermissionsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->adminPermissionService->getPermissionList(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->adminPermissionService->getPermissionList();
         if (!$res){
             return ['code' => 100, 'message' => $this->adminPermissionService->error];
         }
@@ -401,7 +398,7 @@ class PermissionsController extends ApiController
      *
      */
     public function operationLog(){
-        $res = $this->adminOperationLogService->getOperationLog(($this->request['page'] ?? 1),($this->request['page_num'] ?? 20));
+        $res = $this->adminOperationLogService->getOperationLog();
         if (!$res){
             return ['code' => 100, 'message' => $this->adminOperationLogService->error];
         }

@@ -70,7 +70,7 @@ class PrimeMerchantRepository extends ApiRepository
         $banner_ids         = explode(',',$user_info['banner_ids']);
         $display_img_ids    = explode(',',$user_info['display_img_ids']);
         $image_ids          = array_merge([$user_info['logo_id'],$user_info['license_img_id']],$banner_ids,$display_img_ids);
-        $image_list         = CommonImagesRepository::getList(['id' => ['in',$image_ids]],['id','img_url']);
+        $image_list         = CommonImagesRepository::getAllList(['id' => ['in',$image_ids]],['id','img_url']);
         $user_info['logo']  = '';
         if ($logo = $this->searchArray($image_list,'id',$user_info['logo_id'])){
             $user_info['logo'] = reset($logo)['img_url'];
@@ -149,7 +149,7 @@ class PrimeMerchantRepository extends ApiRepository
         $desc_asc   = 'desc';
         $where      = ['id' => ['in',$request['collect_ids']],'disabled' => 0];
         $column     = ['id','name','type','banner_ids','address','star','expect_spend','discount'];
-        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc,$request['page'],$request['page_num'])){
+        if (!$list = PrimeMerchantViewRepository::getList($where,$column,$order,$desc_asc)){
             return [];
         }
         $list = $this->removePagingField($list);

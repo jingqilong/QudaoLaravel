@@ -5,14 +5,13 @@ namespace App\Services\Shop;
 use App\Enums\ShopGoodsEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ScoreCategoryRepository;
-use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
+use App\Repositories\ShopGoodsSpecViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class GoodsSpecRelateService extends BaseService
@@ -33,31 +32,26 @@ class GoodsSpecRelateService extends BaseService
             }
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
-        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids],'deleted_at' => 0]);
+        $spec_relate_list   = ShopGoodsSpecRelateRepository::getStrSpecList($spec_relate_ids);
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids,$goods_column);
-        $goods_list         = ImagesService::getListImages($goods_list,['banner_ids' => 'single']);
-        $spec_ids           = implode(',',array_column($spec_relate_list,'spec_ids'));
-        $spec_list          = ShopGoodsSpecRepository::getAssignList(explode(',',$spec_ids),['id','spec_value','spec_name']);
+        array_walk($goods_list, function(&$value) {
+            $banner_ids = trim($value['banner_ids'],',' );
+            $banner_ids = explode(',',$banner_ids);
+            $value['banner_ids'] = reset($banner_ids);
+        });
+        $goods_list         = CommonImagesRepository::bulkHasOneWalk($goods_list, ['from' => 'banner_ids','to' => 'id'], ['img_url','id'],[],
+            function ($src_item,$set_items){
+                $src_item['banner_url'] = $set_items['img_url'];
+                return $src_item;
+            }
+        );
+        $goods_list         = createArrayIndex($goods_list,'id');
         $result             = [];
         foreach ($goods_spec_arr as $key => $value){
-            $spec_str       = '件';
             $price          = 0;
-            if (isset($value['spec_relate_id'])){
-                $spec_str = '';
-                if ($spec_relate = $this->searchArray($spec_relate_list,'id',$value['spec_relate_id'])){
-                    $price = reset($spec_relate)['price'];
-                    $value_spec_ids = explode(',',trim(reset($spec_relate)['spec_ids'],','));
-                    foreach ($value_spec_ids as $value_spec_id){
-                        if ($item_spec  = $this->searchArray($spec_list,'id',$value_spec_id)){
-                            $spec_str  .= reset($item_spec)['spec_name'] .':'. reset($item_spec)['spec_value'] . ';';
-                        }
-                    }
-                }
-            }
-
-            if ($goods  = $this->searchArray($goods_list,'id',$value['goods_id'])){
-                $goods  =  reset($goods);
+            if (isset($goods_list[$value['goods_id']])){
+                $goods  =  $goods_list[$value['goods_id']];
                 $price  =  ($price ? $price : $goods['price']) * $value['number'];
                 $deduction_price = $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? 0 : $this->maximumCreditDeductionAmount(
                     $goods['score_categories'],
@@ -66,11 +60,15 @@ class GoodsSpecRelateService extends BaseService
                     $price
                 );
                 $result[$key] = [
+                    'goods_id'        => $goods['id'],
                     'goods_name'      => $goods['name'],
-                    'goods_price'     => $goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? '面议' : sprintf('%.2f',round($price / 100,2)),
+                    'goods_price'     => ($goods['negotiable'] == ShopGoodsEnum::NEGOTIABLE) ? '面议' : sprintf('%.2f',round($price / 100,2)),
                     'main_img_url'    => $goods['banner_url'],
+                    'negotiable'      => $goods['negotiable'],
                     'number'          => $value['number'],
-                    'deduction_price' => $deduction_price//最高积分抵扣
+                    'deduction_price' => $deduction_price,//最高积分抵扣
+                    'spec_relate_id'  => $value['spec_relate_id'] ?? 0,
+                    'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
                 ];
             }
             if (isset($value['order_relate_id'])){
@@ -79,9 +77,6 @@ class GoodsSpecRelateService extends BaseService
             if (isset($value['cart_id'])){
                 $result[$key]['cart_id']       = $value['cart_id'];
             }
-            $result[$key]['goods_id']           = $value['goods_id'];
-            $result[$key]['spec_relate_id']     = isset($value['spec_relate_id']) ? $value['spec_relate_id'] : 0;
-            $result[$key]['spec']               = $spec_str;
         }
         $this->setMessage('获取成功!');
         return $result;
@@ -100,7 +95,7 @@ class GoodsSpecRelateService extends BaseService
             }
         }
         $spec_relate_ids    = array_column($goods_spec_arr,'spec_relate_id');
-        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getList(['id' => ['in',$spec_relate_ids]]);
+        $spec_relate_list   = empty($spec_relate_ids) ? [] : ShopGoodsSpecRelateRepository::getAllList(['id' => ['in',$spec_relate_ids]]);
         $spec_relate_list   = createArrayIndex($spec_relate_list,'id');
         $goods_ids          = array_column($goods_spec_arr,'goods_id');
         $goods_list         = ShopGoodsRepository::getAssignList($goods_ids);
@@ -166,7 +161,7 @@ class GoodsSpecRelateService extends BaseService
      * @return false|string
      */
     public static function getGoodsSpecJson($goods_id){
-        if (!$spec_related = ShopGoodsSpecRelateRepository::getList(['goods_id' => $goods_id,'deleted_at' => 0],['spec_ids','stock','price'])){
+        if (!$spec_related = ShopGoodsSpecRelateRepository::getAllList(['goods_id' => $goods_id,'deleted_at' => 0],['spec_ids','stock','price'])){
             return '';
         }
         $spec_ids = array_column($spec_related,'spec_ids');
@@ -204,7 +199,7 @@ class GoodsSpecRelateService extends BaseService
      */
     public function getGoodsSpec($goods_id)
     {
-        if (!$spec_related = ShopGoodsSpecRelateRepository::getList(['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],['id','spec_ids','stock','price'])){
+        if (!$spec_related = ShopGoodsSpecRelateRepository::getAllList(['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],['id','spec_ids','stock','price'])){
             $this->setMessage('暂无规格！');
             return [];
         }
@@ -268,36 +263,38 @@ class GoodsSpecRelateService extends BaseService
      */
     public function getGoodsSpecList($goods_id)
     {
-        //从视图中取出记录
-        if (!$spec_list = ShopGoodSpecListViewRepository::getAllList(
-                ['goods_id' => $goods_id,'deleted_at' => 0,'stock' => ['>',0]],
-                ['id','goods_id','price','stock','spec_ids','attribute_id','image_id','spec_name','spec_value'],
-                ['id','attribute_id'],
-                ['asc','asc']
+        if(!$spec_list = ShopGoodsSpecViewRepository::getAllList(
+            ['goods_id' => $goods_id,'spec_stock' => ['>',0]],
+            ['spec_id','goods_id','spec_price','spec_stock','spec_ids','negotiable'],
+            ['spec_id'],['asc']
         )){
             $this->setMessage('暂无规格！');
             return [];
-        }
-        $result = $last_item = $new_item =  $attributes = [];
-        $last_id = 0;
-        //因为视图是联表查询，所以，这里要合并记录
-        foreach ($spec_list as $item){
-            if($last_id != $item['id']){
-                $new_item['attributes'] = implode('； ',$attributes);
-                $last_id = $item['id'];
-                $new_item = & $result[];
-                $new_item = Arr::only($item,['id','goods_id','price','stock','image_id']);
-                $new_item['price']  = number_format($new_item['price']/100,2 );
-                $attributes = array_flip(explode(',',trim($item['spec_ids'],','))) ;
-            }
-            $attributes[$item['attribute_id']]  =  $item['spec_name'] ."：" .$item['spec_value'] ;
-            if($new_item['image_id'] == 0){
-                if( $item['image_id']!=0){
-                    $new_item['image_id'] = $item['image_id'];
+        };
+        $result = ShopGoodsSpecRepository::bulkHasManyWalk(
+            $spec_list,
+            ['from' => 'spec_ids','to' => 'id' ],
+            [ 'id', 'goods_id', 'image_id', 'spec_name', 'spec_value'],
+            ['goods_id'=>$goods_id],
+            function($src_list, $attr_list){
+                $ret_data['id']  =   $src_list['spec_id'] ;
+                $ret_data['goods_id']  =   $src_list['goods_id'] ;
+                $ret_data['stock']  =   $src_list['spec_stock'] ;
+                $ret_data['price']  =   number_format($src_list['spec_price']/100,2 );
+                if(1 == $src_list['negotiable']){
+                    $ret_data['price'] = '面议';
                 }
+                $attributes = [];
+                foreach($attr_list as $attr_item){
+                    $attributes[$attr_item['id']]  =  $attr_item['spec_name'] ."：" .$attr_item['spec_value'] ;
+                    if( $attr_item['image_id']!=0){
+                        $ret_data['image_id'] = $attr_item['image_id'];
+                    }
+                }
+                $ret_data['attributes'] = implode('； ',$attributes);
+                return $ret_data;
             }
-        }
-        $new_item['attributes'] = implode('； ',$attributes);
+        );
         //获取图片
         $result  = ImagesService::getListImages($result,['image_id' => 'single']);
         $this->setMessage('获取成功！');
@@ -352,7 +349,7 @@ class GoodsSpecRelateService extends BaseService
     protected function getNegotiableGoodsInfo($goods_param){
         $goods_ids          = array_column($goods_param,'goods_id');
         $goods_column       = ['id','name','price','banner_ids','score_deduction','score_categories'];
-        $goods_list         = ShopGoodsRepository::getList(['id' => ['in',$goods_ids],'negotiable' => ShopGoodsEnum::NEGOTIABLE],$goods_column);
+        $goods_list         = ShopGoodsRepository::getAllList(['id' => ['in',$goods_ids],'negotiable' => ShopGoodsEnum::NEGOTIABLE],$goods_column);
         array_walk($goods_list, function(&$value) {
             $banner_ids = trim($value['banner_ids'],',' );
             $banner_ids = explode(',',$banner_ids);

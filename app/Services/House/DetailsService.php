@@ -128,7 +128,7 @@ class DetailsService extends BaseService
 
         $house['decoration'] = HouseEnum::getDecoration($house['decoration']);
         $house['area']          = $house['area'] .'㎡'   ;
-        $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]]);
+        $image_list = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$house['image_ids'])]]);
         $house['images']        = array_column($image_list,'img_url');
         $house['storey']        = $house['storey'] .'层';
         $house['category']      = HouseEnum::getCategory($house['category']);
@@ -261,8 +261,6 @@ class DetailsService extends BaseService
         $decoration = $request['decoration'] ?? '';
         $publisher  = $request['publisher'] ?? '';
         $status     = $request['status'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0];
         if (!empty($decoration)){
             $where['decoration'] = $decoration;
@@ -276,12 +274,12 @@ class DetailsService extends BaseService
         $column = ['*'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['title', 'address', 'tenancy', 'leasing', 'unit', 'toward', 'tenancy']];
-            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -299,7 +297,7 @@ class DetailsService extends BaseService
             $value['rent_tenancy']      = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
             $value['tenancy_title']     = HouseEnum::getTenancy($value['tenancy']);
             $value['decoration_title']  = HouseEnum::getDecoration($value['decoration']);
-            $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
+            $image_list                 = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$value['image_ids'])]],['id','img_url']);
             $value['images']            = $image_list;
             $value['category_title']    = HouseEnum::getCategory($value['category']);
             $value['publisher_title']   = HouseEnum::getPublisher($value['publisher']);
@@ -346,7 +344,7 @@ class DetailsService extends BaseService
         $house['status']            = HouseEnum::getStatus($house['status']);
         $house['created_at']        = date('Y-m-d H:i:s',$house['created_at']);
         $house['updated_at']        = date('Y-m-d H:i:s',$house['updated_at']);
-        $image_list                 = CommonImagesRepository::getList(['id' => ['in',explode(',',$house['image_ids'])]],['img_url']);
+        $image_list                 = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$house['image_ids'])]],['img_url']);
         $house['images']            = empty($image_list) ? [] : Arr::flatten($image_list);
         $house['facilities']        = HouseFacilitiesRepository::getFacilitiesList(explode(',',$house['facilities_ids']),['title','icon_id']);
         unset($house['area_code'],$house['rent'],$house['tenancy'],$house['image_ids'],$house['facilities_ids'],$house['publisher_id'],$house['rent'],$house['rent']);
@@ -365,8 +363,6 @@ class DetailsService extends BaseService
         $category   = $request['category'] ?? '';
         $rent_range = $request['rent_range'] ?? '';
         $_order     = $request['order'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $order      = 'id';
         $desc_asc   = 'desc';
@@ -407,12 +403,12 @@ class DetailsService extends BaseService
         $column = ['id','title','area_code','area','describe','rent','tenancy','leasing','decoration','image_ids','storey','unit','condo_name','toward','category'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['title','leasing', 'unit', 'toward','condo_name']];
-            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$page,$page_num,$order,$desc_asc)){
+            if (!$list = HouseDetailsRepository::search($keyword,$where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+            if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -430,7 +426,7 @@ class DetailsService extends BaseService
             #处理价格
             $value['rent_tenancy']          = '¥'. $value['rent'] .'/'. HouseEnum::getTenancy($value['tenancy']);
             $value['decoration'] = HouseEnum::getDecoration($value['decoration']);
-            $image_list = CommonImagesRepository::getList(['id' => ['in',explode(',',$value['image_ids'])]]);
+            $image_list = CommonImagesRepository::getAllList(['id' => ['in',explode(',',$value['image_ids'])]]);
             $value['images']        = array_column($image_list,'img_url');
             $value['category']      = HouseEnum::getCategory($value['category']);
             unset($value['rent'],$value['image_ids'],$value['area_code'],$value['tenancy']);
@@ -462,13 +458,12 @@ class DetailsService extends BaseService
     {
         $category = $data['category'] ?? null;
         $where    = ['deleted_at' => 0,'status' => HouseEnum::PASS];
-        $page     = '1';
-        $page_num = '4';
+        $this->setPerPage(4);
         $column   = ['id','title','rent','tenancy','image_ids'];
         if (!empty($category)){
             $where['category'] = $category;
         }
-        if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,'id','desc')){
             $this->setError('获取失败！');
             return false;
         }
@@ -549,8 +544,6 @@ class DetailsService extends BaseService
     public function getCodeList($request)
     {
         $area_code  = $request['area_code'] ?? '';
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'status' => HouseEnum::PASS];
         $order      = 'id';
         $desc_asc   = 'desc';
@@ -563,7 +556,7 @@ class DetailsService extends BaseService
         if (!empty($area_code)){
             $where['area_code'] = ['like',$area_code.',%'];
         }
-        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
             $this->setError('获取失败!');
             return false;
         }
@@ -596,13 +589,11 @@ class DetailsService extends BaseService
     public function getMyHouseList($request)
     {
         $member_id = Auth::guard('member_api')->user()->id;
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0,'publisher' => HouseEnum::PERSON,'publisher_id' => $member_id];
         $order      = 'id';
         $desc_asc   = 'desc';
         $column = ['id','title','area_code','rent','tenancy','leasing','decoration','area','image_ids','storey','condo_name','category','status'];
-        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc,$page,$page_num)){
+        if (!$list = HouseDetailsRepository::getList($where,$column,$order,$desc_asc)){
             $this->setError('获取失败！');
             return false;
         }

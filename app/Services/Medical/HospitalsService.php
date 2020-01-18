@@ -75,7 +75,7 @@ class HospitalsService extends BaseService
             $this->setError('医院已删除！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getList(['hospitals_id' => $id ,'deleted_at' => 0],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['hospitals_id' => $id ,'deleted_at' => 0],['id','name'])){
             $this->setMessage('该医院下有医生，无法删除！');
             return $list;
         }
@@ -131,8 +131,6 @@ class HospitalsService extends BaseService
      */
     public function getHospitalsList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $where      = ['deleted_at' => 0];
         $where_arr  = Arr::only($request,['category','recommend']);
         $department_ids   = $request['department_ids'] ?? null;
@@ -144,12 +142,12 @@ class HospitalsService extends BaseService
         }
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','address']];
-            if (!$list = MediclaHospitalsRepository::search($keyword,$where,['*'],$page,$page_num,'id','desc')){
+            if (!$list = MediclaHospitalsRepository::search($keyword,$where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MediclaHospitalsRepository::getList($where,['*'],'id','desc',$page,$page_num)){
+            if (!$list = MediclaHospitalsRepository::getList($where,['*'],'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -199,19 +197,17 @@ class HospitalsService extends BaseService
      */
     public function getHospitalList($request)
     {
-        $page       = $request['page'] ?? 1;
-        $page_num   = $request['page_num'] ?? 20;
         $keywords   = $request['keywords'] ?? null;
         $column     = ['id','name','recommend','introduction','department_ids','area_code','address','img_ids'];
         $where      = ['deleted_at' => 0];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name','address']];
-            if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,$page,$page_num,'id','desc')){
+            if (!$list = MediclaHospitalsRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
         }else{
-            if (!$list = MediclaHospitalsRepository::getList($where,$column,'id','desc',$page,$page_num)){
+            if (!$list = MediclaHospitalsRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败！');
                 return false;
             }
@@ -261,7 +257,7 @@ class HospitalsService extends BaseService
         list($area_address) = $this->makeAddress($hospital['area_code'],$hospital['address']);
         $hospital['area_address']  = $area_address;
         $hospital['area_code']     = rtrim($hospital['area_code'],',');
-        $hospital['department_name'] = MedicalDepartmentsRepository::getList(['id' => ['in',$department]],['id','name']);
+        $hospital['department_name'] = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department]],['id','name']);
         unset($hospital['created_at'],$hospital['updated_at'],$hospital['deleted_at'],$hospital['department_ids']);
         $this->setMessage('获取成功!');
         return $hospital;

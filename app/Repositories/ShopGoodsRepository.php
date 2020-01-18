@@ -33,7 +33,7 @@ class ShopGoodsRepository extends ApiRepository
      */
     protected function getListToTwo($where, $column)
     {
-        if (!$list =$this->getList($where,['id'])){
+        if (!$list =$this->getAllList($where,['id'])){
             return $list;
         }
         $recommend_ids = array_rand($list,2);
@@ -43,7 +43,7 @@ class ShopGoodsRepository extends ApiRepository
         if (!empty($recommend_ids)){
             $where['id'] = ['in',$recommend_ids];
         }
-        if (!$list =$this->getList($where,$column)){
+        if (!$list =$this->getAllList($where,$column)){
             return $list;
         }
         return $list;
@@ -57,7 +57,7 @@ class ShopGoodsRepository extends ApiRepository
     protected function getCollectList($request)
     {
         $column = ['id', 'name','negotiable', 'category', 'banner_ids', 'price', 'score_deduction', 'score_categories'];
-        if (!$list = $this->getList(['id' => ['in', $request['collect_ids']], 'deleted_at' => 0], $column,'id','desc',$request['page'],$request['page_num'])) {
+        if (!$list = $this->getList(['id' => ['in', $request['collect_ids']], 'deleted_at' => 0], $column,'id','desc')) {
             return [];
         }
         $list = $this->removePagingField($list);
@@ -78,10 +78,17 @@ class ShopGoodsRepository extends ApiRepository
         return $list;
     }
 
+    /**
+     * 未髮現有使用的地方
+     * @param array $common_ids
+     * @return array|mixed|null
+     * @deprecated true
+     */
     protected function getCommonList(array $common_ids)
     {
         $column = ['id', 'name', 'category', 'banner_ids', 'price', 'score_deduction', 'score_categories'];
-        if (!$list = $this->getList(['id' => ['in', $common_ids], 'deleted_at' => 0], $column,'id','desc','1','999')) {
+        $this->setPerPage(999);
+        if (!$list = $this->getList(['id' => ['in', $common_ids], 'deleted_at' => 0], $column,'id','desc')) {
             return [];
         }
         $list = $this->removePagingField($list);
