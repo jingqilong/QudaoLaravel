@@ -10,7 +10,9 @@ use App\Enums\CommonImagesEnum;
 use App\Enums\CollectTypeEnum;
 use App\Enums\MemberEnum;
 use App\Enums\MessageEnum;
+use App\Enums\OrderEnum;
 use App\Enums\ProcessCategoryEnum;
+use App\Enums\TradeEnum;
 use App\Repositories\ActivityDetailRepository;
 use App\Repositories\ActivityPastRepository;
 use App\Repositories\ActivityPrizeRepository;
@@ -27,6 +29,7 @@ use App\Repositories\OaEmployeeRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Services\Common\SmsService;
+use App\Services\Member\TradesService;
 use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
@@ -121,9 +124,17 @@ class RegisterService extends BaseService
         //如果是收费活动，创建订单
         $order_no = '';
         if ($member_price > 0){
-            if (!$order_id = MemberOrdersRepository::addOrder($add_arr['member_price'],$add_arr['member_price'],$member->id,2)){
+            if (!$order_id = MemberOrdersRepository::addOrder($add_arr['member_price'],$member_price,$member->id,2)){
                 $this->setError('报名失败！');
                 Loggy::write('error','用户：'.$member->mobile.' ，在活动《'.$activity['name'].'》报名时，创建订单失败，导致报名失败！报名信息：'.json_encode($add_arr));
+                DB::rollBack();
+                return false;
+            }
+            #创建交易记录
+            $TradesService = new TradesService();
+            if (!$TradesService->tradesUpdOrder($order_id,$member->id,0,$member_price,'+',0,TradeEnum::STATUSTRADING)){
+                $this->setError('订单创建失败！');
+                Loggy::write('error','活动报名，创建交易记录失败！用户ID：'.$member->id.'，提交数据：'.json_encode($request));
                 DB::rollBack();
                 return false;
             }
