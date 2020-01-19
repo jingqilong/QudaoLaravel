@@ -226,7 +226,7 @@ class RecordService extends BaseService
     {
         $column = ['score_type','score_name','remnant_score','expense_rate','cashing_rate'];
         $where  = ['member_id' => $member_id,'latest' => ScoreEnum::LATEST,'status' => ScoreEnum::OPEN,'remnant_score' => ['<>',0]];
-        if (!$list = ScoreRecordViewRepository::getList($where,$column)){
+        if (!$list = ScoreRecordViewRepository::getAllList($where,$column)){
             $this->setMessage('暂无积分可使用！');
             return [];
         }

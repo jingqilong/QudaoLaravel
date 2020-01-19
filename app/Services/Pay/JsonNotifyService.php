@@ -5,7 +5,6 @@ namespace App\Services\Pay;
 
 
 use App\Enums\PayMethodEnum;
-use App\Library\UmsPay\Utils\UmsConstants;
 use App\Repositories\MemberOrdersRepository;
 use App\Services\BaseService;
 use Ixudra\Curl\Facades\Curl;

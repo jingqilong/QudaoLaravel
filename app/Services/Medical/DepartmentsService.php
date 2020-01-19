@@ -7,7 +7,6 @@ use App\Repositories\MedicalDoctorsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use function Sodium\add;
 
 class DepartmentsService extends BaseService
 {

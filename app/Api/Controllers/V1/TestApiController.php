@@ -27,7 +27,7 @@ class TestApiController extends ApiController
      * @OA\Get(
      *     path="/api/v1/test/test",
      *     tags={"测试"},
-     *     summary="这是一个测试接口",
+     *     summary="这是一个测试接口🐀🐂🐅🐇🐉🐍🐎🐏🙈🐓🐕🐖",
      *     description="sang" ,
      *     operationId="test",
      *     @OA\Parameter(

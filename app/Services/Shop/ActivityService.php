@@ -6,7 +6,6 @@ use App\Enums\ShopActivityEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ShopActivityRepository;
 use App\Repositories\ShopActivityViewRepository;
-use App\Repositories\ShopGoodsCommonRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;

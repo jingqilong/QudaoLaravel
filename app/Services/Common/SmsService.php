@@ -6,7 +6,6 @@ use App\Enums\SMSEnum;
 use App\Library\YiKaYi\YiKaYiSms;
 use App\Repositories\CommonSmsRepository;
 use App\Repositories\MemberBaseRepository;
-use App\Repositories\OaMemberRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\PrimeMerchantRepository;
 use App\Services\BaseService;

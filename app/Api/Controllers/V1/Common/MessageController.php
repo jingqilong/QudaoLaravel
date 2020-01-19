@@ -5,7 +5,6 @@ namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Common\MessageService;
-use App\Services\Common\SmsService;
 
 class MessageController extends ApiController
 {

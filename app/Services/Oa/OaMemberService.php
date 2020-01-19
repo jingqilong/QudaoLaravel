@@ -9,7 +9,6 @@ use App\Enums\MemberEnum;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberGradeRepository;
-use App\Repositories\MemberGradeViewRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Repositories\MemberOaListViewRepository;
 use App\Repositories\MemberPersonalServiceRepository;

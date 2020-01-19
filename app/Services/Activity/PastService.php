@@ -64,12 +64,12 @@ class PastService extends BaseService
             return false;
         }
         if (!ActivityPastRepository::create($add_arr)){
-            $this->setError('添加失败!');
+            $this->setError('上传失败!');
             DB::rollBack();
             return false;
         }
         DB::commit();
-        $this->setMessage('添加成功!');
+        $this->setMessage('上传成功!');
         return true;
     }
 

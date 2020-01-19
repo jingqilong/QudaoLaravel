@@ -5,7 +5,6 @@ namespace App\Services\Shop;
 use App\Enums\ShopGoodsEnum;
 use App\Repositories\CommonImagesRepository;
 use App\Repositories\ScoreCategoryRepository;
-use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopGoodsSpecRepository;
@@ -13,7 +12,6 @@ use App\Repositories\ShopGoodsSpecViewRepository;
 use App\Services\BaseService;
 use App\Services\Common\ImagesService;
 use App\Traits\HelpTrait;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class GoodsSpecRelateService extends BaseService

@@ -5,8 +5,6 @@ namespace App\Services\Oa;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessTransitionStatusEnum;
 use App\Repositories\OaProcessActionEventRepository;
-use App\Repositories\OaProcessActionPrincipalsRepository;
-use App\Repositories\OaProcessActionRelatedRepository;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;

@@ -2,8 +2,6 @@
 namespace App\Api\Controllers;
 
 use App\Exceptions\FieldDoesNotExistException;
-use Dingo\Api\Http\Request;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;

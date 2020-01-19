@@ -5,10 +5,6 @@ namespace App\Api\Controllers\V1\Common;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Common\HomeBannersService;
-use App\Services\Common\HomeService;
-use App\Services\Common\SmsService;
-use App\Services\Member\CollectService;
-use App\Services\Member\MemberService;
 
 class BannerController extends ApiController
 {
