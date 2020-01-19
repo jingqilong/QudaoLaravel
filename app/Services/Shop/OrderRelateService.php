@@ -500,7 +500,8 @@ class OrderRelateService extends BaseService
         $order['score_type']    = empty($order['score_type']) ? '' : ScoreCategoryRepository::getField(['id' => $order['score_type']],'name');
         $order['status_title']  = ShopOrderEnum::getStatus($order['status']);
         $order['receive_method']= ShopOrderEnum::getReceiveMethod($order['receive_method']);
-        $order['express_price'] = sprintf('%.2f',round($order['express_price'] / 100,2));
+        $order['express_price'] = round($order['express_price'] / 100,2);
+        $order['express_number']= $order['express_number'] ?? '';
         $order['amount']        = sprintf('%.2f',round($order['amount'] / 100,2));
         $order['payment_amount']= sprintf('%.2f',round($order['payment_amount'] / 100,2));
         $order['shipment_at']   = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
@@ -511,8 +512,8 @@ class OrderRelateService extends BaseService
         $order['pay_at']            = '';//支付时间
         if (!empty($order['trade_id'])){
             if ($trade = MemberTradesRepository::getOne(['id' => $order['trade_id']])){
-                $order['trade_no']          = $trade['trade_no'];
-                $order['transaction_no']    = $trade['transaction_no'];
+                $order['trade_no']          = $trade['trade_no'] ?? '';
+                $order['transaction_no']    = $trade['transaction_no'] ?? '';
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
                 $order['pay_at']            = empty($trade['end_at']) ? '' : date('Y-m-d H:i:s',$trade['end_at']);
             }
