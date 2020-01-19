@@ -101,7 +101,7 @@ class RegisterService extends BaseService
             'mobile'        => $request['mobile'],
             'activity_price'=> $activity['price'],
             'member_price'  => $member_price,
-            'status'        => ActivityRegisterStatusEnum::SUBMIT,
+            'status'        => empty($activity['price']) ? ActivityRegisterStatusEnum::EVALUATION : ActivityRegisterStatusEnum::SUBMIT,
             'audit'         => $activity['need_audit'] == ActivityEnum::NEEDAUDIT ? ActivityRegisterAuditEnum::PENDING_REVIEW : ActivityRegisterAuditEnum::PASS,
             'created_at'    => time(),
             'updated_at'    => time(),
