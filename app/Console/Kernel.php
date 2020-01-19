@@ -72,6 +72,10 @@ class Kernel extends ConsoleKernel
         //访问量存储
         $schedule->command('record:pv')
             ->everyMinute();//每分钟运行
+
+        //订单自动收货
+        $schedule->command('order:auto-received')
+            ->everyMinute();//每分钟运行
     }
 
     /**
