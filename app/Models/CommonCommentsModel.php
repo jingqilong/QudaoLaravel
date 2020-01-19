@@ -27,7 +27,7 @@ class CommonCommentsModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','content','comment_name','comment_avatar','type','related_id','image_ids','member_id','status','hidden','created_at','deleted_at'];
+    protected $fillable = ['id','content','comment_name','comment_avatar','type','related_id','image_ids','member_id','status','hidden','created_at','updated_at','deleted_at'];
 
 
     /**

@@ -786,8 +786,8 @@ $api->version('v1',function ($api){
                 #渠道平台服务条款
                 $api->post('add_common_service_terms', 'CommonController@addCommonServiceTerms')->name('用户获取渠道平台服务条款');
 
-                $api->post('set_comment_status', 'CommonController@setCommentStatus')->name('OA设置评论状态');
-                $api->get('comments_list', 'CommonController@commentsList')->name('OA获取评论列表');
+                $api->post('set_comment_status', 'CommentsController@setCommentStatus')->name('OA设置评论状态');
+                $api->get('comments_list', 'CommentsController@commentsList')->name('OA获取评论列表');
                 $api->post('set_area_img', 'AreaController@setAreaImg')->name('设置省市区地域的图片和备注');
                 $api->get('feed_back_list', 'CommonFeedBacksController@feedBackList')->name('oa获取用户反馈列表');
                 $api->post('add_call_back_feed_back', 'CommonFeedBacksController@addCallBackFeedBack')->name('添加oa客服反馈消息');
@@ -797,9 +797,9 @@ $api->version('v1',function ($api){
             });
             $api->group(['middleware' => 'member.jwt.auth'],function($api) {
                 $api->get('collect_list', 'CommonController@collectList')->name('收藏类别列表');
-                $api->get('get_comment_details', 'CommonController@getCommentDetails')->name('查看评论详情');
-                $api->post('add_comment', 'CommonController@addComment')->name('添加评论');
-                $api->get('common_list', 'CommonController@commonList')->name('获取评论列表');
+                $api->get('get_comment_details', 'CommentsController@getCommentDetails')->name('查看评论详情');
+                $api->post('add_comment', 'CommentsController@addComment')->name('添加评论');
+                $api->get('common_list', 'CommentsController@commonList')->name('获取评论列表');
                 $api->post('is_collect', 'CommonController@isCollect')->name('收藏或取消收藏');
                 $api->get('get_express_details', 'ExpressController@getExpressDetails')->name('用户获取订单物流状态');
                 $api->post('add_feedBack', 'CommonFeedBacksController@addFeedBack')->name('用户添加反馈');
