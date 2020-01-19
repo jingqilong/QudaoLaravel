@@ -3,18 +3,21 @@ namespace App\Services\Common;
 
 
 use App\Enums\CommentsEnum;
+use App\Enums\ProcessCategoryEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
+use App\Repositories\MemberBaseRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Shop\OrderRelateService;
+use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CommentsService extends BaseService
 {
-    use HelpTrait;
+    use HelpTrait,BusinessTrait;
     protected $auth;
 
     /**
@@ -159,6 +162,7 @@ class CommentsService extends BaseService
      */
     public function getCommentDetails($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         switch ($request['type']){
             case CommentsEnum::SHOP:
                 if (!$order = ShopOrderRelateRepository::getCommentDetails($request['id'])){
@@ -171,7 +175,7 @@ class CommentsService extends BaseService
                 return false;
         }
         $this->setMessage('获取成功!');
-        return $order;
+        return $this->getBusinessDetailsProcess($order,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
     }
 
 
@@ -182,6 +186,7 @@ class CommentsService extends BaseService
      */
     public function commentsList($request)
     {
+        $employee   = Auth::guard('oa_api')->user();
         $keywords   = $request['$keywords'] ?? null;
         $type       = $request['type'] ?? null;
         $where      = ['deleted_at' => 0];
@@ -211,6 +216,8 @@ class CommentsService extends BaseService
             $value['type_name']     = CommentsEnum::getType($value['type']);
             $value['hidden_name']   = CommentsEnum::getHidden($value['hidden']);
             $value['status_name']   = CommentsEnum::getStatus($value['status']);
+            #获取流程信息
+            $value['progress']      = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::COMMON_COMMENTS,$employee->id);
             unset($value['comment_avatar'],$value['related_id'],$value['image_ids']);
         }
 
@@ -249,6 +256,44 @@ class CommentsService extends BaseService
         $this->setMessage('设置成功!');
         return true;
     }
+    /**
+     * 获取申请人ID
+     * @param $id
+     * @return mixed
+     */
+    public function getCreatedUser($id){
+        return CommonCommentsRepository::getField(['id' => $id],'member_id');
+    }
 
+    /**
+     * 返回流程中的业务列表
+     * @param $comment_ids
+     * @return array
+     */
+    public function getProcessBusinessList($comment_ids)
+    {
+        if (empty($comment_ids)) {
+            return [];
+        }
+        $column = ['id', 'member_id', 'type'];
+        if (!$order_list = CommonCommentsRepository::getAssignList($comment_ids, $column)) {
+            return [];
+        }
+        $member_ids = array_column($order_list, 'member_id');
+        $member_list = MemberBaseRepository::getAssignList($member_ids, ['id', 'ch_name', 'mobile']);
+        $member_list = createArrayIndex($member_list, 'id');
+        $result_list = [];
+        foreach ($order_list as $value) {
+            $member = $member_list[$value['member_id']] ?? [];
+            $result_list[] = [
+                'id' => $value['id'],
+                'name' => CommentsEnum::getType($value['type']) . '评论审核',
+                'member_id' => $value['member_id'],
+                'member_name' => $member['ch_name'] ?? '',
+                'member_mobile' => $member['mobile'] ?? '',
+            ];
+        }
+        return $result_list;
+    }
 }
             

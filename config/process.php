@@ -111,7 +111,7 @@ return [
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => [ App\Services\Shop\OrderRelateService::class,'auditNegotiableOrder'],
 //        'COMMON_COMMENTS'  => '公共评论',
-        12 => [ App\Services\Common\CommentsService::class,'getProcessBusinessList'],
+        12 => [ App\Services\Common\CommentsService::class,'setCommentStatus'],
     ],
 
     #消息链接后缀
