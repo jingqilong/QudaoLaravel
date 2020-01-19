@@ -145,7 +145,7 @@ class CommentsController extends ApiController
      *         name="type",
      *         in="query",
      *         description="评论列表类别[1商城 （目前只有商城）默认全部]",
-     *         required=false,
+     *         required=true,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -204,12 +204,15 @@ class CommentsController extends ApiController
      */
     public function commentsList(){
         $rules = [
+            'type'          => 'required|in:1',
             'status'        => 'in:0,1,2',
             'hidden'        => 'in:0,1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
+            'type.required'    => '评论类型不能为空',
+            'type.in'          => '评论类型不存在',
             'status.in'        => '评论状态类型不存在',
             'hidden.in'        => '评论是否隐藏类型不存在',
             'page.integer'     => '页码必须为整数',
