@@ -4,11 +4,14 @@ namespace App\Services\Common;
 
 use App\Enums\CommentsEnum;
 use App\Enums\ProcessCategoryEnum;
+use App\Enums\ShopGoodsEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonCommentsViewRepository;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
+use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Shop\OrderRelateService;
@@ -165,7 +168,6 @@ class CommentsService extends BaseService
      */
     public function getCommentDetails($request)
     {
-        $employee = Auth::guard('oa_api')->user();
         switch ($request['type']){
             case CommentsEnum::SHOP:
                 if (!$order = ShopOrderRelateRepository::getCommentDetails($request['id'])){
@@ -178,7 +180,6 @@ class CommentsService extends BaseService
                 return false;
         }
         $this->setMessage('获取成功!');
-        return $this->getBusinessDetailsProcess($order,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
     }
 
 
@@ -324,6 +325,65 @@ class CommentsService extends BaseService
             }
         );
         return $data;
+    }
+
+    /**
+     * OA查看评论详情
+     * @param $request
+     * @return array|bool
+     */
+    public function commentDetails($request)
+    {
+        $employee = Auth::guard('oa_api')->user();
+        switch ($request['type']){
+            case CommentsEnum::SHOP:
+                if (!$order = $this->getShopCommentDetails($request['id'])){
+                    $this->setError('获取失败！');
+                    return false;
+                }
+                break;
+            default:
+                $this->setError('评论类型不存在！');
+                return false;
+        }
+        $this->setMessage('获取成功!');
+        return $this->getBusinessDetailsProcess($order,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
+    }
+
+
+    /**
+     * 获取评论商品的详情
+     * @param $id
+     * @return array|bool|null
+     */
+    protected function getShopCommentDetails($id)
+    {
+        $column     = ['id','related_id','hidden','mobile','type','image_ids','status','content','comment_avatar','comment_name','comment_avatar_url','created_at'];
+        if(!$comments_info = CommonCommentsViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $related_arr = explode(',',$comments_info['related_id']);
+        $order_relate_id = end($related_arr);
+        $shop_spec      = ShopGoodsSpecRelateRepository::getField(['goods_id' => $order_relate_id],'spec_ids');
+        $shop_good_spec = ShopGoodSpecListViewRepository::getOne(['goods_id' => $order_relate_id,'spec_ids' => $shop_spec]);
+        $shop_info      = ShopGoodsRepository::getOne(['id' => $order_relate_id],['name','banner_ids','negotiable']);
+        $comments_info['spec_value'] = '';
+        if (!is_null($shop_good_spec)){
+            $comments_info['spec_value'] = $shop_good_spec['spec_name'] . ':' . $shop_good_spec['spec_value'];
+            $comments_info['price'] = empty($shop_good_spec['price']) ? 0 : round($shop_good_spec['price'] / 100,2);
+        }
+        $comments_info['price'] = $shop_info['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? ShopGoodsEnum::getNegotiable($shop_info['negotiable']) : $comments_info['price'];
+        $comments_info = ImagesService::getOneImagesConcise($comments_info,['image_ids' => 'several']);
+        $shop_info     = ImagesService::getOneImagesConcise($shop_info,['banner_ids' => 'single']);
+        unset($shop_info['negotiable']);
+        $comments = array_merge($comments_info,$shop_info);
+        $comments['name']        = $comments['name'] .'|商品'. $comments['spec_value'];
+        $comments['type_name']   = CommentsEnum::getType($comments['type']);
+        $comments['hidden_name'] = CommentsEnum::getHidden($comments['hidden']);
+        $comments['status_name'] = CommentsEnum::getStatus($comments['status']);
+        unset($comments['negotiable'],$comments['banner_ids'],$comments['comment_avatar'],$comments['related_id'],$comments['spec_value'],$comments['image_ids']);
+        return $comments;
     }
 }
             

@@ -492,7 +492,7 @@ class CommentsController extends ApiController
      * @OA\Get(
      *     path="/api/v1/common/get_comment_details",
      *     tags={"评论管理"},
-     *     summary="oa获取评论详情",
+     *     summary="用户获取评论详情",
      *     description="jing" ,
      *     operationId="get_comment_details",
      *     @OA\Parameter(
@@ -507,7 +507,7 @@ class CommentsController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="oa token",
+     *         description="用户 token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
@@ -551,6 +551,76 @@ class CommentsController extends ApiController
             return ['code' => 100, 'message' => $this->error];
         }
         $res = $this->commonComments->getCommentDetails($this->request);
+        if ($res){
+            return ['code' => 200, 'message' => $this->commonComments->message,'data' => $res];
+        }
+        return ['code' => 100, 'message' => $this->commonComments->error];
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/common/comment_details",
+     *     tags={"评论管理"},
+     *     summary="oa获取评论详情",
+     *     description="jing" ,
+     *     operationId="comment_details",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="oa token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="评论列表类别，1商城 （目前只有商城）..",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="评论ID",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="",
+     *     ),
+     * )
+     *
+     */
+    public function commentDetails(){
+        $rules = [
+            'id'            => 'required|integer',
+        ];
+        $messages = [
+            'id.required'   => '评论ID不能为空',
+            'id.integer'    => '评论id不是整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->commonComments->commentDetails($this->request);
         if ($res){
             return ['code' => 200, 'message' => $this->commonComments->message,'data' => $res];
         }

@@ -21,7 +21,6 @@ class ShopOrderRelateRepository extends ApiRepository
     {
         $this->model = $model;
     }
-
     /**
      * 获取评论详情
      * @param $related_id
@@ -29,9 +28,9 @@ class ShopOrderRelateRepository extends ApiRepository
      */
     protected function getCommentDetails($related_id)
     {
-        $where = ['id' => $related_id,'status' => CommentsEnum::PASS,'hidden' => CommentsEnum::ACTIVITE,'deleted_at' => 0];
+        $where = ['id' => $related_id,'deleted_at' => 0];
         if (!$comment_info = CommonCommentsRepository::getOne($where)){
-            return [];
+            return false;
         }
         $comment_info['spec_value'] = ShopOrderGoodsRepository::getField(['id' => $comment_info['order_related_id']],'spec_relate_value');
         $comment_info = ImagesService::getOneImagesConcise($comment_info,['comment_avatar' => 'single']);
