@@ -429,4 +429,65 @@ class GoodsController extends ApiController
         }
         return ['code' => 200, 'message' => $this->goodsSpecRelateService->message,'data' => $res];
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_shop_random_count",
+     *     tags={"商城"},
+     *     summary="随机获取推荐的商品",
+     *     description="sang" ,
+     *     operationId="get_shop_random_count",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="成员 token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="count",
+     *         in="query",
+     *         description="获取商品推荐的个数",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getShopRandomCount(){
+        $rules = [
+            'count'  => 'required|integer',
+        ];
+        $messages = [
+            'count.required' => '获取商品推荐数量不能为空',
+            'count.integer'  => '获取商品推荐数量类型不正确',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->goodsService->getShopRandomCount($this->request['count'],[],[]);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->goodsService->error];
+        }
+        return ['code' => 200, 'message' => $this->goodsService->message,'data' => $res];
+    }
 }
