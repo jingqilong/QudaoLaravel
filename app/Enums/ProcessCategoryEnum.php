@@ -20,6 +20,7 @@ class ProcessCategoryEnum extends BaseEnum
         'HOUSE_RELEASE'          => '房源发布',
         'MEMBER_CONTACT_REQUEST' => '成员联系请求',
         'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
+        'COMMON_COMMENTS'        => '公共评论'
     ];
 
     public static $data_map = [
@@ -34,6 +35,7 @@ class ProcessCategoryEnum extends BaseEnum
         9 => 'HOUSE_RELEASE',
         10 => 'MEMBER_CONTACT_REQUEST',
         11 => 'SHOP_NEGOTIABLE_ORDER',
+        12 => 'COMMON_COMMENTS',
     ];
     // constants
 
@@ -58,6 +60,8 @@ class ProcessCategoryEnum extends BaseEnum
     const MEMBER_CONTACT_REQUEST   = 10;    //成员联系请求
 
     const SHOP_NEGOTIABLE_ORDER    = 11;    //商城面议订单
+
+    const COMMON_COMMENTS          = 12;    //公共评论
 
     /**
      * 获取状态label

@@ -54,6 +54,8 @@ return [
         10 => [ App\Services\Member\MemberContactServices::class,'getCreatedUser'],
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => [ App\Services\Shop\OrderRelateService::class,'getCreatedUser'],
+//        'COMMON_COMMENTS'  => '公共评论',
+        12 => [ App\Services\Common\CommentsService::class,'getCreatedUser'],
     ],
 
 
@@ -80,6 +82,8 @@ return [
         10 => [ App\Services\Member\MemberContactServices::class,'getProcessBusinessList'],
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => [ App\Services\Shop\OrderRelateService::class,'getProcessBusinessList'],
+//        'COMMON_COMMENTS'  => '公共评论',
+        12 => [ App\Services\Common\CommentsService::class,'getProcessBusinessList'],
     ],
 
 
@@ -106,6 +110,8 @@ return [
         10 => [ App\Services\Member\MemberContactServices::class,'setMemberContact'],
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => [ App\Services\Shop\OrderRelateService::class,'auditNegotiableOrder'],
+//        'COMMON_COMMENTS'  => '公共评论',
+        12 => [ App\Services\Common\CommentsService::class,'getProcessBusinessList'],
     ],
 
     #消息链接后缀
@@ -132,5 +138,7 @@ return [
         10 => '/member/member-contact/index',
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => '/shop/shop-negotiable-order/index',
+//        'COMMON_COMMENTS'  => '公共评论',
+        12 => '',
     ],
 ];

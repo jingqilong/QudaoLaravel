@@ -37,4 +37,9 @@ return [
 
     //员工自己修改邮箱密码错误上限次数【每日】
     'employee_self_edit_email_error_number' => 3,
+
+    'shop' => [
+        //订单收货时长，单位天，超过收货时长后，自动收货
+        'order_receive_ttl' => 14,
+    ],
 ];
