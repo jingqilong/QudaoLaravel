@@ -152,6 +152,19 @@ trait RepositoryTrait
     }
 
     /**
+     * 获取随机返回的count数据
+     * @param int $count
+     * @param array $column
+     * @param array $where
+     * @return |null
+     */
+    protected function getRandomCount(int $count , array $column=['*'], array $where=[]){
+        $model = self::addWhere($this->model,$where);
+        $model = $model->inRandomOrder()->take($count)->get($column);
+        return $model ? $model->toArray() : null;
+    }
+
+    /**
      * 添加一条数据并返回数据id
      * @param $data
      * @return null

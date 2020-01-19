@@ -37,7 +37,7 @@ class DoctorLabelsService extends BaseService
     /**
      * 删除医生标签
      * @param $id
-     * @return bool
+     * @return mixed
      */
     public function deleteDoctorLabels($id)
     {
@@ -45,7 +45,7 @@ class DoctorLabelsService extends BaseService
             $this->setError('医生标签不存在或已删除！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getAllList(['label_ids' => ['like','%,'.$id.',']],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['deleted_at' => 0,'label_ids' => ['like','%,'.$id.',']],['id','name'])){
             $this->setMessage('该医生标签已使用，无法删除！');
             return $list;
         }

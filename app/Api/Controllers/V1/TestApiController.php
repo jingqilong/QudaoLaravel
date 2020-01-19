@@ -8,6 +8,7 @@ use App\Events\SendSiteMessage;
 use App\Exceptions\ServiceException\EventDoesNotExistsException;
 use App\Library\UmsPay\UmsPay;
 use App\Mail\DingTalkEmail;
+use App\Repositories\ActivityDetailRepository;
 use App\Repositories\MemberInfoRepository;
 use App\Services\Common\EventProcessorService;
 use App\Services\Common\QiNiuService;

@@ -25,29 +25,26 @@ class ShopGoodsRepository extends ApiRepository
         $this->model = $model;
     }
 
-    /**$recommend_ids
-     * 随机获取推荐的两个商品
-     * @param $where
-     * @param $column
-     * @return |null
+
+    /**
+     * 随机获取推荐的商品
+     * @param int $count
+     * @param array $column
+     * @param array $where
+     * @return array|null
      */
-    protected function getListToTwo($where, $column)
+    protected function getShopRandomCount(int $count, array $column, array $where)
     {
-        if (!$list =$this->getAllList($where,['id'])){
-            return $list;
-        }
-        $recommend_ids = array_rand($list,2);
-        if (count($recommend_ids) != 2){
+        if (!$list = $this->getRandomCount($count,$column,$where)){
             return [];
         }
-        if (!empty($recommend_ids)){
-            $where['id'] = ['in',$recommend_ids];
-        }
-        if (!$list =$this->getAllList($where,$column)){
-            return $list;
+        foreach ($list as &$value){
+            $value['price']  = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels'] = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
         }
         return $list;
     }
+
 
     /**
      * 获取收藏列表

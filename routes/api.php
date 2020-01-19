@@ -735,6 +735,7 @@ $api->version('v1',function ($api){
                 $api->get('category_list','GoodsController@getCategoryList')->name('获取商品分类列表');
                 $api->get('get_goods_spec','GoodsController@getGoodsSpec')->name('获取商品规格');
                 $api->get('get_goods_spec_list','GoodsController@getGoodsSpecList')->name('获取某一商品规格列表');
+                $api->get('get_shop_random_count','GoodsController@getShopRandomCount')->name('随机获取推荐的商品');
 
             });
         });

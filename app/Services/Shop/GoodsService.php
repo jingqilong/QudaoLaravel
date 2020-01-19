@@ -421,13 +421,9 @@ class GoodsService extends BaseService
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['collect']        = MemberCollectRepository::exists(['type' => CollectTypeEnum::SHOP,'target_id' => $request['id'],'member_id' => $member_id,'deleted_at' => 0]) == false  ? '0' : '1';
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail['recommend']      = ShopGoodsRepository::getAllList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
+        $goods_detail['recommend']      = $this->getShopRandomCount(6, ['id','name','banner_ids','labels','price'],['deleted_at' => 0]);
         $goods_detail['stock']          = ShopGoodsSpecRelateRepository::getStockCount($goods_detail['id'],$goods_detail['stock']);
-        foreach ($goods_detail['recommend'] as &$value){
-            $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
-            $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
-        }
-        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
+        $goods_detail['recommend']      = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
         if ($goods_detail['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods_detail['price'] = ShopGoodsEnum::getNegotiable($goods_detail['negotiable']);
         unset($goods_detail['deleted_at']);
         $this->setMessage('获取成功!');
@@ -502,16 +498,38 @@ class GoodsService extends BaseService
         $goods_detail['price']          = sprintf('%.2f', round($goods_detail['price'] / 100, 2));
         $goods_detail['express_price']  = sprintf('%.2f', round($goods_detail['express_price'] / 100, 2));
         $goods_detail['comment']        = CommonCommentsRepository::getOneComment($goods_detail['id'],CommentsEnum::SHOP);
-        $goods_detail['recommend']      = ShopGoodsRepository::getAllList(['id' => ['in',[2,3]]], ['id','name','banner_ids','labels','price']);
-        foreach ($goods_detail['recommend'] as &$value){
-            $value['price']     = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
-            $value['labels']    = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
-        }
-        $goods_detail['recommend'] = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
+        $goods_detail['recommend']      = $this->getShopRandomCount(6, ['id','name','banner_ids','labels','price'],['deleted_at' => 0]);
+        $goods_detail['recommend']      = ImagesService::getListImagesConcise($goods_detail['recommend'],['banner_ids' => 'single'],true);
         if ($goods_detail['negotiable'] == ShopGoodsEnum::NEGOTIABLE) $goods_detail['price'] = ShopGoodsEnum::getNegotiable($goods_detail['negotiable']);
         unset($goods_detail['deleted_at']);
         $this->setMessage('获取成功!');
         return $goods_detail;
+    }
+
+    /**
+     * 随机获取推荐的商品
+     * @param int $count
+     * @param array $column
+     * @param array $where
+     * @return mixed
+     */
+    public function getShopRandomCount( $count, $column, $where)
+    {
+        if($count%2 != 0){
+            $this->setError('推荐的商品数不能组合一排!');
+            return false;
+        }
+        if (empty($column)) $column =  ['id','name','banner_ids','labels','price'];
+        if (empty($where))  $where  =  ['deleted_at' => 0];
+        if (!$list = ShopGoodsRepository::getRandomCount($count,$column,$where)){
+            return [];
+        }
+        foreach ($list as &$value){
+            $value['price']  = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
+            $value['labels'] = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
+        }
+        $this->setMessage('获取成功!');
+        return $list;
     }
 }
             

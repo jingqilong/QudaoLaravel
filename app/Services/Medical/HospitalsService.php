@@ -67,7 +67,7 @@ class HospitalsService extends BaseService
     /**
      * 删除医院
      * @param $id
-     * @return bool
+     * @return mixed
      */
     public function deleteHospitals($id)
     {
