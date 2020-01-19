@@ -32,6 +32,9 @@ class RecordService extends BaseService
      * @return bool
      */
     public function increaseScore($score_type, $score, $member_id, $remark,$explain = '获得',$notify = true){
+        if (empty($score)){
+            return true;
+        }
         if (!ScoreCategoryRepository::exists(['id' => $score_type,'status' => ScoreEnum::OPEN])){
             $this->setMessage('积分类别不存在！');
             return false;
