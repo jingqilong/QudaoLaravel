@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class CommonCommentsModel extends Model
+class CommonCommentsViewModel extends Model
 {
 
     /**
@@ -10,7 +10,7 @@ class CommonCommentsModel extends Model
      *
      * @var string
      */
-    protected $table = 'common_comments';
+    protected $table = 'common_comments_view';
 
      /**
      * 表明模型是否应该被打上时间戳
@@ -25,9 +25,6 @@ class CommonCommentsModel extends Model
      * @var bool
      */
     protected $primaryKey = 'id';
-
-
-    protected $fillable = ['id','content','comment_name','comment_avatar','type','related_id','image_ids','member_id','status','hidden','created_at','updated_at','deleted_at'];
 
 
     /**

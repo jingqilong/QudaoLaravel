@@ -153,10 +153,28 @@ class CommentsController extends ApiController
      *     @OA\Parameter(
      *         name="keywords",
      *         in="query",
-     *         description="搜索关键字【1，姓名 2手机号】",
+     *         description="搜索关键字【姓名,手机号】",
      *         required=false,
      *         @OA\Schema(
      *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="状态【0、待审核，1、审核通过，2、审核未通过...】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="hidden",
+     *         in="query",
+     *         description="是否隐藏【0显示，1隐藏】",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="integer",
      *         )
      *     ),
      *     @OA\Parameter(
@@ -186,14 +204,16 @@ class CommentsController extends ApiController
      */
     public function commentsList(){
         $rules = [
+            'status'        => 'in:0,1,2',
+            'hidden'        => 'in:0,1',
             'page'          => 'integer',
             'page_num'      => 'integer',
         ];
         $messages = [
-            'id.required'           => '评论ID不能为空',
-            'id.integer'            => '商城类别不能为空',
-            'page.integer'          => '页码必须为整数',
-            'page_num.integer'      => '页码数量必须为整数',
+            'status.in'        => '评论状态类型不存在',
+            'hidden.in'        => '评论是否隐藏类型不存在',
+            'page.integer'     => '页码必须为整数',
+            'page_num.integer' => '页码数量必须为整数',
         ];
         $Validate = $this->ApiValidate($rules, $messages);
         if ($Validate->fails()){
@@ -212,7 +232,7 @@ class CommentsController extends ApiController
      * @OA\Post(
      *     path="/api/v1/common/add_comment",
      *     tags={"评论管理"},
-     *     summary="添加商品评论",
+     *     summary="用户添加商品评论",
      *     description="jing" ,
      *     operationId="add_comment",
      *     @OA\Parameter(
@@ -469,7 +489,7 @@ class CommentsController extends ApiController
      * @OA\Get(
      *     path="/api/v1/common/get_comment_details",
      *     tags={"评论管理"},
-     *     summary="获取评论详情",
+     *     summary="oa获取评论详情",
      *     description="jing" ,
      *     operationId="get_comment_details",
      *     @OA\Parameter(
@@ -484,7 +504,7 @@ class CommentsController extends ApiController
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
-     *         description="OA token",
+     *         description="oa token",
      *         required=true,
      *         @OA\Schema(
      *             type="string",
