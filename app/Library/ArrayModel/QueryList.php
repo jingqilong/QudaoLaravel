@@ -178,6 +178,7 @@ class QueryList extends SortedList
         return $this;
     }
 
+
     private function _init_join(){
         $join = $this->_join;
         $fields = $this->_fields[$join->_alias];
@@ -187,6 +188,10 @@ class QueryList extends SortedList
 
     }
 
+    /**
+     * @param \Closure|null $closure
+     * @return $this
+     */
     private function _build(\Closure $closure = null){
         if($this->_join instanceof QueryList){
             $this->_init_join();
