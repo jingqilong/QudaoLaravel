@@ -9,7 +9,6 @@ use App\Repositories\MessageReadRepository;
 use App\Repositories\OaEmployeeRepository;
 use App\Repositories\PrimeMerchantRepository;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
 class SyncMsgCount extends Command
@@ -45,6 +44,8 @@ class SyncMsgCount extends Command
      */
     public function handle()
     {
+        print '命令开始！'.PHP_EOL;
+        $start_time = time();
         $index      = config('message.cache-chanel');
         $key        = config('message.cache-key');
         #获取所有用户【员工、成员、商户】
@@ -57,7 +58,7 @@ class SyncMsgCount extends Command
         #将消息条数读入数组
         $all_message_count = [];
         foreach ($all_send_list as $item){
-            if ($item['user_id'] != 0){
+            if ($item['user_id'] != 0){#非公告类型
                 if (isset($all_read_list[$item['id'] . '.' . $item['user_id'] . '.' . $item['user_type']])){
                     continue;
                 }
@@ -65,17 +66,20 @@ class SyncMsgCount extends Command
                 $all_message_count[$user_index] = isset($all_message_count[$user_index]) ? ++$all_message_count[$user_index] : 1;
                 continue;
             }
+            #公告类型，需要给每个未读消息的人加入数量
             foreach ($all_user_list as $user){
-                if (isset($all_read_list[$item['id'] . '.' . $user['user_id'] . '.' . $user['user_type']])){
+                if ($user['user_type'] != $item['user_type']) continue;
+                if (isset($all_read_list[$item['id'] . '.' . $user['user_id'] . '.' . $item['user_type']])){
                     continue;
                 }
-                $user_key = base64UrlEncode($index[$user['user_type']].$user['user_id']);
+                $user_key = base64UrlEncode($index[$item['user_type']].$user['user_id']);
                 $all_message_count[$user_key] = isset($all_message_count[$user_key]) ? ++$all_message_count[$user_key] : 1;
             }
         }
         #将未读消息数据写入缓存
         Cache::forget($key);
-        Cache::put($key,$all_message_count);
+        Cache::put($key,$all_message_count,null);
+        print '执行完毕！耗时：'.(time() - $start_time).'s';
         return true;
     }
 
@@ -122,7 +126,7 @@ class SyncMsgCount extends Command
     private function createReadListIndex($read_list){
         $res = [];
         foreach ($read_list as $v){
-            $res[$v['send_id'] . '.' . $v['user_id'] . '.' . $v['user_type']] = null;
+            $res[$v['send_id'] . '.' . $v['user_id'] . '.' . $v['user_type']] = $v;
         }
         return $res;
     }
