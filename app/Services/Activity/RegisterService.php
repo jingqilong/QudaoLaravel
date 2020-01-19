@@ -180,16 +180,16 @@ class RegisterService extends BaseService
     {
         $employee   = Auth::guard('oa_api')->user();
         $keywords       = $request['keywords'] ?? '';
-        $status         = $request['status'] ?? '';
-        $audit          = $request['audit'] ?? '';
-        $status_arr     = $request['status_arr'] ?? '';
-        $activity_id    = $request['activity_id'] ?? '';
-        $is_sign        = $request['is_sign'] ?? '';
+        $status         = $request['status'] ?? null;
+        $audit          = $request['audit'] ?? null;
+        $status_arr     = $request['status_arr'] ?? null;
+        $activity_id    = $request['activity_id'] ?? null;
+        $is_sign        = $request['is_sign'] ?? null;
         $where          = ['id' => ['>',0]];
-        if (!empty($status)){
+        if (!is_null($status)){
             $where['status'] = $status;
         }
-        if (!empty($audit)){
+        if (!is_null($audit)){
             $where['audit'] = $audit;
         }
         if (!empty($status_arr)){
@@ -198,7 +198,7 @@ class RegisterService extends BaseService
         if (!empty($activity_id)){
             $where['activity_id'] = $activity_id;
         }
-        if (!empty($is_sign)){
+        if (!is_null($is_sign)){
             if ($is_sign == 1){
                 $where['is_register'] = ['>',0];
             }else{
@@ -223,19 +223,19 @@ class RegisterService extends BaseService
         $activity_ids   = array_column($list['data'],'activity_id');
         $member_ids     = array_column($list['data'],'member_id');
         $activities     = ActivityDetailRepository::getAllList(['id' => ['in',$activity_ids]],['id','name']);
+        $activities     = createArrayIndex($activities,'id');
         $members        = MemberBaseRepository::getAllList(['id' => ['in',$member_ids]],['id','ch_name']);
+        $members        = createArrayIndex($members,'id');
         $audits         = OaEmployeeRepository::getAllList(['id' => ['in',$audited_by]],['id','real_name']);
+        $audits         = createArrayIndex($audits,'id');
         foreach ($list['data'] as &$value){
-            $activity = $this->searchArray($activities,'id',$value['activity_id']);
-            $member   = $this->searchArray($members,'id',$value['member_id']);
-            $audit    = $this->searchArray($audits,'id',$value['audited_by']);
-            $value['theme_name']    = reset($activity)['name'];
-            $value['member_name']   = reset($member)['ch_name'];
+            $value['theme_name']    = $activities[$value['activity_id']]['name'] ?? '';
+            $value['member_name']   = $members[$value['member_id']]['ch_name'] ?? '';
             $value['activity_price']= empty($value['activity_price']) ? '免费' : round($value['activity_price'] / 100,2).' 元';
             $value['member_price']  = empty($value['member_price']) ? '免费' : round($value['member_price'] / 100,2).' 元';
             $value['status_title']  = ActivityRegisterStatusEnum::getStatus($value['status']);
             $value['audit_title']   = ActivityRegisterAuditEnum::getAudit($value['audit']);
-            $value['audited_by']    = $audit ? reset($audit)['real_name'] : '';
+            $value['audited_by']    = $audits[$value['audited_by']]['real_name'] ?? '';
             $value['audited_at']    = $value['audited_at'] != 0 ? date('Y-m-d H:m:i',$value['audited_at']) : '';
             $value['created_at']    = date('Y-m-d H:m:i',$value['created_at']);
             $value['updated_at']    = date('Y-m-d H:m:i',$value['updated_at']);
