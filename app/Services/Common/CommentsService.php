@@ -6,12 +6,15 @@ use App\Enums\CommentsEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
+use App\Repositories\CommonCommentsViewRepository;
 use App\Repositories\MemberBaseRepository;
+use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
 use App\Services\Shop\OrderRelateService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -105,7 +108,7 @@ class CommentsService extends BaseService
             'related_id'        => $request['related_id'],
             'image_ids'         => $request['image_ids'] ?? '',
             'status'            => CommentsEnum::SUBMIT,
-            'hidden'            => CommentsEnum::ACTIVITE,
+            'hidden'            => CommentsEnum::HIDDEN,
         ];
         if (CommonCommentsRepository::exists($add_arr)){
             $this->setError('评论已存在,请勿重复操作!');
@@ -187,19 +190,21 @@ class CommentsService extends BaseService
     public function commentsList($request)
     {
         $employee   = Auth::guard('oa_api')->user();
-        $keywords   = $request['$keywords'] ?? null;
-        $type       = $request['type'] ?? null;
+        $keywords   = $request['keywords'] ?? null;
         $where      = ['deleted_at' => 0];
-        $column     = ['id','related_id','hidden','type','status','content','comment_avatar','comment_name','comment_name','image_ids','created_at'];
-        if (!empty($type)) $where['type'] = $type;
-        if (!empty($keywords)){
-            $keyword = [$keywords => ['comment_name']];
-            if (!$comment_list = CommonCommentsRepository::search($keyword,$where,$column,'id','desc')){
+        $request_arr= Arr::only($request,['type','status','hidden']);
+        $column     = ['id','related_id','hidden','mobile','type','status','content','comment_avatar','comment_name','comment_avatar_url','created_at','deleted_at'];
+        foreach ($request_arr as $key => $value){
+            if (!is_null($value)) $where[$key] = $value;
+        }
+        if (!is_null($keywords)){
+            $keyword = [$keywords => ['comment_name','mobile']];
+            if (!$comment_list = CommonCommentsViewRepository::search($keyword,$where,$column,'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
         }else{
-            if (!$comment_list = CommonCommentsRepository::getList($where,$column,'id','desc')){
+            if (!$comment_list = CommonCommentsViewRepository::getList($where,$column,'id','desc')){
                 $this->setError('获取失败!');
                 return false;
             }
@@ -209,10 +214,10 @@ class CommentsService extends BaseService
             $this->setMessage('没有评论!');
             return $comment_list;
         }
-        $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['comment_avatar' => 'single']);
-        $comment_list['data'] =  ImagesService::getListImagesConcise($comment_list['data'],['image_ids' => 'several']);
-        $comment_list['data'] =  OrderRelateService::getCommentList($comment_list['data']);
+        $comment_list['data'] = ImagesService::getListImagesConcise($comment_list['data'],['image_ids' => 'several']);
         foreach ($comment_list['data'] as &$value){
+            $related_arr = explode(',',$value['related_id']);
+            $value['order_relate_id'] = end($related_arr);
             $value['type_name']     = CommentsEnum::getType($value['type']);
             $value['hidden_name']   = CommentsEnum::getHidden($value['hidden']);
             $value['status_name']   = CommentsEnum::getStatus($value['status']);
@@ -220,7 +225,12 @@ class CommentsService extends BaseService
             $value['progress']      = $this->getBusinessProgress($value['id'],ProcessCategoryEnum::COMMON_COMMENTS,$employee->id);
             unset($value['comment_avatar'],$value['related_id'],$value['image_ids']);
         }
-
+        switch ($request_arr['type']){
+            case CommentsEnum::SHOP:
+                $comment_list['data'] = $this->getShopCommonService($comment_list['data']);
+                break;
+                default;
+        }
         $this->setMessage('获取成功!');
         return $comment_list;
     }
@@ -294,6 +304,26 @@ class CommentsService extends BaseService
             ];
         }
         return $result_list;
+    }
+
+    /**
+     * 获取商城的service
+     * @param array $data
+     * @return array|bool
+     */
+    private function getShopCommonService(array $data)
+    {
+        $data = ShopGoodsRepository::bulkHasOneWalk(
+            $data,
+            ['from' => 'order_relate_id','to' => 'id'],
+            ['id','name'],
+            [],
+            function ($src_item,$shop_items){
+                $src_item['goods_service'] = $shop_items['name'] ?? '';
+                return $src_item;
+            }
+        );
+        return $data;
     }
 }
             
