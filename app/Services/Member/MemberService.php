@@ -6,6 +6,7 @@ use App\Enums\MemberEnum;
 use App\Enums\MemberIsTestEnum;
 use App\Enums\ScoreEnum;
 use App\Enums\ShopOrderEnum;
+use App\Library\Time\Time;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\MemberBindRepository;
 use App\Repositories\MemberGradeDefineRepository;
@@ -877,7 +878,7 @@ class MemberService extends BaseService
         $res = [];
         $res[] = [
             'value' => MemberGradeRepository::count(['status' => 1]),
-            'name'  => '全部会员'
+            'name'  => '全部成员'
         ];
         $ids = MemberGradeDefineRepository::getIdArray();
         foreach ($ids as $value){
@@ -887,6 +888,22 @@ class MemberService extends BaseService
                 'name'  => MemberGradeDefineRepository::getLabelById($value),
             ];
         }
+        $past       = Time::getStartStopTime('lastweek');
+        $now        = Time::getStartStopTime('thisweek');
+        $last_count = MemberBaseRepository::count(['created_at' => ['range',[$past['start'],$past['end']]],'deleted_at' => 0]) ?? 0;
+        $count      = MemberBaseRepository::count(['created_at' => ['range',[$now['start'],$now['end']]],'deleted_at' => 0]) ?? 0;
+        if ($last_count  == 0 && $count != 0){
+            $growth_rate = 100;
+        }elseif($last_count != 0 && $count == 0){
+            $growth_rate = -100;
+        }elseif($last_count != 0 && $count != 0){
+            $increment   = $count - $last_count;
+            $percentage  = round((($increment / $last_count) * 100) , 2);
+            $growth_rate = (string)$percentage;
+        }else{
+            $growth_rate = 0;
+        }
+        $res['growth_rate'] = $growth_rate;
         $this->setMessage('获取成功!');
         return $res;
     }
