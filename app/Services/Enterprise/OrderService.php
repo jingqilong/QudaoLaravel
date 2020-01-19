@@ -373,10 +373,18 @@ class OrderService extends BaseService
             $this->setError('预约已被审核，不能取消哦!');
             return false;
         }
+        DB::beginTransaction();
         if (!EnterpriseOrderRepository::getUpdId(['id' => $prise['id']],['status' => EnterEnum::CANCEL])){
             $this->setError('取消预约失败!');
+            DB::rollBack();
             return false;
         }
+        if (!$this->cancelBusinessProcess($prise['id'],ProcessCategoryEnum::ENTERPRISE_CONSULT)){
+            $this->setError('取消预约失败!');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('取消成功!');
         return true;
     }

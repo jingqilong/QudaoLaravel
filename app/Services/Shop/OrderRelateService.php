@@ -422,6 +422,13 @@ class OrderRelateService extends BaseService
             }
         }
         #面议订单需要结束流程
+        if ($order_relate['order_relate_type'] == ShopOrderTypeEnum::NEGOTIABLE){
+            if (!$this->cancelBusinessProcess($order_relate['id'],ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER)){
+                $this->setError('取消订单失败！');
+                DB::rollBack();
+                return false;
+            }
+        }
         $this->setMessage('取消订单成功！');
         DB::commit();
         return true;

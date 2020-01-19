@@ -3,6 +3,7 @@ namespace App\Services\Oa;
 
 use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessCategoryEnum;
+use App\Enums\ProcessRecordStatusEnum;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeRepository;
@@ -148,7 +149,7 @@ class ProcessRecordService extends BaseService
             return false;
         }
         $where = ['business_id' => $request['business_id'],'process_category' => $request['process_category']];
-        $column= ['id','node_id','node_action_result_id','operator_id','note','operation_at'];
+        $column= ['id','node_id','node_action_result_id','operator_id','note','status','operation_at'];
         if (!$recode_list = OaProcessRecordRepository::getAllList($where,$column,'created_at','asc')){
             $this->setMessage('暂无数据！');
             return [];
@@ -164,6 +165,7 @@ class ProcessRecordService extends BaseService
                     $recode['node_name'] = $node['name'];break;
                 }
             }
+            $recode['status_label'] = ProcessRecordStatusEnum::getLabel($recode['status']);
             $recode['node_action_result_label'] = '';
             foreach ($node_action_result_list as $value){
                 if ($recode['node_action_result_id'] == $value['id']){
@@ -184,7 +186,7 @@ class ProcessRecordService extends BaseService
      */
     public function getNodeListByUserId($user_id)
     {
-        $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]]];
+        $where = ['operator_id' => $user_id,'node_action_result_id' => ['in',[0,null]],'status' => ProcessRecordStatusEnum::DEFAULT];
         $column= ['id','business_id','process_id','process_category','position','created_at'];
         if (!$recode_list = OaProcessRecordRepository::getList($where,$column,'created_at','desc')){
             $this->setError('获取失败！');
@@ -287,14 +289,22 @@ class ProcessRecordService extends BaseService
         }
         $permission         = ProcessActionPermissionEnum::NO_PERMISSION;#表示当前是否有权限操作，0不能审核，1可以审核
         $process_record_id  = 0;#需要审核时，审核记录ID
+        $progress           = '待审核';
         foreach ($no_completed as $item){
             if ($item['operator_id'] == $employee_id){
+                if ($item['status'] == ProcessRecordStatusEnum::STOPPED){
+                    $progress = '已停止';break;
+                }
                 $permission         = ProcessActionPermissionEnum::PERMISSION;
+                $progress           = '审核中';
                 $process_record_id  = $item['id'];break;
             }
         }
         #流程进度
-        $progress = empty($completed) ? '待审核' : (!empty($no_completed) ? '审核中' : '已完成');
+        if (empty($no_completed)){
+            $progress = '已完成';
+        }
+//        $progress = empty($completed) ? '待审核' : (!empty($no_completed) ? '审核中' : '已完成');
         $progress .= '(已审核 ' . count($completed) . ' 步/共 '. $process['step_count'] .' 步)';
         $this->setMessage('获取成功！');
         return ['process_progress' => $progress,'permission' => $permission,'process_record_id' => $process_record_id];

@@ -5,12 +5,14 @@ use App\Enums\ProcessActionPermissionEnum;
 use App\Enums\ProcessEventEnum;
 use App\Enums\ProcessActionEventTypeEnum;
 use App\Enums\ProcessPrincipalsEnum;
+use App\Enums\ProcessRecordStatusEnum;
 use App\Repositories\OaProcessDefinitionRepository;
 use App\Repositories\OaProcessNodeActionsResultRepository;
 use App\Repositories\OaProcessNodeActionsResultViewRepository;
 use App\Repositories\OaProcessNodeEventPrincipalsRepository;
 use App\Repositories\OaProcessNodeRepository;
 use App\Repositories\OaProcessRecordActionsResultViewRepository;
+use App\Repositories\OaProcessRecordRepository;
 use App\Services\Oa\ProcessActionEventService;
 use App\Services\Oa\ProcessActionPrincipalsService;
 use App\Services\Oa\ProcessActionResultsService;
@@ -523,5 +525,25 @@ trait BusinessTrait
             #获取可操作的动作结果列表
             'action_result_list'    => $this->getActionResultList($process_permission['process_record_id'])
         ];
+    }
+
+    /**
+     * 取消业务流程
+     * @param $business_id
+     * @param $process_category
+     * @return bool
+     */
+    public function cancelBusinessProcess($business_id, $process_category){
+        $where = ['business_id' => $business_id,'process_category' => $process_category,'node_action_result_id' => 0];
+        if (!OaProcessRecordRepository::exists($where)){
+            $this->setMessage('取消成功！');
+            return true;
+        }
+        if (!OaProcessRecordRepository::update($where,['status' => ProcessRecordStatusEnum::STOPPED,'updated_at' => time()])){
+            $this->setError('取消失败！');
+            return false;
+        }
+        $this->setMessage('取消成功！');
+        return true;
     }
 }

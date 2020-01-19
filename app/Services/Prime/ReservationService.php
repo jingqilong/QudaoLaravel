@@ -402,10 +402,18 @@ class ReservationService extends BaseService
             'state'         => PrimeTypeEnum::RESERVATIONCANCEL,
             'updated_at'    => time(),
         ];
+        DB::beginTransaction();
         if (!PrimeReservationRepository::getUpdId(['id' => $id],$upd_arr)){
             $this->setError('取消失败！');
+            DB::rollBack();
             return false;
         }
+        if (!$this->cancelBusinessProcess($id,ProcessCategoryEnum::PRIME_RESERVATION)){
+            $this->setError('取消失败！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('取消成功！');
         return true;
     }

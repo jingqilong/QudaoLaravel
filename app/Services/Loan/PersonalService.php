@@ -388,10 +388,18 @@ class PersonalService extends BaseService
             $this->setError('预约已被审核，不能取消哦!');
             return false;
         }
+        DB::beginTransaction();
         if (!LoanPersonalRepository::getUpdId(['id' => $loan['id']],['status' => LoanEnum::CANCEL])){
             $this->setError('取消预约失败!');
+            DB::rollBack();
             return false;
         }
+        if (!$this->cancelBusinessProcess($loan['id'],ProcessCategoryEnum::LOAN_RESERVATION)){
+            $this->setError('取消预约失败!');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('取消成功!');
         return true;
     }

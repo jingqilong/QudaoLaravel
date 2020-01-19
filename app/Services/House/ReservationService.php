@@ -17,6 +17,7 @@ use App\Services\Message\SendService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ReservationService extends BaseService
 {
@@ -383,10 +384,18 @@ class ReservationService extends BaseService
             $this->setError('预约已取消！');
             return false;
         }
+        DB::beginTransaction();
         if (!HouseReservationRepository::getUpdId(['id' => $id],['state' => HouseEnum::CANCELRESERVATION,'updated_at' => time()])){
             $this->setError('预约取消失败！');
+            DB::rollBack();
             return false;
         }
+        if (!$this->cancelBusinessProcess($id,ProcessCategoryEnum::HOUSE_RESERVATION)){
+            $this->setError('预约取消失败！');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('预约取消成功！');
         return true;
     }

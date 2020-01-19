@@ -440,10 +440,18 @@ class OrdersService extends BaseService
             $this->setError('预约不存在!');
             return false;
         }
+        DB::beginTransaction();
         if (!MedicalOrdersRepository::getUpdId(['id' => $request['id']],['deleted_at' => time()])){
             $this->setError('取消预约失败!');
+            DB::rollBack();
             return false;
         }
+        if (!$this->cancelBusinessProcess($request['id'],ProcessCategoryEnum::HOSPITAL_RESERVATION)){
+            $this->setError('取消预约失败!');
+            DB::rollBack();
+            return false;
+        }
+        DB::commit();
         $this->setMessage('取消预约成功');
         return true;
     }
