@@ -40,7 +40,7 @@ class DepartmentsService extends BaseService
     /**
      * 删除医疗科室
      * @param $id
-     * @return bool
+     * @return mixed
      */
     public function deleteDepartments($id)
     {
@@ -48,7 +48,7 @@ class DepartmentsService extends BaseService
             $this->setError('医疗科室已删除或不存在！');
             return false;
         }
-        if ($list = MedicalDoctorsRepository::getAllList(['department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
+        if ($list = MedicalDoctorsRepository::getAllList(['deleted_at' => 0,'department_ids' => ['like','%,' . $id . ',%']],['id','name'])){
             $this->setMessage('该医疗科室已被医生使用，无法删除！');
             return $list;
         }
