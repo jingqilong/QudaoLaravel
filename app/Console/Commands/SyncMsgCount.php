@@ -79,7 +79,7 @@ class SyncMsgCount extends Command
         #将未读消息数据写入缓存
         Cache::forget($key);
         Cache::put($key,$all_message_count,null);
-        print '执行完毕！耗时：'.(time() - $start_time).'s';
+        print '执行完毕！耗时：'.(time() - $start_time).'s'.PHP_EOL;
         return true;
     }
 
