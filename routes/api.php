@@ -794,6 +794,7 @@ $api->version('v1',function ($api){
                 $api->post('set_comment_status', 'CommentsController@setCommentStatus')->name('OA设置评论状态');
                 $api->post('set_comment_hidden', 'CommentsController@setCommentHidden')->name('OA设置评论显示状态');
                 $api->get('comments_list', 'CommentsController@commentsList')->name('OA获取评论列表');
+                $api->get('comment_details', 'CommentsController@commentDetails')->name('OA获取评论详情');
 
                 #OA客服反馈
                 $api->get('feed_back_list', 'CommonFeedBacksController@feedBackList')->name('oa获取用户反馈列表');
