@@ -68,7 +68,7 @@ class GoodsSpecRelateService extends BaseService
                     'number'          => $value['number'],
                     'deduction_price' => $deduction_price,//最高积分抵扣
                     'spec_relate_id'  => $value['spec_relate_id'] ?? 0,
-                    'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
+                    'spec'            => $value['spec_relate_value'] ?? ($spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? ''),
                 ];
             }
             if (isset($value['order_relate_id'])){
@@ -375,7 +375,7 @@ class GoodsSpecRelateService extends BaseService
                 'main_img_url'    => $goods['banner_url'],
                 'number'          => $item['number'],
                 'spec_relate_id'  => $item['spec_relate_id'] ?? 0,
-                'spec'            => $spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? '',
+                'spec'            => $item['spec_relate_value'] ?? ($spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? ''),
                 'cart_id'         => $item['cart_id'] ?? 0
                 ];
         }

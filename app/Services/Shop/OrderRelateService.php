@@ -492,7 +492,7 @@ class OrderRelateService extends BaseService
         if (!empty($member_id)){
             $where['member_id'] = $member_id;
         }
-        $column = ['id','status','express_company_id','express_price','express_number','address_id','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','receive_at','created_at'];
+        $column = ['id','status','express_company_id','express_price','express_number','address_id','remarks','receive_method','order_no','trade_id','amount','payment_amount','score_deduction','score_type','receive_name','receive_mobile','receive_area_code','receive_address','shipment_at','order_relate_type','receive_at','created_at'];
         if (!$order = ShopOrderRelateViewRepository::getOne($where,$column)){
             $this->setError('订单不存在！');
             return false;
@@ -500,7 +500,8 @@ class OrderRelateService extends BaseService
         $order['score_type']    = empty($order['score_type']) ? '' : ScoreCategoryRepository::getField(['id' => $order['score_type']],'name');
         $order['status_title']  = ShopOrderEnum::getStatus($order['status']);
         $order['receive_method']= ShopOrderEnum::getReceiveMethod($order['receive_method']);
-        $order['express_price'] = sprintf('%.2f',round($order['express_price'] / 100,2));
+        $order['express_price'] = round($order['express_price'] / 100,2);
+        $order['express_number']= $order['express_number'] ?? '';
         $order['amount']        = sprintf('%.2f',round($order['amount'] / 100,2));
         $order['payment_amount']= sprintf('%.2f',round($order['payment_amount'] / 100,2));
         $order['shipment_at']   = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
@@ -511,8 +512,8 @@ class OrderRelateService extends BaseService
         $order['pay_at']            = '';//支付时间
         if (!empty($order['trade_id'])){
             if ($trade = MemberTradesRepository::getOne(['id' => $order['trade_id']])){
-                $order['trade_no']          = $trade['trade_no'];
-                $order['transaction_no']    = $trade['transaction_no'];
+                $order['trade_no']          = $trade['trade_no'] ?? '';
+                $order['transaction_no']    = $trade['transaction_no'] ?? '';
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
                 $order['pay_at']            = empty($trade['end_at']) ? '' : date('Y-m-d H:i:s',$trade['end_at']);
             }
@@ -1035,8 +1036,12 @@ class OrderRelateService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        if ($order_info['order_status'] != OrderEnum::STATUSTRADING){
+        if ($order_info['order_status'] == OrderEnum::STATUSSUCCESS){
             $this->setError('该订单已录入订单金额，不能重复操作！');
+            return false;
+        }
+        if ($order_info['order_status'] == OrderEnum::STATUSCLOSE){
+            $this->setError('该订单已取消，不能进行此操作！');
             return false;
         }
         if ($order_info['audit'] == CommonAuditStatusEnum::SUBMIT){
