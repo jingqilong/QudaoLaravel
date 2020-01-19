@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Library\DataStructure;
+namespace App\Library\ArrayModel;
 
 use ArrayAccess,Countable,Iterator ;
 
@@ -14,74 +14,37 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @var array
      * @access private
      */
-    private $data = [];
+    protected $data = [];
 
     /**
-     * key
+     * _order_by
      *
-     * @var string
-     * @access private
+     * @var array
+     * @access public
      */
-    private $key;
+    public $_order_bys = [];
 
     /**
      * SortedList constructor.
      * @param $data
      */
-    private function __construct($data)
+    private function __construct($data = null)
     {
-        $this->data = $data;
+        if(null !== $data)
+            $this->data = $data;
     }
 
     /**
-     * 一箇鍵值有一第記錄
      * @param $src_array
      * @param $key
      * @return SortedList
      */
-    public static function oneOfKey($src_array,$key){
+    public static function of($src_array, $key = 'key'){
         $result_array = [];
         foreach($src_array as $item){
             $result_array[$item[$key]] = $item;
         }
-        $instance = new self($result_array);
-        return $instance;
-    }
-
-    /**
-     * 每條記錄均使用多箇鍵值排序。
-     * @param $src_array
-     * @param $keys
-     * @param $level
-     * @return SortedList
-     */
-    public static function oneOfKeys($src_array,$keys,$level = 0){
-        $result_array = [];
-        foreach($src_array as $item){
-            if($level < count($keys)-1 ){
-                $result_array[$item[$keys[$level]]] = SortedList::oneOfKeys($item,$keys,$level+1);
-            }else{
-                $result_array[$item[$keys[$level]]] = $item;
-            }
-        }
-        $instance = new self($result_array);
-        $instance->key = $keys[$level];
-        return $instance;
-    }
-
-    /**
-     * 通過一箇鍵查到多條記錄幷存在此鍵值爲KEY數組中
-     * @param $src_array
-     * @param $key
-     * @return SortedList
-     */
-    public static function manyOfKey($src_array,$key){
-        $result_array = [];
-        foreach($src_array as $item){
-            $new_item = & $result_array[$item[$key]];
-            $new_item[] = $item;
-        }
-        $instance = new self($result_array);
+        $instance = new static($result_array);
         return $instance;
     }
 
@@ -111,56 +74,6 @@ class SortedList implements ArrayAccess,Countable,Iterator
         }
         $keys= explode('.',$key);
         return $this->findByKeys($keys);
-    }
-
-    /**
-     * 傳入 "key1.key2.key3" 進行搜索
-     * @param $keyString
-     * @return array
-     */
-    public function getByKeyString($keyString){
-        $keys= explode('.',$keyString);
-        return $this->findByKeys($keys);
-    }
-
-    /**
-     * 傳入['1','2','3'...]進行搜索
-     * @param $keys ,從根節點到葉節點的KEY的數組
-     * @param int $level
-     * @return array
-     */
-    public function findByKeys($keys,$level=0){
-         if($level < count($keys)-1 ){
-             if($this->data[$keys[$level]] instanceof SortedList ){
-                 return $this->data[$keys[$level]]->findByKeys($keys,$level+1);
-             }
-             if(is_array($this->data[$keys[$level]])){
-                 return $this->data[$keys[$level]];
-             }
-         }
-         if(isset($this->$this->data[$keys[$level]])){
-             return $this->data[$keys[$level]];
-         }
-         return [];
-    }
-
-    /**
-     * 通過 where(['key1'=>'value1','key2'=>'value2','key3'=>'value3'])進行搜索
-     * @param $keys
-     * @param int $level
-     * @return array|mixed
-     */
-    public function where($keys,$level=0){
-        $key = $keys[$this->key];
-        if(isset($this->data[$key])){
-            if($this->data[$key] instanceof SortedList ){
-                return $this->data[$key]->where($keys,$level+1);
-            }
-            if(is_array($this->data[$keys[$level]])){
-                return $this->data[$key];
-            }
-        }
-        return [];
     }
 
     /**
