@@ -1035,8 +1035,12 @@ class OrderRelateService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        if ($order_info['order_status'] != OrderEnum::STATUSTRADING){
+        if ($order_info['order_status'] == OrderEnum::STATUSSUCCESS){
             $this->setError('该订单已录入订单金额，不能重复操作！');
+            return false;
+        }
+        if ($order_info['order_status'] == OrderEnum::STATUSCLOSE){
+            $this->setError('该订单已取消，不能进行此操作！');
             return false;
         }
         if ($order_info['audit'] == CommonAuditStatusEnum::SUBMIT){
