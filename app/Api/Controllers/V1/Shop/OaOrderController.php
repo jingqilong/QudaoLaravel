@@ -5,20 +5,24 @@ namespace App\Api\Controllers\V1\Shop;
 
 
 use App\Api\Controllers\ApiController;
+use App\Services\Shop\NegotiableOrderService;
 use App\Services\Shop\OrderRelateService;
 
 class OaOrderController extends ApiController
 {
     public $orderRelateService;
+    public $negotiableOrderService;
 
     /**
      * OrderController constructor.
-     * @param $orderRelateService
+     * @param OrderRelateService $orderRelateService
+     * @param NegotiableOrderService $negotiableOrderService
      */
-    public function __construct(OrderRelateService $orderRelateService)
+    public function __construct(OrderRelateService $orderRelateService,NegotiableOrderService $negotiableOrderService)
     {
         parent::__construct();
         $this->orderRelateService = $orderRelateService;
+        $this->negotiableOrderService = $negotiableOrderService;
     }
 
     /**
@@ -268,7 +272,7 @@ class OaOrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->getNegotiableOrderList($this->request);
+        $res = $this->negotiableOrderService->getNegotiableOrderList($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
@@ -388,7 +392,7 @@ class OaOrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->getNegotiableOrderDetails($this->request['order_relate_id']);
+        $res = $this->negotiableOrderService->getNegotiableOrderDetails($this->request['order_relate_id']);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
@@ -555,7 +559,7 @@ class OaOrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->setNegotiableOrderAmount($this->request);
+        $res = $this->negotiableOrderService->setNegotiableOrderAmount($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }

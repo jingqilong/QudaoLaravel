@@ -5,21 +5,25 @@ namespace App\Api\Controllers\V1\Shop;
 
 
 use App\Api\Controllers\ApiController;
+use App\Services\Shop\NegotiableOrderService;
 use App\Services\Shop\OrderRelateService;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends ApiController
 {
     public $orderRelateService;
+    public $negotiableOrderService;
 
     /**
      * OrderController constructor.
      * @param $orderRelateService
+     * @param NegotiableOrderService $negotiableOrderService
      */
-    public function __construct(OrderRelateService $orderRelateService)
+    public function __construct(OrderRelateService $orderRelateService,NegotiableOrderService $negotiableOrderService)
     {
         parent::__construct();
         $this->orderRelateService = $orderRelateService;
+        $this->negotiableOrderService = $negotiableOrderService;
     }
 
     /**
@@ -799,7 +803,7 @@ class OrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->getNegotiablePlaceOrderDetail($this->request);
+        $res = $this->negotiableOrderService->getNegotiablePlaceOrderDetail($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
@@ -902,7 +906,7 @@ class OrderController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->orderRelateService->submitNegotiableOrder($this->request);
+        $res = $this->negotiableOrderService->submitNegotiableOrder($this->request);
         if ($res === false){
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
