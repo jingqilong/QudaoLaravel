@@ -109,7 +109,7 @@ return [
 //        'MEMBER_CONTACT_REQUEST'  => '成员联系请求',
         10 => [ App\Services\Member\MemberContactServices::class,'setMemberContact'],
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
-        11 => [ App\Services\Shop\OrderRelateService::class,'auditNegotiableOrder'],
+        11 => [ App\Services\Shop\NegotiableOrderService::class,'auditNegotiableOrder'],
 //        'COMMON_COMMENTS'  => '公共评论',
         12 => [ App\Services\Common\CommentsService::class,'setCommentStatus'],
     ],
