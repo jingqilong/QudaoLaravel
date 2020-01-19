@@ -193,7 +193,7 @@ class CommentsService extends BaseService
         $keywords   = $request['keywords'] ?? null;
         $where      = ['deleted_at' => 0];
         $request_arr= Arr::only($request,['type','status','hidden']);
-        $column     = ['id','related_id','hidden','mobile','type','status','content','comment_avatar','comment_name','comment_avatar_url','created_at','deleted_at'];
+        $column     = ['id','related_id','hidden','mobile','type','image_ids','status','content','comment_avatar','comment_name','comment_avatar_url','created_at','deleted_at'];
         foreach ($request_arr as $key => $value){
             if (!is_null($value)) $where[$key] = $value;
         }
