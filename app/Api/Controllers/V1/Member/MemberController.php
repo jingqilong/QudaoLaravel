@@ -956,12 +956,13 @@ class MemberController extends ApiController
     public function getUserCount()
     {
         $member = $this->memberService->getUserCount();
-        $all_member = $member[0]['value'];
-        unset($member[0]);
+        $all_member  = $member[0]['value'];
+        $growth_rate = $member['growth_rate'];
+        unset($member[0],$member['growth_rate']);
         if (!$member){
             return ['code' => 100, 'message' => $this->memberService->error];
         }
-        return ['code' => 200, 'all_member' => $all_member, 'message' => $this->memberService->message,'data' => $member];
+        return ['code' => 200, 'all_member' => $all_member,'growth_rate' => $growth_rate, 'message' => $this->memberService->message,'data' => $member];
     }
 
     /**

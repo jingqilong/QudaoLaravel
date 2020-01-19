@@ -524,6 +524,7 @@ class GoodsService extends BaseService
         if (!$list = ShopGoodsRepository::getRandomCount($count,$column,$where)){
             return [];
         }
+        $list  = ImagesService::getListImages($list,['banner_ids' => 'single']);
         foreach ($list as &$value){
             $value['price']  = '￥'.sprintf('%.2f',round($value['price'] / 100, 2));
             $value['labels'] = empty($value['labels']) ? [] : explode(',',trim($value['labels'],','));
