@@ -376,13 +376,12 @@ class CommentsService extends BaseService
         $comments_info['price'] = $shop_info['negotiable'] == ShopGoodsEnum::NEGOTIABLE ? ShopGoodsEnum::getNegotiable($shop_info['negotiable']) : $comments_info['price'];
         $comments_info = ImagesService::getOneImagesConcise($comments_info,['image_ids' => 'several']);
         $shop_info     = ImagesService::getOneImagesConcise($shop_info,['banner_ids' => 'single']);
-        unset($shop_info['negotiable']);
         $comments = array_merge($comments_info,$shop_info);
         $comments['name']        = $comments['name'] .'|商品'. $comments['spec_value'];
         $comments['type_name']   = CommentsEnum::getType($comments['type']);
         $comments['hidden_name'] = CommentsEnum::getHidden($comments['hidden']);
         $comments['status_name'] = CommentsEnum::getStatus($comments['status']);
-        unset($comments['negotiable'],$comments['banner_ids'],$comments['comment_avatar'],$comments['related_id'],$comments['spec_value'],$comments['image_ids']);
+        unset($comments['negotiable'],$comments['banner_ids'],$shop_info['negotiable'],$comments['comment_avatar'],$comments['related_id'],$comments['spec_value'],$comments['image_ids']);
         return $comments;
     }
 }
