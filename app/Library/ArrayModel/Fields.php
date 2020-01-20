@@ -37,4 +37,12 @@ class Fields extends SortedList
         }
         return rtrim($result, ',');
     }
+
+    /**
+     * @param $alias
+     * @return mixed
+     */
+    public function getFields($alias){
+        return $this->data[$alias];
+    }
 }

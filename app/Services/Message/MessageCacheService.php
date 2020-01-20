@@ -73,8 +73,7 @@ class MessageCacheService extends BaseService
         $index      = config('message.cache-chanel');
         $user_index = base64UrlEncode($index[$user_type].$user_id);
         $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
-        $feedbacks  = $all_message['feedback']??[];
-        $feedbacks[$feedback_id] = ['id' => $feedback_id,'replay_id' => $replay_id];
+        $feedbacks  = ['id' => $feedback_id,'replay_id' => $replay_id];
         $all_message['feedback'] = $feedbacks;
         Cache::put($user_index,$all_message,null);
         return;
@@ -90,7 +89,7 @@ class MessageCacheService extends BaseService
         $index      = config('message.cache-chanel');
         $user_index = base64UrlEncode($index[$user_type].$user_id);
         $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
-        $all_message['feedback'][$feedback_id] = [];
+        $all_message['feedback'] = [];
         Cache::put($user_index,$all_message,null);
         return;
     }

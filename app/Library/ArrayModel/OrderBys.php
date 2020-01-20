@@ -8,6 +8,9 @@ use InvalidArgumentException;
 
 class OrderBys extends SortedList
 {
+
+    public $order_by_string;
+
     /**
      * @param array ...$order_bys
      * @return SortedList
@@ -26,6 +29,23 @@ class OrderBys extends SortedList
             list($alias,$name) = $exploded;
             $result[$alias][$name] = ['alias'=>$alias, $name=>$name, 'type'=>$order_by[1]];
         }
-        return new static($result);
+        $instance = new static($result);
+        $instance->order_by_string  = implode(',',$order_bys);
+        return $instance;
+    }
+
+    /**
+     * @param $alias
+     * @return mixed
+     */
+    public function getOrderBys($alias){
+        return $this->data[$alias];
+    }
+
+    /**
+     * @return string
+     */
+    public function _toSql(){
+        return "ORDER BY " .  $this->order_by_string;
     }
 }

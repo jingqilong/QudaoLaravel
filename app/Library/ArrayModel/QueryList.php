@@ -4,7 +4,6 @@
 namespace App\Library\ArrayModel;
 
 use Closure;
-use DemeterChain\C;
 
 class QueryList extends SortedList
 {
@@ -308,13 +307,24 @@ class QueryList extends SortedList
         $result = "SELECT ";
         $result .= $this->_fields->_toSql();
         $result .= " FROM main_table " . $this->_alias;
+
         if($this->_join instanceof Join){
             $result .= $this->_join->_toSql();
-            $result .=$this->_ons->toSql();
+            $result .= $this->_ons->toSql();
         }
+
         if($this->_wheres instanceof Wheres){
-            $result .=$this->_wheres->toSql();
+            $result .= $this->_wheres->toSql();
         }
+
+        if($this->_order_bys instanceof OrderBys){
+            $result .= $this->_order_bys->_toSql();
+        }
+
+        if($this->_group_bys instanceof GroupBys){
+            $result .= $this->_group_bys->_toSql();
+        }
+
         return $result;
     }
 
