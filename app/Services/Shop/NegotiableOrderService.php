@@ -273,8 +273,12 @@ class NegotiableOrderService extends BaseService
             $this->setError('订单已审核！');
             return false;
         }
+        $upd = ['audit' => $audit,'updated_at' => time()];
+        if ($audit == CommonAuditStatusEnum::NO_PASS){
+            $upd['status'] = ShopOrderEnum::CANCELED;
+        }
         #更新订单状态
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['audit' => $audit,'updated_at' => time()])){
+        if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],$upd)){
             $this->setError('面议订单审核失败！');
             return false;
         }
