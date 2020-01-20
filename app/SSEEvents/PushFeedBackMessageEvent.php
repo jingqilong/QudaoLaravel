@@ -35,21 +35,21 @@ class PushFeedBackMessageEvent extends SSEEvent
             return false;
         }
         $data = Cache::get($chanel);
-        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
-            return false;
-        }
-        $feedback_id = $data['feedback_id'];//获取详情时缓存的反馈ID
+//        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
+//            return false;
+//        }
+//        $feedback_id = $data['feedback_id'];//获取详情时缓存的反馈ID
         if (!isset($data['feedback']) || empty($data['feedback'])){
             return false;
         }
         $feedback = $data['feedback'];
-        if (!isset($feedback[$feedback_id])){
-            return false;
-        }
-        $feedback_list = $feedback[$feedback_id];
-        $this->message_data = $feedback_list;
-        Loggy::write('debug','通道名：'.$chanel.'，反馈推送：',$feedback_list);
-        return json_encode($feedback_list);
+//        if (!isset($feedback[$feedback_id])){
+//            return false;
+//        }
+//        $feedback_list = $feedback[$feedback_id];
+        $this->message_data = $feedback;
+        Loggy::write('debug','通道名：'.$chanel.'，反馈推送：',$feedback);
+        return json_encode($feedback);
     }
 
     /**
@@ -62,18 +62,18 @@ class PushFeedBackMessageEvent extends SSEEvent
             return false;
         }
         $data = Cache::get($chanel);
-        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
-            return false;
-        }
-        $feedback_id = $data['feedback_id'];
+//        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
+//            return false;
+//        }
+//        $feedback_id = $data['feedback_id'];
         if (!isset($data['feedback']) || empty($data['feedback'])){
             return false;
         }
         $feedback = $data['feedback'];
-        if (!isset($feedback[$feedback_id])){
-            return false;
-        }
-        if ($this->message_data === $feedback[$feedback_id]){
+//        if (!isset($feedback[$feedback_id])){
+//            return false;
+//        }
+        if ($this->message_data === $feedback){
             Loggy::write('debug','通道名：'.$chanel.'，两次消息日志一至');
             return false;
         }
