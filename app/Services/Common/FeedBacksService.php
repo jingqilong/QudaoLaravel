@@ -200,7 +200,6 @@ class FeedBacksService extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        MessageCacheService::cacheFeedbackId($employee->id,3,$request['feedback_id']);
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
@@ -263,7 +262,6 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
-        MessageCacheService::cacheFeedbackId($member->id,1,$request['feedback_id']);
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
