@@ -74,8 +74,7 @@ class MessageCacheService extends BaseService
         $user_index = base64UrlEncode($index[$user_type].$user_id);
         $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
         $feedbacks  = $all_message['feedback']??[];
-        $feedback   = ['id' => $feedback_id,'replay_id' => $replay_id];
-        $feedbacks[$feedback_id] = $feedback;
+        $feedbacks[$feedback_id] = ['id' => $feedback_id,'replay_id' => $replay_id];
         $all_message['feedback'] = $feedbacks;
         Cache::put($user_index,$all_message,null);
         return;

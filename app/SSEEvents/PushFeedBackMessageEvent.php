@@ -2,6 +2,8 @@
 namespace App\SSEEvent;
 use SSEEvent;
 use Illuminate\Support\Facades\Cache;
+use Tolawho\Loggy\Facades\Loggy;
+
 /**
  * 推送意见反馈消息SSE事件
  * Class PushMessageEvent
@@ -46,6 +48,7 @@ class PushFeedBackMessageEvent extends SSEEvent
         }
         $feedback_list = $feedback[$feedback_id];
         $this->message_data = $feedback_list;
+        Loggy::write('info','反馈推送：',$feedback_list);
         return json_encode($feedback_list);
     }
 
