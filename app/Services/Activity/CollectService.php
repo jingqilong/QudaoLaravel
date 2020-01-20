@@ -98,7 +98,7 @@ class CollectService extends BaseService
             return ['current_page' => $page,'data' => [],'last_page' => $page,'page_num' => $page_num,'total' => 0];
         }
         $activity_ids = array_column($list['data'],'target_id');
-        $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id'];
+        $activity_column = ['id','name','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
         if (!$activities = ActivityDetailRepository::getActivityList(array_merge($activity_where,['id' => ['in',$activity_ids]]),$activity_column,'start_time','desc')){
             $this->setError('获取失败！');
             return false;
