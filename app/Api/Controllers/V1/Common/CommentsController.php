@@ -620,7 +620,7 @@ class CommentsController extends ApiController
         if ($Validate->fails()){
             return ['code' => 100, 'message' => $this->error];
         }
-        $res = $this->commonComments->commentDetails($this->request);
+        $res = $this->commonComments->commentDetails($this->request['id']);
         if ($res){
             return ['code' => 200, 'message' => $this->commonComments->message,'data' => $res];
         }

@@ -8,6 +8,7 @@ use App\Enums\CommentsEnum;
 use App\Models\CommonCommentsModel;
 use App\Repositories\Traits\RepositoryTrait;
 use App\Services\Common\ImagesService;
+use Illuminate\Support\Facades\Auth;
 
 class CommonCommentsRepository extends ApiRepository
 {
@@ -39,6 +40,34 @@ class CommonCommentsRepository extends ApiRepository
         $comment['created_at'] = date('Y-m-d',strtotime($comment['created_at']));
         unset($comment['image_ids'],$comment['comment_avatar']);
         return $comment;
+    }
+
+    /**
+     * 添加评论
+     * @param $content
+     * @param $type
+     * @param $order_related_id
+     * @param $relate_id
+     * @param string $image_ids
+     * @return mixed
+     */
+    protected function addComment($content, $type, $order_related_id, $relate_id, $image_ids = ''){
+        $member = Auth::guard('member_id')->user();
+        $add_arr = [
+            'member_id'         => $member->id,
+            'content'           => $content,
+            'comment_name'      => $member->ch_name,
+            'comment_avatar'    => $member->avatar_id,
+            'type'              => $type,
+            'order_related_id'  => $order_related_id,
+            'related_id'        => $relate_id,
+            'image_ids'         => $image_ids,
+            'status'            => CommentsEnum::SUBMIT,
+            'hidden'            => CommentsEnum::HIDDEN,
+            'created_at'        => time(),
+            'updated_at'        => time(),
+        ];
+        return $this->getAddId($add_arr);
     }
 }
             

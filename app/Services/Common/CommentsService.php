@@ -5,21 +5,23 @@ namespace App\Services\Common;
 use App\Enums\CommentsEnum;
 use App\Enums\ProcessCategoryEnum;
 use App\Enums\ShopGoodsEnum;
-use App\Enums\ShopOrderEnum;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonCommentsViewRepository;
+use App\Repositories\CommonImagesRepository;
 use App\Repositories\MemberBaseRepository;
 use App\Repositories\ShopGoodSpecListViewRepository;
 use App\Repositories\ShopGoodsRepository;
 use App\Repositories\ShopGoodsSpecRelateRepository;
 use App\Repositories\ShopOrderRelateRepository;
 use App\Services\BaseService;
+use App\Services\Shop\OrderGoodsService;
 use App\Services\Shop\OrderRelateService;
 use App\Traits\BusinessTrait;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class CommentsService extends BaseService
 {
@@ -74,66 +76,66 @@ class CommentsService extends BaseService
      */
     public function addComment($request)
     {
-        $member    = $this->auth->user();
-        $related_id = $request['related_id'];
-        switch ($request['type']){
-            case CommentsEnum::SHOP:
-                if (!preg_match('/^[\d+]+[,]+[\d+]*/',$related_id)){
-                    $this->setError('评论ID格式有误');
-                    return false;
-                }
-                $related_arr = explode(',',$related_id);
-                $order_relate_id = reset($related_arr);
-                if (!$order = ShopOrderRelateRepository::getOne(['id' => $order_relate_id])){
-                    $this->setError('订单信息不存在！');
-                    return false;
-                }
-                if ($order['status'] == ShopOrderEnum::FINISHED){
-                    $this->setError('该订单已评价！');
-                    return false;
-                }
-                if ($order['status'] != ShopOrderEnum::RECEIVED){
-                    $this->setError('该订单还未签收，无法评论！');
-                    return false;
-                }
-                break;
-            default:
-                $this->setError('评论类型不存在！');
-                return false;
-        }
-        $add_arr = [
-            'member_id'         => $member->id,
-            'content'           => $request['content'],
-            'comment_name'      => $member->ch_name,
-            'comment_avatar'    => $member->avatar_id,
-            'type'              => CommentsEnum::SHOP,
-            'order_related_id'  => $request['order_related_id'],
-            'related_id'        => $request['related_id'],
-            'image_ids'         => $request['image_ids'] ?? '',
-            'status'            => CommentsEnum::SUBMIT,
-            'hidden'            => CommentsEnum::HIDDEN,
-        ];
-        if (CommonCommentsRepository::exists($add_arr)){
-            $this->setError('评论已存在,请勿重复操作!');
+        if (!$this->beforeCommentCheck($request['type'],$request['related_id'])){
             return false;
         }
         DB::beginTransaction();
-        $add_arr['created_at']   = time();
-        $add_arr['updated_at']   = time();
-        if (!$comments_id = CommonCommentsRepository::getAddId($add_arr)){
+        if (!$comments_id = CommonCommentsRepository::addComment($request['content'],CommentsEnum::SHOP,$request['order_related_id'],$request['related_id'],$request['image_ids'] ?? '')){
             $this->setError('评论添加失败!');
             DB::rollBack();
             return false;
         }
-        //更改订单状态
-        if (!ShopOrderRelateRepository::getUpdId(['id' => $request['related_id']],['status' => ShopOrderEnum::FINISHED])){
-            $this->setError('评论添加失败!');
+        #评论回调
+        if (!$this->commentCallback($request['type'],$request['related_id'])){
+            $this->setError('评论失败！');
             DB::rollBack();
             return false;
         }
         $this->setMessage('评论添加成功!');
         DB::commit();
         return $comments_id;
+    }
+
+    /**
+     * 评论前检查
+     * @param $type
+     * @param $relate_id
+     * @return bool
+     */
+    public function beforeCommentCheck($type, $relate_id){
+        switch ($type){
+            case CommentsEnum::SHOP:
+                $orderGoodsService = new OrderGoodsService();
+                if (!$orderGoodsService->beforeCommentCheck($relate_id)){
+                    $this->setError($orderGoodsService->error);
+                    return false;
+                }
+                break;
+            default:
+                $this->setError('评论类型不存在！');
+        }
+        return false;
+    }
+
+    /**
+     * 评论后回调
+     * @param $type
+     * @param $relate_id
+     * @return bool
+     */
+    public function commentCallback($type,$relate_id){
+        switch ($type){
+            case CommentsEnum::SHOP:
+                $orderGoodsService = new OrderGoodsService();
+                if (!$orderGoodsService->commentCallback($relate_id)){
+                    $this->setError($orderGoodsService->error);
+                    return false;
+                }
+                break;
+            default:
+                $this->setError('评论类型不存在！');
+        }
+        return false;
     }
 
     /**
@@ -330,25 +332,15 @@ class CommentsService extends BaseService
 
     /**
      * OA查看评论详情
-     * @param $request
+     * @param $id
      * @return array|bool
      */
-    public function commentDetails($request)
+    public function commentDetails($id)
     {
         $employee = Auth::guard('oa_api')->user();
-        switch ($request['type']){
-            case CommentsEnum::SHOP:
-                if (!$order = $this->getShopCommentDetails($request['id'])){
-                    $this->setError('获取失败！');
-                    return false;
-                }
-                break;
-            default:
-                $this->setError('评论类型不存在！');
-                return false;
-        }
+        $comment = $this->getCommentInfo($id);
         $this->setMessage('获取成功!');
-        return $this->getBusinessDetailsProcess($order,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
+        return $this->getBusinessDetailsProcess($comment,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
     }
 
 
@@ -384,6 +376,61 @@ class CommentsService extends BaseService
         $comments['status_name'] = CommentsEnum::getStatus($comments['status']);
         unset($comments['negotiable'],$comments['banner_ids'],$shop_info['negotiable'],$comments['comment_avatar'],$comments['related_id'],$comments['spec_value'],$comments['image_ids']);
         return $comments;
+    }
+
+    /**
+     * 获取评论详情
+     * @param $id
+     * @return array|bool|mixed|null
+     */
+    public function getCommentInfo($id){
+        $column     = ['id','related_id','hidden','mobile','type','image_ids','status','content','comment_name','comment_avatar_url','created_at'];
+        if(!$comments_info = CommonCommentsViewRepository::getOne(['id' => $id],$column)){
+            $this->setError('获取失败!');
+            return false;
+        }
+        $comments_info['type_name']   = CommentsEnum::getType($comments_info['type']);
+        $comments_info['hidden_name'] = CommentsEnum::getHidden($comments_info['hidden']);
+        $comments_info['status_name'] = CommentsEnum::getStatus($comments_info['status']);
+        $comments_info = [$comments_info];
+        CommonImagesRepository::bulkHasManyWalk(byRef($comments_info),['from' => 'image_ids','to' => 'id'],['id','img_url'],[],
+            function ($src_item,$set_items){
+                unset($src_item['image_ids']);
+                $src_item['image_urls'] = Arr::pluck($set_items,'img_url');
+                return $src_item;
+            });
+        list($comments_info)            = $comments_info;
+        $comments_info['relate_info']   = $this->getRelateInfo($comments_info['related_id'],$comments_info['type']);
+        return $comments_info;
+    }
+
+    /**
+     * 获取评论目标信息
+     * @param $relate_id
+     * @param $comment_type
+     * @return array|bool
+     */
+    public function getRelateInfo($relate_id, $comment_type){
+        if (empty($relate_id)){
+            return [];
+        }
+        $config_data  = config('comment.relate_info');
+        if (empty($comment_type)){
+            return [];
+        }
+        list($class,$function) = $config_data[$comment_type];
+        try{
+            $target_object = app()->make($class);
+        }catch (\Exception $e){
+            Loggy::write('error',$e->getMessage());
+            $this->setError('获取失败!');
+            return false;
+        }
+        if(!method_exists($target_object,$function)){
+            $this->setError('函数'.$target_object ."->".$function. '不存在，获取失败!');
+            return false;
+        }
+        return $target_object->$function($relate_id);
     }
 }
             
