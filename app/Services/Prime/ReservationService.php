@@ -300,10 +300,11 @@ class ReservationService extends BaseService
      */
     public function myReservationList($request)
     {
+        $member     = Auth::guard('member_api')->user();
         $type       = $request['type'] ?? null;
         $order      = 'id';
         $desc_asc   = 'desc';
-        $where      = ['id' => ['>',0]];
+        $where      = ['id' => ['>',0],'member_id' => $member->id];
         $column     = ['id','time','number','state','merchant_name','banner_ids','star','address'];
         if (!is_null($type)){
             $where['type'] = $type;
