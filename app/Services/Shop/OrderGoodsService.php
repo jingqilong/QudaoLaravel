@@ -3,6 +3,7 @@ namespace App\Services\Shop;
 
 
 use App\Enums\CommentsEnum;
+use App\Enums\ShopOrderEnum;
 use App\Enums\ShopOrderTypeEnum;
 use App\Repositories\CommonCommentsRepository;
 use App\Repositories\CommonImagesRepository;
@@ -45,11 +46,13 @@ class OrderGoodsService extends BaseService
             });
         $comment_list   = createArrayIndex($comment_list,'related_id');
         foreach ($goods_info_list as &$value){
-            $value['comment'] = [];
+            $value['is_comment']= ($order_relate['status'] == ShopOrderEnum::FINISHED) ? 1 : 0;//是否评论，1已评论（不能评论），0未评论（可以评论）
+            $value['comment']   = [];
             if (isset($comment_list[$order_relate_id.','.$value['goods_id']])){
-                $comment = $comment_list[$order_relate_id.','.$value['goods_id']];
-                $comment['created_at'] = date('Y.m.d / H:i',strtotime($comment['created_at']));
-                $value['comment'] = $comment;
+                $comment                = $comment_list[$order_relate_id.','.$value['goods_id']];
+                $comment['created_at']  = date('Y.m.d / H:i',strtotime($comment['created_at']));
+                $value['is_comment']    = 1;
+                $value['comment']       = $comment;
             }
             unset($value['spec_relate_id'],$value['cart_id']);
         }
