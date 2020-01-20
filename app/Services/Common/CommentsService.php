@@ -170,7 +170,7 @@ class CommentsService extends BaseService
     {
         switch ($request['type']){
             case CommentsEnum::SHOP:
-                if (!$order = ShopOrderRelateRepository::getCommentDetails($request['id'])){
+                if (!$comment_info = ShopOrderRelateRepository::getCommentDetails($request['id'])){
                     $this->setError('获取失败！');
                     return false;
                 }
@@ -180,6 +180,7 @@ class CommentsService extends BaseService
                 return false;
         }
         $this->setMessage('获取成功!');
+        return $comment_info;
     }
 
 
@@ -352,7 +353,7 @@ class CommentsService extends BaseService
 
 
     /**
-     * 获取评论商品的详情
+     * OA获取评论商品的详情
      * @param $id
      * @return array|bool|null
      */
