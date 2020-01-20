@@ -73,7 +73,7 @@ class PushFeedBackMessageEvent extends SSEEvent
         if (!isset($feedback[$feedback_id])){
             return false;
         }
-        if ($this->message_data == $feedback[$feedback_id]){
+        if ($this->message_data === $feedback[$feedback_id]){
             Loggy::write('debug','通道名：'.$chanel.'，两次消息日志一至');
             return false;
         }
