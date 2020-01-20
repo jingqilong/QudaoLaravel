@@ -119,18 +119,13 @@ class OrderGoodsService extends BaseService
      */
     public function commentCallback($relate_id){
         list($order_relate_id) = explode(',',$relate_id);
-        if (!$order_goods_list = ShopOrderGoodsRepository::getAll(['id' => $order_relate_id])){
+        if (!$order_goods_list = ShopOrderGoodsRepository::getAllList(['order_relate_id' => $order_relate_id])){
             $this->setError('订单商品不存在！');
             return false;
         }
         $relate_ids = [];
         foreach ($order_goods_list as $value){
             $relate_ids[] = $order_relate_id . ',' . $value['goods_id'];
-        }
-        $comment_count = CommonCommentsRepository::count(['relate_id' => ['in',$relate_ids]]);
-        if ($comment_count < count($relate_ids)){
-            $this->setMessage('订单商品未全部评论');
-            return true;
         }
         if (!ShopOrderRelateRepository::getUpdId(['id' => $order_relate_id],['status' => ShopOrderEnum::FINISHED,'updated_at' => time()])){
             $this->setError('订单状态更新失败！');

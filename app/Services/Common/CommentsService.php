@@ -114,7 +114,7 @@ class CommentsService extends BaseService
             default:
                 $this->setError('评论类型不存在！');
         }
-        return false;
+        return true;
     }
 
     /**
@@ -135,7 +135,7 @@ class CommentsService extends BaseService
             default:
                 $this->setError('评论类型不存在！');
         }
-        return false;
+        return true;
     }
 
     /**

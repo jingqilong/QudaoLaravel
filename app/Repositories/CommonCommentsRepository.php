@@ -52,7 +52,7 @@ class CommonCommentsRepository extends ApiRepository
      * @return mixed
      */
     protected function addComment($content, $type, $order_related_id, $relate_id, $image_ids = ''){
-        $member = Auth::guard('member_id')->user();
+        $member = Auth::guard('member_api')->user();
         $add_arr = [
             'member_id'         => $member->id,
             'content'           => $content,
