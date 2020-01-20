@@ -145,7 +145,7 @@ class FeedBacksService extends BaseService
         $request_arr['created_at']    = time();
         $request_arr['created_by']    = $member->id;
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
-            Loggy::write('error','最后回复的id' . $request_arr['replay_id'] . '最后回复:created_by' . end($callback)['created_by']);
+            Loggy::write('error','用户回复员工: 最后回复的id' . $request_arr['replay_id'] . '最后回复:created_by' . end($callback)['created_by']);
             $this->setError('回复失败!');
             return false;
         }
@@ -169,7 +169,7 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
-        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'])){
+        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id','created_by'])){
             $this->setError('回复失败!');
             return false;
         }
