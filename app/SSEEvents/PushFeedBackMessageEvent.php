@@ -10,6 +10,10 @@ class PushFeedBackMessageEvent extends SSEEvent
 {
     public $chanel;
 
+    public $message_data;
+
+
+
     /**
      * MessageCountEvent constructor.
      * @param $chanel
