@@ -22,7 +22,7 @@ class SSEService extends BaseService
             $sse->exec_limit = 10;  #脚本时间限制
             $sse->allow_cors = true;
             $sse->addEventListener('message', new MessageCountEvent($chanel));
-            $sse->addEventListener('feed_back_message', new PushFeedBackMessageEvent($chanel));
+            $sse->addEventListener('feedback', new PushFeedBackMessageEvent($chanel));
             $sse->start();
         } catch (\Exception $e) {
             Loggy::write('error',$e->getMessage(),$e);
