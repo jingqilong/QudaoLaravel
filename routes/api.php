@@ -724,6 +724,7 @@ $api->version('v1',function ($api){
 
                 $api->get('get_my_order_list','OrderController@getMyOrderList')->name('获取我的订单列表');
                 $api->get('order_detail','OrderController@orderDetail')->name('获取订单详情');
+                $api->get('get_order_comments','OrderController@getOrderComments')->name('获取订单评论');
                 $api->post('get_order_express_details','OrderController@getOrderExpressDetails')->name('用户根据订单号获取物流状态');
                 $api->post('remind_to_ship','OrderController@remindToShip')->name('提醒发货');
                 $api->post('edit_my_order','OrderController@editMyOrder')->name('修改我的订单');

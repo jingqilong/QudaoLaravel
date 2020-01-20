@@ -6,6 +6,7 @@ namespace App\Api\Controllers\V1\Shop;
 
 use App\Api\Controllers\ApiController;
 use App\Services\Shop\NegotiableOrderService;
+use App\Services\Shop\OrderGoodsService;
 use App\Services\Shop\OrderRelateService;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,17 +14,22 @@ class OrderController extends ApiController
 {
     public $orderRelateService;
     public $negotiableOrderService;
+    public $orderGoodsService;
 
     /**
      * OrderController constructor.
-     * @param $orderRelateService
+     * @param OrderRelateService $orderRelateService
      * @param NegotiableOrderService $negotiableOrderService
+     * @param OrderGoodsService $orderGoodsService
      */
-    public function __construct(OrderRelateService $orderRelateService,NegotiableOrderService $negotiableOrderService)
+    public function __construct(OrderRelateService $orderRelateService,
+                                NegotiableOrderService $negotiableOrderService,
+                                OrderGoodsService $orderGoodsService)
     {
         parent::__construct();
         $this->orderRelateService = $orderRelateService;
         $this->negotiableOrderService = $negotiableOrderService;
+        $this->orderGoodsService = $orderGoodsService;
     }
 
     /**
@@ -361,7 +367,7 @@ class OrderController extends ApiController
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="订单状态，0已取消，1待支付，2待发货（已支付），3已发货（待收货），4已收货",
+     *         description="订单状态，0已取消，1待支付，2待发货（已支付），3已发货（待收货），4已收货(待评论)，5已完成",
      *         required=false,
      *         @OA\Schema(
      *             type="integer",
@@ -911,5 +917,65 @@ class OrderController extends ApiController
             return ['code' => 100, 'message' => $this->orderRelateService->error];
         }
         return ['code' => 200, 'message' => $this->orderRelateService->message,'data' => $res];
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/shop/get_order_comments",
+     *     tags={"商城"},
+     *     summary="获取订单评论",
+     *     description="sang" ,
+     *     operationId="get_order_comments",
+     *     @OA\Parameter(
+     *         name="sign",
+     *         in="query",
+     *         description="签名",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="会员token",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="order_relate_id",
+     *         in="query",
+     *         description="订单ID，",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=100,
+     *         description="获取失败",
+     *     ),
+     * )
+     *
+     */
+    public function getOrderComments(){
+        $rules = [
+            'order_relate_id'   => 'required|integer',
+        ];
+        $messages = [
+            'order_relate_id.required'  => '订单ID不能为空',
+            'order_relate_id.integer'   => '订单ID必须为整数',
+        ];
+        $Validate = $this->ApiValidate($rules, $messages);
+        if ($Validate->fails()){
+            return ['code' => 100, 'message' => $this->error];
+        }
+        $res = $this->orderGoodsService->getOrderComments($this->request['order_relate_id']);
+        if ($res === false){
+            return ['code' => 100, 'message' => $this->orderGoodsService->error];
+        }
+        return ['code' => 200, 'message' => $this->orderGoodsService->message,'data' => $res];
     }
 }
