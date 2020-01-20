@@ -45,6 +45,7 @@ class PushFeedBackMessageEvent extends SSEEvent
             return false;
         }
         $feedback_list = $feedback[$feedback_id];
+        $this->message_data = $feedback_list;
         return json_encode($feedback_list);
     }
 
@@ -67,6 +68,9 @@ class PushFeedBackMessageEvent extends SSEEvent
         }
         $feedback = $data['feedback'];
         if (!isset($feedback[$feedback_id])){
+            return false;
+        }
+        if ($this->message_data == $feedback[$feedback_id]){
             return false;
         }
         return true;
