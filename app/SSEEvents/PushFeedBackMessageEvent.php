@@ -28,8 +28,20 @@ class PushFeedBackMessageEvent extends SSEEvent
         if (!Cache::has($chanel)){
             return false;
         }
-        $data = Cache::pull($chanel);
-        return json_encode($data);
+        $data = Cache::get($chanel);
+        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
+            return false;
+        }
+        $feedback_id = $data['feedback_id'];//获取详情时缓存的反馈ID
+        if (!isset($data['feedback']) || empty($data['feedback'])){
+            return false;
+        }
+        $feedback = $data['feedback'];
+        if (!isset($feedback[$feedback_id])){
+            return false;
+        }
+        $feedback_list = $feedback[$feedback_id];
+        return json_encode($feedback_list);
     }
 
     /**
@@ -39,6 +51,18 @@ class PushFeedBackMessageEvent extends SSEEvent
     {
         $chanel  = $this->chanel;
         if (!Cache::has($chanel)){
+            return false;
+        }
+        $data = Cache::get($chanel);
+        if (!isset($data['feedback_id']) || empty($data['feedback_id'])){
+            return false;
+        }
+        $feedback_id = $data['feedback_id'];
+        if (!isset($data['feedback']) || empty($data['feedback'])){
+            return false;
+        }
+        $feedback = $data['feedback'];
+        if (!isset($feedback[$feedback_id])){
             return false;
         }
         return true;

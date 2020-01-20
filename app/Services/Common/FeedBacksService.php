@@ -9,9 +9,11 @@ use App\Repositories\CommonFeedbackThreadRepository;
 use App\Repositories\MemberGradeDefineRepository;
 use App\Repositories\MemberOaListViewRepository;
 use App\Services\BaseService;
+use App\Services\Message\MessageCacheService;
 use App\Traits\HelpTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class FeedBacksService extends BaseService
@@ -120,7 +122,11 @@ class FeedBacksService extends BaseService
     {
         $member = $this->auth->user();
         $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
-        if (!CommonFeedbackThreadRepository::exists(['id' => $request_arr['replay_id']]) || !CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
+        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request_arr['replay_id']])){
+            $this->setError('没有反馈消息!');
+            return false;
+        }
+        if (!CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
             $this->setError('没有反馈消息!');
             return false;
         }
@@ -136,6 +142,7 @@ class FeedBacksService extends BaseService
             $this->setError('回复失败!');
             return false;
         }
+        MessageCacheService::increaseCacheFeedbackMessage($replay_feedback['created_by'],3,$request_arr['feedback_id'],$request_arr['replay_id']);
         $this->setMessage('回复成功!');
         return true;
     }
@@ -151,7 +158,11 @@ class FeedBacksService extends BaseService
     {
         $employee = $this->oa_auth->user();
         $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
-        if (!CommonFeedbackThreadRepository::exists(['id' => $request_arr['replay_id']]) || !CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
+        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request_arr['replay_id']])){
+            $this->setError('没有反馈消息!');
+            return false;
+        }
+        if (!CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
             $this->setError('没有反馈消息!');
             return false;
         }
@@ -170,6 +181,7 @@ class FeedBacksService extends BaseService
             DB::rollBack();
             return false;
         }
+        MessageCacheService::increaseCacheFeedbackMessage($replay_feedback['created_by'],1,$request_arr['feedback_id'],$request_arr['replay_id']);
         $this->setMessage('回复成功!');
         DB::commit();
         return true;
@@ -182,11 +194,13 @@ class FeedBacksService extends BaseService
      */
     public function getCallBackFeedBack($request)
     {
+        $employee = Auth::guard('oa_api')->user();
         $column   = ['id','member_id','content','created_at'];
         if (!$call_back_info = CommonFeedBacksViewRepository::getOne(['id' => $request['feedback_id']],$column)){
             $this->setError('获取失败!');
             return false;
         }
+        MessageCacheService::cacheFeedbackId($employee->id,3,$request['feedback_id']);
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
@@ -207,6 +221,7 @@ class FeedBacksService extends BaseService
             $value['avatar_url'] = ($value['operator_type'] == FeedBacksEnum::MEMBER) ? ($member_list[$value['created_by']]['img_url'] ?? $default_avatar) : $default_avatar;
             unset($value['created_by']);
         }
+        MessageCacheService::clearCacheFeedbackMessage($employee->id,3,$request['feedback_id']);
         $this->setMessage('获取成功!');
         return ['member_call_back' => $call_back_info,'oa_call_back' => $call_back_list];
     }
@@ -248,6 +263,7 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
+        MessageCacheService::cacheFeedbackId($member->id,1,$request['feedback_id']);
         $list_where  = ['feedback_id' => $call_back_info['id']];
         $list_column = ['id','content','status','operator_type','created_at','created_by'];
         if (!$call_back_list = CommonFeedbackThreadRepository::getAllList($list_where,$list_column,'created_at','asc')){
@@ -268,6 +284,7 @@ class FeedBacksService extends BaseService
             $value['avatar_url'] = ($value['operator_type'] == FeedBacksEnum::MEMBER) ? ($member_list[$value['created_by']]['img_url'] ?? $default_avatar) : $default_avatar;
             unset($value['created_by']);
         }
+        MessageCacheService::clearCacheFeedbackMessage($member->id,1,$request['feedback_id']);
         $this->setMessage('获取成功!');
         return ['member_call_back' => $call_back_info,'oa_call_back' => $call_back_list];
     }

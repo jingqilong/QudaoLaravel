@@ -61,4 +61,53 @@ class MessageCacheService extends BaseService
         $all_message_count[$user_index] = empty($count) ? 0 : $all_message_count[$user_index] - 1;
         Cache::put($key,$all_message_count);
     }
+
+    /**
+     * 增加缓存中意见反馈消息
+     * @param $user_id
+     * @param $user_type
+     * @param $feedback_id
+     * @param $replay_id
+     */
+    protected function increaseCacheFeedbackMessage($user_id, $user_type,$feedback_id,$replay_id){
+        $index      = config('message.cache-chanel');
+        $user_index = base64UrlEncode($index[$user_type].$user_id);
+        $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
+        $feedbacks  = $all_message['feedback']??[];
+        $feedback   = $feedbacks[$feedback_id] ?? [];
+        $feedback[] = ['id' => $feedback_id,'replay_id' => $replay_id];
+        $feedbacks[$feedback_id] = $feedback;
+        $all_message['feedback'] = $feedbacks;
+        Cache::put($user_index,$all_message,null);
+        return;
+    }
+
+    /**
+     * 清空缓存中意见反馈消息
+     * @param $user_id
+     * @param $user_type
+     * @param $feedback_id
+     */
+    protected function clearCacheFeedbackMessage($user_id, $user_type,$feedback_id){
+        $index      = config('message.cache-chanel');
+        $user_index = base64UrlEncode($index[$user_type].$user_id);
+        $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
+        $all_message['feedback'][$feedback_id] = [];
+        Cache::put($user_index,$all_message,null);
+        return;
+    }
+
+    /**
+     * 缓存feedback_id
+     * @param $user_id
+     * @param $user_type
+     * @param $feedback_id
+     */
+    protected function cacheFeedbackId($user_id, $user_type, $feedback_id){
+        $index      = config('message.cache-chanel');
+        $user_index = base64UrlEncode($index[$user_type].$user_id);
+        $all_message= Cache::has($user_index) ? Cache::get($user_index) : [];
+        $all_message['feedback_id'] = $feedback_id;
+        Cache::put($user_index,$all_message,null);
+    }
 }
