@@ -561,8 +561,8 @@ class OaOrderController extends ApiController
         }
         $res = $this->negotiableOrderService->setNegotiableOrderAmount($this->request);
         if ($res === false){
-            return ['code' => 100, 'message' => $this->orderRelateService->error];
+            return ['code' => 100, 'message' => $this->negotiableOrderService->error];
         }
-        return ['code' => 200, 'message' => $this->orderRelateService->message];
+        return ['code' => 200, 'message' => $this->negotiableOrderService->message];
     }
 }
