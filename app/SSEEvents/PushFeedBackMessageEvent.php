@@ -48,7 +48,7 @@ class PushFeedBackMessageEvent extends SSEEvent
         }
         $feedback_list = $feedback[$feedback_id];
         $this->message_data = $feedback_list;
-        Loggy::write('debug','反馈推送：',$feedback_list);
+        Loggy::write('debug','通道名：'.$chanel.'，反馈推送：',$feedback_list);
         return json_encode($feedback_list);
     }
 
@@ -74,10 +74,10 @@ class PushFeedBackMessageEvent extends SSEEvent
             return false;
         }
         if ($this->message_data == $feedback[$feedback_id]){
-            Loggy::write('debug','两次消息日志一至');
+            Loggy::write('debug','通道名：'.$chanel.'，两次消息日志一至');
             return false;
         }
-        Loggy::write('debug','检查通过');
+        Loggy::write('debug','通道名：'.$chanel.'，检查通过');
         return true;
     }
 }
