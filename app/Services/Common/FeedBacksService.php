@@ -121,8 +121,8 @@ class FeedBacksService extends BaseService
     public function callBackEmployee($request)
     {
         $member = $this->auth->user();
-        $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
-        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request_arr['replay_id']])){
+        $request_arr = Arr::only($request,['feedback_id','content']);
+        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request['replay_id']])){
             $this->setError('没有反馈消息!');
             return false;
         }
@@ -134,6 +134,11 @@ class FeedBacksService extends BaseService
             $this->setError('这条信息您已经回复过了哦!');
             return false;
         }
+        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id'])){
+            $this->setError('回复失败!');
+            return false;
+        }
+        $request_arr['replay_id']     = end($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::MEMBER;
         $request_arr['status']        = FeedBacksEnum::SUBMIT;
         $request_arr['created_at']    = time();
@@ -166,6 +171,11 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
+        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id'])){
+            $this->setError('回复失败!');
+            return false;
+        }
+        $request_arr['replay_id']     = end($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::OA;
         $request_arr['status']        = FeedBacksEnum::MANAGE;
         $request_arr['created_at']    = time();
