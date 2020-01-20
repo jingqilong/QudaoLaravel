@@ -611,40 +611,4 @@ class MessageController extends ApiController
         $SSEService = new SSEService();
         return $SSEService->pushMessageUnreadCount($this->request['channel']);
     }
-
-    /**
-     * @OA\Get(
-     *     path="/api/v1/message/push_feed_back_message",
-     *     tags={"消息"},
-     *     summary="推送意见反馈消息",
-     *     description="sang" ,
-     *     operationId="push_feed_back_message",
-     *     @OA\Parameter(
-     *         name="channel",
-     *         in="query",
-     *         description="通道",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Response(response=100,description="获取失败",),
-     * )
-     *
-     */
-    public function pushFeedBackMessage(){
-        $rules = [
-            'channel'        => 'required',
-        ];
-        $messages = [
-            'channel.required'   => '通道不能为空',
-        ];
-        $Validate = $this->ApiValidate($rules, $messages);
-        if ($Validate->fails()){
-            return ['code' => 100, 'message' => $this->error];
-        }
-        set_time_limit(0);
-        $SSEService = new SSEService();
-        return $SSEService->pushFeedBackMessage($this->request['channel']);
-    }
 }
