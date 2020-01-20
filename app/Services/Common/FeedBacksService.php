@@ -122,10 +122,6 @@ class FeedBacksService extends BaseService
     {
         $member = $this->auth->user();
         $request_arr = Arr::only($request,['feedback_id','content']);
-        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request['replay_id']])){
-            $this->setError('没有反馈消息!');
-            return false;
-        }
         if (!CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
             $this->setError('没有反馈消息!');
             return false;
@@ -162,11 +158,7 @@ class FeedBacksService extends BaseService
     public function addCallBackFeedBack($request)
     {
         $employee = $this->oa_auth->user();
-        $request_arr = Arr::only($request,['replay_id','feedback_id','content']);
-        if (!$replay_feedback = CommonFeedbackThreadRepository::getOne(['id' => $request_arr['replay_id']])){
-            $this->setError('没有反馈消息!');
-            return false;
-        }
+        $request_arr = Arr::only($request,['feedback_id','content']);
         if (!CommonFeedBacksRepository::exists(['id' => $request_arr['feedback_id']])){
             $this->setError('没有反馈消息!');
             return false;
