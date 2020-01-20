@@ -100,14 +100,14 @@ class OrderGoodsService extends BaseService
             $this->setError('订单信息不存在！');
             return false;
         }
-        /*if ($order['status'] == ShopOrderEnum::FINISHED){
+        if ($order['status'] == ShopOrderEnum::FINISHED){
             $this->setError('该订单当前状态不能评价！');
             return false;
         }
         if ($order['status'] != ShopOrderEnum::RECEIVED){
             $this->setError('该订单还未签收，无法评论！');
             return false;
-        }*/
+        }
         $this->setMessage('检查通过！');
         return true;
     }
