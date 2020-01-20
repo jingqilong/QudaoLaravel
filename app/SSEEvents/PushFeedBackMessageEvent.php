@@ -28,8 +28,8 @@ class PushFeedBackMessageEvent extends SSEEvent
         if (!Cache::has($chanel)){
             return false;
         }
-        $all_message = Cache::pull($chanel);
-        return json_encode($all_message);
+        $data = Cache::pull($chanel);
+        return json_encode($data);
     }
 
     /**

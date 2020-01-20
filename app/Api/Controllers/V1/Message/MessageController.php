@@ -632,7 +632,7 @@ class MessageController extends ApiController
      * )
      *
      */
-    public function pushFeedBackMessage(){dd(1);
+    public function pushFeedBackMessage(){
         $rules = [
             'channel'        => 'required',
         ];
