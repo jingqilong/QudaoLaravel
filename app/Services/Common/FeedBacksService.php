@@ -15,6 +15,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Tolawho\Loggy\Facades\Loggy;
 
 class FeedBacksService extends BaseService
 {
@@ -134,7 +135,7 @@ class FeedBacksService extends BaseService
             $this->setError('这条信息您已经回复过了哦!');
             return false;
         }
-        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id','created_by'])){
+        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'])){
             $this->setError('回复失败!');
             return false;
         }
@@ -144,6 +145,7 @@ class FeedBacksService extends BaseService
         $request_arr['created_at']    = time();
         $request_arr['created_by']    = $member->id;
         if (!CommonFeedbackThreadRepository::getAddId($request_arr)){
+            Loggy::write('error','最后回复的id' . $request_arr['replay_id'] . '最后回复:created_by' . end($callback)['created_by']);
             $this->setError('回复失败!');
             return false;
         }
@@ -182,8 +184,9 @@ class FeedBacksService extends BaseService
             DB::rollBack();
             return false;
         }
-        if (!CommonFeedBacksRepository::getUpdId(['id' => $request_arr['feedback_id']],['status' => FeedBacksEnum::MANAGE])){
+        if (!CommonFeedBacksRepository::getUpdId(['id' => $request_arr['feedback_id']],['status' => FeedBacksEnum::MEMBER])){
             $this->setError('回复失败!');
+            Loggy::write('error','员工回复用户: 最后回复的id' . $request_arr['replay_id'] . '最后回复:created_by' . end($callback)['created_by']);
             DB::rollBack();
             return false;
         }
