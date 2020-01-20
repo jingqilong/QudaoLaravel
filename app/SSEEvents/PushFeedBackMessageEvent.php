@@ -48,7 +48,7 @@ class PushFeedBackMessageEvent extends SSEEvent
         }
         $feedback_list = $feedback[$feedback_id];
         $this->message_data = $feedback_list;
-        Loggy::write('info','反馈推送：',$feedback_list);
+        Loggy::write('debug','反馈推送：',$feedback_list);
         return json_encode($feedback_list);
     }
 
