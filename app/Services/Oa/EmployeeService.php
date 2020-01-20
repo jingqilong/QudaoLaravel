@@ -198,14 +198,14 @@ class EmployeeService extends BaseService
         }
         if ($roles = $request['role_ids'] ?? ''){
             $arr_role = explode(',',$roles);
-            if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
+            if (count($arr_role) != OaAdminRolesRepository::count(['id' => ['in',$arr_role]])){
                 $this->setError('包含了不存在的角色！');
                 return false;
             }
         }
         if ($permission_ids = $request['permission_ids'] ?? ''){
             $perm_ids = explode(',',$permission_ids);
-            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => $perm_ids])){
+            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => ['in',$perm_ids]])){
                 $this->setError('包含了不存在的权限！');
                 return false;
             }
@@ -332,14 +332,14 @@ class EmployeeService extends BaseService
         }
         if ($roles = $request['role_ids'] ?? ''){
             $arr_role = explode(',',$roles);
-            if (count($arr_role) != OaAdminRolesRepository::count(['id' => $arr_role])){
+            if (count($arr_role) != OaAdminRolesRepository::count(['id' => ['in',$arr_role]])){
                 $this->setError('包含了不存在的角色！');
                 return false;
             }
         }
         if ($permission_ids = $request['permission_ids'] ?? ''){
             $perm_ids = explode(',',$permission_ids);
-            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => $perm_ids])){
+            if (count($perm_ids) != OaAdminPermissionsRepository::count(['id' => ['in',$perm_ids]])){
                 $this->setError('包含了不存在的权限！');
                 return false;
             }
