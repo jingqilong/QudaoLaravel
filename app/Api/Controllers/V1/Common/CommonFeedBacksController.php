@@ -287,7 +287,7 @@ class CommonFeedBacksController extends ApiController
      *         name="replay_id",
      *         in="query",
      *         description="replay_id【id】",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -319,12 +319,11 @@ class CommonFeedBacksController extends ApiController
      */
     public function addCallBackFeedBack(){
         $rules = [
-            'replay_id'   => 'required|integer',
+            'replay_id'   => 'integer',
             'feedback_id' => 'required|integer',
             'content'     => 'required',
         ];
         $messages = [
-            'replay_id.required'    => '反馈ID不能为空',
             'replay_id.integer'     => '反馈ID必须为整数',
             'feedback_id.required'  => '反馈ID不能为空',
             'feedback_id.integer'   => '反馈ID必须为整数',
@@ -380,7 +379,7 @@ class CommonFeedBacksController extends ApiController
      *         name="feedback_id",
      *         in="query",
      *         description="反馈列表id",
-     *         required=true,
+     *         required=false,
      *         @OA\Schema(
      *             type="integer",
      *         )
@@ -403,12 +402,11 @@ class CommonFeedBacksController extends ApiController
      */
     public function callBackEmployee(){
         $rules = [
-            'replay_id'   => 'required|integer',
+            'replay_id'   => 'integer',
             'feedback_id' => 'required|integer',
             'content'     => 'required',
         ];
         $messages = [
-            'replay_id.required'    => '反馈ID不能为空',
             'replay_id.integer'     => '反馈ID必须为整数',
             'feedback_id.required'  => '反馈ID不能为空',
             'feedback_id.integer'   => '反馈ID必须为整数',
