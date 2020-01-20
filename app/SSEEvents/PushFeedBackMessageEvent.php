@@ -74,8 +74,10 @@ class PushFeedBackMessageEvent extends SSEEvent
             return false;
         }
         if ($this->message_data == $feedback[$feedback_id]){
+            Loggy::write('debug','两次消息日志一至');
             return false;
         }
+        Loggy::write('debug','检查通过');
         return true;
     }
 }
