@@ -73,7 +73,8 @@ $api->version('v1',function ($api){
         });
         //贷款模块
         $api->group(['prefix' => 'message', 'namespace' => 'Message'], function ($api){
-            $api->get('push_message','MessageController@pushMessage')->name('推送消息');
+            $api->get('push_message','MessageController@pushMessage')->name('消息未读数量推送');
+            $api->get('push_feed_back_message','MessageController@pushFeedBackMessage')->name('推送意见反馈消息');
         });
     });
     //需要验签的接口

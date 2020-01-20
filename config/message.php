@@ -7,5 +7,8 @@ return [
         1    => 'h5.',  //成员
         2    => 'me.',  //商户
         3    => 'oa.'   //OA员工
-    ]
+    ],
+
+    //意见反馈缓存key
+    'feed_back_key' => 'feed_back_key',
 ];

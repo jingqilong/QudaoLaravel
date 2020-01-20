@@ -25,7 +25,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/common/add_feedBack",
-     *     tags={"公共"},
+     *     tags={"意见反馈"},
      *     summary="添加反馈",
      *     description="jing" ,
      *     operationId="add_feedBack",
@@ -99,7 +99,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/common/feed_back_list",
-     *     tags={"公共"},
+     *     tags={"意见反馈OA"},
      *     summary="oa 反馈列表",
      *     description="jing" ,
      *     operationId="feed_back_list",
@@ -179,7 +179,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/common/get_call_back_list",
-     *     tags={"公共"},
+     *     tags={"意见反馈"},
      *     summary="用户 反馈信息列表",
      *     description="jing" ,
      *     operationId="get_call_back_list",
@@ -261,7 +261,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/common/add_call_back_feed_back",
-     *     tags={"公共"},
+     *     tags={"意见反馈OA"},
      *     summary="oa 回复反馈",
      *     description="jing" ,
      *     operationId="add_call_back_feed_back",
@@ -345,7 +345,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Post(
      *     path="/api/v1/common/call_back_employee",
-     *     tags={"公共"},
+     *     tags={"意见反馈"},
      *     summary="用户回复员工",
      *     description="jing" ,
      *     operationId="call_back_employee",
@@ -429,7 +429,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/common/get_call_back_feed_back",
-     *     tags={"公共"},
+     *     tags={"意见反馈OA"},
      *     summary="OA反馈的回复详情",
      *     description="jing" ,
      *     operationId="get_call_back_feed_back",
@@ -490,7 +490,7 @@ class CommonFeedBacksController extends ApiController
     /**
      * @OA\Get(
      *     path="/api/v1/common/get_back_feed_back_list",
-     *     tags={"公共"},
+     *     tags={"意见反馈"},
      *     summary="用户获取反馈详情",
      *     description="jing" ,
      *     operationId="get_back_feed_back_list",
