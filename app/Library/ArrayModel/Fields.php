@@ -24,4 +24,17 @@ class Fields extends SortedList
         }
         return new static($result);
     }
+
+    /**
+     * @return string
+     */
+    public function _toSql(){
+        $result = '';
+        foreach ($this->data as $alias => $fields){
+            foreach ($fields as $field){
+                $result .= " ". $alias . "." . $field .",";
+            }
+        }
+        return rtrim($result, ',');
+    }
 }

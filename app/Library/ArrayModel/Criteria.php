@@ -3,6 +3,7 @@
 
 namespace App\Library\ArrayModel;
 
+
 /**
  * Class CriteriaNode
  * @package App\Library\ArrayModel
@@ -11,85 +12,91 @@ class Criteria extends Tree
 {
     use CriteriaTrait;
 
-    public $_node_id = 0;
+    const NODE_TYPE_EQUATION   = 0;
 
+    const NODE_TYPE_AGGREGATE  = 1;
+
+    /**
+     * _node_type
+     *
+     * @var int
+     */
+    public $_node_type = 0;
+
+    /**
+     * _logic
+     *
+     * @var null
+     */
     public $_logic = null;
 
+    /**
+     * _alias
+     *
+     * @var string
+     */
     public $_alias  = '';
 
+    /**
+     * _field
+     *
+     * @var string
+     */
     public $_field  = '';
 
+    /**
+     * _operator
+     *
+     * @var string
+     */
     public $_operator  = '';
 
+    /**
+     * _criteria_value
+     *
+     * @var string
+     */
     public $_criteria_value  = '';
 
+
+    /**
+     * _children
+     *
+     * @var array
+     */
     public $_children = [];
 
     /**
-     * @param $criteria
-     * @param int $pos
-     * @param int $node_id
-     * @param null $parent_node
-     * @return $this
+     * @param int $level
+     * @return string
      */
-    public static function init($criteria, $pos=0, $node_id = 0,$parent_node = null){
-        $criteria_tokens = self::tokenize($criteria);
+    public function _toSql($level=0){
+        $result = "";
+        if(self::NODE_TYPE_AGGREGATE == $this->_node_type){
+            $result .= "(";
+            foreach($this->_children as $node){
+                $result .= $node->_toSql($level+1);
+            }
+            $result .= ")";
+            return $result;
+        }
+        $result .= "(";
+        $criteria_value = is_numeric($this->_criteria_value)
+            ? " " . $this->_criteria_value ." "
+            :" '" . $this->_criteria_value . "' ";
+        $operator = $this->getOperator($this->_operator);
+        $result .= $this->_alias . "." . $this->_field . $operator .$criteria_value;
+        $result .= ")";
+        return $result;
+    }
+
+    /**
+     * @return Criteria
+     */
+    public static function of(){
         $instance = new static();
-        $instance->_parent_node = $parent_node;
-        $instance->_node_id = $node_id;
-
-        if(!isset($criteria_tokens['tokens'])
-            &&(!isset($criteria_tokens['tokens']['left_bracket'][$node_id]))){
-            $instance->parseEquation($criteria_tokens,$pos);
-            return $instance;
-        }
+        return $instance;
     }
-
-    /**
-     * @param $char
-     * @return mixed|string
-     */
-    private static function getTokenKey($char){
-        $code = ord($char);
-        if((48<= $code)&&(57>=$code)){
-            return 'number';
-        }
-        if((65<= $code)&&(90>=$code)){
-            return 'up_latter';
-        }
-        if((97<= $code)&&(122>=$code)){
-            return 'lower_latter';
-        }
-        if(isset(self::$tokens_chars[$code])){
-            return self::$tokens_chars[$code];
-        }
-        return '';
-    }
-
-    /**
-     * @param $criteria
-     * @return array
-     */
-    public static function tokenize($criteria){
-        $result = $tokens =  [];
-        for($i=0,$j=strlen($criteria);$i<$j;$i++){
-            $token = self::getTokenKey($criteria[$i]);
-            $result[$i]['char'] = $criteria[$i];
-            $result[$i]['token'] = $token;
-            $tokens[$token][] = $i;
-        }
-        return ['index' => $result,'tokens' => $tokens];
-    }
-
-    /**
-     * @param $criteria_tokens
-     * @param $pos
-     * @return bool
-     */
-    public function parseEquation($criteria_tokens,$pos){
-        return true;
-    }
-
 
 
 }

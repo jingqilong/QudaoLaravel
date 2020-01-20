@@ -6,46 +6,66 @@ namespace App\Library\ArrayModel;
 
 trait CriteriaTrait
 {
-    /**
-     * @var array
-     */
-    private static $tokens_chars = [
-        '32' => 'space',
-        '33' => 'exclamation',
-        '34' => 'double_quote',
-        '37' => 'percent',
-        '39' => 'single_quote',
-        '40' => 'left_bracket',
-        '41' => 'right_bracket',
-        '42' => 'multiple',
-        '43' => 'plus',
-        '44' => 'comma',
-        '45' => 'minus',
-        '46' => 'dot',
-        '47' => 'division',
-        '60' => 'lt',
-        '61' => 'eq',
-        '62' => 'gt',
-        '95' => 'underline'
+
+    public static $operator_name = [
+        "=" => 'eq',
+        "!=" => 'neq',
+        ">" => 'gt',
+        ">=" => 'gte',
+        "<" => 'lt',
+        "<=" => 'lte',
     ];
 
-    public static $tokens = [
-        'true' => true,
-        'false' => false,
-        'null' => null,
-        'eq' => 'eq',
-        'lt' => 'lt',
-        'lte' => 'lte',
-        'gt' => 'gt',
-        'gte' => 'gte',
-        'neq' => 'neq',
-        'in' => 'in',
-        'like' => 'like',
-        'or' => 'or',
-        'and' => 'and',
-        'is' => 'is',
-        'not' => 'not',
+    public static $name_operator = [
+        "eq"  => "=",
+        "neq" => "!=",
+        'gt'  => ">" ,
+        'gte' => ">=" ,
+        'lt'  => "<" ,
+        'lte' => "<=",
     ];
+
+    /**
+     * @param $name
+     * @return string
+     */
+    public function getOperator($name){
+        $operator = $name;
+        if(isset(self::$name_operator[$name])){
+            $operator = self::$name_operator[$name];
+        }
+        return " " . $operator . " ";
+    }
+
+    /**
+     * @param $operator
+     * @return mixed
+     */
+    public function getOperatorName($operator){
+        $name = $operator;
+        if(isset(self::$operator_name[$operator])){
+            $name = self::$name_operator[$operator];
+        }
+        return $name;
+    }
+
+    /**
+     * @param $value1
+     * @param $value2
+     * @param $level
+     * @return mixed
+     */
+    protected function callByName($value1,$value2,$level){
+        if(null === $value1){
+            return $value2;
+        }
+        $func = $this->_operator;
+        $result =  $this->$func($value1,$value2);
+        $logic_func = $this->_logic;
+        if(("" == $logic_func) || (0 < $level))
+            return $result;
+        return $this->$logic_func($result);
+    }
 
     /**
      * @param $value
@@ -129,6 +149,15 @@ trait CriteriaTrait
      */
     public function in( $value , $criteria_value){
         return  isset($criteria_value[$value]);
+    }
+
+    /**
+     * @param $value
+     * @param $criteria_value
+     * @return bool
+     */
+    public function notIn( $value , $criteria_value){
+        return  !isset($criteria_value[$value]);
     }
 
     /**

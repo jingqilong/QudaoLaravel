@@ -22,4 +22,10 @@ class Join extends QueryList
         $instance->_join_type = $join_type ;
         return $instance;
     }
+
+    public function _toSql(){
+        $join_set = [' INNER JOIN ',' LEFT JOIN ',' RIGHT JOIN '];
+        $result = $join_set[$this->_join_type] . 'sub_table' . $this->_alias;
+        return $result;
+    }
 }
