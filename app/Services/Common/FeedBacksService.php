@@ -135,11 +135,11 @@ class FeedBacksService extends BaseService
             $this->setError('这条信息您已经回复过了哦!');
             return false;
         }
-        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'])){
+        if (!$callback = CommonFeedbackThreadRepository::getEnableQueryCount(1,['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'],'id','desc')){
             $this->setError('回复失败!');
             return false;
         }
-        $request_arr['replay_id']     = end($callback)['id'];
+        $request_arr['replay_id']     = reset($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::MEMBER;
         $request_arr['status']        = FeedBacksEnum::SUBMIT;
         $request_arr['created_at']    = time();
@@ -149,7 +149,7 @@ class FeedBacksService extends BaseService
             $this->setError('回复失败!');
             return false;
         }
-        MessageCacheService::increaseCacheFeedbackMessage(end($callback)['created_by'],3,$request_arr['feedback_id'],$request_arr['replay_id']);
+        MessageCacheService::increaseCacheFeedbackMessage(reset($callback)['created_by'],3,$request_arr['feedback_id'],$request_arr['replay_id']);
         $this->setMessage('回复成功!');
         return true;
     }
@@ -169,11 +169,11 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
-        if (!$callback = CommonFeedbackThreadRepository::getAllList(['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id','created_by'])){
+        if (!$callback = CommonFeedbackThreadRepository::getEnableQueryCount(1,['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id','created_by'],'id','desc')){
             $this->setError('回复失败!');
             return false;
         }
-        $request_arr['replay_id']     = end($callback)['id'];
+        $request_arr['replay_id']     = reset($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::OA;
         $request_arr['status']        = FeedBacksEnum::MANAGE;
         $request_arr['created_at']    = time();
@@ -190,7 +190,7 @@ class FeedBacksService extends BaseService
             DB::rollBack();
             return false;
         }
-        MessageCacheService::increaseCacheFeedbackMessage(end($callback)['created_by'],1,$request_arr['feedback_id'],$request_arr['replay_id']);
+        MessageCacheService::increaseCacheFeedbackMessage(reset($callback)['created_by'],1,$request_arr['feedback_id'],$request_arr['replay_id']);
         $this->setMessage('回复成功!');
         DB::commit();
         return true;
