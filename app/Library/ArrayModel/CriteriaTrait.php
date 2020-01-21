@@ -3,10 +3,15 @@
 
 namespace App\Library\ArrayModel;
 
-
+/**
+ * Trait CriteriaTrait
+ * @package App\Library\ArrayModel
+ */
 trait CriteriaTrait
 {
-
+    /**
+     * @var array
+     */
     public static $operator_name = [
         "=" => 'eq',
         "!=" => 'neq',
@@ -16,6 +21,9 @@ trait CriteriaTrait
         "<=" => 'lte',
     ];
 
+    /**
+     * @var array
+     */
     public static $name_operator = [
         "eq"  => "=",
         "neq" => "!=",
@@ -24,6 +32,8 @@ trait CriteriaTrait
         'lt'  => "<" ,
         'lte' => "<=",
     ];
+
+
 
     /**
      * @param $name

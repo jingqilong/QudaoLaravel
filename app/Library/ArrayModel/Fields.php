@@ -7,6 +7,10 @@ use InvalidArgumentException;
 
 class Fields extends SortedList
 {
+
+    use FieldTrait;
+
+    public $fields_string;
     /**
      * @param string ...$fields
      * @return SortedList
@@ -15,27 +19,19 @@ class Fields extends SortedList
     public static function init(string ...$fields){
         $result = $columns =  [];
         foreach ($fields as $field){
-            $exploded = explode(".", preg_replace('/\s+/', '', $field));
-            if(2 !== count($exploded)){
-                throw new InvalidArgumentException("incorrect value for '$field'! should be 'table.field'");
-            }
-            list($alias,$name) = $exploded;
+            list($alias,$name) = self::extractField($field);
             $result[$alias][$name]  = ['alias'=>$alias,$name=>$name];
         }
-        return new static($result);
+        $instance =  new static($result);
+        $instance->fields_string = implode(',',$fields);
+        return $instance;
     }
 
     /**
      * @return string
      */
     public function _toSql(){
-        $result = '';
-        foreach ($this->data as $alias => $fields){
-            foreach ($fields as $field){
-                $result .= " ". $alias . "." . $field .",";
-            }
-        }
-        return rtrim($result, ',');
+        return $this->fields_string;
     }
 
     /**

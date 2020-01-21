@@ -62,13 +62,27 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * @param $keys
+     * @param int $level
+     * @return mixed
+     */
+    public function findByKeys($keys,$level = 0){
+        if(isset($this->data[$level])){
+            if($this->data[$level] instanceof SortedList){
+                return $this->data[$level]->findByKeys($keys,$level+1);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get a data by key
      * 通過 $obj->key 獲得數據
      * @param $key  ,tring The key data to retrieve
      * @access public
      * @return mixed
      */
-    public function __get ($key) {
+    public function __get($key) {
         if(isset($this->data[$key])){
             return $this->data[$key];
         }

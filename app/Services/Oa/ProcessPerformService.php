@@ -62,6 +62,7 @@ class ProcessPerformService extends BaseService
         if (202 == $update_process_record_result['code']){
             if ($action_result= OaProcessNodeActionsResultViewRepository::getOne(['id' => $request['node_actions_result_id']])){
                 $audit_status = $action_result['action_result_name'] == '同意' ? CommonAuditStatusEnum::PASS : CommonAuditStatusEnum::NO_PASS;
+                Loggy::write('debug','提交审核结果action_result_name:'.$action_result['action_result_name'].'，审核结果:'.$audit_status);
                 $upd_result = $this->updateBusinessAuditStatus($process_record['business_id'],$audit_status,$process_record['process_category']);
                 if ($upd_result == false){
                     Loggy::write('process',$this->error);
