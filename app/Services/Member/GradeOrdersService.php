@@ -382,6 +382,7 @@ class GradeOrdersService extends BaseService
             $this->setError('记录不存在！');
             return false;
         }
+        $apply['payment_amount']= round($apply['payment_amount'] / 100, 2);
         $apply['sex']        = MemberEnum::getSex($apply['sex']);
         $apply['status']     = MemberGradeOrderStatusEnum::getStatus($apply['status']);
         $apply['created_at'] = empty($apply['created_at']) ? '' : date('Y-m-d H:i:s',$apply['created_at']);

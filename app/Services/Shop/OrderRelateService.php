@@ -15,7 +15,7 @@ use App\Services\BaseService;
 use App\Services\Common\ExpressService;
 use App\Services\Member\AddressService;
 use App\Traits\BusinessTrait;
-use App\Repositories\{
+use App\Repositories\{CommonCommentsRepository,
     CommonExpressRepository,
     MemberAddressRepository,
     MemberOrdersRepository,
@@ -498,15 +498,15 @@ class OrderRelateService extends BaseService
             $this->setError('订单不存在！');
             return false;
         }
-        $order['score_type']    = empty($order['score_type']) ? '' : ScoreCategoryRepository::getField(['id' => $order['score_type']],'name');
-        $order['status_title']  = ShopOrderEnum::getStatus($order['status']);
-        $order['receive_method']= ShopOrderEnum::getReceiveMethod($order['receive_method']);
-        $order['express_price'] = round($order['express_price'] / 100,2);
-        $order['express_number']= $order['express_number'] ?? '';
-        $order['amount']        = sprintf('%.2f',round($order['amount'] / 100,2));
-        $order['payment_amount']= sprintf('%.2f',round($order['payment_amount'] / 100,2));
-        $order['shipment_at']   = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
-        $order['receive_at']    = empty($order['receive_at']) ? 0 : date('Y-m-d H:i:s',$order['receive_at']);
+        $order['score_type']        = empty($order['score_type']) ? '' : ScoreCategoryRepository::getField(['id' => $order['score_type']],'name');
+        $order['status_title']      = ShopOrderEnum::getStatus($order['status']);
+        $order['receive_method']    = ShopOrderEnum::getReceiveMethod($order['receive_method']);
+        $order['express_price']     = round($order['express_price'] / 100,2);
+        $order['express_number']    = $order['express_number'] ?? '';
+        $order['amount']            = sprintf('%.2f',round($order['amount'] / 100,2));
+        $order['payment_amount']    = sprintf('%.2f',round($order['payment_amount'] / 100,2));
+        $order['shipment_at']       = empty($order['shipment_at']) ? 0 : date('Y-m-d H:i:s',$order['shipment_at']);
+        $order['receive_at']        = empty($order['receive_at']) ? 0 : date('Y-m-d H:i:s',$order['receive_at']);
         $order['trade_no']          = '';//交易号
         $order['transaction_no']    = '';//第三方交易号
         $order['trade_method']      = '';//交易方式
@@ -518,6 +518,11 @@ class OrderRelateService extends BaseService
                 $order['trade_method']      = TradeEnum::getTradeMethod($trade['trade_method']);
                 $order['pay_at']            = empty($trade['end_at']) ? '' : date('Y-m-d H:i:s',$trade['end_at']);
             }
+        }
+        //判断订单评价是否超期
+        $order['comment_timeout']  = 0;
+        if (!CommonCommentsRepository::exists(['order_related_id' => $order_relate_id]) && $order['status'] == ShopOrderEnum::FINISHED){
+            $order['comment_timeout'] = 1;
         }
         $order['express_company_code'] = '';
         if (!empty($order['express_company_id'])){
