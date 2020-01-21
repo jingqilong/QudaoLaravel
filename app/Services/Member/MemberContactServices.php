@@ -282,10 +282,11 @@ class MemberContactServices extends BaseService
             $this->setError('获取失败!');
             return false;
         }
-        $contact_info['contact_name']  = MemberBaseRepository::getField(['id' => $contact_info['contact_id']],'ch_name');
-        $proposer_base = MemberBaseRepository::getOne(['id' => $contact_info['proposer_id']],['avatar_id','ch_name']);
+        $contact  = MemberBaseRepository::getOne(['id' => $contact_info['contact_id']],['ch_name','avatar_id']);
+        $proposer_base                  = MemberBaseRepository::getOne(['id' => $contact_info['contact_id']],['avatar_id','ch_name']);
         $contact_info['proposer_name']  = $proposer_base['ch_name'];
-        $contact_info['proposer_url']   = CommonImagesRepository::getField(['id' => $contact_info['avatar_id']],'img_url');
+        $contact_info['contact_name']   = $contact['ch_name'];
+        $contact_info['proposer_url']   = CommonImagesRepository::getField(['id' => $contact['avatar_id']],'img_url');
         $contact_info['employer']       = MemberInfoRepository::getField(['member_id' => $id],'employer');
         $contact_info['status_name']    = MemberEnum::getAuditStatus($contact_info['status'],'待审核');
         unset($contact_info['proposer_id'],$contact_info['updated_at']);
