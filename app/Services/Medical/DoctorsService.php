@@ -204,20 +204,12 @@ class DoctorsService extends BaseService
      */
     public function getDoctorById($request)
     {
-        if (!MedicalDoctorsRepository::exists(['id' => $request['id']])){
-            $this->setError('医生不存在!');
-            return false;
-        }
         if (!$doctorInfo = MedicalDoctorsRepository::getOne(['id' => $request['id']])){
-            $this->setError('获取失败!');
+            $this->setError('医生不存在!');
             return false;
         }
         if (!$hospital = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']])){
             $this->setError('医院不存在!');
-            return false;
-        }
-        if (empty($doctorInfo)){
-            $this->setError('获取失败!');
             return false;
         }
         $doctorInfo['departments']      = [];
@@ -225,15 +217,13 @@ class DoctorsService extends BaseService
         $doctorInfo['img_url']          = CommonImagesRepository::getField(['id' => $doctorInfo['img_id']],'img_url');
         $hospital                       = MediclaHospitalsRepository::getOne(['id' => $doctorInfo['hospitals_id']]);
         $department_arr = explode(',',trim($doctorInfo['department_ids'],','));
-        if(!$department = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department_arr]],['id','name'])){
-            return [];
+        if(!$doctorInfo['departments'] = MedicalDepartmentsRepository::getAllList(['id' => ['in',$department_arr]],['id','name'])){
+            $doctorInfo['departments'] = [];
         }
         $labels_arr = explode(',',$doctorInfo['label_ids']);
-        if(!$labels = MedicalDoctorLabelsRepository::getAllList(['id' => ['in',$labels_arr]],['id','name'])){
-            return [];
+        if(!$doctorInfo['labels'] = MedicalDoctorLabelsRepository::getAllList(['id' => ['in',$labels_arr]],['id','name'])){
+            $doctorInfo['labels'] = [];
         }
-        $doctorInfo['departments']    = $department;
-        $doctorInfo['labels']         = $labels;
         $doctorInfo['sex_name']       = DoctorEnum::getSex($doctorInfo['sex']);
         $doctorInfo['hospital_name']  = $hospital['name'];
         unset($doctorInfo['created_at'],$doctorInfo['updated_at'],
