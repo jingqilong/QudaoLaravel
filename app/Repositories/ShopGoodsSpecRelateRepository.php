@@ -56,11 +56,12 @@ class ShopGoodsSpecRelateRepository extends ApiRepository
         $str_spec_list = [];
         foreach ($spec_relate_list as $spec_relate){
             $relate_spec_ids = explode(',',trim($spec_relate['spec_ids'],','));
-            $str_spec_list[$spec_relate['id']] = '';
+            $str_spec = '';
             foreach ($relate_spec_ids as $id){
                 if (!isset($spec_list[$id]))continue;
-                $str_spec_list[$spec_relate['id']] .= $spec_list[$id]['spec_name'] .':'. $spec_list[$id]['spec_value'] . ';';
+                $str_spec .= $spec_list[$id]['spec_name'] .':'. $spec_list[$id]['spec_value'] . ';';
             }
+            $str_spec_list[$spec_relate['id']] = $str_spec;
         }
         return $str_spec_list;
     }
