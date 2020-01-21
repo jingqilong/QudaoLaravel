@@ -91,6 +91,12 @@ class CommentsService extends BaseService
             DB::rollBack();
             return false;
         }
+        $start_process_result = $this->addNewProcessRecord($comments_id,ProcessCategoryEnum::COMMON_COMMENTS);
+        if (100 == $start_process_result['code']){
+            $this->setError('评论失败，请稍后重试！');
+            DB::rollBack();
+            return false;
+        }
         $this->setMessage('评论添加成功!');
         DB::commit();
         return $comments_id;
