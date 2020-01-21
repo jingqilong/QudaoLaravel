@@ -1,19 +1,27 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Abstracts;
 
-
+use App\Library\ArrayModel\Traits\CriteriaTrait;
 /**
  * Class Criteria
  * @package App\Library\ArrayModel
  */
-class Criteria extends Tree
+class Criteria
 {
     use CriteriaTrait;
 
+    public $data;
+
+    /**
+     * Node which contains the equation such as a=b
+     */
     const NODE_TYPE_EQUATION   = 0;
 
+    /**
+     * Node which only has children
+     */
     const NODE_TYPE_AGGREGATE  = 1;
 
     /**
@@ -67,6 +75,7 @@ class Criteria extends Tree
     public $_children = [];
 
     /**
+     * For debugging, import the sql clause.
      * @param int $level
      * @return string
      */

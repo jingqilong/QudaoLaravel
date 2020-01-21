@@ -1,8 +1,10 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Components;
 
+use App\Library\ArrayModel\Abstracts\Criteria;
+use Closure;
 /**
  * Class Ons
  * @package App\Library\ArrayModel
@@ -32,6 +34,46 @@ class Ons extends Criteria
     }
 
     /**
+     * @param ...$ons
+     * @return $this
+     */
+    public function on(...$ons){
+        $logic = "and"; $i=0;
+        foreach($ons as $on){
+            if($on instanceof Closure){
+                $group = $this->onBrackets();
+                $on->bindTo($group);
+                $on($group);
+                continue;
+            }
+            $this->_addOn($on,'',$logic[$i]);
+            $i=1;
+        }
+        return $this;
+    }
+
+    /**
+     * @return Ons
+     */
+    public function onBrackets(){
+        $new_on = self::of();
+        $new_on->_node_type = self::NODE_TYPE_AGGREGATE;
+        $this->_children = $new_on;
+        return $new_on;
+    }
+
+    /**
+     * @param $on
+     * @return $this
+     */
+    public function orOn($on){
+        $this->_addOn($on,"","or");
+        return $this;
+    }
+
+    /**
+     * Add the on-condition to the class
+     *
      * @param $on
      * @param $operator
      * @param $logic
@@ -66,6 +108,8 @@ class Ons extends Criteria
     }
 
     /**
+     * get the foreign keys from the on-conditions.
+     *
      * @param null $keys
      * @param int $level
      * @return array|null
@@ -85,6 +129,8 @@ class Ons extends Criteria
     }
 
     /**
+     * get the local keys from the on-conditions.
+     *
      * @param null $keys
      * @param int $level
      * @return array|null
@@ -104,24 +150,4 @@ class Ons extends Criteria
         return $keys;
     }
 
-    /**
-     * @param null $keys
-     * @param int $level
-     * @return array|null
-     */
-    public function getOnContains(&$keys=null,$level=0){
-        if(null == $keys ){
-            $keys = [];
-        }
-        foreach($this->_children as $node){
-            if($node instanceof Ons)
-                $node->getLocalKeys($keys,$level+1);
-        }
-        if($this->_node_type = self::NODE_TYPE_EQUATION){
-            if($this->_operator == 'contains'){
-                $keys[$this->_field]='1';
-            }
-        }
-        return $keys;
-    }
 }

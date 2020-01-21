@@ -6,9 +6,14 @@ namespace App\Library\ArrayModel;
 
 use InvalidArgumentException;
 
+/**
+ * Class FieldTrait
+ * @package App\Library\ArrayModel
+ */
 Trait FieldTrait
 {
     /**
+     * get the alias from field string fastly.
      * @param $field
      * @return string
      */
@@ -17,6 +22,7 @@ Trait FieldTrait
     }
 
     /**
+     * Extract the fields from string
      * @param $field
      * @return array
      */

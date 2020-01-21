@@ -1,16 +1,25 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Components;
 
-
+use App\Library\ArrayModel\Abstracts\SortedList;
+use App\Library\ArrayModel\FieldTrait;
 use InvalidArgumentException;
 
+/**
+ * Class GroupBys
+ * @package App\Library\ArrayModel
+ */
 class GroupBys extends SortedList
 {
 
     use FieldTrait;
 
+    /**
+     * For debugging, import sql clause.
+     * @var
+     */
     public $group_by_string;
 
     /**
@@ -30,6 +39,8 @@ class GroupBys extends SortedList
     }
 
     /**
+     * For debugging, import sql clause.
+     *
      * @return string
      */
     public function _toSql(){

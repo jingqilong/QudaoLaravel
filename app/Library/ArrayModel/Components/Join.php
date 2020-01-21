@@ -1,13 +1,20 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Components;
 
+use App\Library\ArrayModel\Components\QueryList;
 
+/**
+ * Class Join
+ * @package App\Library\ArrayModel
+ */
 class Join extends QueryList
 {
     const INNER_JOIN = 0;
+
     const LEFT_JOIN  = 1;
+
     const RIGHT_JOIN = 2;
 
     /**
@@ -24,6 +31,8 @@ class Join extends QueryList
     }
 
     /**
+     * For debugging, import sql clause.
+     *
      * @return string
      */
     public function _toSql(){

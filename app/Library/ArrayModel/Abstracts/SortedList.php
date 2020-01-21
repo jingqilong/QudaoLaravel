@@ -1,10 +1,14 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Abstracts;
 
 use ArrayAccess,Countable,Iterator ;
 
+/**
+ * Class SortedList
+ * @package App\Library\ArrayModel
+ */
 class SortedList implements ArrayAccess,Countable,Iterator
 {
 
@@ -101,8 +105,8 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Assigns a value to the specified data
      *
-     * @param string The data key to assign the value to
-     * @param mixed  The value to set
+     * @param string ,The data key to assign the value to
+     * @param mixed  ,The value to set
      * @access public
      */
     public function __set($key,$value) {
@@ -112,7 +116,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Whether or not an data exists by key
      *
-     * @param string An data key to check for
+     * @param string ,An data key to check for
      * @access public
      * @return boolean
      * @abstracting ArrayAccess
@@ -124,7 +128,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Unsets an data by key
      *
-     * @param string The key to unset
+     * @param string ,The key to unset
      * @access public
      */
     public function __unset($key) {
@@ -134,8 +138,8 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Assigns a value to the specified offset
      *
-     * @param string The offset to assign the value to
-     * @param mixed  The value to set
+     * @param string $offset ,The offset to assign the value to
+     * @param mixed  $value ,The value to set
      * @access public
      * @abstracting ArrayAccess
      */
@@ -150,7 +154,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Whether or not an offset exists
      *
-     * @param string An offset to check for
+     * @param string $offset ,An offset to check for
      * @access public
      * @return boolean
      * @abstracting ArrayAccess
@@ -162,7 +166,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Unsets an offset
      *
-     * @param string The offset to unset
+     * @param string $offset ,The offset to unset
      * @access public
      * @abstracting ArrayAccess
      */
@@ -175,7 +179,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Returns the value at specified offset
      *
-     * @param string The offset to retrieve
+     * @param string $offset ,The offset to retrieve
      * @access public
      * @return mixed
      * @abstracting ArrayAccess

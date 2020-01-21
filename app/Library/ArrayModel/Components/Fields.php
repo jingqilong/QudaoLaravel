@@ -1,15 +1,28 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Components;
 
+use App\Library\ArrayModel\Abstracts\SortedList;
+use App\Library\ArrayModel\FieldTrait;
 use InvalidArgumentException;
 
+/**
+ * Class Fields
+ * @package App\Library\ArrayModel
+ */
 class Fields extends SortedList
 {
 
     use FieldTrait;
 
+    /**
+     * For debugging , import sql clause
+     *
+     * fields_string
+     *
+     * @var
+     */
     public $fields_string;
     /**
      * @param string ...$fields
@@ -28,6 +41,8 @@ class Fields extends SortedList
     }
 
     /**
+     * For debugging , import sql clause
+     *
      * @return string
      */
     public function _toSql(){
@@ -35,6 +50,8 @@ class Fields extends SortedList
     }
 
     /**
+     * For function call
+     *
      * @param $alias
      * @return mixed
      */

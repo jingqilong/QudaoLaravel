@@ -1,15 +1,24 @@
 <?php
 
+namespace App\Library\ArrayModel\Components;
 
-namespace App\Library\ArrayModel;
-
-
+use App\Library\ArrayModel\Abstracts\SortedList;
+use App\Library\ArrayModel\FieldTrait;
 use InvalidArgumentException;
 
+/**
+ * Class OrderBys
+ * @package App\Library\ArrayModel
+ */
 class OrderBys extends SortedList
 {
     use FieldTrait;
 
+    /**
+     * For debugging, import the sql clause.
+     *
+     * @var
+     */
     public $order_by_string;
 
     /**
@@ -30,6 +39,8 @@ class OrderBys extends SortedList
     }
 
     /**
+     * get the fields to create index.
+     *
      * @param $alias
      * @return array
      */
@@ -39,6 +50,8 @@ class OrderBys extends SortedList
     }
 
     /**
+     * For debugging, import the sql clause.
+     *
      * @return string
      */
     public function _toSql(){

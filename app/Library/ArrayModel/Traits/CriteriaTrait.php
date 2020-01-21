@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Library\ArrayModel;
+namespace App\Library\ArrayModel\Traits;
 
 /**
  * Trait CriteriaTrait
@@ -11,6 +11,8 @@ trait CriteriaTrait
 {
 
     /**
+     * Operator to function name
+     *
      * @var array
      */
     public static $operator_name = [
@@ -23,6 +25,8 @@ trait CriteriaTrait
     ];
 
     /**
+     * function name to operator
+     *
      * @var array
      */
     public static $name_operator = [
@@ -38,6 +42,7 @@ trait CriteriaTrait
 
 
     /**
+     * For import sql clause
      * @param $name
      * @return string
      */
@@ -50,6 +55,7 @@ trait CriteriaTrait
     }
 
     /**
+     * For function call
      * @param $operator
      * @return mixed
      */
@@ -62,6 +68,8 @@ trait CriteriaTrait
     }
 
     /**
+     * call the operator function with the function name of operator.
+     *
      * @param $value1
      * @param $value2
      * @param $level
@@ -80,6 +88,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator =
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -89,6 +99,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator !=
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -98,6 +110,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator <
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -107,6 +121,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator >
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -116,6 +132,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator <=
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -125,6 +143,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator >=
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -134,6 +154,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator is
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -147,6 +169,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator not
+     *
      * @param $value
      * @return bool
      */
@@ -155,6 +179,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator in
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -164,6 +190,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator not in
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
@@ -173,6 +201,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator or
+     *
      * @param $value1
      * @param $value2
      * @return bool
@@ -182,6 +212,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator and
+     *
      * @param $value1
      * @param $value2
      * @return bool
@@ -191,6 +223,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator contains
+     *
      * @param $value1
      * @param $value2
      * @return bool
@@ -205,6 +239,8 @@ trait CriteriaTrait
     }
 
     /**
+     * Operator like
+     *
      * @param $value
      * @param $criteria_value
      * @return bool
