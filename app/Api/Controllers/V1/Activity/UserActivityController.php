@@ -284,7 +284,7 @@ class UserActivityController extends ApiController
      *     @OA\Parameter(
      *         name="theme_id",
      *         in="query",
-     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...【非必填参数为空，表示全部活动】",
+     *         description="活动主题ID，目前有：1、酒会，2、论坛，3、沙龙...【非必填参数为空或0，表示全部活动】",
      *         required=false,
      *         @OA\Schema(
      *             type="integer"
