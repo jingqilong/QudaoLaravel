@@ -184,11 +184,11 @@ class PreferenceService extends BaseService
             return false;
         }
         DB::beginTransaction();
-        if (!MemberPreferenceRepository::delete(['type' => $request['id']])){#业务表数据删除
+        /*if (!MemberPreferenceRepository::delete(['type' => $request['id']])){#业务表数据删除
             $this->setError('删除失败!');
             DB::rollBack();
             return false;
-        }
+        }*/
         if (MemberPreferenceValueRepository::exists(['type_id' => $request['id']])) if (!MemberPreferenceValueRepository::delete(['type_id' => $request['id']])){#类型数据值表删除
             $this->setError('删除失败!');
             DB::rollBack();
