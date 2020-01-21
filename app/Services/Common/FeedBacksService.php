@@ -131,10 +131,10 @@ class FeedBacksService extends BaseService
             $this->setError('没有反馈消息!');
             return false;
         }
-        if (CommonFeedbackThreadRepository::exists($request_arr)){
-            $this->setError('这条信息您已经回复过了哦!');
-            return false;
-        }
+//        if (CommonFeedbackThreadRepository::exists($request_arr)){
+//            $this->setError('这条信息您已经回复过了哦!');
+//            return false;
+//        }
         if (!$callback = CommonFeedbackThreadRepository::getEnableQueryCount(1,['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'],'id','desc')){
             $callback[] = [
                 'id' => 0,
