@@ -136,8 +136,10 @@ class FeedBacksService extends BaseService
             return false;
         }
         if (!$callback = CommonFeedbackThreadRepository::getEnableQueryCount(1,['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::OA],['id','created_by'],'id','desc')){
-            $this->setError('回复失败!');
-            return false;
+            $callback[] = [
+                'id' => 0,
+                'created_by' => 0
+            ];
         }
         $request_arr['replay_id']     = reset($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::MEMBER;
@@ -170,8 +172,10 @@ class FeedBacksService extends BaseService
             return false;
         }
         if (!$callback = CommonFeedbackThreadRepository::getEnableQueryCount(1,['feedback_id' => $request_arr['feedback_id'],'operator_type' => FeedBacksEnum::MEMBER],['id','created_by'],'id','desc')){
-            $this->setError('回复失败!');
-            return false;
+            $callback[] = [
+                'id' => 0,
+                'created_by' => 0
+            ];
         }
         $request_arr['replay_id']     = reset($callback)['id'];
         $request_arr['operator_type'] = FeedBacksEnum::OA;
