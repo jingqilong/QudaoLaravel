@@ -43,7 +43,7 @@ class Wheres extends Criteria
         $result = null;
         if(self::NODE_TYPE_AGGREGATE == $this->_node_type){
             foreach ($this->_children as $node) {
-                $value = ($node instanceof Wheres)? $node->_getValue($level + 1) : false;
+                $value = ($node instanceof Wheres)? $node->_getValue($cur_values,$level + 1) : false;
                 if (null !== $result) {
                     $func = $node->_logic;
                     $result = $this->$func($result, $value);
@@ -53,7 +53,7 @@ class Wheres extends Criteria
             }
             return $result;
         }
-        $value = $cur_values[$this->_alias][$this->_field];
+        $value = $cur_values[$this->_field];
         $result = $this->callByName($value,$this->_criteria_value,$level);
         return $result;
     }

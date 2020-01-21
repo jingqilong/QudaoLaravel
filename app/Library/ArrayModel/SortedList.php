@@ -39,12 +39,20 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @param $key
      * @return SortedList
      */
-    public static function of($src_array, $key = 'key'){
+    public static function instance($src_array, $key = 'key'){
         $result_array = [];
         foreach($src_array as $item){
             $result_array[$item[$key]] = $item;
         }
         $instance = new static($result_array);
+        return $instance;
+    }
+
+    /**
+     * @return SortedList
+     */
+    public static function of(){
+        $instance = new static();
         return $instance;
     }
 

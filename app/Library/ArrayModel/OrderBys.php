@@ -22,11 +22,20 @@ class OrderBys extends SortedList
         foreach ($order_bys as $order_by){
             $direction = $order_by[1]??"desc";
             list($alias,$name) = self::extractField($order_by[0]);
-            $result[$alias][$name] = ['alias'=>$alias, $name=>$name, 'type'=>$direction];
+            $result[$alias][] = [$name => $direction];
         }
         $instance = new static($result);
         $instance->order_by_string  = implode(',',$order_bys);
         return $instance;
+    }
+
+    /**
+     * @param $alias
+     * @return array
+     */
+    public function getOrderByFields($alias){
+        $order_bys = $this->_order_bys[$alias];
+        return array_keys($order_bys);
     }
 
     /**

@@ -22,19 +22,11 @@ class GroupBys extends SortedList
         $result = $columns =  [];
         foreach ($group_bys as $group_by){
             list($alias,$name) = self::extractField($group_by);
-            $result[$alias][$name] = ['alias'=>$alias,$name=>$name];
+            $result[$alias][] = $name;
         }
         $instance = new static($result);
         $instance->group_by_string  = implode(',',$group_bys);
         return $instance;
-    }
-
-    /**
-     * @param $alias
-     * @return mixed
-     */
-    public function getGroupBys($alias){
-        return $this->data[$alias];
     }
 
     /**

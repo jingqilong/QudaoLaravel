@@ -40,6 +40,7 @@ class Ons extends Criteria
     public function _addOn($on,$operator=null,$logic='',$level=0){
         if(0==$level){
             $node = Ons::of();
+            $node->_node_type = self::NODE_TYPE_AGGREGATE;
             $node->_addOn($on,$operator,$logic,$level+1);
             $this->_children[]=$node;
         }
@@ -77,7 +78,9 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getForeignKeys($keys,$level+1);
         }
-        $keys[]=$this->_field;
+        if($this->_node_type = self::NODE_TYPE_EQUATION) {
+            $keys[] = $this->_field;
+        }
         return $keys;
     }
 
@@ -94,7 +97,31 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getLocalKeys($keys,$level+1);
         }
-        $keys[]=$this->_criteria_value;
+        if($this->_node_type = self::NODE_TYPE_EQUATION){
+            $keys[]=$this->_criteria_value;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param null $keys
+     * @param int $level
+     * @return array|null
+     */
+    public function getOnContains(&$keys=null,$level=0){
+        if(null == $keys ){
+            $keys = [];
+        }
+        foreach($this->_children as $node){
+            if($node instanceof Ons)
+                $node->getLocalKeys($keys,$level+1);
+        }
+        if($this->_node_type = self::NODE_TYPE_EQUATION){
+            if($this->_operator == 'contains'){
+                $keys[$this->_field]='1';
+            }
+        }
         return $keys;
     }
 }

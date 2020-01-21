@@ -9,6 +9,7 @@ namespace App\Library\ArrayModel;
  */
 trait CriteriaTrait
 {
+
     /**
      * @var array
      */
@@ -31,6 +32,7 @@ trait CriteriaTrait
         'gte' => ">=" ,
         'lt'  => "<" ,
         'lte' => "<=",
+        'notIn' => 'NOT IN',
     ];
 
 
@@ -184,8 +186,22 @@ trait CriteriaTrait
      * @param $value2
      * @return bool
      */
-    public function and($value1 , $value2){
+    public function and($value1, $value2){
         return ($value1 && $value2);
+    }
+
+    /**
+     * @param $value1
+     * @param $value2
+     * @return bool
+     */
+    public function contains($value1,$value2){
+        if(is_string($value1)){
+            $keys = explode(',',$value1);
+        }else{
+            $keys = $value1;
+        }
+        return in_array($value2,$keys);
     }
 
     /**

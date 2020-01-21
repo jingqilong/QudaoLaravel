@@ -4,6 +4,7 @@ namespace App\Library\ArrayModel;
 
 use Closure;
 
+
 /**
  * Class QueryList
  * @package App\Library\ArrayModel
@@ -82,6 +83,13 @@ class QueryList extends SortedList
      * @access public
      */
     public $_group_bys;
+
+    /**
+     * _key
+     *
+     * @var string
+     */
+    public $_key;
 
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
@@ -312,24 +320,6 @@ class QueryList extends SortedList
     }
 
     /**
-     * @param $alias
-     * @param $fields
-     * @return mixed
-     */
-    public function pluck($alias,$fields){
-        if($this->_alias != $alias ){
-            return $this->_join->pluck($alias,$fields);
-        }
-
-        $result = [];
-        foreach($this->data as $item){
-            if($item instanceof QueryList)
-                $result[] = $item->readFields($result,$fields);
-        }
-        return $result;
-    }
-
-    /**
      * 传入 "key1.key2.key3" 进行搜索
      * @param $pathString
      * @return bool
@@ -338,7 +328,25 @@ class QueryList extends SortedList
         $keys= explode('.',$pathString);
         return $this->findByKeys($keys);
     }
-
+    /**
+     * @param $alias
+     * @param $field
+     * @param array $result
+     * @return array
+     */
+    public function pluck($alias,$field,&$result = []){
+        if($this->_alias != $alias ){
+            return $this->_join->pluck($alias,$field,$result);
+        }
+        foreach($this->data as $item){
+            if($item instanceof QueryList){
+                $result[] = $item->pluck($alias,$field,$result);
+            }else{
+                $result[] = $item[$field]??'';
+            }
+        }
+        return $result;
+    }
 
 
 }

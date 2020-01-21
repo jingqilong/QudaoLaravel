@@ -35,49 +35,125 @@ trait QueryTrait
 
     /**
      * @param $alias
-     * @return mixed
+     * @return array
      */
-    public function getOrderBys($alias){
+    public function getOrderByFields($alias){
         if($this->_order_bys instanceof OrderBys){
-            return $this->_order_bys[$alias];
+            return $this->_order_bys->getOrderByFields($alias);
         }
         return [];
     }
 
     /**
-     * @param $alias
-     * @return array|mixed
+     * @param null $keys
+     * @param int $level
+     * @return array|null
      */
-    public function getGroupBys($alias){
-        if($this->_group_bys instanceof GroupBys){
-            return $this->_group_bys[$alias];
+    public function getForeignKeys(&$keys=null,$level=0){
+        if($this->_ons instanceof Ons){
+            return $this->_ons->getForeignKeys($keys,$level);
         }
-        return [];
+        return $keys;
     }
 
     /**
-     *
-     * @param Closure|null $closure
+     * @param null $keys
+     * @param int $level
+     * @return array|null
+     */
+    public function getLocalKeys(&$keys=null,$level=0){
+        if($this->_ons instanceof Ons){
+            return $this->_ons->getLocalKeys($keys,$level);
+        }
+        return $keys;
+    }
+
+    /**
      * @return bool
      */
-    private function _initJoin(Closure $closure = null){
+    private function _initJoin(){
         $join = $this->_join;
         $fields = $this->_fields[$join->_alias];
         $join->_fields[$join->_alias] = $fields;
-        $join->_order_bys = $this->getOrderBys($join->_alias);
-        $join->_group_bys = $this->getGroupBys($join->_alias);
-        if(null !== $closure){
-            $join->_from[$join->_alias] = $closure($join);
+        return true;
+    }
+
+    /**
+     * @param $order_bys
+     * @return bool
+     */
+    public function keySort($order_bys){
+        $order_by = 'asc';
+        if(isset($order_bys[$this->_key])){
+            $order_by = $order_bys[$this->_key];
+        }
+        if('desc' == $order_by){
+            krsort($this->data);
+        }else{
+            ksort($this->data);
+        }
+        foreach($this->data as $item){
+            if($item instanceof QueryList){
+                $item->keySort($order_bys);
+            }
         }
         return true;
     }
 
-    private function loadData(){
-
+    /**
+     * @param $item
+     * @param $path
+     * @param int $level
+     * @return bool
+     */
+    public function addItem($item,$path,$level=0){
+        $key = $item[$path[$level]] ?? '';
+        if('' == $key){
+            $this->data[] = $item;
+            return true;
+        }
+        $this->_key = $key;
+        if (!isset($this->data[$key])) {
+            $this->data[$key] = QueryList::of();
+        }
+        $child = $this->data[$key];
+        return $child->addItem($item,$path,$level+1);
     }
 
-    private function makeJoin(){
-        
+    /**
+     * @desc load the data for sort and join
+     * @return bool
+     */
+    private function loadData(){
+        $path = array_merge($this->_group_bys[$this->_alias], $this->getOrderByFields($this->_alias));
+        foreach($this->_from[$this->_alias] as $item){
+            $this->addItem($item,$path);
+        }
+        $order_bys = $this->_order_bys[$this->_alias];
+        $this->keySort($order_bys);
+        return true;
+    }
+
+    /**
+     * @desc load the data for sort and join
+     * @return bool
+     */
+    private function loadJoinData(){
+        $path = array_merge($this->getLocalKeys(), $this->getOrderByFields($this->_alias));
+        foreach($this->_from[$this->_alias] as $item){
+            $this->addItem($item,$path);
+        }
+        $order_bys = $this->_order_bys[$this->_alias];
+        $this->keySort($order_bys);
+        return true;
+    }
+
+    /**
+     * @param $closure
+     * @return bool
+     */
+    private function makeJoin(Closure $closure = null){
+        return true;
     }
 
     /**
@@ -86,11 +162,12 @@ trait QueryTrait
      */
     private function _build(Closure $closure = null){
         if($this->_join instanceof QueryList){
-            $this->_initJoin($closure);
+            $this->_initJoin();
+            $this->_join->loadJoinData();
         }
         $this->loadData();
         if($this->_join instanceof QueryList){
-            $this->makeJoin();
+            $this->makeJoin($closure);
         }
         return $this;
     }
@@ -115,6 +192,15 @@ trait QueryTrait
         return true;
     }
 
+    /**
+     * @return array|null
+     */
+    public function getOnContains(){
+        if($this->_ons instanceof Ons){
+            return $this->_ons->getOnContains();
+        }
+        return [];
+    }
 
     /**
      * 一箇鍵值有一第記錄
