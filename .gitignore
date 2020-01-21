@@ -2,3 +2,4 @@
 .idea
 /.DS_Store
 /.env
+public/swagger-ui/index.html
