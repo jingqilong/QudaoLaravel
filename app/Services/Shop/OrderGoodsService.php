@@ -127,7 +127,7 @@ class OrderGoodsService extends BaseService
         foreach ($order_goods_list as $value){
             $relate_ids[] = $order_relate_id . ',' . $value['goods_id'];
         }
-        $comment_count = CommonCommentsRepository::count(['relate_id' => ['in',$relate_ids]]);
+        $comment_count = CommonCommentsRepository::count(['related_id' => ['in',$relate_ids]]);
         if ($comment_count < count($relate_ids)){
             $this->setMessage('订单商品未全部评论');
             return true;

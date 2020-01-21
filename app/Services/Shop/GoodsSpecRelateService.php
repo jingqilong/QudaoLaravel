@@ -59,6 +59,7 @@ class GoodsSpecRelateService extends BaseService
                     $value['number'],
                     $price
                 );
+                $spec_relate_id = $value['spec_relate_id'] ?? 0;
                 $result[$key] = [
                     'goods_id'        => $goods['id'],
                     'goods_name'      => $goods['name'],
@@ -68,7 +69,7 @@ class GoodsSpecRelateService extends BaseService
                     'number'          => $value['number'],
                     'deduction_price' => $deduction_price,//最高积分抵扣
                     'spec_relate_id'  => $value['spec_relate_id'] ?? 0,
-                    'spec'            => $value['spec_relate_value'] ?? ($spec_relate_list[($item['spec_relate_id'] ?? 0)] ?? ''),
+                    'spec'            => $spec_relate_list[$spec_relate_id] ?? ($value['spec_relate_value'] ?? ''),
                 ];
             }
             if (isset($value['order_relate_id'])){
