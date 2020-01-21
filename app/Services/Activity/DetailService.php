@@ -102,79 +102,77 @@ class DetailService extends BaseService
         $where          = ['status' => 1];
         $order          = 'id';
         $desc_asc       = 'desc';
-        if (!empty($theme_id)){
+        if (!is_null($theme_id)){
             $where['theme_id']  = $theme_id;
         }
-        if (!empty($is_recommend)){
+        if (!is_null($is_recommend)){
             $where['is_recommend']  = ['>',0];
             $order = 'is_recommend';
         }
-        if (!empty($price)){
-            $where['price']  = $price == 1 ? 0 : ['>',0];
+        if (!is_null($price)){
+            $where['price']  = ($price == 1) ? 0 : ['>',0];
         }
-        if (!empty($status)){
+        if (!is_null($status)){//活动状态
             switch ($status){
-                case 1:
+                case 1://报名中
                     $where['start_time'] = ['>',time()];
                     break;
-                case 2:
+                case 2://进行中
                     $where['start_time'] = ['<',time()];
                     $where['end_time'] = ['>',time()];
                     break;
-                case 3:
+                case 3://已结束
                     $where['end_time'] = ['<',time()];
                     break;
             }
         }
-        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling'];
+        $activity_column = ['id','name','area_code','address','price','start_time','end_time','cover_id','theme_id','stop_selling','max_number'];
         if (!empty($keywords)){
             $keyword = [$keywords => ['name', 'address', 'price']];
-            if (!$list = ActivityDetailRepository::search($keyword,$where,$activity_column,$order,$desc_asc)){
-                $this->setError('获取失败！');
-                return false;
-            }
+            $list = ActivityDetailRepository::search($keyword,$where,$activity_column,$order,$desc_asc);
         }else{
-            if (!$list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc)){
-                $this->setError('获取失败！');
-                return false;
-            }
+            $list = ActivityDetailRepository::getList($where,$activity_column,$order,$desc_asc);
+        }
+        if (!$list){
+            $this->setError('获取失败！');
+            return false;
         }
         $list = $this->removePagingField($list);
         if (empty($list['data'])){
             $this->setMessage('暂无数据！');
             return $list;
         }
+        CommonImagesRepository::bulkHasOneWalk(byRef($list['data']),['from' => 'cover_id','to' => 'id'],['id','img_url'],[],
+            function ($src_item,$set_items){
+                $src_item['cover'] = $set_items['img_url'] ?? '';unset($src_item['cover_id']);
+                return $src_item;
+            });
+        ActivityRegisterRepository::getActivityRegisterNumber(byRef($list['data']));
         $theme_ids  = array_column($list['data'],'theme_id');
-        $themes     = ActivityThemeRepository::getAllList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
-        $icon_ids   = array_column($themes,'icon_id');
-        $icons      = CommonImagesRepository::getAllList(['id' => ['in',$icon_ids]]);
+        $themes     = ActivityThemeRepository::getAllThemeList(['id' => ['in',$theme_ids]],['id','name','icon_id']);
+        $time       = time();
         foreach ($list['data'] as &$value){
-            $theme = $this->searchArray($themes,'id',$value['theme_id']);
-            if ($theme)
-                $icon  = $this->searchArray($icons,'id',reset($theme)['icon_id']);
+            $theme = $themes[$value['theme_id']] ?? [];
             #处理地址
             list($area_address) = $this->makeAddress($value['area_code'],'',3);
             $value['address']  = $area_address;
-            $value['theme_name'] = $theme ? reset($theme)['name'] : '活动';
-            $value['theme_icon'] = $icons ? reset($icon)['img_url'] : '';
-            $value['price'] = empty($value['price']) ? '免费' : round($value['price'] / 100,2).'元';
-            if ($value['start_time'] > time()){
+            $value['theme_name'] = $theme['name'] ?? '活动';
+            $value['theme_icon'] = $theme['theme_icon'] ?? '';
+            $value['price'] = empty($value['price']) ? '免费' : (round($value['price'] / 100,2).'元');
+            if ($value['start_time'] > $time){
                 $value['status'] = 1;
-                $value['status_title'] = $value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
+                $value['status_title'] = ($value['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING) ? '已售罄' : '报名中';
             }
-            if ($value['start_time'] < time() && $value['end_time'] > time()){
+            if ($value['start_time'] < $time && $value['end_time'] > $time){
                 $value['status'] = 2;
                 $value['status_title'] = '进行中';
             }
-            if ($value['end_time'] < time()){
+            if ($value['end_time'] < $time){
                 $value['status'] = 3;
                 $value['status_title'] = '已结束';
             }
-            $start_time    = date('Y年m/d',$value['start_time']);
-            $end_time      = date('m/d',$value['end_time']);
-            $value['activity_time'] = $start_time . '-' . $end_time;
-            $value['cover'] = empty($value['cover_id']) ? '':CommonImagesRepository::getField(['id' => $value['cover_id']],'img_url');
-            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['cover_id'],$value['area_code'],$value['stop_selling']);
+            $value['activity_time'] = date('Y年m/d',$value['start_time']) . '-' . date('m/d',$value['end_time']);
+            unset($value['theme_id'],$value['start_time'],$value['end_time'],$value['area_code'],$value['stop_selling']);
         }
         $this->setMessage('获取成功！');
         return $list;
@@ -415,7 +413,7 @@ class DetailService extends BaseService
      * @return mixed
      */
     public function getActivityDetail($id){
-        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail','stop_selling'];
+        $column = ['id','name','area_code','address','price','longitude','latitude','theme_id','start_time','end_time','is_recommend','cover_id','banner_ids','image_ids','firm','notice','notice','detail','stop_selling','max_number'];
         if (!$activity = ActivityDetailRepository::getOne(['id' => $id],$column)){
             $this->setError('活动不存在！');
             return false;
@@ -445,6 +443,12 @@ class DetailService extends BaseService
                 $activity['banners']= $image_list;
             }
         }
+        //检查票有没有售罄
+        $where = ['activity_id' => $activity['id'],'status' => ['in',[ActivityRegisterStatusEnum::COMPLETED,ActivityRegisterStatusEnum::EVALUATION]],'audit' => ActivityRegisterAuditEnum::PASS];
+        $register_number = ActivityRegisterRepository::count($where) ?? 0;
+        if (!empty($activity['max_number']) && $register_number >= $activity['max_number'])
+            $activity['stop_selling']   = ActivityStopSellingEnum::STOP_SELLING;
+
         if ($activity['start_time'] > time()){
             $activity['status'] = 1;
             $activity['status_title'] = $activity['stop_selling'] == ActivityStopSellingEnum::STOP_SELLING ? '已售罄' : '报名中';
@@ -456,14 +460,6 @@ class DetailService extends BaseService
         if ($activity['end_time'] < time()){
             $activity['status'] = 3;
             $activity['status_title'] = '已结束';
-        }
-        $count_where = ['activity_id' => $id,'status' => ['in',[ActivityRegisterStatusEnum::COMPLETED,ActivityRegisterStatusEnum::EVALUATION]],'audit' => ActivityRegisterAuditEnum::PASS];
-        if (!$register_count = ActivityRegisterRepository::count($count_where)){
-            $register_count = 0;
-        }
-        #如果票已卖完，则改活动售票状态为已售罄
-        if (!empty($activity['max_number']) && ($activity['max_number'] <= $register_count)){
-            $activity['stop_selling'] = ActivityStopSellingEnum::STOP_SELLING;
         }
         #是否收藏
         $activity['is_collect'] = 0;
@@ -505,7 +501,8 @@ class DetailService extends BaseService
         $activity['banners']    = $this->suffix($activity['banners'],1);
         $activity['cover']      = $this->suffix($activity['cover'],1);
         $activity['past_activities'] = [];
-        if ($past_activities = ActivityDetailRepository::getList(['status' => ActivityEnum::OPEN,'end_time' => ['<',time()]],['id','cover_id'],'start_time','desc',1,4)){
+        $this->setPerPage(4);
+        if ($past_activities = ActivityDetailRepository::getList(['status' => ActivityEnum::OPEN,'end_time' => ['<',time()]],['id','cover_id'],'start_time','desc')){
             if ($past_activities['data']){
                 $activity['past_activities'] = ImagesService::getListImagesConcise($past_activities['data'],['cover_id' => 'single']);
             }

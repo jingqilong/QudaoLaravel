@@ -139,6 +139,6 @@ return [
 //        'SHOP_NEGOTIABLE_ORDER'  => '商城面议订单',
         11 => '/shop/shop-negotiable-order/index',
 //        'COMMON_COMMENTS'  => '公共评论',
-        12 => '',
+        12 => '/shop/shop-comment/index',
     ],
 ];
