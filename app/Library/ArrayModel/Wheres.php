@@ -11,6 +11,15 @@ namespace App\Library\ArrayModel;
 class Wheres extends Criteria
 {
 
+    use FieldTrait;
+
+    /**
+     * @return Wheres
+     */
+    public static function of(){
+        $instance = new static();
+        return $instance;
+    }
     /**
      * @param int $level
      * @return string
@@ -34,7 +43,7 @@ class Wheres extends Criteria
         $result = null;
         if(self::NODE_TYPE_AGGREGATE == $this->_node_type){
             foreach ($this->_children as $node) {
-                $value = $node->_getValue($level + 1);
+                $value = ($node instanceof Wheres)? $node->_getValue($level + 1) : false;
                 if (null !== $result) {
                     $func = $node->_logic;
                     $result = $this->$func($result, $value);
@@ -51,23 +60,15 @@ class Wheres extends Criteria
 
     /**
      * @param $where
-     * @return mixed
-     */
-    private function getAliasOfWhere($where){
-        list($alias,$field) = explode(".",$where[0]);
-        return $alias;
-    }
-
-    /**
-     * @param $where
      * @param $operator
      * @param $logic
      * @param int $level
      */
     public function _addWhere($where,$operator=null,$logic='',$level=0){
-        if($this->alias != $this->getAliasOfWhere($where)){
+        if($this->_alias != self::extractAlias($where[0])){
             if((!$this instanceof join)&&($this->_join instanceof Join)){
-                $this->_join->_addWhere($where,$operator=null,$logic='',$level=0);
+                $joinWhere = $this->_join->_getWhere();
+                $joinWhere->_addWhere($where,$operator=null,$logic='',$level=0);
             }
             return;
         }
