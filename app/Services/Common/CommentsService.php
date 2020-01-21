@@ -346,7 +346,7 @@ class CommentsService extends BaseService
         $employee = Auth::guard('oa_api')->user();
         $comment = $this->getCommentInfo($id);
         $this->setMessage('获取成功!');
-        return $this->getBusinessDetailsProcess($comment,ProcessCategoryEnum::SHOP_NEGOTIABLE_ORDER,$employee->id);
+        return $this->getBusinessDetailsProcess($comment,ProcessCategoryEnum::COMMON_COMMENTS,$employee->id);
     }
 
 
