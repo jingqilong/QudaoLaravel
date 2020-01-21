@@ -520,7 +520,7 @@ class GoodsService extends BaseService
             return false;
         }
         if (empty($column)) $column =  ['id','name','banner_ids','labels','price'];
-        if (empty($where))  $where  =  ['deleted_at' => 0];
+        if (empty($where))  $where  =  ['deleted_at' => 0,'negotiable' => 0];
         if (!$list = ShopGoodsRepository::getRandomCount($count,$column,$where)){
             return [];
         }
