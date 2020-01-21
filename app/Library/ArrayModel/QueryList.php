@@ -1,10 +1,13 @@
 <?php
 
-
 namespace App\Library\ArrayModel;
 
 use Closure;
 
+/**
+ * Class QueryList
+ * @package App\Library\ArrayModel
+ */
 class QueryList extends SortedList
 {
     use QueryTrait;
@@ -265,29 +268,6 @@ class QueryList extends SortedList
 
     /**
      * @param Closure|null $closure
-     */
-    private function _init_join(Closure $closure = null){
-        $join = $this->_join;
-        $fields = $this->_fields[$join->_alias];
-        $join->select(...$fields);
-        $wheres = $this->_wheres[$join->_alias];
-        $join->where(...$wheres);
-
-    }
-
-    /**
-     * @param Closure|null $closure
-     * @return $this
-     */
-    private function _build(Closure $closure = null){
-        if($this->_join instanceof QueryList){
-            $this->_init_join($closure);
-        }
-        return $this;
-    }
-
-    /**
-     * @param Closure|null $closure
      * @return QueryList
      */
     public function execute(Closure $closure = null){
@@ -302,7 +282,10 @@ class QueryList extends SortedList
         return $this->_build($closure);
     }
 
-
+    /**
+     * @desc For debug, you could check the sql.
+     * @return string
+     */
     public function toSql(){
         $result = "SELECT ";
         $result .= $this->_fields->_toSql();
@@ -329,18 +312,10 @@ class QueryList extends SortedList
     }
 
     /**
-     * @param $result
+     * @param $alias
      * @param $fields
      * @return mixed
      */
-    public function readFields(&$result,$fields){
-        foreach($this->data as $item){
-            if($item instanceof QueryList){
-                return $item->readFields($result,$fields);
-            }
-        }
-    }
-
     public function pluck($alias,$fields){
         if($this->_alias != $alias ){
             return $this->_join->pluck($alias,$fields);
@@ -348,93 +323,10 @@ class QueryList extends SortedList
 
         $result = [];
         foreach($this->data as $item){
-            if($item instanceof QueryList){
-                return $item->readFields($result,$fields);
-            }
+            return $item->readFields($result,$fields);
         }
     }
 
-    /**
-     * 一箇鍵值有一第記錄
-     * @param $src_array
-     * @param $key
-     * @return SortedList
-     */
-    public static function oneOfKey($src_array,$key){
-        $result_array = [];
-        foreach($src_array as $item){
-            $result_array[$item[$key]] = $item;
-        }
-        $instance = new static($result_array);
-        return $instance;
-    }
 
-    /**
-     * 每條記錄均使用多箇鍵值排序。
-     * @param $src_array
-     * @param $keys
-     * @param $level
-     * @return SortedList
-     */
-    public static function oneOfKeys($src_array,$keys,$level = 0){
-        $result_array = [];
-        foreach($src_array as $item){
-            if($level < count($keys)-1 ){
-                $result_array[$item[$keys[$level]]] = SortedList::oneOfKeys($item,$keys,$level+1);
-            }else{
-                $result_array[$item[$keys[$level]]] = $item;
-            }
-        }
-        $instance = new static($result_array);
-        $instance->_order_bys = $keys[$level];
-        return $instance;
-    }
-
-    /**
-     * 通過一箇鍵查到多條記錄幷存在此鍵值爲KEY數組中
-     * @param $src_array
-     * @param $key
-     * @return SortedList
-     */
-    public static function manyOfKey($src_array,$key){
-        $result_array = [];
-        foreach($src_array as $item){
-            $new_item = & $result_array[$item[$key]];
-            $new_item[] = $item;
-        }
-        $instance = new static($result_array);
-        return $instance;
-    }
-
-    /**
-     * 傳入 "key1.key2.key3" 進行搜索
-     * @param $keyString
-     * @return array
-     */
-    public function getByKeyString($keyString){
-        $keys= explode('.',$keyString);
-        return $this->findByKeys($keys);
-    }
-
-    /**
-     * 傳入['1','2','3'...]進行搜索
-     * @param $keys ,從根節點到葉節點的KEY的數組
-     * @param int $level
-     * @return array
-     */
-    public function findByKeys($keys,$level=0){
-        if($level < count($keys)-1 ){
-            if($this->data[$keys[$level]] instanceof SortedList ){
-                return $this->data[$keys[$level]]->findByKeys($keys,$level+1);
-            }
-            if(is_array($this->data[$keys[$level]])){
-                return $this->data[$keys[$level]];
-            }
-        }
-        if(isset($this->data[$keys[$level]])){
-            return $this->data[$keys[$level]];
-        }
-        return [];
-    }
 
 }

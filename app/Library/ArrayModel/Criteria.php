@@ -5,7 +5,7 @@ namespace App\Library\ArrayModel;
 
 
 /**
- * Class CriteriaNode
+ * Class Criteria
  * @package App\Library\ArrayModel
  */
 class Criteria extends Tree
@@ -62,7 +62,7 @@ class Criteria extends Tree
     /**
      * _children
      *
-     * @var array
+     * @var array|Criteria
      */
     public $_children = [];
 

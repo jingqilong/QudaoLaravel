@@ -66,7 +66,7 @@ class Ons extends Criteria
             $keys = [];
         }
         foreach($this->_children as $node){
-            $node->getForignKeys($keys,$level+1);
+            $node->getForeignKeys($keys,$level+1);
         }
         $keys[]=$this->_field;
         return $keys;
@@ -84,7 +84,7 @@ class Ons extends Criteria
         foreach($this->_children as $node){
             $node->getLocalKeys($keys,$level+1);
         }
-        $keys[]=$this->_field;
+        $keys[]=$this->_criteria_value;
         return $keys;
     }
 }

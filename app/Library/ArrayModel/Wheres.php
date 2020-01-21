@@ -49,7 +49,14 @@ class Wheres extends Criteria
         return $result;
     }
 
-
+    /**
+     * @param $where
+     * @return mixed
+     */
+    private function getAliasOfWhere($where){
+        list($alias,$field) = explode(".",$where[0]);
+        return $alias;
+    }
 
     /**
      * @param $where
@@ -58,6 +65,12 @@ class Wheres extends Criteria
      * @param int $level
      */
     public function _addWhere($where,$operator=null,$logic='',$level=0){
+        if($this->alias != $this->getAliasOfWhere($where)){
+            if((!$this instanceof join)&&($this->_join instanceof Join)){
+                $this->_join->_addWhere($where,$operator=null,$logic='',$level=0);
+            }
+            return;
+        }
         if(0==$level){
             $node = Wheres::of();
             $node->_addWhere($where,$operator,$logic,$level+1);
@@ -96,7 +109,7 @@ class Wheres extends Criteria
         $this->_children[]=$node;
         $logic = ['',$inner_logic]; $i=0;
         foreach($wheres as $where){
-            $node->addWhere($where,null,$logic[$i],$level+1);
+            $node->_addWhere($where,null,$logic[$i],$level+1);
         }
     }
 }
