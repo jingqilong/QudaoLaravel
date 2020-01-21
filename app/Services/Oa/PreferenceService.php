@@ -179,11 +179,11 @@ class PreferenceService extends BaseService
     public function delPreferenceValue($request)
     {
 
-        if (MemberPreferenceRepository::exists(['type' => [$request['id']]])){
+        /*if (MemberPreferenceRepository::exists(['type' => [$request['id']]])){
             $this->setError('该类别值使用中,不能被删除!');
             return false;
-        }
-        DB::beginTransaction();
+        }*/
+
         /*if (!MemberPreferenceRepository::delete(['type' => $request['id']])){#业务表数据删除
             $this->setError('删除失败!');
             DB::rollBack();
@@ -191,10 +191,8 @@ class PreferenceService extends BaseService
         }*/
         if (MemberPreferenceValueRepository::exists(['type_id' => $request['id']])) if (!MemberPreferenceValueRepository::delete(['type_id' => $request['id']])){#类型数据值表删除
             $this->setError('删除失败!');
-            DB::rollBack();
             return false;
         }
-        DB::commit();
         $this->setMessage('删除成功!');
         return true;
     }

@@ -27,7 +27,7 @@ class MemberPreferenceModel extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['id','member_id','type','content','created_at','update_at'];
+    protected $fillable = ['id','member_id','content','created_at','update_at'];
 
 
 
