@@ -102,7 +102,7 @@ class DetailService extends BaseService
         $where          = ['status' => 1];
         $order          = 'id';
         $desc_asc       = 'desc';
-        if (!is_null($theme_id)){
+        if (!empty($theme_id)){
             $where['theme_id']  = $theme_id;
         }
         if (!is_null($is_recommend)){
