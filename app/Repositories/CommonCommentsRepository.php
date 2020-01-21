@@ -26,7 +26,7 @@ class CommonCommentsRepository extends ApiRepository
     protected function getOneComment($goods_id,$type,$status=CommentsEnum::PASS)
     {
         $where = [
-            'related_id'    => $goods_id,
+            'related_id'    => ['like','%,'.$goods_id],
             'status'        => $status,
             'type'          => $type,
             'hidden'        => CommentsEnum::ACTIVITE,

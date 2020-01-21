@@ -264,7 +264,7 @@ class GoodsSpecRelateService extends BaseService
     public function getGoodsSpecList($goods_id)
     {
         if(!$spec_list = ShopGoodsSpecViewRepository::getAllList(
-            ['goods_id' => $goods_id,'spec_stock' => ['>',0]],
+            ['goods_id' => $goods_id,'spec_stock' => ['>',0],'deleted_at' => 0],
             ['spec_id','goods_id','spec_price','spec_stock','spec_ids','negotiable'],
             ['spec_id'],['asc']
         )){
