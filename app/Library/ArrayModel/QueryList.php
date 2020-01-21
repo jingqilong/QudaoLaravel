@@ -15,23 +15,23 @@ class QueryList extends SortedList
      * _fields
      *
      * @var Fields
-     * @access private
+     * @access public
      */
-    private $_fields;
+    public $_fields;
 
     /**
      * _from
      *
      * @var array
-     * @access private
+     * @access public
      */
-    private $_from = [];
+    public $_from = [];
 
     /**
      * _alias
      *
      * @var string
-     * @access private
+     * @access public
      */
     public $_alias = '';
 
@@ -39,15 +39,15 @@ class QueryList extends SortedList
      * _from
      *
      * @var Join|null
-     * @access private
+     * @access public
      */
-    private $_join = null;
+    public $_join = null;
 
     /**
      * _join_type
      *
      * @var int
-     * @access private
+     * @access public
      */
     public $_join_type = 0;
 
@@ -55,33 +55,33 @@ class QueryList extends SortedList
      * _ons
      *
      * @var Ons
-     * @access private
+     * @access public
      */
-    private $_ons = [];
+    public $_ons = [];
 
     /**
      * _wheres
      *
      * @var Wheres
-     * @access private
+     * @access public
      */
-    private $_wheres = [];
+    public $_wheres = [];
 
     /**
      * _order_bys
      *
      * @var array
-     * @access private
+     * @access public
      */
-    private $_order_bys;
+    public $_order_bys;
 
     /**
      * _group_bys
      *
      * @var array
-     * @access private
+     * @access public
      */
-    private $_group_bys;
+    public $_group_bys;
 
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
@@ -323,8 +323,20 @@ class QueryList extends SortedList
 
         $result = [];
         foreach($this->data as $item){
-            return $item->readFields($result,$fields);
+            if($item instanceof QueryList)
+                $result[] = $item->readFields($result,$fields);
         }
+        return $result;
+    }
+
+    /**
+     * 传入 "key1.key2.key3" 进行搜索
+     * @param $pathString
+     * @return bool
+     */
+    public function findPath($pathString){
+        $keys= explode('.',$pathString);
+        return $this->findByKeys($keys);
     }
 
 

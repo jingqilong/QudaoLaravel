@@ -9,6 +9,8 @@ use InvalidArgumentException;
 class GroupBys extends SortedList
 {
 
+    use FieldTrait;
+
     public $group_by_string;
 
     /**
@@ -17,17 +19,12 @@ class GroupBys extends SortedList
      * @throws InvalidArgumentException
      */
     public static function init(string ...$group_bys){
-
         $result = $columns =  [];
         foreach ($group_bys as $group_by){
-            $exploded = explode(".", preg_replace('/\s+/', '', $group_by));
-            if(2 !== count($exploded)){
-                throw new InvalidArgumentException("incorrect value for '$group_by'! should be 'table.field'");
-            }
-            list($alias,$name) = $exploded;
+            list($alias,$name) = self::extractField($group_by);
             $result[$alias][$name] = ['alias'=>$alias,$name=>$name];
         }
-        $instance =  new static($result);
+        $instance = new static($result);
         $instance->group_by_string  = implode(',',$group_bys);
         return $instance;
     }

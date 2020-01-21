@@ -3,6 +3,8 @@
 
 namespace App\Library\ArrayModel;
 
+
+use Closure;
 /**
  * Class QueryTrait
  * @package App\Library\ArrayModel
@@ -11,7 +13,7 @@ trait QueryTrait
 {
 
     /**
-     * @return Criteria
+     * @return Wheres
      */
     public function _getWhere(){
         if(null === $this->_wheres){
@@ -22,7 +24,7 @@ trait QueryTrait
     }
 
     /**
-     * @return Criteria
+     * @return Ons
      */
     public function _getOn(){
         if(null === $this->_ons){
@@ -32,14 +34,42 @@ trait QueryTrait
     }
 
     /**
-     * @param Closure|null $closure
+     * @param $alias
+     * @return mixed
      */
-    private function _init_join(Closure $closure = null){
+    public function getOrderBys($alias){
+        if($this->_order_bys instanceof OrderBys){
+            return $this->_order_bys[$alias];
+        }
+        return [];
+    }
+
+    /**
+     * @param $alias
+     * @return array|mixed
+     */
+    public function getGroupBys($alias){
+        if($this->_group_bys instanceof GroupBys){
+            return $this->_group_bys[$alias];
+        }
+        return [];
+    }
+
+    /**
+     *
+     * @param Closure|null $closure
+     * @return bool
+     */
+    private function _initJoin(Closure $closure = null){
         $join = $this->_join;
         $fields = $this->_fields[$join->_alias];
-        $join->select(...$fields);
-        $join->_order_bys = $this->_order_bys->getOrderBys($join->_alias);
-        $join->_group_bys = $this->_group_bys->getGroupBys($join->_alias);
+        $join->_fields[$join->_alias] = $fields;
+        $join->_order_bys = $this->getOrderBys($join->_alias);
+        $join->_group_bys = $this->getGroupBys($join->_alias);
+        if(null !== $closure){
+            $join->_from[$join->_alias] = $closure($join);
+        }
+        return true;
     }
 
     private function loadData(){
@@ -56,7 +86,7 @@ trait QueryTrait
      */
     private function _build(Closure $closure = null){
         if($this->_join instanceof QueryList){
-            $this->_init_join($closure);
+            $this->_initJoin($closure);
         }
         $this->loadData();
         if($this->_join instanceof QueryList){
@@ -68,19 +98,21 @@ trait QueryTrait
     /**
      * @param $result
      * @param $fields
-     * @return mixed
+     * @return bool
      */
     public function readFields(&$result,$fields){
         foreach($this->data as $item){
             if($item instanceof QueryList){
                 return $item->readFields($result,$fields);
             }else{
+                $new_item = [];
                 foreach($fields as $field){
                     $new_item = $item[$field]??'';
                 }
                 $result[]= $new_item;
             }
         }
+        return true;
     }
 
 
@@ -88,43 +120,40 @@ trait QueryTrait
      * 一箇鍵值有一第記錄
      * @param $src_array
      * @param $key
-     * @return SortedList
+     * @return array
      */
     public static function oneOfKey($src_array,$key){
         $result_array = [];
         foreach($src_array as $item){
             $result_array[$item[$key]] = $item;
         }
-        $instance = new static($result_array);
-        return $instance;
+        return $result_array;
     }
 
     /**
-     * 每條記錄均使用多箇鍵值排序。
+     * 每条记录使用多个键值进行排序。
      * @param $src_array
      * @param $keys
      * @param $level
-     * @return SortedList
+     * @return array
      */
     public static function oneOfKeys($src_array,$keys,$level = 0){
         $result_array = [];
         foreach($src_array as $item){
-            if($level < count($keys)-1 ){
-                $result_array[$item[$keys[$level]]] = SortedList::oneOfKeys($item,$keys,$level+1);
+            if($level < count($keys) -1 ){
+                $result_array[$item[$keys[$level]]] = QueryList::oneOfKeys($item,$keys,$level+1);
             }else{
                 $result_array[$item[$keys[$level]]] = $item;
             }
         }
-        $instance = new static($result_array);
-        $instance->_order_bys = $keys[$level];
-        return $instance;
+        return $result_array;
     }
 
     /**
      * 通過一箇鍵查到多條記錄幷存在此鍵值爲KEY數組中
      * @param $src_array
      * @param $key
-     * @return SortedList
+     * @return array
      */
     public static function manyOfKey($src_array,$key){
         $result_array = [];
@@ -132,17 +161,8 @@ trait QueryTrait
             $new_item = & $result_array[$item[$key]];
             $new_item[] = $item;
         }
-        $instance = new static($result_array);
-        return $instance;
+        return $result_array;
     }
 
-    /**
-     * 傳入 "key1.key2.key3" 進行搜索
-     * @param $keyString
-     * @return array
-     */
-    public function getByKeyString($keyString){
-        $keys= explode('.',$keyString);
-        return $this->findByKeys($keys);
-    }
+
 }

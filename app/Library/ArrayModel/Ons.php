@@ -9,6 +9,14 @@ namespace App\Library\ArrayModel;
  */
 class Ons extends Criteria
 {
+
+    /**
+     * @return Ons
+     */
+    public static function of(){
+        $instance = new static();
+        return $instance;
+    }
     /**
      * @param int $level
      * @return string
@@ -44,7 +52,7 @@ class Ons extends Criteria
                 }
             }else{
                 list($column,$operator,$value) = $on;
-                $operator = $this->getOperatorToken($operator);
+                $operator = $this->getOperatorName($operator);
             }
             $this->_logic = $logic;
             $field_set = explode('.',$column);
@@ -66,7 +74,8 @@ class Ons extends Criteria
             $keys = [];
         }
         foreach($this->_children as $node){
-            $node->getForeignKeys($keys,$level+1);
+            if($node instanceof Ons)
+                $node->getForeignKeys($keys,$level+1);
         }
         $keys[]=$this->_field;
         return $keys;
@@ -82,7 +91,8 @@ class Ons extends Criteria
             $keys = [];
         }
         foreach($this->_children as $node){
-            $node->getLocalKeys($keys,$level+1);
+            if($node instanceof Ons)
+                $node->getLocalKeys($keys,$level+1);
         }
         $keys[]=$this->_criteria_value;
         return $keys;

@@ -90,13 +90,5 @@ class Criteria extends Tree
         return $result;
     }
 
-    /**
-     * @return Criteria
-     */
-    public static function of(){
-        $instance = new static();
-        return $instance;
-    }
-
 
 }
