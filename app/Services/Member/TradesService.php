@@ -150,7 +150,7 @@ class TradesService extends BaseService
         }
         $trade_list['data'] = MemberOrdersRepository::bulkHasOneWalk($trade_list['data'], ['from' => 'order_id','to' => 'id'], ['id','order_no'], [],
             function ($src_item,$member_order_items){
-                $src_item['transaction_no'] = is_null($src_item['transaction_no']) ? '' : $member_order_items['transaction_no'];
+                $src_item['transaction_no'] = !isset($src_item['transaction_no']) ? '' : $member_order_items['transaction_no'];
                 $src_item['order_no'] = $member_order_items['order_no'] ?? '';
                 $src_item['amount']   = sprintf('%.2f',round($src_item['amount'] / 100, 2));;
                 return $src_item;
