@@ -1,36 +1,45 @@
 <?php
 
-
 namespace App\Library\ArrayModel\Abstracts;
 
 use ArrayAccess,Countable,Iterator ;
 
 /**
  * Class SortedList
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Abstracts
  */
 class SortedList implements ArrayAccess,Countable,Iterator
 {
 
     /**
-     * Data
+     * Data : Keep the data of Array
      *
      * @var array
-     * @access private
+     * @access protected
      */
     protected $data = [];
 
     /**
-     * _order_by
+     * properties : Keep the array of properties
      *
      * @var array
+     * @access protected
+     *
+     */
+    protected $properties = [];
+
+    /**
+     * key : Indicating which key is used for the index(1st key of array);
+     *
+     * @var string
      * @access public
      */
-    public $_order_bys = [];
+    public $_key = '';
 
     /**
      * SortedList constructor.
      * @param $data
+     *
      */
     private function __construct($data = null)
     {
@@ -39,11 +48,24 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
+     * Create a instance
+     *
+     * @param null $data
+     * @return static
+     */
+    public static function of($data = null){
+        $instance = new static($data);
+        return $instance;
+    }
+
+    /**
+     * Create a instance with specified key
+     *
      * @param $src_array
      * @param $key
      * @return SortedList
      */
-    public static function instance($src_array, $key = 'key'){
+    public static function ofKey($src_array, $key = 'key'){
         $result_array = [];
         foreach($src_array as $item){
             $result_array[$item[$key]] = $item;
@@ -53,15 +75,57 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
-     * @return SortedList
+     * Find the row  with specified array of values of keys
+     *
+     * @param array $keys
+     * @param int $level
+     * @return mixed
      */
-    public static function of(){
-        $instance = new static();
-        return $instance;
+    public function findByKeys($keys,$level = 0){
+        $key = $keys[$level];
+        if(isset($this->data[$key])){
+            if($this->data[$key] instanceof SortedList){
+                return $this->data[$key]->findByKeys($keys,$level+1);
+            }else{
+                return $this->data[$key];
+            }
+        }
+        return false;
     }
 
     /**
-     * 創建一條以傳入的鍵生成的空記彔的對像
+     * Find the row with specified path which is dot-separated string.
+     *
+     * @param string $path
+     * @return mixed
+     */
+    public function findByPath(string $path){
+        $keys = explode('.',$path ."");
+        return $this->findByKeys($keys);
+    }
+
+    /**
+     * Find the row with specified condition array which is dot-separated string.
+     *
+     * @param $conditions
+     * @param int $level
+     * @return bool
+     */
+    public function findByConditions($conditions,$level=0){
+        $key = $conditions[$this->_key];
+        if(isset($this->data[$key])){
+            if($this->data[$key] instanceof SortedList){
+                return $this->data[$key]->findByKeys($conditions,$level+1);
+            }else{
+                return $this->data[$key];
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create a empty row with specified keys
+     *
      * @param $keys
      * @param string $default
      * @return SortedList
@@ -74,43 +138,25 @@ class SortedList implements ArrayAccess,Countable,Iterator
     }
 
     /**
-     * @param $keys
-     * @param int $level
-     * @return mixed
-     */
-    public function findByKeys($keys,$level = 0){
-        if(isset($this->data[$level])){
-            if($this->data[$level] instanceof SortedList){
-                return $this->data[$level]->findByKeys($keys,$level+1);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Get a data by key
-     * 通過 $obj->key 獲得數據
-     * @param $key  ,tring The key data to retrieve
-     * @access public
-     * @return mixed
+     * get a value from the specified property
+     * @param $key
+     * @return null
      */
     public function __get($key) {
-        if(isset($this->data[$key])){
-            return $this->data[$key];
+        if(isset($this->properties[$key])){
+            return $this->properties[$key];
         }
-        $keys= explode('.',$key);
-        return $this->findByKeys($keys);
+        return null;
     }
 
     /**
-     * Assigns a value to the specified data
-     *
-     * @param string ,The data key to assign the value to
-     * @param mixed  ,The value to set
+     * Assigns a property value to the specified data
+     * @param $key
+     * @param $value
      * @access public
      */
     public function __set($key,$value) {
-        $this->data[$key] = $value;
+        $this->properties[$key] = $value;
     }
 
     /**

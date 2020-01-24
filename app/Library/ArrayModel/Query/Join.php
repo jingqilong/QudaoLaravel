@@ -1,15 +1,15 @@
 <?php
 
 
-namespace App\Library\ArrayModel\Components;
+namespace App\Library\ArrayModel\Query;
 
-use App\Library\ArrayModel\Components\QueryList;
+//use App\Library\ArrayModel\Query\QueryBuilder;
 
 /**
  * Class Join
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Query
  */
-class Join extends QueryList
+class Join extends QueryBuilder
 {
     const INNER_JOIN = 0;
 

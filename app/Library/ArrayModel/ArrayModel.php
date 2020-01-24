@@ -8,27 +8,27 @@
 
 namespace App\Library\ArrayModel;
 
-use App\Library\ArrayModel\Components\QueryList;
+use App\Library\ArrayModel\Query\QueryBuilder;
 use Closure;
 use BadMethodCallException;
 
 class ArrayModel
 {
     /**
-     * @var QueryList
+     * @var QueryBuilder
      */
     public $query;
 
     /**
-     * @var QueryList
+     * @var QueryBuilder
      */
     public $result;
 
 
     public function __construct()
     {
-        $this->query = QueryList::of();
-        $this->result = QueryList::of();
+        $this->query = QueryBuilder::of();
+        $this->result = QueryBuilder::of();
     }
 
     /**
@@ -131,6 +131,7 @@ class ArrayModel
 
     /**
      * @param ...$on
+     * @return $this
      */
     public function orOn(...$on){
         $this->query->orOn(...$on);
@@ -159,7 +160,7 @@ class ArrayModel
     }
 
     /**
-     * @return Components\Wheres
+     * @return Query\Wheres
      */
     public function whereBrackets(){
         return $this->query->whereBrackets();
@@ -167,51 +168,101 @@ class ArrayModel
 
     /**
      * @param $where
+     * @return $this
      */
     public function whereIn($where){
         $this->query->whereIn($where);
+        return $this;
     }
 
     /**
      * @param $where
+     * @return $this
      */
     public function whereNotIn($where){
         $this->query->whereNotIn($where);
+        return $this;
     }
 
-    /***
+    /**
      * @param $where
+     * @return $this
      */
     public function orWhereNotIn($where){
         $this->query->orWhereNotIn($where);
+        return $this;
     }
 
     /**
      * @param $where
+     * @return $this
      */
     public function orWhereIn($where){
         $this->query->orWhereIn($where);
+        return $this;
     }
 
     /**
      * @param $where
+     * @return $this
      */
     public function orWhere($where){
         $this->query->orWhere($where);
+        return $this;
     }
 
     /**
      * @param $where
+     * @return $this
      */
     public function whereBetween($where){
         $this->query->whereBetween($where);
+        return $this;
     }
 
     /**
      * @param $where
+     * @return $this
      */
     public function orWhereBetween($where){
         $this->query->whereBetween($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIs($where){
+        $this->query->whereIs($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIs($where){
+        $this->query->orWhereIs($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIsNot($where){
+        $this->query->whereIsNot($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIsNot($where){
+        $this->query->orWhereIsNot($where);
+        return $this;
     }
 
     /**
@@ -233,20 +284,18 @@ class ArrayModel
 
     /**
      * @param Closure|null $closure
-     * @return QueryList
+     * @return QueryBuilder
      */
     public function execute(Closure $closure = null){
-        $this->query->execute();
-        return $this->_makeJoin($closure);
+        return $this->query->execute($closure);
     }
 
     /**
      * @param Closure|null $closure
-     * @return QueryList
+     * @return QueryBuilder
      */
     public function get(Closure $closure = null){
-        $this->query->get();
-        return $this->_makeJoin($closure);
+        return $this->query->get($closure);
     }
 
     /**
@@ -265,6 +314,27 @@ class ArrayModel
     public function findPath($pathString){
         return $this->query->findPath($pathString);
     }
+
+    /**
+     * Find the row with specified condition array which is dot-separated string.
+     *
+     * @param $conditions
+     * @return bool
+     */
+    public function findByConditions($conditions){
+        return $this->query->findByConditions($conditions);
+    }
+
+    /**
+     * Find the row with specified keys which is dot-separated string.
+     *
+     * @param $keys
+     * @return bool
+     */
+    public function findByKeys($keys){
+        return $this->query->findByKeys($keys);
+    }
+
     /**
      * @param $alias
      * @param $field
@@ -283,10 +353,5 @@ class ArrayModel
         return $this->query->pluck($alias,$field);
     }
 
-    /**
-     *
-     */
-    private function _makeJoin(){
 
-    }
 }

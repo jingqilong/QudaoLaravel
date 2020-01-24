@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Library\ArrayModel\Components;
+namespace App\Library\ArrayModel\Query;
 
-use App\Library\ArrayModel\Abstracts\SortedList;
-use App\Library\ArrayModel\FieldTrait;
+use App\Library\ArrayModel\Abstracts\FieldList;
 use InvalidArgumentException;
 
 /**
  * Class OrderBys
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Query
  */
-class OrderBys extends SortedList
+class OrderBys extends FieldList
 {
-    use FieldTrait;
-
     /**
      * For debugging, import the sql clause.
      *
@@ -23,7 +20,7 @@ class OrderBys extends SortedList
 
     /**
      * @param array ...$order_bys
-     * @return SortedList
+     * @return OrderBys
      * @throws InvalidArgumentException
      */
     public static function init(array ...$order_bys){
@@ -34,7 +31,7 @@ class OrderBys extends SortedList
             $result[$alias][] = [$name => $direction];
         }
         $instance = new static($result);
-        $instance->order_by_string  = implode(',',$order_bys);
+        $instance->fields_string  = implode(',',$order_bys);
         return $instance;
     }
 
@@ -45,7 +42,7 @@ class OrderBys extends SortedList
      * @return array
      */
     public function getOrderByFields($alias){
-        $order_bys = $this->_order_bys[$alias];
+        $order_bys = parent::getFields($alias);
         return array_keys($order_bys);
     }
 
@@ -55,6 +52,6 @@ class OrderBys extends SortedList
      * @return string
      */
     public function _toSql(){
-        return " ORDER BY " .  $this->order_by_string;
+        return " ORDER BY " .  $this->fields_string;
     }
 }

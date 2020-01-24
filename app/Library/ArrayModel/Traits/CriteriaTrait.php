@@ -5,10 +5,54 @@ namespace App\Library\ArrayModel\Traits;
 
 /**
  * Trait CriteriaTrait
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Traits
  */
 trait CriteriaTrait
 {
+
+    public $data;
+
+    /**
+     * _node_type
+     *
+     * @var int
+     */
+    public $_node_type = 0;
+
+    /**
+     * _logic
+     *
+     * @var null
+     */
+    public $_logic = null;
+
+    /**
+     * _alias
+     *
+     * @var string
+     */
+    public $_alias  = '';
+
+    /**
+     * _field
+     *
+     * @var string
+     */
+    public $_field  = '';
+
+    /**
+     * _operator
+     *
+     * @var string
+     */
+    public $_operator  = '';
+
+    /**
+     * _criteria_value
+     *
+     * @var string
+     */
+    public $_criteria_value  = '';
 
     /**
      * Operator to function name
@@ -22,6 +66,8 @@ trait CriteriaTrait
         ">=" => 'gte',
         "<" => 'lt',
         "<=" => 'lte',
+        'NOT IN' => 'notIn',
+        'IS NOT' => 'isNot'
     ];
 
     /**
@@ -37,6 +83,7 @@ trait CriteriaTrait
         'lt'  => "<" ,
         'lte' => "<=",
         'notIn' => 'NOT IN',
+        'isNot' => 'IS NOT'
     ];
 
 

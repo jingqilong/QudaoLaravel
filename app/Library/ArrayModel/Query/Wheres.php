@@ -1,20 +1,18 @@
 <?php
 
-
-namespace App\Library\ArrayModel\Components;
+namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\Abstracts\Criteria;
-use App\Library\ArrayModel\FieldTrait;
-
+use App\Library\ArrayModel\Traits\CriteriaTrait;
 use Closure;
+
 /**
  * Class Wheres
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Query
  */
 class Wheres extends Criteria
 {
-
-    use FieldTrait;
+    use CriteriaTrait;
 
     /**
      * create a object statically
@@ -132,6 +130,42 @@ class Wheres extends Criteria
     }
 
     /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIs($where){
+        $this->_addWhere($where,'is','and');
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIs($where){
+        $this->_addWhere($where,'is','or');
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIsNot($where){
+        $this->_addWhere($where,'isNot','and');
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIsNot($where){
+        $this->_addWhere($where,'isNot','or');
+        return $this;
+    }
+
+    /**
      * For debugging, import sql
      *
      * @param int $level
@@ -148,7 +182,7 @@ class Wheres extends Criteria
     }
 
     /**
-     * calculate the value of the where conditions.
+     * calculate the value of the where-conditions.
      *
      * @param $cur_values
      * @param int $level
@@ -174,7 +208,7 @@ class Wheres extends Criteria
     }
 
     /**
-     * add where condition
+     * add where-condition
      *
      * @param array|Closure $where
      * @param $operator
@@ -187,7 +221,7 @@ class Wheres extends Criteria
             $node->_addWhere($where, $operator, $logic, $level + 1);
             $this->_children[] = $node;
         }
-        $this->_node_type = self::NODE_TYPE_EQUATION;
+        $this->_node_type = self::NODE_TYPE_EXPRESSION;
         if(is_array($where)){
             if(2==count($where)){
                 list($column,$value) = $where;
@@ -209,7 +243,7 @@ class Wheres extends Criteria
     }
 
     /**
-     * add some where conditions.
+     * add some where-conditions.
      *
      * @param $wheres
      * @param $inner_logic

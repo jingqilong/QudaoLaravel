@@ -3,12 +3,13 @@
 
 namespace App\Library\ArrayModel\Abstracts;
 
+use App\Library\ArrayModel\LogicTree\Node;
 use App\Library\ArrayModel\Traits\CriteriaTrait;
 /**
  * Class Criteria
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Abstracts
  */
-class Criteria
+class Criteria extends Node
 {
     use CriteriaTrait;
 
@@ -17,12 +18,12 @@ class Criteria
     /**
      * Node which contains the equation such as a=b
      */
-    const NODE_TYPE_EQUATION   = 0;
+    const NODE_TYPE_EXPRESSION   = 0;
 
     /**
      * Node which only has children
      */
-    const NODE_TYPE_AGGREGATE  = 1;
+    const NODE_TYPE_AGGREGATE    = 1;
 
     /**
      * _node_type
@@ -66,13 +67,10 @@ class Criteria
      */
     public $_criteria_value  = '';
 
-
     /**
-     * _children
-     *
-     * @var array|Criteria
+     * @var null
      */
-    public $_children = [];
+    public $_children = null;
 
     /**
      * For debugging, import the sql clause.
@@ -98,6 +96,5 @@ class Criteria
         $result .= ")";
         return $result;
     }
-
 
 }

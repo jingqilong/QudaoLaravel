@@ -1,25 +1,50 @@
 <?php
 
-
-namespace App\Library\ArrayModel\Components;
+namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\Abstracts\Criteria;
+use App\Library\ArrayModel\Traits\CriteriaTrait;
 use Closure;
+use App\Library\ArrayModel\LogicTree\LogicTree;
+
+
 /**
  * Class Ons
- * @package App\Library\ArrayModel
+ * @package App\Library\ArrayModel\Query
  */
 class Ons extends Criteria
 {
+    use CriteriaTrait;
+    /**
+     * LogicTree Node
+     *
+     * @var $logicTree
+     */
+    public $logicTree = null;
 
     /**
+     * @return LogicTree|null
+     */
+    public function getLogictree(){
+        if(null === $this->logicTree){
+            $this->logicTree = new LogicTree();
+        }
+        return $this->logicTree;
+    }
+
+    /**
+     * create a empty instance of Ons
+     *
      * @return Ons
      */
     public static function of(){
         $instance = new static();
         return $instance;
     }
+
     /**
+     * For debugging, import the sql
+     *
      * @param int $level
      * @return string
      */
@@ -34,7 +59,9 @@ class Ons extends Criteria
     }
 
     /**
-     * @param ...$ons
+     * Could pass any number of on-conditions and Closures
+     *
+     * @param array|Closure ...$ons
      * @return $this
      */
     public function on(...$ons){
@@ -53,6 +80,8 @@ class Ons extends Criteria
     }
 
     /**
+     * using the brackets "()" to change the logic calculating.
+     *
      * @return Ons
      */
     public function onBrackets(){
@@ -63,6 +92,8 @@ class Ons extends Criteria
     }
 
     /**
+     * Add a on-condition with logic operator or
+     *
      * @param $on
      * @return $this
      */
@@ -86,7 +117,7 @@ class Ons extends Criteria
             $node->_addOn($on,$operator,$logic,$level+1);
             $this->_children[]=$node;
         }
-        $this->_node_type = self::NODE_TYPE_EQUATION;
+        $this->_node_type = self::NODE_TYPE_EXPRESSION;
         if(is_array($on)){
             if(2==count($on)){
                 list($column,$value) = $on;
@@ -122,7 +153,7 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getForeignKeys($keys,$level+1);
         }
-        if($this->_node_type = self::NODE_TYPE_EQUATION) {
+        if($this->_node_type = self::NODE_TYPE_EXPRESSION) {
             $keys[] = $this->_field;
         }
         return $keys;
@@ -143,7 +174,7 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getLocalKeys($keys,$level+1);
         }
-        if($this->_node_type = self::NODE_TYPE_EQUATION){
+        if($this->_node_type = self::NODE_TYPE_EXPRESSION){
             $keys[]=$this->_criteria_value;
         }
 

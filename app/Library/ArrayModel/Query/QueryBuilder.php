@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Library\ArrayModel\Components;
+namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\Abstracts\SortedList;
 use Closure;
 
 
 /**
- * Class QueryList
- * @package App\Library\ArrayModel
+ * Class QueryBuilder
+ * @package App\Library\ArrayModel\Query
  */
-class QueryList extends SortedList
+class QueryBuilder extends SortedList
 {
     /**
      * _fields
@@ -85,11 +85,14 @@ class QueryList extends SortedList
     public $_group_bys;
 
     /**
-     * _key
+     * _result
      *
-     * @var string
+     * @var QueryBuilder
      */
-    public $_key;
+    public $_result;
+
+
+    private $_array_filter = [];
 
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
@@ -268,6 +271,42 @@ class QueryList extends SortedList
     }
 
     /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIs($where){
+        $this->_getWhere()->whereIs($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIs($where){
+        $this->_getWhere()->orWhereIs($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function whereIsNot($where){
+        $this->_getWhere()->whereIsNot($where);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhereIsNot($where){
+        $this->_getWhere()->orWhereIsNot($where);
+        return $this;
+    }
+
+    /**
      * @desc The format of arguments is ['table.field','asc'] ,['table.field','asc']  ...
      * @param array ...$order_bys
      * @return $this
@@ -287,17 +326,19 @@ class QueryList extends SortedList
     }
 
     /**
-     * @return QueryList
+     * @param Closure|null $closure
+     * @return QueryBuilder
      */
-    public function execute(){
-        return $this->_build();
+    public function execute(Closure $closure = null){
+        return $this->_build($closure);
     }
 
     /**
-     * @return QueryList
+     * @param Closure|null $closure
+     * @return QueryBuilder
      */
-    public function get(){
-        return $this->_build();
+    public function get(Closure $closure = null){
+        return $this->_build($closure);
     }
 
     /**
@@ -349,7 +390,7 @@ class QueryList extends SortedList
             return $this->_join->pluck($alias,$field,$result);
         }
         foreach($this->data as $item){
-            if($item instanceof QueryList){
+            if($item instanceof QueryBuilder){
                 $result[] = $item->pluck($alias,$field,$result);
             }else{
                 $result[] = $item[$field]??'';
@@ -440,7 +481,7 @@ class QueryList extends SortedList
             ksort($this->data);
         }
         foreach($this->data as $item){
-            if($item instanceof QueryList){
+            if($item instanceof QueryBuilder){
                 $item->keySort($order_bys);
             }
         }
@@ -461,7 +502,7 @@ class QueryList extends SortedList
         }
         $this->_key = $key;
         if (!isset($this->data[$key])) {
-            $this->data[$key] = QueryList::of();
+            $this->data[$key] = QueryBuilder::of();
         }
         $child = $this->data[$key];
         return $child->addItem($item,$path,$level+1);
@@ -496,83 +537,81 @@ class QueryList extends SortedList
     }
 
     /**
+     * @param Closure!null $closure
      * @return $this
      */
-    private function _build(){
-        if($this->_join instanceof QueryList){
+    private function _build(Closure $closure=null){
+        if($this->_join instanceof QueryBuilder){
             $this->_initJoin();
             $this->_join->loadJoinData();
         }
         $this->loadData();
-        return $this;
+        return $this->makeJoin($closure);
     }
 
     /**
-     * @param $result
-     * @param $fields
+     * @return array
+     */
+    protected function getFieldsFilter(){
+        if(empty($this->_array_filter)){
+            $this->_array_filter = $this->_fields->getFilter();
+        }
+        return $this->_array_filter;
+    }
+
+    /**
+     * @param $row
      * @return bool
      */
-    public function readFields(&$result,$fields){
-        foreach($this->data as $item){
-            if($item instanceof QueryList){
-                return $item->readFields($result,$fields);
-            }else{
-                $new_item = [];
-                foreach($fields as $field){
-                    $new_item = $item[$field]??'';
-                }
-                $result[]= $new_item;
+    protected function filterbyWhere($row){
+        return $this->_wheres->_getValue($row);
+    }
+
+    /**
+     * @param Closure|null $closure
+     * @return QueryBuilder (array|static)
+     */
+    protected function _query(Closure $closure = null){
+        $result = QueryBuilder::of();
+        $this->_result = $result;
+        $main_list = $this;
+        $with_closure = ($closure instanceof Closure);
+        // select fields
+        $fields_filter = $this->getFieldsFilter();
+        foreach($main_list as $item){
+            if($with_closure){
+                $item = $closure($closure);
+            }
+            // filter where
+            if($this->filterbyWhere($item)){
+                // filter select
+                $result[] = array_intersect_key($item, $fields_filter);
             }
         }
-        return true;
+        return $result;
     }
 
     /**
-     * 一箇鍵值有一第記錄
-     * @param $src_array
-     * @param $key
-     * @return array
+     * @param Closure|null $closure
+     * @return QueryBuilder (array|static)
      */
-    public static function oneOfKey($src_array,$key){
-        $result_array = [];
-        foreach($src_array as $item){
-            $result_array[$item[$key]] = $item;
+    public function makeJoin(Closure $closure = null){
+        if(!$this->_join instanceof Join){
+            return $this->_query($closure);
         }
-        return $result_array;
+        $result = QueryBuilder::of();
+        $this->_result = $result;
+        $main_list = $this;
+        $join_list = $this->_join;
+        $with_closure = ($closure instanceof Closure);
+        $fields_filter = $this->getFieldsFilter();
+        foreach($main_list as $item){
+            //contains or not?
+
+        }
+        return $result;
+
     }
 
-    /**
-     * 每条记录使用多个键值进行排序。
-     * @param $src_array
-     * @param $keys
-     * @param $level
-     * @return array
-     */
-    public static function oneOfKeys($src_array,$keys,$level = 0){
-        $result_array = [];
-        foreach($src_array as $item){
-            if($level < count($keys) -1 ){
-                $result_array[$item[$keys[$level]]] = QueryList::oneOfKeys($item,$keys,$level+1);
-            }else{
-                $result_array[$item[$keys[$level]]] = $item;
-            }
-        }
-        return $result_array;
-    }
-
-    /**
-     * 通過一箇鍵查到多條記錄幷存在此鍵值爲KEY數組中
-     * @param $src_array
-     * @param $key
-     * @return array
-     */
-    public static function manyOfKey($src_array,$key){
-        $result_array = [];
-        foreach($src_array as $item){
-            $new_item = & $result_array[$item[$key]];
-            $new_item[] = $item;
-        }
-        return $result_array;
-    }
 
 }
