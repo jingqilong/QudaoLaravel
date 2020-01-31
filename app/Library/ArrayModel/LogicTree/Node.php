@@ -152,13 +152,6 @@ abstract class Node
     }
 
     /**
-     * @return $this|Node
-     */
-    public function getAncestor(){
-        return $this->getParent()->getAncestor();
-    }
-
-    /**
      * @param $node
      */
     public function setPrev($node){
@@ -199,7 +192,7 @@ abstract class Node
     {
         if($this->hasNext())
             return $this->next_node;
-        return false;
+        return null;
     }
 
     /**

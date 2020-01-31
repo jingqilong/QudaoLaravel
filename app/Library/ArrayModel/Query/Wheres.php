@@ -6,7 +6,6 @@ use App\Library\ArrayModel\LogicTree\TreeConstants;
 use App\Library\ArrayModel\LogicTree\BracketsNode;
 use App\Library\ArrayModel\LogicTree\ExpressionNode;
 use App\Library\ArrayModel\LogicTree\NodeInterface;
-use App\Library\ArrayModel\LogicTree\Node;
 use Closure;
 
 /**
@@ -22,7 +21,18 @@ class Wheres extends BracketsNode
      * @return ExpressionNode
      */
     public function newNode($expression,$logic,$operator=null){
-        return parent::newNode($expression,$logic,$operator);
+        if(null === $logic){
+            $logic = TreeConstants::LOGIC_AND;
+        }
+        $new_node = new WhereItem();
+        $node_data = $this->expressionToArray($expression);
+        foreach($node_data as $key =>$value){
+            $new_node->$key = $value;
+        }
+        if(null!==$operator){
+            $new_node->setOperator($operator);
+        }
+        return $new_node->setLogic($logic);
     }
 
     /**
@@ -30,23 +40,11 @@ class Wheres extends BracketsNode
      * @return BracketsNode|NodeInterface
      */
     public function newBracketsNode($logic){
-        return parent::newBracketsNode($logic);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return NodeInterface|Node|bool
-     */
-    public function _addNode(NodeInterface $node){
-        return parent::_addNode($node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return NodeInterface|Node|bool
-     */
-    public function _addBracketsNode(NodeInterface $node){
-        return parent::_addBracketsNode($node);
+        if(null === $logic){
+            $logic = TreeConstants::LOGIC_AND;
+        }
+        $new_node = new Wheres();
+        return $new_node->setLogic($logic);
     }
 
     /**
@@ -89,7 +87,7 @@ class Wheres extends BracketsNode
     }
 
     /**
-     * @param $where
+     * @param array $where
      * @return $this
      */
     public function whereIn($where){
@@ -207,7 +205,7 @@ class Wheres extends BracketsNode
             $result .= "WHERE ";
         if(!empty($this->_logic))
             $result .= " " .$this->_logic . " ";
-        $result .= parent::_toSql($level);
+        $result .= parent::_toSql();
         return $result;
     }
 
@@ -229,7 +227,7 @@ class Wheres extends BracketsNode
      * @param $operator
      * @param $logic
      */
-    public function _addWhere($where,$operator=null,$logic=TreeConstants::LOGIC_AND){
+    protected function _addWhere($where,$operator=null,$logic=TreeConstants::LOGIC_AND){
         $new_node = $this->newNode($where,$logic,$operator);
         $this->_addNode($new_node);
     }
@@ -240,12 +238,12 @@ class Wheres extends BracketsNode
      * @param $wheres
      * @param $inner_logic
      * @param $group_logic
-     * @param int $level
      */
-    public function _addWheres($wheres,$inner_logic,$group_logic,$level=0){
+    protected function _addWheres($wheres,$inner_logic,$group_logic){
+        /** @var  $node Wheres */
         $node = $this->newBracketsNode($group_logic);
         foreach($wheres as $where){
-            $node->_addWhere($where,null,$inner_logic,$level+1);
+            $node->_addWhere($where,null,$inner_logic);
         }
     }
 }

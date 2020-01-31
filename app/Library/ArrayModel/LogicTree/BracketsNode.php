@@ -18,27 +18,27 @@ class BracketsNode extends Node implements NodeInterface
     /**
      * @var int
      */
-    public $node_type = TreeConstants::NODE_TYPE_AGGREGATE;
+    protected $node_type = TreeConstants::NODE_TYPE_AGGREGATE;
 
     /**
      * @var null|string
      */
-    public $node_logic = null;
+    protected $node_logic = null;
 
     /**
      * @var null|string
      */
-    public $inner_logic = null;
+    protected $inner_logic = null;
 
     /**
-     * @var null|array
+     * @var LinkList children[]
      */
-    public $children = [];
+    protected $children = [];
 
     /**
      * @var bool
      */
-    public $reduced = false;
+    protected $reduced = false;
 
     /**
      * BracketsNode constructor.
@@ -97,26 +97,6 @@ class BracketsNode extends Node implements NodeInterface
     }
 
     /**
-     * @param array $expression
-     * @param null $logic
-     * @param $operator
-     * @return ExpressionNode
-     */
-    public function newNode($expression,$logic,$operator){
-        $node = parent::newNode($expression,$logic,$operator);
-        return $node;
-    }
-
-    /**
-     * @param int $logic
-     * @return NodeInterface
-     */
-    public function newBracketsNode($logic)
-    {
-        return parent::newBracketsNode($logic);
-    }
-
-    /**
      * @param NodeInterface|Node $node
      * @return NodeInterface
      */
@@ -131,7 +111,7 @@ class BracketsNode extends Node implements NodeInterface
      * @param NodeInterface|Node $node
      * @return NodeInterface|Node|bool
      */
-    public function _addNode(NodeInterface $node)
+    protected function _addNode(NodeInterface $node)
     {
         if ($node instanceof BracketsNode) {
             return $this->_addBracketsNode($node);
@@ -144,7 +124,7 @@ class BracketsNode extends Node implements NodeInterface
      * @param NodeInterface|Node $node
      * @return NodeInterface|Node|bool
      */
-    public function _addBracketsNode(NodeInterface $node)
+    protected function _addBracketsNode(NodeInterface $node)
     {
         if ($node instanceof ExpressionNode) {
             return $this->_addNode($node);
@@ -153,184 +133,6 @@ class BracketsNode extends Node implements NodeInterface
         return $this->getChildren($logic)->addNode($node);
     }
 
-    /**
-     * @param NodeInterface|Node $node
-     * @return $this|NodeInterface|Node
-     */
-    public function _addLeftNode(NodeInterface $node)
-    {
-        $logic = $node->getLogic();
-        $children = $this->getChildren($logic);
-        $old_node = $children->getFirst();
-        if (null === $old_node) {
-            return $children->insertFirst($node);
-        }
-        return $children->insertBefore($old_node, $node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return $this|NodeInterface|Node
-     */
-    public function _addAndNode(NodeInterface $node)
-    {
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return $this|NodeInterface|Node
-     */
-    public function _addOrNode(NodeInterface $node)
-    {
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return NodeInterface|Node
-     */
-    public function _addLeftBracketsNode(NodeInterface $node)
-    {
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return NodeInterface|Node
-     */
-    public function _addAndBracketsNode(NodeInterface $node)
-    {
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param NodeInterface|Node $node
-     * @return NodeInterface|Node
-     */
-    public function _addOrBracketsNode(NodeInterface $node)
-    {
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param array |Node $nodes
-     * @return NodeInterface|Node
-     */
-    public function _addAndNodes(...$nodes)
-    {
-        foreach ($nodes as $key => $node) {
-            $this->_addAndNode($node);
-        }
-        return $this;
-    }
-
-    /**
-     * @param array $nodes
-     * @return NodeInterface|Node
-     */
-    public function _addOrNodes(...$nodes)
-    {
-        foreach ($nodes as $key => $node) {
-            $this->_addOrNode($node);
-        }
-        return $this;
-    }
-
-    /**
-     * @param array $expression
-     * @param string $logic
-     * @param $operator
-     * @return NodeInterface
-     */
-    public function addNode($expression = [], $logic = '',$operator)
-    {
-        $node = $this->newNode($expression, $logic,$operator);
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param array $expression
-     * @param $operator
-     * @return NodeInterface
-     */
-    public function addAndNode($expression = [],$operator)
-    {
-        $node = $this->newNode($expression, TreeConstants::LOGIC_AND,$operator);
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param array $expression
-     * @param $operator
-     * @return NodeInterface
-     */
-    public function addOrNode($expression = [],$operator)
-    {
-        $node = $this->newNode($expression, TreeConstants::LOGIC_OR,$operator);
-        return $this->addNext($node);
-    }
-
-    /**
-     * @param array ...$expressions
-     * @return $this
-     */
-    public function addAndNodes(...$expressions)
-    {
-        $logic = TreeConstants::LOGIC_AND;
-        foreach ($expressions as $expression) {
-            $node = $this->newNode($expression, $logic,'');
-            $this->addNext($node);
-        }
-        return $this;
-    }
-
-    /**
-     * @param ...$expressions
-     * @return $this
-     */
-    public function addOrNodes(...$expressions)
-    {
-        $logic = TreeConstants::LOGIC_OR;
-        foreach ($expressions as $expression) {
-            $node = $this->newNode($expression, $logic,'');
-            $this->addNext($node);
-        }
-        return $this;
-    }
-
-    /**
-     * @param $logic
-     * @return NodeInterface
-     */
-    public function addBracketsNode($logic)
-    {
-        $node = $this->newBracketsNode($logic);
-        $this->addNext($node);
-        return $node;
-    }
-
-    /**
-     * @return NodeInterface
-     */
-    public function addAndBracketsNode()
-    {
-        $logic = TreeConstants::LOGIC_AND;
-        $node = $this->newBracketsNode($logic);
-        $this->addNext($node);
-        return $node;
-    }
-
-    /**
-     * @return NodeInterface
-     */
-    public function addOrBracketsNode()
-    {
-        $logic = TreeConstants::LOGIC_OR;
-        $node = $this->newBracketsNode($logic);
-        $this->addNext($node);
-        return $node;
-    }
 
     /**
      * @return string
@@ -354,7 +156,7 @@ class BracketsNode extends Node implements NodeInterface
     protected function associativeNodes($children, $child, $logic)
     {
         $sub_children = $child->getChildren($logic);
-        foreach ($sub_children as $sub_child) {
+        foreach ($sub_children->items() as $sub_child) {
             if (TreeConstants::NODE_TYPE_AGGREGATE == $sub_child->getNodeType()) {
                 continue;
             }
@@ -386,9 +188,9 @@ class BracketsNode extends Node implements NodeInterface
      * @param $logic
      * @return bool
      */
-    public function reduceNodes($logic){
+    protected function reduceNodes($logic){
         $children = $this->getChildren($logic);
-        foreach ($children as $child) {
+        foreach ($children->items() as $child) {
             if ($child instanceof BracketsNode) {
                 if (true === $child->reduced) {
                     continue;
@@ -430,7 +232,7 @@ class BracketsNode extends Node implements NodeInterface
             return '';
         }
         $result = "(";
-        foreach ($children as $node) {
+        foreach ($children->items() as $node) {
             $result .= $node->_toSql();
         }
         return $result . ")";
@@ -460,7 +262,8 @@ class BracketsNode extends Node implements NodeInterface
     protected function getValueLogic($cur_values,$logic,$level){
         $result = $value =  null;
         $children = $this->getChildren($logic);
-        foreach ($children as $node) {
+        /* var $node BracketNode|NodeInterface */
+        foreach ($children->items() as $node) {
             $value = $node->_getValue($cur_values,$level + 1);
             if (null !== $result) {
                 $func = $node->getLogic();

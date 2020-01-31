@@ -92,4 +92,11 @@ interface NodeInterface
      */
     public function setOperator($operator);
 
+    /**
+     * @param $cur_value
+     * @param $level
+     * @return bool
+     */
+    public function _getValue($cur_value,$level);
+
 }

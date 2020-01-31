@@ -8,15 +8,13 @@
 
 namespace App\Library\ArrayModel\LogicTree;
 
-use ArrayAccess;
-use Iterator;
 use Countable;
 
 /**
  * Class LinkList
  * @package App\Library\ArrayModel\LogicTree
  */
-class LinkList implements ArrayAccess,Iterator,Countable
+class LinkList implements Countable
 {
     /**
      * Link to the first node in the list
@@ -41,18 +39,6 @@ class LinkList implements ArrayAccess,Iterator,Countable
      */
     private $logic;
 
-
-    /**
-     * @var LinkList
-     */
-    private $current;
-
-
-    /**
-     * @var int
-     */
-    private $offset;
-
     /**
      * LinkList constructor.
      */
@@ -61,105 +47,6 @@ class LinkList implements ArrayAccess,Iterator,Countable
         $this->first_node = NULL;
         $this->last_node = NULL;
         $this->count = 0;
-    }
-
-    /**
-     * Assigns a value to the specified offset
-     *
-     * @param int $offset ,The offset to assign the value to
-     * @param mixed  $value ,The value to set
-     * @return $this;
-     * @access public
-     * @abstracting ArrayAccess
-     */
-    public function offsetSet($offset,$value) {
-        if($offset > $this->count){
-            return $this->insertLast($value);
-        }
-        $node = $this->getNode($offset);
-        return $this->replaceNode($node,$value);
-    }
-
-    /**
-     * Whether or not an offset exists
-     *
-     * @param string $offset ,An offset to check for
-     * @access public
-     * @return boolean
-     * @abstracting ArrayAccess
-     */
-    public function offsetExists($offset) {
-        return (null !== $this->getNode($offset));
-    }
-
-    /**
-     * Unsets an offset
-     *
-     * @param string $offset ,The offset to unset
-     * @return $this
-     * @access public
-     * @abstracting ArrayAccess
-     *
-     */
-    public function offsetUnset($offset) {
-        if ($this->offsetExists($offset)) {
-            $node=$this->getNode($offset);
-            return $this->removeNode($node);
-        }
-        return $this;
-    }
-
-    /**
-     * Returns the value at specified offset
-     *
-     * @param string $offset ,The offset to retrieve
-     * @access public
-     * @return NodeInterface
-     * @abstracting ArrayAccess
-     */
-    public function offsetGet($offset) {
-        return $this->offsetExists($offset) ? $this->getNode($offset) : null;
-    }
-
-    /**
-     * @return LinkList
-     */
-    function rewind() {
-        $this->current = $this->first_node;
-        $this->offset = 0;
-        return $this->current;
-    }
-
-    /**
-     * @return NodeInterface
-     */
-    function current() {
-        return $this->current;
-    }
-
-    /**
-     * @return int|null
-     */
-    function key() {
-        return $this->offset;
-    }
-
-    /**
-     * @return NodeInterface|null
-     */
-    function next() {
-        $current = $this->current();
-        $this->current = $current->getNext();
-        $this->offset++;
-        return $this->current;
-    }
-
-    /**
-     * @return bool
-     */
-    function valid() {
-        $current = $this->current();
-        return null !== $current->getNext();
     }
 
     /**
@@ -283,13 +170,10 @@ class LinkList implements ArrayAccess,Iterator,Countable
             return $this;
         }
         if(1 == $this->count){
-            $this->current = $this->first_node = $this->last_node = null;
+            $this->first_node = $this->last_node = null;
             return $this;
         }
         $this->count--;
-        if($this->first_node === $this->current){
-            $this->current = $this->current()->getNext();
-        }
         $this->first_node = $this->getFirst()->getNext();
         $this->first_node->setFirstFlag(true);
 
@@ -308,9 +192,6 @@ class LinkList implements ArrayAccess,Iterator,Countable
             return $this;
         }
         $this->count--;
-        if($this->first_node === $this->current){
-            $this->current = $this->current()->getPrev();
-        }
         $this->last_node = $this->getLast()->getPrev();
         return $this;
     }
@@ -321,9 +202,6 @@ class LinkList implements ArrayAccess,Iterator,Countable
      * @return $this|LinkList
      */
     public function removeNode($node){
-        if($node === $this->current){
-            $this->current = $this->current()->getPrev();
-        }
         $prev = $node->getPrev();
         if(null == $prev){
             return $this->removeFirst();
@@ -355,9 +233,6 @@ class LinkList implements ArrayAccess,Iterator,Countable
         if(null === $next){
             $this->last_node = $newNode;
         }
-        if($node === $this->current){
-            $this->current = $newNode;
-        }
         return $this;
     }
 
@@ -367,10 +242,7 @@ class LinkList implements ArrayAccess,Iterator,Countable
      * @return $this
      */
     public function insertBefore($node,$newNode){
-        if(true == $node->getFirstFlag()){
-            $node->setFirstFlag(false);
-            $newNode->setFirstFlag(true);
-        }
+        if(true == $node->getFirstFlag()){}
         $prev = $node->getPrev();
         $prev->setNext($newNode);
         $newNode->setPrev($prev);
@@ -442,6 +314,18 @@ class LinkList implements ArrayAccess,Iterator,Countable
      */
     public function getLast(){
         return $this->last_node;
+    }
+
+    /**
+     * @return \Generator
+     */
+    public function items(){
+        $current = $this->getFirst();
+        while(null !== $current)
+        {
+            yield $current;
+            $current = $current->getNext();
+        }
     }
 
 }

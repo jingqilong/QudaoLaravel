@@ -15,7 +15,7 @@ class QueryBuilder extends SortedList
     /**
      * _fields
      *
-     * @var Fields
+     * @var Fields $_fields
      * @access public
      */
     public $_fields;
@@ -55,7 +55,7 @@ class QueryBuilder extends SortedList
     /**
      * _ons
      *
-     * @var Ons
+     * @var Ons $_ons
      * @access public
      */
     public $_ons = null;
@@ -63,7 +63,7 @@ class QueryBuilder extends SortedList
     /**
      * _wheres
      *
-     * @var Wheres
+     * @var Wheres $_wheres
      * @access public
      */
     public $_wheres = null;
@@ -71,7 +71,7 @@ class QueryBuilder extends SortedList
     /**
      * _order_bys
      *
-     * @var array
+     * @var OrderBys $_order_bys
      * @access public
      */
     public $_order_bys;
@@ -79,7 +79,7 @@ class QueryBuilder extends SortedList
     /**
      * _group_bys
      *
-     * @var array
+     * @var GroupBys $_group_bys
      * @access public
      */
     public $_group_bys;
@@ -439,24 +439,22 @@ class QueryBuilder extends SortedList
 
     /**
      * @param null $keys
-     * @param int $level
      * @return array|null
      */
-    public function getForeignKeys(&$keys=null,$level=0){
+    public function getForeignKeys(&$keys=null){
         if($this->_ons instanceof Ons){
-            return $this->_ons->getForeignKeys($keys,$level);
+            return $this->_ons->getForeignKeys($keys);
         }
         return $keys;
     }
 
     /**
      * @param null $keys
-     * @param int $level
      * @return array|null
      */
-    public function getLocalKeys(&$keys=null,$level=0){
+    public function getLocalKeys(&$keys=null){
         if($this->_ons instanceof Ons){
-            return $this->_ons->getLocalKeys($keys,$level);
+            return $this->_ons->getLocalKeys($keys);
         }
         return $keys;
     }
@@ -499,7 +497,7 @@ class QueryBuilder extends SortedList
      * @param int $level
      * @return bool
      */
-    public function addItem($item,$path,$level=0){
+    public function addDataItem($item,$path,$level=0){
         $key = $item[$path[$level]] ?? '';
         if('' == $key){
             $this->data[] = $item;
@@ -509,6 +507,7 @@ class QueryBuilder extends SortedList
         if (!isset($this->data[$key])) {
             $this->data[$key] = QueryBuilder::of();
         }
+        /** @var QueryBuilder $child */
         $child = $this->data[$key];
         return $child->addDataItem($item,$path,$level+1);
     }
@@ -568,7 +567,7 @@ class QueryBuilder extends SortedList
      * @param $row
      * @return bool
      */
-    protected function filterbyWhere($row){
+    protected function filterByWhere($row){
         return $this->_wheres->_getValue($row);
     }
 
@@ -615,8 +614,6 @@ class QueryBuilder extends SortedList
 
         }
         return $result;
-
     }
-
 
 }

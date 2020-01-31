@@ -5,7 +5,6 @@
  * Date: 2020-01-27
  * Time: 20:10
  */
-
 namespace App\Library\ArrayModel\LogicTree;
 
 /**
@@ -20,7 +19,7 @@ trait NodeTrait
      *
      * @var array
      */
-    public static $operator_name = [
+    protected static $operator_name = [
         "=" => 'eq',
         "!=" => 'neq',
         ">" => 'gt',
@@ -36,7 +35,7 @@ trait NodeTrait
      *
      * @var array
      */
-    public static $name_operator = [
+    protected static $name_operator = [
         "eq"  => "=",
         "neq" => "!=",
         'gt'  => ">" ,
@@ -265,6 +264,5 @@ trait NodeTrait
         }
         return strlen($value) - strlen($needle) == strrpos($value,$needle,-1);
     }
-
 
 }

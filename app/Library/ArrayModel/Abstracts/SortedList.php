@@ -14,7 +14,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Data : Keep the data of Array
      *
-     * @var array
+     * @var $data SortedList[]
      * @access protected
      */
     protected $data = [];
@@ -85,6 +85,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
         $key = $keys[$level];
         if(isset($this->data[$key])){
             if($this->data[$key] instanceof SortedList){
+                /* @var $data SortedList[] */
                 return $this->data[$key]->findByKeys($keys,$level+1);
             }else{
                 return $this->data[$key];
@@ -304,6 +305,5 @@ class SortedList implements ArrayAccess,Countable,Iterator
     public function __toString(){
         return $this->toString() . "";
     }
-
 
 }

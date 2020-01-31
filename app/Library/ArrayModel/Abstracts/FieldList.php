@@ -29,9 +29,10 @@ class FieldList
      *
      * fields_string
      *
-     * @var
+     * @var string
      */
-    public $fields_string;
+    protected $fields_string;
+
 
     /**
      * FieldList constructor.
@@ -52,7 +53,7 @@ class FieldList
      * @param $field
      * @return string
      */
-    public function extractAlias($field){
+    protected function extractAlias($field){
         return strstr($field, '.', true);
     }
 
@@ -61,7 +62,7 @@ class FieldList
      * @param $field
      * @return array
      */
-    public static function extractField($field){
+    protected static function extractField($field){
         $exploded = explode(".", preg_replace('/\s+/', '', $field));
         if(2 !== count($exploded)){
             throw new InvalidArgumentException("incorrect value for '$field'! should be 'table.field'");
@@ -90,7 +91,7 @@ class FieldList
      *
      * @return string
      */
-    public function _toSql(){
+    protected function _toSql(){
         return $this->fields_string;
     }
 

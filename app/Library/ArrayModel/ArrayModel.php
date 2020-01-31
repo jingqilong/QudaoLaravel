@@ -28,7 +28,9 @@ class ArrayModel
      */
     public $result;
 
-
+    /**
+     * ArrayModel constructor.
+     */
     public function __construct()
     {
         $this->query = QueryBuilder::of();
@@ -356,6 +358,5 @@ class ArrayModel
     public function getForeignKeyValues($alias,$field){
         return $this->query->pluck($alias,$field);
     }
-
 
 }
