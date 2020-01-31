@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Bardo
- * Date: 2020-01-24
- * Time: 12:13
+ * User: Bardeen
+ * Date: 2020-01-26
+ * Time: 2:21
  */
 
 namespace App\Library\ArrayModel\LogicTree;
@@ -14,27 +14,12 @@ namespace App\Library\ArrayModel\LogicTree;
  */
 interface NodeInterface
 {
-    /**
-     * @return NodeInterface
-     */
-    public function getPrev();
-
-    /**
-     * @return NodeInterface
-     */
-    public function getNext();
 
     /**
      * @param NodeInterface $node
      * @return NodeInterface
      */
     public function addNext(NodeInterface $node);
-
-    /**
-     * @param NodeInterface $node
-     * @return NodeInterface
-     */
-    public function setPrev(NodeInterface $node);
 
     /**
      * @param NodeInterface|null $node
@@ -48,17 +33,63 @@ interface NodeInterface
     public function getBracketsNode();
 
     /**
-     * @return bool
+     * @return NodeInterface
      */
-    public function hasNext();
+    public function getPrev();
 
     /**
-     * @return bool
+     * @param NodeInterface $node
+     * @return NodeInterface
      */
-    public function hasPrev();
+    public function setPrev($node);
+
+    /**
+     * @return NodeInterface
+     */
+    public function getNext();
+
+    /**
+     * @param NodeInterface $node
+     * @return NodeInterface
+     */
+    public function setNext($node);
+
+
+    /**
+     * @return int
+     */
+    public function getLogic();
+
+
+    /**
+     * @return int
+     */
+    public function getNodeType();
+
+    /**
+     * @return string
+     */
+    public function _toSql();
+
+    /**
+     * @param $flag
+     * @return mixed
+     */
+    public function setFirstFlag($flag);
 
     /**
      * @return mixed
      */
-    public function couldInsert();
+    public function getFirstFlag();
+    /**
+     * @return string
+     */
+    public function getLogicString();
+
+    /**
+     * @param $operator
+     * @return ExpressionNode
+     */
+    public function setOperator($operator);
+
 }

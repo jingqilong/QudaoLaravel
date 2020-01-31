@@ -41,7 +41,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @param $data
      *
      */
-    private function __construct($data = null)
+    protected function __construct($data = null)
     {
         if(null !== $data)
             $this->data = $data;

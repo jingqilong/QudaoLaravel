@@ -1,137 +1,488 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Bardo
- * Date: 2020-01-24
- * Time: 11:59
+ * User: Bardeen
+ * Date: 2020-01-26
+ * Time: 2:09
  */
-
 namespace App\Library\ArrayModel\LogicTree;
 
-
-class BracketsNode extends Node
+/**
+ * Class BracketsNode
+ * @package App\Library\ArrayModel\LogicTree
+ */
+class BracketsNode extends Node implements NodeInterface
 {
+    use NodeTrait;
 
     /**
-     * @var null
+     * @var int
      */
-    public $Logic_Operator = null;
+    public $node_type = TreeConstants::NODE_TYPE_AGGREGATE;
 
     /**
-     * @var array
+     * @var null|string
      */
-    public $tmp_brackets = [];
+    public $node_logic = null;
 
     /**
-     * @var null
+     * @var null|string
      */
-    public $hold_key = null;
+    public $inner_logic = null;
 
     /**
-     * @param $node
-     * @return mixed
+     * @var null|array
      */
-    public function holdBrackets($node){
-        $this->tmp_brackets[] = $node;
-        return max(array_keys($this->tmp_brackets));
+    public $children = [];
+
+    /**
+     * @var bool
+     */
+    public $reduced = false;
+
+    /**
+     * BracketsNode constructor.
+     */
+    public function __construct()
+    {
+        $this->children[TreeConstants::LOGIC_AND] = new LinkList();
+        $this->children[TreeConstants::LOGIC_OR] = new LinkList();
     }
 
     /**
-     * @param $hold_key
+     * @param $logic
+     * @return NodeInterface
+     */
+    public function firstChild($logic)
+    {
+        return $this->getChildren($logic)->getFirst();
+    }
+
+    /**
+     * @param $logic
+     * @return NodeInterface|Node
+     */
+    public function getLast($logic)
+    {
+        return $this->getChildren($logic)->getLast();
+    }
+
+    /**
+     * @param $logic
+     * @param $node
+     * @return $this
+     */
+    public function setLast($logic, $node)
+    {
+        return $this->getChildren($logic)->insertLast($node);
+    }
+
+    /**
+     * @param $logic
+     * @return LinkList
+     */
+    public function getChildren($logic)
+    {
+        return $this->children[$logic];
+    }
+
+    /**
      * @return bool
      */
-    public function removeBrackets($hold_key){
-        unset($this->tmp_brackets[$hold_key]);
+    public function isEmpty()
+    {
+        $count = count($this->children[TreeConstants::LOGIC_AND])
+            + count($this->children[TreeConstants::LOGIC_OR]);
+        return (0 == $count);
+    }
+
+    /**
+     * @param array $expression
+     * @param null $logic
+     * @param $operator
+     * @return ExpressionNode
+     */
+    public function newNode($expression,$logic,$operator){
+        $node = parent::newNode($expression,$logic,$operator);
+        return $node;
+    }
+
+    /**
+     * @param int $logic
+     * @return NodeInterface
+     */
+    public function newBracketsNode($logic)
+    {
+        return parent::newBracketsNode($logic);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface
+     */
+    public function addNext(NodeInterface $node)
+    {
+        $logic = $node->getLogic();
+        $this->getChildren($logic)->addNode($node);
+        return $node;
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node|bool
+     */
+    public function _addNode(NodeInterface $node)
+    {
+        if ($node instanceof BracketsNode) {
+            return $this->_addBracketsNode($node);
+        }
+        $logic = $node->getLogic();
+        return $this->getChildren($logic)->addNode($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node|bool
+     */
+    public function _addBracketsNode(NodeInterface $node)
+    {
+        if ($node instanceof ExpressionNode) {
+            return $this->_addNode($node);
+        }
+        $logic = $node->getLogic();
+        return $this->getChildren($logic)->addNode($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return $this|NodeInterface|Node
+     */
+    public function _addLeftNode(NodeInterface $node)
+    {
+        $logic = $node->getLogic();
+        $children = $this->getChildren($logic);
+        $old_node = $children->getFirst();
+        if (null === $old_node) {
+            return $children->insertFirst($node);
+        }
+        return $children->insertBefore($old_node, $node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return $this|NodeInterface|Node
+     */
+    public function _addAndNode(NodeInterface $node)
+    {
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return $this|NodeInterface|Node
+     */
+    public function _addOrNode(NodeInterface $node)
+    {
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node
+     */
+    public function _addLeftBracketsNode(NodeInterface $node)
+    {
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node
+     */
+    public function _addAndBracketsNode(NodeInterface $node)
+    {
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node
+     */
+    public function _addOrBracketsNode(NodeInterface $node)
+    {
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param array |Node $nodes
+     * @return NodeInterface|Node
+     */
+    public function _addAndNodes(...$nodes)
+    {
+        foreach ($nodes as $key => $node) {
+            $this->_addAndNode($node);
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $nodes
+     * @return NodeInterface|Node
+     */
+    public function _addOrNodes(...$nodes)
+    {
+        foreach ($nodes as $key => $node) {
+            $this->_addOrNode($node);
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $expression
+     * @param string $logic
+     * @param $operator
+     * @return NodeInterface
+     */
+    public function addNode($expression = [], $logic = '',$operator)
+    {
+        $node = $this->newNode($expression, $logic,$operator);
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param array $expression
+     * @param $operator
+     * @return NodeInterface
+     */
+    public function addAndNode($expression = [],$operator)
+    {
+        $node = $this->newNode($expression, TreeConstants::LOGIC_AND,$operator);
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param array $expression
+     * @param $operator
+     * @return NodeInterface
+     */
+    public function addOrNode($expression = [],$operator)
+    {
+        $node = $this->newNode($expression, TreeConstants::LOGIC_OR,$operator);
+        return $this->addNext($node);
+    }
+
+    /**
+     * @param array ...$expressions
+     * @return $this
+     */
+    public function addAndNodes(...$expressions)
+    {
+        $logic = TreeConstants::LOGIC_AND;
+        foreach ($expressions as $expression) {
+            $node = $this->newNode($expression, $logic,'');
+            $this->addNext($node);
+        }
+        return $this;
+    }
+
+    /**
+     * @param ...$expressions
+     * @return $this
+     */
+    public function addOrNodes(...$expressions)
+    {
+        $logic = TreeConstants::LOGIC_OR;
+        foreach ($expressions as $expression) {
+            $node = $this->newNode($expression, $logic,'');
+            $this->addNext($node);
+        }
+        return $this;
+    }
+
+    /**
+     * @param $logic
+     * @return NodeInterface
+     */
+    public function addBracketsNode($logic)
+    {
+        $node = $this->newBracketsNode($logic);
+        $this->addNext($node);
+        return $node;
+    }
+
+    /**
+     * @return NodeInterface
+     */
+    public function addAndBracketsNode()
+    {
+        $logic = TreeConstants::LOGIC_AND;
+        $node = $this->newBracketsNode($logic);
+        $this->addNext($node);
+        return $node;
+    }
+
+    /**
+     * @return NodeInterface
+     */
+    public function addOrBracketsNode()
+    {
+        $logic = TreeConstants::LOGIC_OR;
+        $node = $this->newBracketsNode($logic);
+        $this->addNext($node);
+        return $node;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInnerLogic()
+    {
+        $or_children = $this->children[TreeConstants::LOGIC_OR];
+        if (0 < count($or_children)) {
+            return TreeConstants::LOGIC_OR;
+        }
+        return TreeConstants::LOGIC_AND;
+    }
+
+    /**
+     * @desc  associative law
+     * @param LinkList $children
+     * @param BracketsNode|NodeInterface $child
+     * @param $logic
+     * @return bool
+     */
+    protected function associativeNodes($children, $child, $logic)
+    {
+        $sub_children = $child->getChildren($logic);
+        foreach ($sub_children as $sub_child) {
+            if (TreeConstants::NODE_TYPE_AGGREGATE == $sub_child->getNodeType()) {
+                continue;
+            }
+            $children->insertFirst($sub_child);
+            $sub_children->removeNode($sub_child);
+        }
+        return true;
+    }
+
+    /**
+     * @desc commutative law
+     * @param LinkList $children
+     * @param BracketsNode|NodeInterface $child
+     * @param bool $is_push
+     * @return bool
+     */
+    protected function commutativeNodes($children, $child, $is_push = true)
+    {
+        $children->removeNode($child);
+        if (true === $is_push) {
+            $children->insertLast($child);
+        } else {
+            $children->insertFirst($child);
+        }
+        return true;
+    }
+
+    /**
+     * @param $logic
+     * @return bool
+     */
+    public function reduceNodes($logic){
+        $children = $this->getChildren($logic);
+        foreach ($children as $child) {
+            if ($child instanceof BracketsNode) {
+                if (true === $child->reduced) {
+                    continue;
+                }
+                $child->reduceLogic();
+                if ($logic == $child->getInnerLogic()) {//reduce and-or-and to and-and-or
+                    $this->associativeNodes($children, $child, $logic);
+                    if ($child->isEmpty()) {
+                        $children->removeNode($child);
+                    }
+                } else { //reduce and-(and-and) to and-and-and
+                    $is_push = (TreeConstants::LOGIC_OR === $logic);
+                    $this->commutativeNodes($children, $child, $is_push);
+                }
+                $child->reduced = true;
+            }
+        }
         return true;
     }
 
     /**
      * @return bool
      */
-    public function isHolded(){
-        return (null !== $this->hold_key);
+    public function reduceLogic()
+    {
+        $this->reduceNodes(TreeConstants::LOGIC_AND);
+        $this->reduceNodes(TreeConstants::LOGIC_OR);
+        return true;
     }
 
     /**
      * @param $logic
-     * @return mixed
+     * @return string
      */
-    public function removeHoldBrackets($logic){
-
-        $prev = $this->getPrev();
-        if(true === $prev->isHolded()){
-            return $prev->removeHoldBrackets($logic);
+    protected function _toSqlLogic($logic)
+    {
+        $children = $this->getChildren($logic);
+        if (0 == count($children)) {
+            return '';
         }
-    }
-
-    /**
-     * @param $node
-     */
-    public function AddTmpBrackets($node){
-        $node->setPrev($this);
-        $this->hold_key = $this->holdBrackets($node);
-        return $node;
-    }
-
-    /**
-     * @param $node
-     * @return AndBrackets|BracketsNode|OrBrackets
-     */
-    public function addNext($node){
-        if(null !== $node->logic_operator){
-            $new_node = $this->newBrackets($node->logic_operator);
-            $this->removeBrackets($this->hold_key);
-            $new_node->addNext($node);
-            $prev = $this->getPrev();
-            $prev->addBrackets($new_node);
-            $prev->$this->removeHoldBrackets($node->logic_operator);
-            return $new_node;
+        $result = "(";
+        foreach ($children as $node) {
+            $result .= $node->_toSql();
         }
+        return $result . ")";
     }
 
     /**
-     * @param $node
-     * @return AndBrackets
+     * @return string
      */
-    public function addOrNode($node){
-
-    }
-
-    /**
-     * @param $node
-     * @return AndBrackets
-     */
-    public function addAndNode($node){
-        if(null !== $node->logic_operator){
-            $new_node = $this->newBrackets($node->logic_operator);
-            $this->removeBrackets($this->hold_key);
-            $new_node->addNext($node);
-            $this->getPrev()->addBrackets($new_node);
-            return $new_node;
+    public function _toSql()
+    {
+        $result = "";
+        if (false === $this->getFirstFlag()) {
+            $result .= $this->getLogicString();
         }
+        $result .= "(";
+        $result .= $this->_toSqlLogic(TreeConstants::LOGIC_AND);
+        $result .= $this->_toSqlLogic(TreeConstants::LOGIC_OR);
+        return $result . ")";
     }
 
     /**
-     * @param BracketsNode $node
-     * @return $this|AndBrackets|NodeInterface
+     * @param $cur_values
+     * @param $logic
+     * @param $level
+     * @return null
      */
-    public function addBrackets(BracketsNode $node){
-
+    protected function getValueLogic($cur_values,$logic,$level){
+        $result = $value =  null;
+        $children = $this->getChildren($logic);
+        foreach ($children as $node) {
+            $value = $node->_getValue($cur_values,$level + 1);
+            if (null !== $result) {
+                $func = $node->getLogic();
+                $result = $this->$func($result, $value);
+            } else {
+                $result = $value;
+            }
+        }
+        return $result;
     }
 
     /**
-     * @param $node
-     * @return AndBrackets
+     * calculate the value of the where-conditions.
+     *
+     * @param $cur_values
+     * @param int $level
+     * @return mixed|null
      */
-    public function addAndBrackets($node){
-
+    public function _getValue($cur_values,$level = 0){
+        $value_and = $this->getValueLogic($cur_values,TreeConstants::LOGIC_AND,$level);
+        $value_or = $this->getValueLogic($cur_values,TreeConstants::LOGIC_OR,$level);
+        return $this->or($value_and,$value_or);
     }
 
-    /**
-     * @param OrBrackets $node
-     * @return $this|NodeInterface
-     */
-    public function addOrBrackets(OrBrackets $node){
-
-    }
 }

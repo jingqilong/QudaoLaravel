@@ -2,26 +2,58 @@
 
 namespace App\Library\ArrayModel\Query;
 
-use App\Library\ArrayModel\Abstracts\Criteria;
-use App\Library\ArrayModel\Traits\CriteriaTrait;
+use App\Library\ArrayModel\LogicTree\TreeConstants;
+use App\Library\ArrayModel\LogicTree\BracketsNode;
+use App\Library\ArrayModel\LogicTree\ExpressionNode;
+use App\Library\ArrayModel\LogicTree\NodeInterface;
+use App\Library\ArrayModel\LogicTree\Node;
 use Closure;
 
 /**
  * Class Wheres
  * @package App\Library\ArrayModel\Query
  */
-class Wheres extends Criteria
+class Wheres extends BracketsNode
 {
-    use CriteriaTrait;
+    /**
+     * @param array $expression
+     * @param null $logic
+     * @param null $operator
+     * @return ExpressionNode
+     */
+    public function newNode($expression,$logic,$operator=null){
+        return parent::newNode($expression,$logic,$operator);
+    }
 
     /**
-     * create a object statically
-     *
-     * @return Wheres
+     * @param int $logic
+     * @return BracketsNode|NodeInterface
      */
-    public static function of(){
-        $instance = new static();
-        return $instance;
+    public function newBracketsNode($logic){
+        return parent::newBracketsNode($logic);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node|bool
+     */
+    public function _addNode(NodeInterface $node){
+        return parent::_addNode($node);
+    }
+
+    /**
+     * @param NodeInterface|Node $node
+     * @return NodeInterface|Node|bool
+     */
+    public function _addBracketsNode(NodeInterface $node){
+        return parent::_addBracketsNode($node);
+    }
+
+    /**
+     * @return bool
+     */
+    public function reduce(){
+        return $this->reduceLogic();
     }
 
     /**
@@ -34,7 +66,7 @@ class Wheres extends Criteria
      * @return $this
      */
     public function where(...$wheres){
-        $logic = ['','and']; $i=0;
+        $logic = TreeConstants::LOGIC_AND;
         foreach($wheres as $where){
             if($where instanceof Closure){
                 $group = $this->whereBrackets();
@@ -42,8 +74,7 @@ class Wheres extends Criteria
                 $where($group);
                 continue;
             }
-            $this->_addWhere($where,null,$logic[$i]);
-            $i=1;
+            $this->_addWhere($where,null,$logic);
         }
         return $this;
     }
@@ -52,9 +83,8 @@ class Wheres extends Criteria
      * @return Wheres
      */
     public function whereBrackets(){
-        $new_where = self::of();
-        $new_where->_node_type = self::NODE_TYPE_AGGREGATE;
-        $this->_children = $new_where;
+        $new_where = $this->newBracketsNode(TreeConstants::LOGIC_AND);
+        $this->addNext($new_where);
         return $new_where;
     }
 
@@ -189,22 +219,7 @@ class Wheres extends Criteria
      * @return mixed|null
      */
     public function _getValue($cur_values,$level = 0){
-        $result = null;
-        if(self::NODE_TYPE_AGGREGATE == $this->_node_type){
-            foreach ($this->_children as $node) {
-                $value = ($node instanceof Wheres)? $node->_getValue($cur_values,$level + 1) : false;
-                if (null !== $result) {
-                    $func = $node->_logic;
-                    $result = $this->$func($result, $value);
-                } else {
-                    $result = $value;
-                }
-            }
-            return $result;
-        }
-        $value = $cur_values[$this->_field];
-        $result = $this->callByName($value,$this->_criteria_value,$level);
-        return $result;
+         return parent::_getValue($cur_values,$level);
     }
 
     /**
@@ -213,33 +228,10 @@ class Wheres extends Criteria
      * @param array|Closure $where
      * @param $operator
      * @param $logic
-     * @param int $level
      */
-    public function _addWhere($where,$operator=null,$logic='',$level=0){
-        if(0==$level) {
-            $node = Wheres::of();
-            $node->_addWhere($where, $operator, $logic, $level + 1);
-            $this->_children[] = $node;
-        }
-        $this->_node_type = self::NODE_TYPE_EXPRESSION;
-        if(is_array($where)){
-            if(2==count($where)){
-                list($column,$value) = $where;
-                if(empty($operator)){
-                    $operator = 'eq';
-                }
-            }else{
-                list($column,$operator,$value) = $where;
-                $operator = $this->getOperatorName($operator);
-            }
-            $this->_logic = $logic;
-            $field_set = explode('.',$column);
-            list($alias,$field) = $field_set;
-            $this->_alias = $alias;
-            $this->_field = $field;
-            $this->_operator = $operator;
-            $this->_criteria_value = $value;
-        }
+    public function _addWhere($where,$operator=null,$logic=TreeConstants::LOGIC_AND){
+        $new_node = $this->newNode($where,$logic,$operator);
+        $this->_addNode($new_node);
     }
 
     /**
@@ -251,12 +243,9 @@ class Wheres extends Criteria
      * @param int $level
      */
     public function _addWheres($wheres,$inner_logic,$group_logic,$level=0){
-        $node = Wheres::of();
-        $node->_logic = $group_logic;
-        $this->_children[]=$node;
-        $logic = ['',$inner_logic]; $i=0;
+        $node = $this->newBracketsNode($group_logic);
         foreach($wheres as $where){
-            $node->_addWhere($where,null,$logic[$i],$level+1);
+            $node->_addWhere($where,null,$inner_logic,$level+1);
         }
     }
 }

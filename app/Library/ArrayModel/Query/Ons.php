@@ -2,35 +2,16 @@
 
 namespace App\Library\ArrayModel\Query;
 
-use App\Library\ArrayModel\Abstracts\Criteria;
-use App\Library\ArrayModel\Traits\CriteriaTrait;
+use App\Library\ArrayModel\LogicTree\BracketsNode;
+use App\Library\ArrayModel\LogicTree\TreeConstants;
 use Closure;
-use App\Library\ArrayModel\LogicTree\LogicTree;
-
 
 /**
  * Class Ons
  * @package App\Library\ArrayModel\Query
  */
-class Ons extends Criteria
+class Ons extends BracketsNode
 {
-    use CriteriaTrait;
-    /**
-     * LogicTree Node
-     *
-     * @var $logicTree
-     */
-    public $logicTree = null;
-
-    /**
-     * @return LogicTree|null
-     */
-    public function getLogictree(){
-        if(null === $this->logicTree){
-            $this->logicTree = new LogicTree();
-        }
-        return $this->logicTree;
-    }
 
     /**
      * create a empty instance of Ons
@@ -86,7 +67,7 @@ class Ons extends Criteria
      */
     public function onBrackets(){
         $new_on = self::of();
-        $new_on->_node_type = self::NODE_TYPE_AGGREGATE;
+        $new_on->_node_type = TreeConstants::NODE_TYPE_AGGREGATE;
         $this->_children = $new_on;
         return $new_on;
     }
@@ -113,11 +94,11 @@ class Ons extends Criteria
     public function _addOn($on,$operator=null,$logic='',$level=0){
         if(0==$level){
             $node = Ons::of();
-            $node->_node_type = self::NODE_TYPE_AGGREGATE;
+            $node->_node_type = TreeConstants::NODE_TYPE_AGGREGATE;
             $node->_addOn($on,$operator,$logic,$level+1);
             $this->_children[]=$node;
         }
-        $this->_node_type = self::NODE_TYPE_EXPRESSION;
+        $this->_node_type = TreeConstants::NODE_TYPE_EXPRESSION;
         if(is_array($on)){
             if(2==count($on)){
                 list($column,$value) = $on;
@@ -153,7 +134,7 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getForeignKeys($keys,$level+1);
         }
-        if($this->_node_type = self::NODE_TYPE_EXPRESSION) {
+        if($this->_node_type = TreeConstants::NODE_TYPE_EXPRESSION) {
             $keys[] = $this->_field;
         }
         return $keys;
@@ -174,7 +155,7 @@ class Ons extends Criteria
             if($node instanceof Ons)
                 $node->getLocalKeys($keys,$level+1);
         }
-        if($this->_node_type = self::NODE_TYPE_EXPRESSION){
+        if($this->_node_type = TreeConstants::NODE_TYPE_EXPRESSION){
             $keys[]=$this->_criteria_value;
         }
 

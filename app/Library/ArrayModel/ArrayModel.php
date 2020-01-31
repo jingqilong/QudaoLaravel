@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Bardo
+ * User: Bardeen
  * Date: 2020-01-21
  * Time: 21:00
  */
@@ -12,6 +12,10 @@ use App\Library\ArrayModel\Query\QueryBuilder;
 use Closure;
 use BadMethodCallException;
 
+/**
+ * Class ArrayModel
+ * @package App\Library\ArrayModel
+ */
 class ArrayModel
 {
     /**

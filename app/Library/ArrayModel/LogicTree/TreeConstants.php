@@ -1,33 +1,42 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Bardo
+ * User: Bardeen
  * Date: 2020-01-24
  * Time: 12:12
  */
 
 namespace App\Library\ArrayModel\LogicTree;
 
-
+/**
+ * Keep the constants of the library
+ * Class TreeConstants
+ * @package App\Library\ArrayModel\LogicTree
+ */
 class TreeConstants
 {
     /**
+     * Logic Operator "left"
+     */
+    const LOGIC_LEFT = 'left';
+
+    /**
      * Logic Operator "and"
      */
-    const LOGIC_AND = 'And';
+    const LOGIC_AND = 'and';
 
     /**
      * Logic Operator "or"
      */
-    const LOGIC_OR = 'Or';
+    const LOGIC_OR = 'or';
 
     /**
-     * node type: node of brackets
+     * Node which contains the equation such as a=b
      */
-    const NODE_TYPE_BRACKETS = 0;
+    const NODE_TYPE_EXPRESSION   = 0;
 
     /**
-     * node type: node of expression
+     * Node which only has children(brackets node)
      */
-    const NODE_TYPE_EXPRESSION = 1;
+    const NODE_TYPE_AGGREGATE    = 1;
 }

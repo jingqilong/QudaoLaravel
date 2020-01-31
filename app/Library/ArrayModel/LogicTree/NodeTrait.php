@@ -1,58 +1,19 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Bardeen
+ * Date: 2020-01-27
+ * Time: 20:10
+ */
 
-
-namespace App\Library\ArrayModel\Traits;
+namespace App\Library\ArrayModel\LogicTree;
 
 /**
- * Trait CriteriaTrait
- * @package App\Library\ArrayModel\Traits
+ * Class NodeTrait
+ * @package App\Library\ArrayModel\LogicTree
  */
-trait CriteriaTrait
+trait NodeTrait
 {
-
-    public $data;
-
-    /**
-     * _node_type
-     *
-     * @var int
-     */
-    public $_node_type = 0;
-
-    /**
-     * _logic
-     *
-     * @var null
-     */
-    public $_logic = null;
-
-    /**
-     * _alias
-     *
-     * @var string
-     */
-    public $_alias  = '';
-
-    /**
-     * _field
-     *
-     * @var string
-     */
-    public $_field  = '';
-
-    /**
-     * _operator
-     *
-     * @var string
-     */
-    public $_operator  = '';
-
-    /**
-     * _criteria_value
-     *
-     * @var string
-     */
-    public $_criteria_value  = '';
 
     /**
      * Operator to function name
@@ -128,7 +89,7 @@ trait CriteriaTrait
         }
         $func = $this->_operator;
         $result =  $this->$func($value1,$value2);
-        $logic_func = $this->_logic;
+        $logic_func = $this->node_logic;
         if(("" == $logic_func) || (0 < $level))
             return $result;
         return $this->$logic_func($result);
@@ -304,4 +265,6 @@ trait CriteriaTrait
         }
         return strlen($value) - strlen($needle) == strrpos($value,$needle,-1);
     }
+
+
 }

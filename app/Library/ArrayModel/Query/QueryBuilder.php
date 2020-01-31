@@ -58,7 +58,7 @@ class QueryBuilder extends SortedList
      * @var Ons
      * @access public
      */
-    public $_ons = [];
+    public $_ons = null;
 
     /**
      * _wheres
@@ -66,7 +66,7 @@ class QueryBuilder extends SortedList
      * @var Wheres
      * @access public
      */
-    public $_wheres = [];
+    public $_wheres = null;
 
     /**
      * _order_bys
@@ -91,8 +91,20 @@ class QueryBuilder extends SortedList
      */
     public $_result;
 
-
+    /**
+     * @var array
+     */
     private $_array_filter = [];
+
+    /**
+     * QueryBuilder constructor.
+     */
+    public function __construct()
+    {
+        $this->_wheres = new Wheres();
+        $this->_ons = new Ons();
+        parent::__construct();
+    }
 
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
@@ -371,7 +383,7 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * 传入 "key1.key2.key3" 进行搜索
+     * passing "key1.key2.key3" for search
      * @param $pathString
      * @return bool
      */
@@ -404,10 +416,6 @@ class QueryBuilder extends SortedList
      * @return Wheres
      */
     public function _getWhere(){
-        if(null === $this->_wheres){
-            $this->_wheres = Wheres::of();
-            $this->_wheres->_node_type = Wheres::NODE_TYPE_AGGREGATE;
-        }
         return $this->_wheres;
     }
 
@@ -415,9 +423,6 @@ class QueryBuilder extends SortedList
      * @return Ons
      */
     public function _getOn(){
-        if(null === $this->_ons){
-            $this->_ons = Ons::of();
-        }
         return $this->_ons;
     }
 
@@ -505,7 +510,7 @@ class QueryBuilder extends SortedList
             $this->data[$key] = QueryBuilder::of();
         }
         $child = $this->data[$key];
-        return $child->addItem($item,$path,$level+1);
+        return $child->addDataItem($item,$path,$level+1);
     }
 
     /**
@@ -515,7 +520,7 @@ class QueryBuilder extends SortedList
     private function loadData(){
         $path = array_merge($this->_group_bys[$this->_alias], $this->getOrderByFields($this->_alias));
         foreach($this->_from[$this->_alias] as $item){
-            $this->addItem($item,$path);
+            $this->addDataItem($item,$path);
         }
         $order_bys = $this->_order_bys[$this->_alias];
         $this->keySort($order_bys);
@@ -529,7 +534,7 @@ class QueryBuilder extends SortedList
     private function loadJoinData(){
         $path = array_merge($this->getLocalKeys(), $this->getOrderByFields($this->_alias));
         foreach($this->_from[$this->_alias] as $item){
-            $this->addItem($item,$path);
+            $this->addDataItem($item,$path);
         }
         $order_bys = $this->_order_bys[$this->_alias];
         $this->keySort($order_bys);
@@ -537,7 +542,7 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * @param Closure!null $closure
+     * @param Closure|null $closure
      * @return $this
      */
     private function _build(Closure $closure=null){
