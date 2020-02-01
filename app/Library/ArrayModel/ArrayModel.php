@@ -136,11 +136,29 @@ class ArrayModel
     }
 
     /**
-     * @param ...$on
+     * @param $on
      * @return $this
      */
-    public function orOn(...$on){
-        $this->query->orOn(...$on);
+    public function orOn($on){
+        $this->query->orOn($on);
+        return $this;
+    }
+
+    /**
+     * @param $on
+     * @return $this
+     */
+    public function andOn($on){
+        $this->query->andOn($on);
+        return $this;
+    }
+
+    /**
+     * @param $on
+     * @return $this
+     */
+    public function onContains($on){
+        $this->query->onContains($on);
         return $this;
     }
 
@@ -162,6 +180,15 @@ class ArrayModel
      */
     public function where(...$wheres){
         $this->query->where(...$wheres);
+        return $this;
+    }
+
+    /**
+     * @param $where
+     * @return $this
+     */
+    public function orWhere($where){
+        $this->query->orWhere($where);
         return $this;
     }
 
@@ -205,15 +232,6 @@ class ArrayModel
      */
     public function orWhereIn($where){
         $this->query->orWhereIn($where);
-        return $this;
-    }
-
-    /**
-     * @param $where
-     * @return $this
-     */
-    public function orWhere($where){
-        $this->query->orWhere($where);
         return $this;
     }
 

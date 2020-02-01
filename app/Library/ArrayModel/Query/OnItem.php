@@ -28,6 +28,35 @@ class OnItem extends ExpressionNode
      */
     protected $_field_join  = '';
 
+    /**
+     * @var bool
+     */
+    protected $_is_contains = false;
+
+    /**
+     * @param $name
+     * @param $value
+     * @return mixed
+     */
+    public function set($name,$value){
+        if('_operator' == $name){
+            if('contains' == $value){
+                return $this->setContains($value);
+            }
+        }
+        $this->$name = $value;
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    protected function setContains($value){
+        $this->_is_contains = $value;
+        $this->getBracketsNode()->setContains($value);
+        return true;
+    }
+
      /**
      * @return Ons|NodeInterface|null
      */

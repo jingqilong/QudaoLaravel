@@ -101,15 +101,15 @@ class QueryBuilder extends SortedList
      */
     public function __construct()
     {
-        $this->_wheres = new Wheres();
-        $this->_ons = new Ons();
+        $this->_wheres = new Wheres(null);
+        $this->_ons = new Ons(null);
         parent::__construct();
     }
 
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
      * by default "a.*" ,"b.*"
-     * @param string ...$fields
+     * @param string[] ...$fields
      * @return $this
      */
     public function select(...$fields){
@@ -195,6 +195,24 @@ class QueryBuilder extends SortedList
      */
     public function orOn($on){
         $this->_getOn()->orOn($on);
+        return $this;
+    }
+
+    /**
+     * @param $on
+     * @return $this
+     */
+    public function andOn($on){
+        $this->_getOn()->andOn($on);
+        return $this;
+    }
+
+    /**
+     * @param $on
+     * @return $this
+     */
+    public function onContains($on){
+        $this->_getOn()->onContains($on);
         return $this;
     }
 
@@ -411,7 +429,6 @@ class QueryBuilder extends SortedList
         return $result;
     }
 
-
     /**
      * @return Wheres
      */
@@ -464,7 +481,7 @@ class QueryBuilder extends SortedList
      */
     private function _initJoin(){
         $join = $this->_join;
-        $fields = $this->_fields[$join->_alias];
+        $fields = $this->_fields->getFields($join->_alias);
         $join->_fields[$join->_alias] = $fields;
         return true;
     }
@@ -558,6 +575,10 @@ class QueryBuilder extends SortedList
      */
     protected function getFieldsFilter(){
         if(empty($this->_array_filter)){
+            if(null === $this->_fields){
+                $this->_array_filter = ['*'];
+                return $this->_array_filter;
+            }
             $this->_array_filter = $this->_fields->getFilter();
         }
         return $this->_array_filter;
@@ -576,20 +597,20 @@ class QueryBuilder extends SortedList
      * @return QueryBuilder (array|static)
      */
     protected function _query(Closure $closure = null){
-        $result = QueryBuilder::of();
-        $this->_result = $result;
+        $this->_result = $result = QueryBuilder::of();;
         $main_list = $this;
         $with_closure = ($closure instanceof Closure);
-        // select fields
-        $fields_filter = $this->getFieldsFilter();
+        $fields_filter = $this->getFieldsFilter();// select fields
         foreach($main_list as $item){
             if($with_closure){
                 $item = $closure($closure);
             }
-            // filter where
-            if($this->filterbyWhere($item)){
-                // filter select
-                $result[] = array_intersect_key($item, $fields_filter);
+            if($this->filterByWhere($item)){// filter where
+                if(['*'] === $fields_filter){// filter select
+                    $result[] = $item;
+                }else{
+                    $result[] = array_intersect_key($item, $fields_filter);
+                }
             }
         }
         return $result;
@@ -603,10 +624,11 @@ class QueryBuilder extends SortedList
         if(!$this->_join instanceof Join){
             return $this->_query($closure);
         }
-        $result = QueryBuilder::of();
-        $this->_result = $result;
+        $this->_result = $result = QueryBuilder::of();
         $main_list = $this;
         $join_list = $this->_join;
+
+
         $with_closure = ($closure instanceof Closure);
         $fields_filter = $this->getFieldsFilter();
         foreach($main_list as $item){

@@ -116,7 +116,7 @@ class FieldList
      * @return array
      */
     public function getFilter(){
-        $fields = $this ->getFields();
+        $fields = $this->getFields();
         $filter = array_flip($fields);
         return $filter;
     }

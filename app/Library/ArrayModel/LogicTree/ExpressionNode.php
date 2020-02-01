@@ -63,12 +63,14 @@ class ExpressionNode extends Node implements NodeInterface
     protected $properties = [];
 
     /**
-     * Node constructor.
+     * ExpressionNode constructor.
+     * @param $bracketsNode
      * @param array $expression
      * @param string $logic
      * @param string $operator
      */
-    public function __construct($expression=[],$logic=TreeConstants::LOGIC_AND,$operator='='){
+    public function __construct($bracketsNode,$expression=[],$logic=TreeConstants::LOGIC_AND,$operator='='){
+        $this->setBracketsNode($bracketsNode);
         if(!empty($expression)){
             $properties = $this->expressionToArray($expression);
             foreach($properties as $key => $value){
@@ -109,21 +111,23 @@ class ExpressionNode extends Node implements NodeInterface
     }
 
     /**
-     * @param array $expression
+     * @param $bracketsNode
+     * @param $expression
      * @param string $logic
      * @param string $operator
-     * @return ExpressionNode
+     * @return static
      */
-    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
-        return new static($expression,$logic,$operator);
+    public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new static($bracketsNode,$expression,$logic,$operator);
     }
 
     /**
-     * @param int $logic
-     * @return NodeInterface
+     * @param $bracketNode
+     * @param $logic
+     * @return BracketsNode|NodeInterface
      */
-    public static function newBracketsNode($logic){
-        return BracketsNode::newBracketsNode($logic);
+    public static function newBracketsNode($bracketNode,$logic){
+        return BracketsNode::newBracketsNode($bracketNode,$logic);
     }
 
     /**

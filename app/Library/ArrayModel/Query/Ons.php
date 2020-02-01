@@ -3,9 +3,7 @@
 namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\LogicTree\BracketsNode;
-use App\Library\ArrayModel\LogicTree\ExpressionNode;
 use App\Library\ArrayModel\LogicTree\TreeConstants;
-use App\Library\ArrayModel\LogicTree\NodeInterface;
 use Closure;
 
 /**
@@ -15,22 +13,42 @@ use Closure;
 class Ons extends BracketsNode
 {
     /**
-     * @param array $expression
+     * @var bool
+     */
+    protected $_is_contains = false;
+
+    /**
+     * @param $bracketsNode
+     * @param $expression
      * @param string $logic
      * @param string $operator
-     * @return ExpressionNode
+     * @return Onitem
      */
-    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
-        return new static($expression,$logic,$operator);
+    public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new Onitem($bracketsNode,$expression,$logic,$operator);
     }
 
     /**
+     * @param $bracketsNode
      * @param string $logic
-     * @return Wheres|NodeInterface
+     * @return Ons
      */
-    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
-        $new_node = new Ons();
-        return $new_node->setLogic($logic);
+    public static function newBracketsNode($bracketsNode,$logic = TreeConstants::LOGIC_AND){
+        return new Ons($bracketsNode,$logic);
+    }
+
+    /**
+     * @param $value
+     */
+    public function setContains($value){
+        $this->_is_contains = $value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isContains(){
+        return $this->_is_contains;
     }
 
     /**
@@ -128,6 +146,15 @@ class Ons extends BracketsNode
     }
 
     /**
+     * @param $on
+     * @return $this
+     */
+    public function onContains($on){
+        $this->_addOn($on,"contains","and");
+        return $this;
+    }
+
+    /**
      * Add the on-condition to the class
      *
      * @param $on
@@ -135,7 +162,7 @@ class Ons extends BracketsNode
      * @param $logic
      */
     protected function _addOn($on,$operator=null,$logic=TreeConstants::LOGIC_AND){
-        $new_node = static::newNode($on,$logic,$operator);
+        $new_node = static::newNode($this,$on,$logic,$operator);
         $this->_addNode($new_node);
     }
 
@@ -182,8 +209,8 @@ class Ons extends BracketsNode
      * @return array|null
      */
     public function getLocalKeys(&$keys=[]){
-        $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_AND);
-        $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_OR);
+        $this->getLocalKeysLogic($keys,TreeConstants::LOGIC_AND);
+        $this->getLocalKeysLogic($keys,TreeConstants::LOGIC_OR);
         return $keys;
     }
 

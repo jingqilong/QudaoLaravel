@@ -31,4 +31,18 @@ class Fields extends FieldList
         return $this->fields_string;
     }
 
+    /**
+     * @desc Give the default value when the fields is empty.
+     * @param null $alias
+     * @return array|mixed
+     */
+    public function getFields($alias = null)
+    {
+        $fields = parent::getFields($alias);
+        if(0==count($fields)){
+            $fields = ['*'];
+        }
+        return $fields;
+    }
+
 }

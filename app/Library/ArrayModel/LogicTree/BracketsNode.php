@@ -42,31 +42,38 @@ class BracketsNode extends Node implements NodeInterface
 
     /**
      * BracketsNode constructor.
+     * @param $bracketsNode
+     * @param $logic
      */
-    public function __construct()
+    public function __construct($bracketsNode,$logic=TreeConstants::LOGIC_AND)
     {
+        if(null !== $bracketsNode){
+            $this->setBracketsNode($bracketsNode);
+        }
+        $this->setLogic($logic);
         $this->children[TreeConstants::LOGIC_AND] = new LinkList();
         $this->children[TreeConstants::LOGIC_OR] = new LinkList();
+        parent::__construct();
     }
 
     /**
-     * @param array $expression
+     * @param $bracketsNode
+     * @param $expression
      * @param string $logic
      * @param string $operator
-     * @return ExpressionNode
+     * @return static
      */
-    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
-        return ExpressionNode::newNode($expression,$logic,$operator);
+    public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return ExpressionNode::newNode($bracketsNode,$expression,$logic,$operator);
     }
 
     /**
-     * @param $logic
+     * @param $bracketsNode
+     * @param string $logic
      * @return BracketsNode|NodeInterface
-     *
      */
-    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
-        $new_node = new BracketsNode();
-        return $new_node->setLogic($logic);
+    public static function newBracketsNode($bracketsNode, $logic = TreeConstants::LOGIC_AND){
+        return new BracketsNode($bracketsNode,$logic);
     }
 
     /**

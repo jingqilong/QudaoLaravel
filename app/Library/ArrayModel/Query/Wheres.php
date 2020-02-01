@@ -4,8 +4,6 @@ namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\LogicTree\TreeConstants;
 use App\Library\ArrayModel\LogicTree\BracketsNode;
-use App\Library\ArrayModel\LogicTree\ExpressionNode;
-use App\Library\ArrayModel\LogicTree\NodeInterface;
 use Closure;
 
 /**
@@ -15,22 +13,23 @@ use Closure;
 class Wheres extends BracketsNode
 {
     /**
-     * @param array $expression
+     * @param $bracketsNode
+     * @param $expression
      * @param string $logic
      * @param string $operator
-     * @return ExpressionNode
+     * @return WhereItem
      */
-    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
-        return new static($expression,$logic,$operator);
+    public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new WhereItem($bracketsNode,$expression,$logic,$operator);
     }
 
     /**
+     * @param $bracketsNode
      * @param string $logic
-     * @return BracketsNode|NodeInterface
+     * @return Wheres
      */
-    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
-        $new_node = new Wheres();
-        return $new_node->setLogic($logic);
+    public static function newBracketsNode($bracketsNode,$logic = TreeConstants::LOGIC_AND){
+        return new Wheres($bracketsNode,$logic);
     }
 
     /**
@@ -214,7 +213,7 @@ class Wheres extends BracketsNode
      * @param $logic
      */
     protected function _addWhere($where,$operator=null,$logic=TreeConstants::LOGIC_AND){
-        $new_node = static::newNode($where,$logic,$operator);
+        $new_node = static::newNode($this,$where,$logic,$operator);
         $this->_addNode($new_node);
     }
 
