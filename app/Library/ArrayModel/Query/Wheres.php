@@ -16,33 +16,19 @@ class Wheres extends BracketsNode
 {
     /**
      * @param array $expression
-     * @param null $logic
-     * @param null $operator
+     * @param string $logic
+     * @param string $operator
      * @return ExpressionNode
      */
-    public function newNode($expression,$logic,$operator=null){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
-        $new_node = new WhereItem();
-        $node_data = $this->expressionToArray($expression);
-        foreach($node_data as $key =>$value){
-            $new_node->$key = $value;
-        }
-        if(null!==$operator){
-            $new_node->setOperator($operator);
-        }
-        return $new_node->setLogic($logic);
+    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new static($expression,$logic,$operator);
     }
 
     /**
-     * @param int $logic
+     * @param string $logic
      * @return BracketsNode|NodeInterface
      */
-    public function newBracketsNode($logic){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
+    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
         $new_node = new Wheres();
         return $new_node->setLogic($logic);
     }
@@ -228,7 +214,7 @@ class Wheres extends BracketsNode
      * @param $logic
      */
     protected function _addWhere($where,$operator=null,$logic=TreeConstants::LOGIC_AND){
-        $new_node = $this->newNode($where,$logic,$operator);
+        $new_node = static::newNode($where,$logic,$operator);
         $this->_addNode($new_node);
     }
 
@@ -241,7 +227,7 @@ class Wheres extends BracketsNode
      */
     protected function _addWheres($wheres,$inner_logic,$group_logic){
         /** @var  $node Wheres */
-        $node = $this->newBracketsNode($group_logic);
+        $node = static::newBracketsNode($group_logic);
         foreach($wheres as $where){
             $node->_addWhere($where,null,$inner_logic);
         }

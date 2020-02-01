@@ -100,8 +100,8 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @param string $path
      * @return mixed
      */
-    public function findByPath(string $path){
-        $keys = explode('.',$path ."");
+    public function findByPath($path){
+        $keys = explode('.', $path ."");
         return $this->findByKeys($keys);
     }
 

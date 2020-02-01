@@ -14,7 +14,6 @@ namespace App\Library\ArrayModel\LogicTree;
  */
 abstract class Node
 {
-    use NodeTrait;
 
     /**
      * @var null
@@ -62,7 +61,6 @@ abstract class Node
      */
     protected $node_type = null;
 
-
     /**
      * @var bool
      */
@@ -94,45 +92,6 @@ abstract class Node
     public function setLogic($logic){
         $this->node_logic = $logic;
         return $this;
-    }
-
-    /**
-     * @param array $expression
-     * @param null $logic
-     * @return ExpressionNode
-     */
-    /**
-     * @param array $expression
-     * @param null $logic
-     * @param null $operator
-     * @return $this
-     */
-    public function newNode($expression=[],$logic = null, $operator=null){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
-        $new_node = new ExpressionNode();
-        $node_data = $this->expressionToArray($expression);
-        foreach($node_data as $key =>$value){
-            $new_node->$key = $value;
-        }
-        if(null!==$operator){
-            $new_node->setOperator($operator);
-        }
-        return $new_node->setLogic($logic);
-    }
-
-    /**
-     * @param $logic
-     * @return BracketsNode|NodeInterface
-     *
-     */
-    public function newBracketsNode($logic = null){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
-        $new_node = new BracketsNode();
-        return $new_node->setLogic($logic);
     }
 
     /**
@@ -169,9 +128,6 @@ abstract class Node
      * @return bool
      */
     public function hasPrev(){
-        if(TreeConstants::LOGIC_LEFT === $this->node_logic){
-            return false;
-        }
         return (null !== $this->prev_node);
     }
 
@@ -256,18 +212,7 @@ abstract class Node
      * @param $expression
      * @return array
      */
-    public function expressionToArray($expression){
-        $_operator = '=';
-        $field_alias = $_value = "";
-        if(2 == count($expression)){
-            list($field_alias,$_value) = $expression;
-        }elseif(3 == count($expression)){
-            list($field_alias,$_operator,$_value) = $expression;
-        }
-        list($_alias,$_field) = explode(".",$field_alias);
-        $_operator = $this->getOperatorName($_operator);
-        return compact($_alias,$_field,$_operator,$_value);
-    }
+    public function expressionToArray($expression){}
 
     /**
      * @param $operator

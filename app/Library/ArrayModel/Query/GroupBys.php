@@ -14,11 +14,11 @@ class GroupBys extends FieldList
 {
 
     /**
-     * @param string ...$group_bys
+     * @param string[] ...$group_bys
      * @return GroupBys
      * @throws InvalidArgumentException
      */
-    public static function init(string ...$group_bys){
+    public static function init(...$group_bys){
         return parent::parse(...$group_bys);
     }
 

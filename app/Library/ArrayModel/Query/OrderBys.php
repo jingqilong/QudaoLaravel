@@ -19,11 +19,11 @@ class OrderBys extends FieldList
     public $order_by_string;
 
     /**
-     * @param array ...$order_bys
+     * @param string[] ...$order_bys
      * @return OrderBys
      * @throws InvalidArgumentException
      */
-    public static function init(array ...$order_bys){
+    public static function init(...$order_bys){
         $result = $columns =  [];
         foreach ($order_bys as $order_by){
             $direction = $order_by[1]??"desc";

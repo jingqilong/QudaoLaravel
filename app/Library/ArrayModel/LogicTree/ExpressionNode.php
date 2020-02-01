@@ -63,6 +63,24 @@ class ExpressionNode extends Node implements NodeInterface
     protected $properties = [];
 
     /**
+     * Node constructor.
+     * @param array $expression
+     * @param string $logic
+     * @param string $operator
+     */
+    public function __construct($expression=[],$logic=TreeConstants::LOGIC_AND,$operator='='){
+        if(!empty($expression)){
+            $properties = $this->expressionToArray($expression);
+            foreach($properties as $key => $value){
+                $this->$key = $value;
+            }
+        }
+        $this->setLogic($logic);
+        $this->setOperator($this->getOperatorName($operator));
+        parent::__construct();
+    }
+
+    /**
      * @param $name
      * @return mixed
      */
@@ -92,21 +110,20 @@ class ExpressionNode extends Node implements NodeInterface
 
     /**
      * @param array $expression
-     * @param null $logic
-     * @param null $operator
+     * @param string $logic
+     * @param string $operator
      * @return ExpressionNode
      */
-    public function newNode($expression,$logic, $operator=null){
-        $node = parent::newNode($expression,$logic,$operator);
-        return $node;
+    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new static($expression,$logic,$operator);
     }
 
     /**
      * @param int $logic
      * @return NodeInterface
      */
-    public function newBracketsNode($logic){
-        return parent::newBracketsNode($logic);
+    public static function newBracketsNode($logic){
+        return BracketsNode::newBracketsNode($logic);
     }
 
     /**

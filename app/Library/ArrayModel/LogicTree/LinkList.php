@@ -44,15 +44,15 @@ class LinkList implements Countable
      */
     public function __construct()
     {
-        $this->first_node = NULL;
-        $this->last_node = NULL;
+        $this->first_node = $this->last_node = null;
         $this->count = 0;
     }
 
     /**
      * @return mixed
      */
-    public function getLogic(){
+    public function getLogic()
+    {
         return $this->logic;
     }
 
@@ -61,7 +61,7 @@ class LinkList implements Countable
      */
     public function isEmpty()
     {
-        return ($this->first_node == NULL);
+        return (null === $this->first_node);
     }
 
     /**
@@ -71,9 +71,13 @@ class LinkList implements Countable
     public function insertFirst($node)
     {
         $node->setFirstFlag(true);
-        $this->first_node = $node;
-        $this->last_node = $node;
         $this->count++;
+        if(1 == $this->count){
+            $this->first_node = $this->last_node = $node;
+        }
+        $this->first_node->setFirstFlag(false);
+        $node->setNext($this->first_node);
+        $this->first_node = $node;
         return $this;
     }
 
@@ -86,7 +90,7 @@ class LinkList implements Countable
         $prev = $this->getLast();
         $node->setPrev($prev);
         $prev->setNext($node);
-        $this->last_node = & $node;
+        $this->last_node = $node;
         $this->count++;
         return $this;
     }
@@ -96,16 +100,9 @@ class LinkList implements Countable
      * @return null
      */
     public function getNode($node_pos){
-        if($node_pos > $this->count){
-            return NULL;
-        }
-        for($pos = 1,$current = $this->getFirst();
-            $pos <= $node_pos;
-            $pos++) {
+        $current = $this->getFirst();
+        for($pos=0; $pos<=$node_pos; $pos++) {
             $current = $current->getNext();
-            if(null ===  $current){
-                return null;
-            }
         }
         return $current;
     }
@@ -169,14 +166,14 @@ class LinkList implements Countable
         if(0 == $this->count()){
             return $this;
         }
+        $this->count--;
         if(1 == $this->count){
             $this->first_node = $this->last_node = null;
             return $this;
         }
-        $this->count--;
         $this->first_node = $this->getFirst()->getNext();
         $this->first_node->setFirstFlag(true);
-
+        $this->first_node->setPrev(null);
         return $this;
     }
 
@@ -187,12 +184,13 @@ class LinkList implements Countable
         if(0 == $this->count()){
             return $this;
         }
+        $this->count--;
         if(1 == $this->count){
             $this->first_node = $this->last_node = null;
             return $this;
         }
-        $this->count--;
         $this->last_node = $this->getLast()->getPrev();
+        $this->last_node->setNext(null);
         return $this;
     }
 
@@ -218,49 +216,55 @@ class LinkList implements Countable
 
     /**
      * @param NodeInterface $node
-     * @param NodeInterface $newNode
+     * @param NodeInterface $new_node
      * @return $this
      */
-    public function replaceNode($node,$newNode)
+    public function replaceNode($node,$new_node)
     {
         $prev = $node->getPrev();
-        $newNode->setPrev($prev);
+        $new_node->setPrev($prev);
         if(null === $prev){
-            $this->first_node = $newNode;
+            $this->first_node = $new_node;
+            $this->first_node->setFirstFlag(true);
         }
         $next = $node->getNext();
-        $newNode->setNext($next);
+        $new_node->setNext($next);
         if(null === $next){
-            $this->last_node = $newNode;
+            $this->last_node = $new_node;
         }
         return $this;
     }
 
     /**
      * @param NodeInterface $node
-     * @param NodeInterface $newNode
+     * @param NodeInterface $new_node
      * @return $this
      */
-    public function insertBefore($node,$newNode){
-        if(true == $node->getFirstFlag()){}
+    public function insertBefore($node,$new_node){
+        if(true == $node->getFirstFlag()){
+            return $this->insertFirst($new_node);
+        }
         $prev = $node->getPrev();
-        $prev->setNext($newNode);
-        $newNode->setPrev($prev);
-        $newNode->setnext($node);
+        $prev->setNext($new_node);
+        $new_node->setPrev($prev);
+        $new_node->setnext($node);
         $this->count++;
         return $this;
     }
 
     /**
      * @param NodeInterface $node
-     * @param NodeInterface $newNode
+     * @param NodeInterface $new_node
      * @return $this
      */
-    public function insetAfter($node,$newNode){
+    public function insetAfter($node,$new_node){
         $next = $node->getNext();
-        $next->setPrev($newNode);
-        $newNode->setPrev($node);
-        $newNode->setNext($next);
+        if(null === $next){
+            return $this->insertLast($new_node);
+        }
+        $next->setPrev($new_node);
+        $new_node->setPrev($node);
+        $new_node->setNext($next);
         $this->count++;
         return $this;
     }
@@ -279,7 +283,7 @@ class LinkList implements Countable
      * @return LinkList|void
      */
     public function push($node){
-        return $this->addNode($node);
+        return $this->insertLast($node);
     }
 
     /**
@@ -296,10 +300,7 @@ class LinkList implements Countable
      * @return $this
      */
     public function unShift($node){
-        $node->setNext($this->first_node);
-        $this->first_node = $node;
-        $this->count++;
-        return $this;
+        return $this->insertFirst($node);
     }
 
     /**

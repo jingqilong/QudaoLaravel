@@ -63,10 +63,10 @@ class ArrayModel
     /**
      * @desc The format of arguments is 'table.field','table.field' ...
      * by default "a.*" ,"b.*"
-     * @param string ...$fields
+     * @param string[] ...$fields
      * @return $this
      */
-    public function select(string ...$fields){
+    public function select(...$fields){
         $this->query->select(...$fields);
         return $this;
     }
@@ -273,18 +273,18 @@ class ArrayModel
 
     /**
      * @desc The format of arguments is ['table.field','asc'] ,['table.field','asc']  ...
-     * @param array ...$order_bys
+     * @param string[] ...$order_bys
      * @return $this
      */
-    public function orderBy(array ...$order_bys){
+    public function orderBy(...$order_bys){
         return $this->query->orderBy(...$order_bys);
     }
 
     /**
-     * @param string ...$group_bys
+     * @param string[] ...$group_bys
      * @return $this
      */
-    public function groupBy(string ...$group_bys ){
+    public function groupBy(...$group_bys ){
         return $this->query->groupBy(...$group_bys);
     }
 

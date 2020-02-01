@@ -16,33 +16,19 @@ class Ons extends BracketsNode
 {
     /**
      * @param array $expression
-     * @param null $logic
-     * @param null $operator
+     * @param string $logic
+     * @param string $operator
      * @return ExpressionNode
      */
-    public function newNode($expression,$logic,$operator=null){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
-        $new_node = new OnItem();
-        $node_data = $this->expressionToArray($expression);
-        foreach($node_data as $key =>$value){
-            $new_node->$key = $value;
-        }
-        if(null!==$operator){
-            $new_node->setOperator($operator);
-        }
-        return $new_node->setLogic($logic);
+    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return new static($expression,$logic,$operator);
     }
 
     /**
-     * @param int $logic
+     * @param string $logic
      * @return Wheres|NodeInterface
      */
-    public function newBracketsNode($logic){
-        if(null === $logic){
-            $logic = TreeConstants::LOGIC_AND;
-        }
+    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
         $new_node = new Ons();
         return $new_node->setLogic($logic);
     }
@@ -114,7 +100,7 @@ class Ons extends BracketsNode
      * @return Ons
      */
     public function onBrackets(){
-        $new_on = $this->newBracketsNode(TreeConstants::LOGIC_AND);
+        $new_on = static::newBracketsNode(TreeConstants::LOGIC_AND);
         $this->addNext($new_on);
         return $new_on;
     }
@@ -149,7 +135,7 @@ class Ons extends BracketsNode
      * @param $logic
      */
     protected function _addOn($on,$operator=null,$logic=TreeConstants::LOGIC_AND){
-        $new_node = $this->newNode($on,$logic,$operator);
+        $new_node = static::newNode($on,$logic,$operator);
         $this->_addNode($new_node);
     }
 

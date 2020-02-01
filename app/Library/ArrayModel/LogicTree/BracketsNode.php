@@ -50,6 +50,26 @@ class BracketsNode extends Node implements NodeInterface
     }
 
     /**
+     * @param array $expression
+     * @param string $logic
+     * @param string $operator
+     * @return ExpressionNode
+     */
+    public static function newNode($expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
+        return ExpressionNode::newNode($expression,$logic,$operator);
+    }
+
+    /**
+     * @param $logic
+     * @return BracketsNode|NodeInterface
+     *
+     */
+    public static function newBracketsNode($logic = TreeConstants::LOGIC_AND){
+        $new_node = new BracketsNode();
+        return $new_node->setLogic($logic);
+    }
+
+    /**
      * @param $logic
      * @return NodeInterface
      */
@@ -132,7 +152,6 @@ class BracketsNode extends Node implements NodeInterface
         $logic = $node->getLogic();
         return $this->getChildren($logic)->addNode($node);
     }
-
 
     /**
      * @return string

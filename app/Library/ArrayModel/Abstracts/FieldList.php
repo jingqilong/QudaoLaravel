@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Bardo
+ * User: Bardeen
  * Date: 2020-01-22
  * Time: 10:13
  */
@@ -71,11 +71,11 @@ class FieldList
     }
 
     /**
-     * @param string ...$fields
+     * @param string[] ...$fields
      * @return SortedList
      * @throws InvalidArgumentException
      */
-    public static function parse(string ...$fields){
+    public static function parse(...$fields){
         $result = $columns =  [];
         foreach ($fields as $field){
             list($alias,$name) = self::extractField($field);

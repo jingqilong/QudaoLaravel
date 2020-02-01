@@ -18,7 +18,7 @@ class QueryBuilder extends SortedList
      * @var Fields $_fields
      * @access public
      */
-    public $_fields;
+    protected $_fields;
 
     /**
      * _from
@@ -26,7 +26,7 @@ class QueryBuilder extends SortedList
      * @var array
      * @access public
      */
-    public $_from = [];
+    protected $_from = [];
 
     /**
      * _alias
@@ -34,7 +34,7 @@ class QueryBuilder extends SortedList
      * @var string
      * @access public
      */
-    public $_alias = '';
+    protected $_alias = '';
 
     /**
      * _from
@@ -42,7 +42,7 @@ class QueryBuilder extends SortedList
      * @var Join|null
      * @access public
      */
-    public $_join = null;
+    protected $_join = null;
 
     /**
      * _join_type
@@ -50,7 +50,7 @@ class QueryBuilder extends SortedList
      * @var int
      * @access public
      */
-    public $_join_type = 0;
+    protected $_join_type = 0;
 
     /**
      * _ons
@@ -58,7 +58,7 @@ class QueryBuilder extends SortedList
      * @var Ons $_ons
      * @access public
      */
-    public $_ons = null;
+    protected $_ons = null;
 
     /**
      * _wheres
@@ -66,7 +66,7 @@ class QueryBuilder extends SortedList
      * @var Wheres $_wheres
      * @access public
      */
-    public $_wheres = null;
+    protected $_wheres = null;
 
     /**
      * _order_bys
@@ -74,7 +74,7 @@ class QueryBuilder extends SortedList
      * @var OrderBys $_order_bys
      * @access public
      */
-    public $_order_bys;
+    protected $_order_bys;
 
     /**
      * _group_bys
@@ -82,19 +82,19 @@ class QueryBuilder extends SortedList
      * @var GroupBys $_group_bys
      * @access public
      */
-    public $_group_bys;
+    protected $_group_bys;
 
     /**
      * _result
      *
      * @var QueryBuilder
      */
-    public $_result;
+    protected $_result;
 
     /**
      * @var array
      */
-    private $_array_filter = [];
+    protected $_array_filter = [];
 
     /**
      * QueryBuilder constructor.
@@ -112,7 +112,7 @@ class QueryBuilder extends SortedList
      * @param string ...$fields
      * @return $this
      */
-    public function select(string ...$fields){
+    public function select(...$fields){
         $this->_fields =  Fields::init(...$fields);
         return $this;
     }
@@ -323,7 +323,7 @@ class QueryBuilder extends SortedList
      * @param array ...$order_bys
      * @return $this
      */
-    public function orderBy(array ...$order_bys){
+    public function orderBy(...$order_bys){
         $this->_order_bys =  OrderBys::init(...$order_bys);
         return $this;
     }
@@ -332,7 +332,7 @@ class QueryBuilder extends SortedList
      * @param string ...$group_bys
      * @return $this
      */
-    public function groupBy(string ...$group_bys ){
+    public function groupBy(...$group_bys ){
         $this->_group_bys =  GroupBys::init(...$group_bys);
         return $this;
     }

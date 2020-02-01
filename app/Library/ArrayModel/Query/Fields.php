@@ -14,11 +14,11 @@ class Fields extends FieldList
 {
 
     /**
-     * @param string ...$fields
+     * @param string[] ...$fields
      * @return Fields
      * @throws InvalidArgumentException
      */
-    public static function init(string ...$fields){
+    public static function init(...$fields){
         return parent::parse(...$fields);
     }
 
