@@ -163,13 +163,6 @@ class ArrayModel
     }
 
     /**
-     * @return mixed
-     */
-    public function onBrackets(){
-        return $this->query->onBrackets();
-    }
-
-    /**
      * @desc The format of arguments is
      *      Array:  ['a.table.field','=' 'value'] ,['b.table.field','asc']  ...
      *      Closure: function($query)use($data){
@@ -190,13 +183,6 @@ class ArrayModel
     public function orWhere($where){
         $this->query->orWhere($where);
         return $this;
-    }
-
-    /**
-     * @return Query\Wheres
-     */
-    public function whereBrackets(){
-        return $this->query->whereBrackets();
     }
 
     /**
@@ -296,14 +282,6 @@ class ArrayModel
      */
     public function orderBy(...$order_bys){
         return $this->query->orderBy(...$order_bys);
-    }
-
-    /**
-     * @param string[] ...$group_bys
-     * @return $this
-     */
-    public function groupBy(...$group_bys ){
-        return $this->query->groupBy(...$group_bys);
     }
 
     /**

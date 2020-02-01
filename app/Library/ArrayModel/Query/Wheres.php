@@ -52,23 +52,15 @@ class Wheres extends BracketsNode
         $logic = TreeConstants::LOGIC_AND;
         foreach($wheres as $where){
             if($where instanceof Closure){
-                $group = $this->whereBrackets();
+                $group = $this->newBracketsNode($logic);
                 $where->bindTo($group);
                 $where($group);
+                $this->addNext($group);
                 continue;
             }
             $this->_addWhere($where,null,$logic);
         }
         return $this;
-    }
-
-    /**
-     * @return Wheres
-     */
-    public function whereBrackets(){
-        $new_where = $this->newBracketsNode(TreeConstants::LOGIC_AND);
-        $this->addNext($new_where);
-        return $new_where;
     }
 
     /**
@@ -230,5 +222,6 @@ class Wheres extends BracketsNode
         foreach($wheres as $where){
             $node->_addWhere($where,null,$inner_logic);
         }
+        $this->addNext($node);
     }
 }

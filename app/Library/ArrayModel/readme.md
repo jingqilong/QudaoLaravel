@@ -33,7 +33,6 @@
     
     //甚致还可以，
     $model->where(['b.score','>',0])
-    ->groupBy('a.id','b.subject_id')
     ->orderBy(['a.id','adc'],['b.score','desc'])
     $result_b = $model->get()->toArray();
     
@@ -61,6 +60,8 @@
 * 更基础的，多维数组，如何排序与分页？
 
 * 因为以上各类初级的写法，程序效率非常低下。
+
+* Laravel的elequent ORM已经把PHP用到极致，可以说是行业内顶级的ORM了。（我敢说，没有人能再写出比此更好的。除非编程语言再改进，那它也会升级）但是，对于多次查询以后再进行联表这一类更深层次的需求还是没有考虑到。实际上是没有考虑到码农的问题。
 
 * 上网寻找同类组件时，只找到了ArrayJoin，可这个组件，几乎与码农写的无差别。同样是嵌套foreach。没有办法，只能自己撸一个了。
 
@@ -224,15 +225,13 @@
   例如：$arrayModel->andOn(['a.image_ids','contains','b.image_id'])
 
 * on()与闭包
-  通过闭包以及括号，可以实现复杂的关联条件。
+  通过闭包，可以实现复杂的关联条件。
   例如:
   on(function($query){
-    return $query->on(('a.id'='b.student_id'))
-    ->onBrackets()
-      ->orOn(['a.gender','b.gender'])
+    return $query->on(['a.gender','b.gender'])
       ->andOn(['a.subject_id','b.subject_id']);
   })
-  那么，以上就是 on(('a.id'='b.student_id') or(('a.gender'='b.gender')and('a.subject_id'='b.subject_id')))
+  那么，以上就是 or(('a.gender'='b.gender')and('a.subject_id'='b.subject_id'))
    
 * ArrayModel::onContains($on)
   参数：$on 为联表条件。格式为['a.image_ids','b.image_id']

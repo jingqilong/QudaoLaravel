@@ -37,13 +37,6 @@ class WhereItem extends ExpressionNode
     }
 
     /**
-     * @return Wheres
-     */
-    public function whereBrackets(){
-        return $this->getBracketsNode()->whereBrackets();
-    }
-
-    /**
      * @param $where
      * @return $this
      */

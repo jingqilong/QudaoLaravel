@@ -102,25 +102,15 @@ class Ons extends BracketsNode
         $logic = TreeConstants::LOGIC_AND;
         foreach($ons as $on){
             if($on instanceof Closure){
-                $group = $this->onBrackets();
+                $group = static::newBracketsNode($logic);
                 $on->bindTo($group);
                 $on($group);
+                $this->addNext($group);
                 continue;
             }
             $this->_addOn($on,null,$logic);
         }
         return $this;
-    }
-
-    /**
-     * using the brackets "()" to change the logic calculating.
-     *
-     * @return Ons
-     */
-    public function onBrackets(){
-        $new_on = static::newBracketsNode(TreeConstants::LOGIC_AND);
-        $this->addNext($new_on);
-        return $new_on;
     }
 
     /**

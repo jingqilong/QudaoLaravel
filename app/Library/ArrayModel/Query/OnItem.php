@@ -45,6 +45,7 @@ class OnItem extends ExpressionNode
             }
         }
         $this->$name = $value;
+        return $this;
     }
 
     /**
@@ -73,15 +74,6 @@ class OnItem extends ExpressionNode
      */
     public function on(...$ons){
         return $this->getBracketsNode()->on(...$ons);
-    }
-
-    /**
-     * using the brackets "()" to change the logic calculating.
-     *
-     * @return Ons
-     */
-    public function onBrackets(){
-        return $this->getBracketsNode()->onBrackets();
     }
 
     /**

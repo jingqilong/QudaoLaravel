@@ -77,14 +77,6 @@ class QueryBuilder extends SortedList
     protected $_order_bys;
 
     /**
-     * _group_bys
-     *
-     * @var GroupBys $_group_bys
-     * @access public
-     */
-    protected $_group_bys;
-
-    /**
      * _result
      *
      * @var QueryBuilder
@@ -183,13 +175,6 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * @return mixed
-     */
-    public function onBrackets(){
-        return $this->_getOn()->onBrackets();
-    }
-
-    /**
      * @param $on
      * @return $this
      */
@@ -228,13 +213,6 @@ class QueryBuilder extends SortedList
     public function where(...$wheres){
         $this->_getWhere()->where(...$wheres);
         return $this;
-    }
-
-    /**
-     * @return Wheres
-     */
-    public function whereBrackets(){
-        return $this->_getWhere()->whereBrackets();
     }
 
     /**
@@ -347,15 +325,6 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * @param string ...$group_bys
-     * @return $this
-     */
-    public function groupBy(...$group_bys ){
-        $this->_group_bys =  GroupBys::init(...$group_bys);
-        return $this;
-    }
-
-    /**
      * @param Closure|null $closure
      * @return QueryBuilder
      */
@@ -391,10 +360,6 @@ class QueryBuilder extends SortedList
 
         if($this->_order_bys instanceof OrderBys){
             $result .= $this->_order_bys->_toSql();
-        }
-
-        if($this->_group_bys instanceof GroupBys){
-            $result .= $this->_group_bys->_toSql();
         }
 
         return $result;
@@ -534,7 +499,7 @@ class QueryBuilder extends SortedList
      * @return bool
      */
     private function loadData(){
-        $path = array_merge($this->_group_bys[$this->_alias], $this->getOrderByFields($this->_alias));
+        $path = $this->getOrderByFields($this->_alias);
         foreach($this->_from[$this->_alias] as $item){
             $this->addDataItem($item,$path);
         }
