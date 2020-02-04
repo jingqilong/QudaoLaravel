@@ -11,6 +11,8 @@ namespace App\Library\ArrayModel\LogicTree;
 /**
  * Class Node
  * @package App\Library\ArrayModel\LogicTree
+ * @abstract
+ * @author Bardeen
  */
 abstract class Node
 {

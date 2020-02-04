@@ -9,6 +9,7 @@ use Closure;
 /**
  * Class Wheres
  * @package App\Library\ArrayModel\Query
+ * @author Bardeen
  */
 class Wheres extends BracketsNode
 {
@@ -18,6 +19,7 @@ class Wheres extends BracketsNode
      * @param string $logic
      * @param string $operator
      * @return WhereItem
+     * @static
      */
     public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
         return new WhereItem($bracketsNode,$expression,$logic,$operator);
@@ -27,6 +29,7 @@ class Wheres extends BracketsNode
      * @param $bracketsNode
      * @param string $logic
      * @return Wheres
+     * @static
      */
     public static function newBracketsNode($bracketsNode,$logic = TreeConstants::LOGIC_AND){
         return new Wheres($bracketsNode,$logic);

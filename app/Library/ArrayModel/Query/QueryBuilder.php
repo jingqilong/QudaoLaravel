@@ -9,6 +9,7 @@ use Closure;
 /**
  * Class QueryBuilder
  * @package App\Library\ArrayModel\Query
+ * @author Bardeen
  */
 class QueryBuilder extends SortedList
 {
@@ -89,6 +90,11 @@ class QueryBuilder extends SortedList
     protected $_array_filter = [];
 
     /**
+     * @var array
+     */
+    protected $_join_closure = [];
+
+    /**
      * QueryBuilder constructor.
      */
     public function __construct()
@@ -99,34 +105,41 @@ class QueryBuilder extends SortedList
     }
 
     /**
+     * @return mixed
+     */
+    protected function getJoinClosure(){
+        return $this->_join_closure[0];
+    }
+
+    /**
      * @desc The format of arguments is 'table.field','table.field' ...
      * by default "a.*" ,"b.*"
      * @param string[] ...$fields
      * @return $this
      */
     public function select(...$fields){
-        $this->_fields =  Fields::init(...$fields);
+        $this->_fields =  Fields::newFields(...$fields);
         return $this;
     }
 
     /**
-     * @param $src_array
+     * @param $left_src
      * @param $alias
      * @return $this
      */
-    public function from($src_array, $alias){
-        $this->_from[$alias] = $src_array;
+    public function from($left_src, $alias){
+        $this->_from[$alias] = $left_src;
         $this->_alias = $alias;
         return $this;
     }
 
     /**
-     * @param $join_array
+     * @param $right_src
      * @param $alias
      * @return $this
      */
-    public function join($join_array, $alias){
-        $this->_join[$alias] = Join::init($join_array,$alias,Join::INNER_JOIN);
+    public function join($right_src, $alias){
+        $this->_join[$alias] = Join::newJoin($this,$right_src,$alias,Join::INNER_JOIN);
         return $this;
     }
 
@@ -136,17 +149,7 @@ class QueryBuilder extends SortedList
      * @return $this
      */
     public function leftJoin($join_array, $alias){
-        $this->_join[$alias]  = Join::init($join_array,$alias,Join::LEFT_JOIN);
-        return $this;
-    }
-
-    /**
-     * @param $join_array
-     * @param $alias
-     * @return $this
-     */
-    public function rightJoin($join_array, $alias){
-        $this->_join[$alias]  = Join::init($join_array,$alias,Join::RIGHT_JOIN);
+        $this->_join[$alias]  = Join::newJoin($this,$join_array,$alias,Join::LEFT_JOIN);
         return $this;
     }
 
@@ -156,7 +159,7 @@ class QueryBuilder extends SortedList
      * @return $this
      */
     public function innerJoin($join_array, $alias){
-        $this->_join = Join::init($join_array,$alias,Join::INNER_JOIN);
+        $this->_join = Join::newJoin($this,$join_array,$alias,Join::INNER_JOIN);
         return $this;
     }
 
@@ -320,7 +323,7 @@ class QueryBuilder extends SortedList
      * @return $this
      */
     public function orderBy(...$order_bys){
-        $this->_order_bys =  OrderBys::init(...$order_bys);
+        $this->_order_bys =  OrderBys::newOrderBy(...$order_bys);
         return $this;
     }
 
@@ -329,7 +332,8 @@ class QueryBuilder extends SortedList
      * @return QueryBuilder
      */
     public function execute(Closure $closure = null){
-        return $this->_build($closure);
+        $this->_join_closure[0] = $closure;
+        return $this->_build();
     }
 
     /**
@@ -337,7 +341,8 @@ class QueryBuilder extends SortedList
      * @return QueryBuilder
      */
     public function get(Closure $closure = null){
-        return $this->_build($closure);
+        $this->_join_closure[0] = $closure;
+        return $this->_build();
     }
 
     /**
@@ -361,7 +366,6 @@ class QueryBuilder extends SortedList
         if($this->_order_bys instanceof OrderBys){
             $result .= $this->_order_bys->_toSql();
         }
-
         return $result;
     }
 
@@ -419,43 +423,12 @@ class QueryBuilder extends SortedList
         return [];
     }
 
-    /**
-     * @param null $keys
-     * @return array|null
-     */
-    public function getForeignKeys(&$keys=null){
-        if($this->_ons instanceof Ons){
-            return $this->_ons->getForeignKeys($keys);
-        }
-        return $keys;
-    }
-
-    /**
-     * @param null $keys
-     * @return array|null
-     */
-    public function getLocalKeys(&$keys=null){
-        if($this->_ons instanceof Ons){
-            return $this->_ons->getLocalKeys($keys);
-        }
-        return $keys;
-    }
-
-    /**
-     * @return bool
-     */
-    private function _initJoin(){
-        $join = $this->_join;
-        $fields = $this->_fields->getFields($join->_alias);
-        $join->_fields[$join->_alias] = $fields;
-        return true;
-    }
 
     /**
      * @param $order_bys
      * @return bool
      */
-    public function keySort($order_bys){
+    public function keySortOrderBy($order_bys){
         $order_by = 'asc';
         if(isset($order_bys[$this->_key])){
             $order_by = $order_bys[$this->_key];
@@ -467,10 +440,24 @@ class QueryBuilder extends SortedList
         }
         foreach($this->data as $item){
             if($item instanceof QueryBuilder){
-                $item->keySort($order_bys);
+                $item->keySortOrderBy($order_bys);
             }
         }
-        return true;
+        return $this;
+    }
+
+    /**
+     * @desc load the data for sort and join
+     * @return bool
+     */
+    protected function loadData(){
+        $path = $this->getOrderByFields($this->_alias);
+        foreach($this->_from[$this->_alias] as $item){
+            $this->addDataItem($item,$path);
+        }
+        $order_bys = $this->_order_bys[$this->_alias];
+        $this->keySortOrderBy($order_bys);
+        return $this;
     }
 
     /**
@@ -483,7 +470,7 @@ class QueryBuilder extends SortedList
         $key = $item[$path[$level]] ?? '';
         if('' == $key){
             $this->data[] = $item;
-            return true;
+            return $this;
         }
         $this->_key = $key;
         if (!isset($this->data[$key])) {
@@ -495,44 +482,14 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * @desc load the data for sort and join
-     * @return bool
-     */
-    private function loadData(){
-        $path = $this->getOrderByFields($this->_alias);
-        foreach($this->_from[$this->_alias] as $item){
-            $this->addDataItem($item,$path);
-        }
-        $order_bys = $this->_order_bys[$this->_alias];
-        $this->keySort($order_bys);
-        return true;
-    }
-
-    /**
-     * @desc load the data for sort and join
-     * @return bool
-     */
-    private function loadJoinData(){
-        $path = array_merge($this->getLocalKeys(), $this->getOrderByFields($this->_alias));
-        foreach($this->_from[$this->_alias] as $item){
-            $this->addDataItem($item,$path);
-        }
-        $order_bys = $this->_order_bys[$this->_alias];
-        $this->keySort($order_bys);
-        return true;
-    }
-
-    /**
-     * @param Closure|null $closure
      * @return $this
      */
-    private function _build(Closure $closure=null){
+    private function _build(){
         if($this->_join instanceof QueryBuilder){
-            $this->_initJoin();
-            $this->_join->loadJoinData();
+            $this->_join->loadData();
         }
         $this->loadData();
-        return $this->makeJoin($closure);
+        return $this->makeJoin();
     }
 
     /**
@@ -565,42 +522,78 @@ class QueryBuilder extends SortedList
         $this->_result = $result = QueryBuilder::of();;
         $main_list = $this;
         $with_closure = ($closure instanceof Closure);
-        $fields_filter = $this->getFieldsFilter();// select fields
+        $this->getFieldsFilter();// select fields
         foreach($main_list as $item){
             if($with_closure){
                 $item = $closure($closure);
             }
-            if($this->filterByWhere($item)){// filter where
-                if(['*'] === $fields_filter){// filter select
-                    $result[] = $item;
-                }else{
-                    $result[] = array_intersect_key($item, $fields_filter);
-                }
-            }
+            $this->filterResult($result,$item);
         }
         return $result;
     }
 
     /**
-     * @param Closure|null $closure
      * @return QueryBuilder (array|static)
      */
-    public function makeJoin(Closure $closure = null){
+    public function makeJoin(){
+        $closure = $this->getJoinClosure();
         if(!$this->_join instanceof Join){
             return $this->_query($closure);
         }
-        $this->_result = $result = QueryBuilder::of();
+        $this->_result = QueryBuilder::of();
         $main_list = $this;
-        $join_list = $this->_join;
-
-
-        $with_closure = ($closure instanceof Closure);
-        $fields_filter = $this->getFieldsFilter();
-        foreach($main_list as $item){
-            //contains or not?
-
+        $this->getFieldsFilter();
+        $ons_keys = $this->_ons->getOnsKeys();
+        foreach($main_list as $left_item){
+            $this->_join->joinItemByKey($ons_keys,$left_item,[$this,'mergeResult']);
         }
-        return $result;
+        return $this->_result;
+    }
+
+    /**
+     * @param $left_item
+     * @param $foreign_keys
+     * @return mixed
+     */
+    protected function getLeftKeys($left_item,$foreign_keys){
+        $left_key = [];
+        foreach($foreign_keys as $key => $value){
+            if('contains' == strtolower($value)){
+                $left_key[$key] = explode(',',$left_item[$key]."");
+            }
+            $left_key[$key] = $left_item[$key];
+        }
+        return $left_key;
+    }
+
+    /**
+     * @param $result
+     * @param $item
+     */
+    protected function filterResult(& $result,$item){
+        if($this->filterByWhere($item)){// filter where
+            if(['*'] === $this->_array_filter){// filter select
+                $result[] = $item;
+            }else{
+                $result[] = array_intersect_key($item, $this->_array_filter);
+            }
+        }
+    }
+
+    /**
+     * @param $left_item
+     * @param $right_item
+     */
+    public function mergeResult($left_item,$right_item){
+        /** @var Closure $closure */
+        $closure = $this->getJoinClosure();
+        $with_closure = ($closure instanceof Closure);
+        if($with_closure){
+            $item = $closure($left_item,$right_item);
+        }else{
+            $item = array_merge($left_item,$right_item);
+        }
+        $this->filterResult($this->_result,$item);
     }
 
 }

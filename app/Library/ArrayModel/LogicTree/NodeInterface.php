@@ -11,6 +11,7 @@ namespace App\Library\ArrayModel\LogicTree;
 /**
  * Interface NodeInterface
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
 interface NodeInterface
 {

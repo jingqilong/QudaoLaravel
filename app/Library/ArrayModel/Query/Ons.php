@@ -9,6 +9,7 @@ use Closure;
 /**
  * Class Ons
  * @package App\Library\ArrayModel\Query
+ * @author Bardeen
  */
 class Ons extends BracketsNode
 {
@@ -23,6 +24,7 @@ class Ons extends BracketsNode
      * @param string $logic
      * @param string $operator
      * @return Onitem
+     * @static
      */
     public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
         return new Onitem($bracketsNode,$expression,$logic,$operator);
@@ -32,6 +34,7 @@ class Ons extends BracketsNode
      * @param $bracketsNode
      * @param string $logic
      * @return Ons
+     * @static
      */
     public static function newBracketsNode($bracketsNode,$logic = TreeConstants::LOGIC_AND){
         return new Ons($bracketsNode,$logic);
@@ -67,13 +70,6 @@ class Ons extends BracketsNode
         list($_alias_join,$_field_join) = explode(".",$_field_join);
         $_operator = $this->getOperatorName($_operator);
         return compact($_alias,$_field,$_operator,$_alias_join,$_field_join);
-    }
-
-    /**
-     * @return bool
-     */
-    public function reduce(){
-        return $this->reduceLogic();
     }
 
     /**
@@ -157,6 +153,60 @@ class Ons extends BracketsNode
     }
 
     /**
+     * @param int $key_type
+     * @param int $level
+     * @return array
+     */
+    public function getOnsKeys($key_type=TreeConstants::KEY_FORIEGN,$level=0){
+        $ons_and =$this->getOnsKeysOfAnd($key_type,$level);
+        $ons_or = $this->getOnsKeysOfOr($key_type,$level);
+        $ons = array_merge($ons_and,$ons_or);
+        return $ons;
+    }
+
+    /**
+     * @param $key_type
+     * @param int $level
+     * @return array
+     */
+    public function getOnsKeysOfOr($key_type,$level=0){
+        $logic = TreeConstants::LOGIC_OR;
+        $children = $this->getChildren($logic);
+        $ons = [];
+        /** @var  $child Ons|OnItem */
+        foreach($children->items() as $child){
+            $ons[] = $child->getOnsKeys($key_type,$level+1);
+        }
+        return $ons;
+    }
+
+    /**
+     * @param $key_type
+     * @param int $level
+     * @return array
+     */
+    public function getOnsKeysOfAnd($key_type,$level=0){
+        $logic = TreeConstants::LOGIC_AND;
+        $children = $this->getChildren($logic);
+        /** @var  $child Ons|OnItem */
+        $child = $children->getFirst();
+        $ons = $child->getOnsKeys($key_type,++$level);
+        if($child->hasNext()){
+            /** @var  $next Ons|OnItem */
+            $next = $child->getNext();
+            $ons['children'] = $next->getOnsKeys($key_type,++$level);
+        }
+        return $ons;
+    }
+
+    /**
+     * @return bool
+     */
+    public function reduce(){
+        return $this->reduceLogic();
+    }
+
+    /**
      * @param $keys
      * @param $logic
      */
@@ -177,30 +227,6 @@ class Ons extends BracketsNode
     public function getForeignKeys(&$keys=[]){
         $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_AND);
         $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_OR);
-        return $keys;
-    }
-
-    /**
-     * @param $keys
-     * @param $logic
-     */
-    protected function getLocalKeysLogic(&$keys,$logic){
-        $children = $this->getChildren($logic);
-        /** @var  $child Ons|OnItem */
-        foreach($children->items() as $child){
-            $child->getLocalKeys($keys);
-        }
-    }
-
-    /**
-     * get the local keys from the on-conditions.
-     *
-     * @param array $keys
-     * @return array|null
-     */
-    public function getLocalKeys(&$keys=[]){
-        $this->getLocalKeysLogic($keys,TreeConstants::LOGIC_AND);
-        $this->getLocalKeysLogic($keys,TreeConstants::LOGIC_OR);
         return $keys;
     }
 

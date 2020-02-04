@@ -15,6 +15,7 @@ use BadMethodCallException;
 /**
  * Class ArrayModel
  * @package App\Library\ArrayModel
+ * @author Bardeen
  */
 class ArrayModel
 {
@@ -98,16 +99,6 @@ class ArrayModel
      */
     public function leftJoin($join_array, $alias){
         $this->query->leftJoin($join_array, $alias);
-        return $this;
-    }
-
-    /**
-     * @param $join_array
-     * @param $alias
-     * @return $this
-     */
-    public function rightJoin($join_array, $alias){
-        $this->query->rightJoin($join_array, $alias);
         return $this;
     }
 

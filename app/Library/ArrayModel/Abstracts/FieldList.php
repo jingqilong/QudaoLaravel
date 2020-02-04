@@ -13,6 +13,7 @@ use InvalidArgumentException;
 /**
  * Class FieldList
  * @package App\Library\ArrayModel\Abstracts
+ * @author Bardeen
  */
 class FieldList
 {
@@ -61,6 +62,7 @@ class FieldList
      * Extract the fields from string
      * @param $field
      * @return array
+     * @static
      */
     protected static function extractField($field){
         $exploded = explode(".", preg_replace('/\s+/', '', $field));
@@ -74,8 +76,9 @@ class FieldList
      * @param string[] ...$fields
      * @return SortedList
      * @throws InvalidArgumentException
+     * @static
      */
-    public static function parse(...$fields){
+    public static function newFields(...$fields){
         $result = $columns =  [];
         foreach ($fields as $field){
             list($alias,$name) = self::extractField($field);

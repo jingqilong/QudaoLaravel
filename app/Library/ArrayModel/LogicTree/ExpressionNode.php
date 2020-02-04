@@ -11,6 +11,7 @@ namespace App\Library\ArrayModel\LogicTree;
 /**
  * Class ExpressionNode
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
 class ExpressionNode extends Node implements NodeInterface
 {
@@ -116,6 +117,7 @@ class ExpressionNode extends Node implements NodeInterface
      * @param string $logic
      * @param string $operator
      * @return static
+     * @static
      */
     public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
         return new static($bracketsNode,$expression,$logic,$operator);
@@ -125,6 +127,7 @@ class ExpressionNode extends Node implements NodeInterface
      * @param $bracketNode
      * @param $logic
      * @return BracketsNode|NodeInterface
+     * @static
      */
     public static function newBracketsNode($bracketNode,$logic){
         return BracketsNode::newBracketsNode($bracketNode,$logic);

@@ -8,6 +8,7 @@ use InvalidArgumentException;
 /**
  * Class OrderBys
  * @package App\Library\ArrayModel\Query
+ * @author Bardeen
  */
 class OrderBys extends FieldList
 {
@@ -22,8 +23,9 @@ class OrderBys extends FieldList
      * @param string[] ...$order_bys
      * @return OrderBys
      * @throws InvalidArgumentException
+     * @static
      */
-    public static function init(...$order_bys){
+    public static function newOrderBy(...$order_bys){
         $result = $columns =  [];
         foreach ($order_bys as $order_by){
             $direction = $order_by[1]??"desc";

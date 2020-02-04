@@ -12,6 +12,11 @@ use App\Library\ArrayModel\LogicTree\ExpressionNode;
 use App\Library\ArrayModel\LogicTree\NodeInterface;
 use Closure;
 
+/**
+ * Class WhereItem
+ * @package App\Library\ArrayModel\Query
+ * @author Bardeen
+ */
 class WhereItem extends ExpressionNode
 {
 

@@ -6,8 +6,8 @@
 
 ```
     ArrayModel::select('a.id','a.name','a.age','b.subject','b.score')
-    ->from($src_array, 'a')
-    ->join($score_array,'b')
+    ->from($student_list, 'a')
+    ->join($score_list,'b')
     ->on(['a.id','=','b.student_id')
     ->where(['b.score','>=',60])
     ->get()
@@ -28,11 +28,11 @@
     $result = $model->get()->toArray();
     
     //接下来你还可以
-    $model->where(['b.score','>',0])
+    $model->where(['b.score','>=',60])
     $result_a = $model->get()->toArray();
     
     //甚致还可以，
-    $model->where(['b.score','>',0])
+    $model->where(['b.score','>=',0])
     ->orderBy(['a.id','adc'],['b.score','desc'])
     $result_b = $model->get()->toArray();
     
@@ -85,7 +85,7 @@
   
 * 支持通过selet进行结果字段筛选。  
 
-* 支持：innerJoin, leftJoin, rightJoin
+* 支持：innerJoin, leftJoin
 
 * 支持多种复杂条件筛选。
 
@@ -169,7 +169,7 @@
    
 #### 关联关系
 
-关联关系支持: innerJoin, leftJoin，rightJoin
+关联关系支持: innerJoin, leftJoin
 
 * ArrayModel::join($join_array, $alias)
   参数:$join_array 要处理的从数组，类似数据库的从表。
@@ -188,12 +188,7 @@
        $alias 别名，一定要传。因为程序是依据别名进行处理的。
   示例：$arrayModel->leftJoin($score, 'b')
   说明：leftJoin时，从表无记录，则会自动添加空记录。
-     
-* ArrayModel::rightJoin($join_array, $alias)
-  参数:$join_array 要处理的从数组，类似数据库的从表。
-       $alias 别名，一定要传。因为程序是依据别名进行处理的。
-  示例：$arrayModel->rightJoin($score, 'b')
-  说明：rightJoin时，主表无记录，则会自动添加空记录。        
+    
 
 #### 关联条件
 
@@ -366,12 +361,13 @@
   参数：$closure，可以不传。但如果有特别的需求，那可以通过此闭包实现在同一循环中奖其它需求处理完成。
   比如联表后，要将状态数字转换为中文的状态名称。或者把日期格式转换一下。
   闭包示例：
-  $arrayModel->get(function($main_arr,$sub_arr){
-       $main_arr['created_at] = date('Y年m月d日'，$sub_arr['created_at']);
-       $main_arr['score] = $sub_arr['score'];
-       return $main_arr;
+  $arrayModel->get(function($left_item,$right_item){
+       $left_item['created_at] = date('Y年m月d日'，$right_item['created_at']);
+       $left_item['score] = $right_item['score'];
+       return $left_item;
     });
-  闭包包括两个参数，第一个是主表记录，第二个则是关联的从表的记录。  
+  闭包包括两个参数，第一个是主表记录，第二个则是关联的从表的记录。
+  这就是说，如果你没有JOIN，那么，此闭包就只有一个参数。
   注意：一旦使用闭包，那么，主从表记录合并的方式必须由你全部在闭包中完成。
   
 * ArrayModel::toArray()
@@ -406,23 +402,3 @@
 
 * 3、自定义函数表支持。通过自定义函数表，从而可以让用户少写一些闭包。更方便使用。
 
-## 版权与授权
-
-### 版权
-  
-    CopyRight: Bardo QI 
-    Email: 67158925@qq.com
-  
-### 授权
-  
-    MIT license
-    
-## 技术支持
-   
-    QQ: 67158925
-    
-## 捐赠
-    
-如果你觉得本组件好，希望能持续支持与改进，请您帮我买杯咖啡！
-    
-    

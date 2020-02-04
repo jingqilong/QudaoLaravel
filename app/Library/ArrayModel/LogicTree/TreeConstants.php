@@ -12,13 +12,10 @@ namespace App\Library\ArrayModel\LogicTree;
  * Keep the constants of the library
  * Class TreeConstants
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
 class TreeConstants
 {
-    /**
-     * Logic Operator "left"
-     */
-    const LOGIC_LEFT = 'left';
 
     /**
      * Logic Operator "and"
@@ -39,4 +36,14 @@ class TreeConstants
      * Node which only has children(brackets node)
      */
     const NODE_TYPE_AGGREGATE    = 1;
+
+    /**
+     * Key for on condition data structure
+     */
+    const KEY_FORIEGN = 0;
+
+    /**
+     * Key for on condition data structure
+     */
+    const KEY_LOCAL   = 1;
 }

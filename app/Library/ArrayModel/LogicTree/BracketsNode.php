@@ -10,6 +10,7 @@ namespace App\Library\ArrayModel\LogicTree;
 /**
  * Class BracketsNode
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
 class BracketsNode extends Node implements NodeInterface
 {
@@ -31,7 +32,7 @@ class BracketsNode extends Node implements NodeInterface
     protected $inner_logic = null;
 
     /**
-     * @var LinkList children[]
+     * @var LinkedList children[]
      */
     protected $children = [];
 
@@ -51,8 +52,8 @@ class BracketsNode extends Node implements NodeInterface
             $this->setBracketsNode($bracketsNode);
         }
         $this->setLogic($logic);
-        $this->children[TreeConstants::LOGIC_AND] = new LinkList();
-        $this->children[TreeConstants::LOGIC_OR] = new LinkList();
+        $this->children[TreeConstants::LOGIC_AND] = new LinkedList();
+        $this->children[TreeConstants::LOGIC_OR] = new LinkedList();
         parent::__construct();
     }
 
@@ -62,6 +63,7 @@ class BracketsNode extends Node implements NodeInterface
      * @param string $logic
      * @param string $operator
      * @return static
+     * @static
      */
     public static function newNode($bracketsNode,$expression,$logic=TreeConstants::LOGIC_AND, $operator='='){
         return ExpressionNode::newNode($bracketsNode,$expression,$logic,$operator);
@@ -71,6 +73,7 @@ class BracketsNode extends Node implements NodeInterface
      * @param $bracketsNode
      * @param string $logic
      * @return BracketsNode|NodeInterface
+     * @static
      */
     public static function newBracketsNode($bracketsNode, $logic = TreeConstants::LOGIC_AND){
         return new BracketsNode($bracketsNode,$logic);
@@ -106,7 +109,7 @@ class BracketsNode extends Node implements NodeInterface
 
     /**
      * @param $logic
-     * @return LinkList
+     * @return LinkedList
      */
     public function getChildren($logic)
     {
@@ -173,8 +176,8 @@ class BracketsNode extends Node implements NodeInterface
     }
 
     /**
-     * @desc  associative law
-     * @param LinkList $children
+     * @desc  associative law (结合律，去括号，向上合并)
+     * @param LinkedList $children
      * @param BracketsNode|NodeInterface $child
      * @param $logic
      * @return bool
@@ -189,12 +192,12 @@ class BracketsNode extends Node implements NodeInterface
             $children->insertFirst($sub_child);
             $sub_children->removeNode($sub_child);
         }
-        return true;
+        return $this;
     }
 
     /**
-     * @desc commutative law
-     * @param LinkList $children
+     * @desc commutative law (交换律，移到最后，或移到最前)
+     * @param LinkedList $children
      * @param BracketsNode|NodeInterface $child
      * @param bool $is_push
      * @return bool
@@ -207,10 +210,11 @@ class BracketsNode extends Node implements NodeInterface
         } else {
             $children->insertFirst($child);
         }
-        return true;
+        return $this;
     }
 
     /**
+     * Reduce the logic tree
      * @param $logic
      * @return bool
      */
@@ -218,7 +222,7 @@ class BracketsNode extends Node implements NodeInterface
         $children = $this->getChildren($logic);
         foreach ($children->items() as $child) {
             if ($child instanceof BracketsNode) {
-                if (true === $child->reduced) {
+                if (true === $child->reduced) {//if is reduced
                     continue;
                 }
                 $child->reduceLogic();
@@ -234,7 +238,7 @@ class BracketsNode extends Node implements NodeInterface
                 $child->reduced = true;
             }
         }
-        return true;
+        return $this;
     }
 
     /**
@@ -244,7 +248,7 @@ class BracketsNode extends Node implements NodeInterface
     {
         $this->reduceNodes(TreeConstants::LOGIC_AND);
         $this->reduceNodes(TreeConstants::LOGIC_OR);
-        return true;
+        return $this;
     }
 
     /**

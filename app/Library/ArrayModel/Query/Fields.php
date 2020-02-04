@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\Abstracts\FieldList;
@@ -9,6 +8,7 @@ use InvalidArgumentException;
 /**
  * Class Fields
  * @package App\Library\ArrayModel\Query
+ * @author Bardeen
  */
 class Fields extends FieldList
 {
@@ -17,9 +17,10 @@ class Fields extends FieldList
      * @param string[] ...$fields
      * @return Fields
      * @throws InvalidArgumentException
+     * @static
      */
-    public static function init(...$fields){
-        return parent::parse(...$fields);
+    public static function newFields(...$fields){
+        return parent::newFields(...$fields);
     }
 
     /**

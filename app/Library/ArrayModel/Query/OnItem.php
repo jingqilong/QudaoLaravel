@@ -10,8 +10,14 @@ namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\LogicTree\ExpressionNode;
 use App\Library\ArrayModel\LogicTree\NodeInterface;
+use App\Library\ArrayModel\LogicTree\TreeConstants;
 use Closure;
 
+/**
+ * Class OnItem
+ * @package App\Library\ArrayModel\Query
+ * @author Bardeen
+ */
 class OnItem extends ExpressionNode
 {
     /**
@@ -55,7 +61,7 @@ class OnItem extends ExpressionNode
     protected function setContains($value){
         $this->_is_contains = $value;
         $this->getBracketsNode()->setContains($value);
-        return true;
+        return $this;
     }
 
      /**
@@ -87,24 +93,32 @@ class OnItem extends ExpressionNode
     }
 
     /**
+     * @param array $ons
+     * @param int $key_type ,KEY_FORIEGN KEY_LOCAL
+     * @param int $level
+     */
+    public function getOnsKeys(&$ons=[],$key_type=TreeConstants::KEY_FORIEGN,$level=0){
+        $item = [
+            'node_logic' => $this->node_logic,
+            'field' => $this->_field,
+            'operator' => $this->_operator,
+            'field_join' => $this->_field_join
+        ];
+        $item['key_name'] = $this->_field;
+        if(TreeConstants::KEY_LOCAL == $key_type){
+            $item['key_name'] = $this->_field_join;
+        }
+        $ons[$level][$key] = $item;
+    }
+
+    /**
      * get the foreign keys from the on-conditions.
      *
      * @param array $keys
      * @return array|null
      */
     public function getForeignKeys(&$keys=[]){
-        $keys[] = $this->_field;
-        return $keys;
-    }
-
-    /**
-     * get the local keys from the on-conditions.
-     *
-     * @param array $keys
-     * @return array|null
-     */
-    public function getLocalKeys(&$keys=[]){
-        $keys[] = $this->_field_join;
+        $keys[$this->_field] = $this->_operator;
         return $keys;
     }
 

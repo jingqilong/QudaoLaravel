@@ -11,10 +11,11 @@ namespace App\Library\ArrayModel\LogicTree;
 use Countable;
 
 /**
- * Class LinkList
+ * Class LinkedList
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
-class LinkList implements Countable
+class LinkedList implements Countable
 {
     /**
      * Link to the first node in the list
@@ -40,7 +41,7 @@ class LinkList implements Countable
     private $logic;
 
     /**
-     * LinkList constructor.
+     * LinkedList constructor.
      */
     public function __construct()
     {
@@ -109,7 +110,7 @@ class LinkList implements Countable
 
     /**
      * @param NodeInterface $node
-     * @return LinkList|void
+     * @return LinkedList|void
      */
     public function addNode($node){
         if(0 == $this->count){
@@ -197,7 +198,7 @@ class LinkList implements Countable
 
     /**
      * @param NodeInterface $node
-     * @return $this|LinkList
+     * @return $this|LinkedList
      */
     public function removeNode($node){
         $prev = $node->getPrev();
@@ -280,7 +281,7 @@ class LinkList implements Countable
 
     /**
      * @param $node
-     * @return LinkList|void
+     * @return LinkedList|void
      */
     public function push($node){
         return $this->insertLast($node);
@@ -304,7 +305,7 @@ class LinkList implements Countable
     }
 
     /**
-     * @return null|NodeInterface
+     * @return null|NodeInterface|
      */
     public function getFirst(){
         return $this->first_node;

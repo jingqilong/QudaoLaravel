@@ -6,18 +6,31 @@
  * Time: 20:10
  */
 namespace App\Library\ArrayModel\LogicTree;
-
+/**
+ * @property string _operator
+ */
 /**
  * Class NodeTrait
  * @package App\Library\ArrayModel\LogicTree
+ * @author Bardeen
  */
 trait NodeTrait
 {
+    /**
+     * @var string
+     */
+    protected $_operator;
+
+    /**
+     * @var string
+     */
+    protected $node_logic;
 
     /**
      * Operator to function name
      *
      * @var array
+     * @static
      */
     protected static $operator_name = [
         "=" => 'eq',
@@ -34,6 +47,7 @@ trait NodeTrait
      * function name to operator
      *
      * @var array
+     * @static
      */
     protected static $name_operator = [
         "eq"  => "=",

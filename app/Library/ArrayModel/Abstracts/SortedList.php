@@ -2,11 +2,13 @@
 
 namespace App\Library\ArrayModel\Abstracts;
 
+use App\Library\ArrayModel\LogicTree\TreeConstants;
 use ArrayAccess,Countable,Iterator ;
 
 /**
  * Class SortedList
  * @package App\Library\ArrayModel\Abstracts
+ * @author Bardeen
  */
 class SortedList implements ArrayAccess,Countable,Iterator
 {
@@ -14,7 +16,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
     /**
      * Data : Keep the data of Array
      *
-     * @var $data SortedList[]
+     * @var $data array[]|SortedList[]
      * @access protected
      */
     protected $data = [];
@@ -52,6 +54,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
      *
      * @param null $data
      * @return static
+     * @static
      */
     public static function of($data = null){
         $instance = new static($data);
@@ -64,6 +67,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
      * @param $src_array
      * @param $key
      * @return SortedList
+     * @static
      */
     public static function ofKey($src_array, $key = 'key'){
         $result_array = [];
@@ -133,10 +137,9 @@ class SortedList implements ArrayAccess,Countable,Iterator
      */
     public function createEmpty($keys,$default=''){
         $values = array_fill(0, count($keys), $default);
-        $data[0] = array_combine($keys, $values);
-        $instance = new self($data);
-        return $instance;
+        return array_combine($keys, $values);
     }
+
 
     /**
      * get a value from the specified property
