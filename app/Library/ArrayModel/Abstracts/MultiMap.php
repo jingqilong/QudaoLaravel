@@ -12,6 +12,10 @@ use ArrayAccess;
 use IteratorAggregate;
 use AppendIterator;
 
+/**
+ * Class MultiMap
+ * @package App\Library\ArrayModel\Abstracts
+ */
 class MultiMap implements ArrayAccess, IteratorAggregate
 {
     /**
@@ -59,6 +63,8 @@ class MultiMap implements ArrayAccess, IteratorAggregate
     }
 
     /**
+     * interface for 'foreach'
+     *
      * @return AppendIterator
      */
     public function getIterator()
@@ -69,6 +75,5 @@ class MultiMap implements ArrayAccess, IteratorAggregate
         }
         return $it;
     }
-
 
 }

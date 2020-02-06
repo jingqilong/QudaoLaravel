@@ -300,15 +300,6 @@ class ArrayModel
     }
 
     /**
-     * 传入 "key1.key2.key3" 进行搜索
-     * @param $pathString
-     * @return bool
-     */
-    public function findPath($pathString){
-        return $this->query->findPath($pathString);
-    }
-
-    /**
      * Find the row with specified condition array which is dot-separated string.
      *
      * @param $conditions

@@ -4,6 +4,7 @@ namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\LogicTree\BracketsNode;
 use App\Library\ArrayModel\LogicTree\TreeConstants;
+use App\Library\ArrayModel\Abstracts\MultiMap;
 use Closure;
 
 /**
@@ -153,53 +154,6 @@ class Ons extends BracketsNode
     }
 
     /**
-     * @param int $key_type
-     * @param int $level
-     * @return array
-     */
-    public function getOnsKeys($key_type=TreeConstants::KEY_FORIEGN,$level=0){
-        $ons_and =$this->getOnsKeysOfAnd($key_type,$level);
-        $ons_or = $this->getOnsKeysOfOr($key_type,$level);
-        $ons = array_merge($ons_and,$ons_or);
-        return $ons;
-    }
-
-    /**
-     * @param $key_type
-     * @param int $level
-     * @return array
-     */
-    public function getOnsKeysOfOr($key_type,$level=0){
-        $logic = TreeConstants::LOGIC_OR;
-        $children = $this->getChildren($logic);
-        $ons = [];
-        /** @var  $child Ons|OnItem */
-        foreach($children->items() as $child){
-            $ons[] = $child->getOnsKeys($key_type,$level+1);
-        }
-        return $ons;
-    }
-
-    /**
-     * @param $key_type
-     * @param int $level
-     * @return array
-     */
-    public function getOnsKeysOfAnd($key_type,$level=0){
-        $logic = TreeConstants::LOGIC_AND;
-        $children = $this->getChildren($logic);
-        /** @var  $child Ons|OnItem */
-        $child = $children->getFirst();
-        $ons = $child->getOnsKeys($key_type,++$level);
-        if($child->hasNext()){
-            /** @var  $next Ons|OnItem */
-            $next = $child->getNext();
-            $ons['children'] = $next->getOnsKeys($key_type,++$level);
-        }
-        return $ons;
-    }
-
-    /**
      * @return bool
      */
     public function reduce(){
@@ -228,6 +182,57 @@ class Ons extends BracketsNode
         $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_AND);
         $this->getForeignKeysLogic($keys,TreeConstants::LOGIC_OR);
         return $keys;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMapKey(){
+        return 'child';
+    }
+
+    /**
+     * @return JoinMap
+     */
+    public function toMap(){
+        $map = $this->_toMapOfAnd();
+        $this->_toMapOfOr($map);
+        return $map;
+    }
+
+    /**
+     * @param $map
+     * @return MultiMap
+     */
+    public function _toMapOfOr($map){
+        $logic = TreeConstants::LOGIC_OR;
+        $children = $this->getChildren($logic);
+        $key = 0;
+        $ons_items = $children->items();
+        /** @var  $child Ons|OnItem */
+        foreach($ons_items as $child){
+            $map->child[$key++]  = $child->toMap();
+        }
+        return $map;
+    }
+
+    /**
+     * @return JoinMap
+     */
+    public function _toMapOfAnd(){
+        $logic = TreeConstants::LOGIC_AND;
+        $children = $this->getChildren($logic);
+        /** @var  $child Ons|OnItem */
+        $child = $children->getFirst();
+        /** @var JoinMap $map */
+        $map = $child->toMap();
+        $current = $map;
+        while($child->hasNext()){
+            $child = $child->getNext();
+            $current->next = $child->toMap();
+            $current = $current->next;
+        }
+        return $map;
     }
 
 }

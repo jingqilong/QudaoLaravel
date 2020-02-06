@@ -9,7 +9,7 @@
 namespace App\Library\ArrayModel\Abstracts;
 
 use InvalidArgumentException;
-//use App\Library\ArrayModel\Abstracts\SortedList;
+
 /**
  * Class FieldList
  * @package App\Library\ArrayModel\Abstracts
@@ -34,7 +34,6 @@ class FieldList
      */
     protected $fields_string;
 
-
     /**
      * FieldList constructor.
      * @param $field_list
@@ -51,6 +50,7 @@ class FieldList
 
     /**
      * get the alias from field string fastly.
+     *
      * @param $field
      * @return string
      */
@@ -116,6 +116,7 @@ class FieldList
     }
 
     /**
+     * get the filter for 'where'
      * @return array
      */
     public function getFilter(){

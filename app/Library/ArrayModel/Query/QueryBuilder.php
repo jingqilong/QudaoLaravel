@@ -5,7 +5,6 @@ namespace App\Library\ArrayModel\Query;
 use App\Library\ArrayModel\Abstracts\SortedList;
 use Closure;
 
-
 /**
  * Class QueryBuilder
  * @package App\Library\ArrayModel\Query
@@ -109,6 +108,20 @@ class QueryBuilder extends SortedList
      */
     protected function getJoinClosure(){
         return $this->_join_closure[0];
+    }
+
+    /**
+     * @return Wheres
+     */
+    public function _getWhere(){
+        return $this->_wheres;
+    }
+
+    /**
+     * @return Ons
+     */
+    public function _getOn(){
+        return $this->_ons;
     }
 
     /**
@@ -370,15 +383,6 @@ class QueryBuilder extends SortedList
     }
 
     /**
-     * passing "key1.key2.key3" for search
-     * @param $pathString
-     * @return bool
-     */
-    public function findPath($pathString){
-        $keys= explode('.',$pathString);
-        return $this->findByKeys($keys);
-    }
-    /**
      * @param $alias
      * @param $field
      * @param array $result
@@ -388,6 +392,7 @@ class QueryBuilder extends SortedList
         if($this->_alias != $alias ){
             return $this->_join->pluck($alias,$field,$result);
         }
+//        return array_column($this,$field);//TODO test with array_column
         foreach($this->data as $item){
             if($item instanceof QueryBuilder){
                 $result[] = $item->pluck($alias,$field,$result);
@@ -396,20 +401,6 @@ class QueryBuilder extends SortedList
             }
         }
         return $result;
-    }
-
-    /**
-     * @return Wheres
-     */
-    public function _getWhere(){
-        return $this->_wheres;
-    }
-
-    /**
-     * @return Ons
-     */
-    public function _getOn(){
-        return $this->_ons;
     }
 
     /**
@@ -422,7 +413,6 @@ class QueryBuilder extends SortedList
         }
         return [];
     }
-
 
     /**
      * @param $order_bys
@@ -499,7 +489,6 @@ class QueryBuilder extends SortedList
         if(empty($this->_array_filter)){
             if(null === $this->_fields){
                 $this->_array_filter = ['*'];
-                return $this->_array_filter;
             }
             $this->_array_filter = $this->_fields->getFilter();
         }
@@ -541,29 +530,12 @@ class QueryBuilder extends SortedList
             return $this->_query($closure);
         }
         $this->_result = QueryBuilder::of();
-        $main_list = $this;
+        $left_items = $this;
         $this->getFieldsFilter();
-        $ons_keys = $this->_ons->getOnsKeys();
-        foreach($main_list as $left_item){
-            $this->_join->joinItemByKey($ons_keys,$left_item,[$this,'mergeResult']);
+        foreach($left_items as $left_item){
+            $this->_join->joinItem($left_item,[$this,'mergeResult']);
         }
         return $this->_result;
-    }
-
-    /**
-     * @param $left_item
-     * @param $foreign_keys
-     * @return mixed
-     */
-    protected function getLeftKeys($left_item,$foreign_keys){
-        $left_key = [];
-        foreach($foreign_keys as $key => $value){
-            if('contains' == strtolower($value)){
-                $left_key[$key] = explode(',',$left_item[$key]."");
-            }
-            $left_key[$key] = $left_item[$key];
-        }
-        return $left_key;
     }
 
     /**
@@ -595,5 +567,4 @@ class QueryBuilder extends SortedList
         }
         $this->filterResult($this->_result,$item);
     }
-
 }

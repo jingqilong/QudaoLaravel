@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Library\ArrayModel\Query;
-use App\Library\ArrayModel\LogicTree\TreeConstants;
 
 /**
  * Class Join
@@ -36,6 +35,14 @@ class Join extends QueryBuilder
     protected $_empty_item = [];
 
     /**
+     * Data : Keep the data of Array
+     *
+     * @var $data JoinMap
+     * @access protected
+     */
+    protected $data = [];
+
+    /**
      * Join constructor.
      * @param QueryBuilder $left_list
      */
@@ -44,19 +51,6 @@ class Join extends QueryBuilder
         if( null != $left_list)
             $this->left_list = $left_list;
         parent::__construct();
-    }
-
-    /**
-     * @param null $empty_item
-     * @param $join_type
-     * @return static
-     * @static
-     */
-    public static function of($empty_item,$join_type){
-        $instance =  new static();
-        $instance->_join_type = $join_type;
-        $instance->_empty_item = $empty_item;
-        return $instance;
     }
 
     /**
@@ -93,23 +87,25 @@ class Join extends QueryBuilder
         if(false === $this->is_init){
             $this->_init();
         }
-        $path = $this->getOnsKeys();
+        $this->getJoinMap();
+        $keys = array_keys($this->_from[0]);
+        $empty_item = $this->createEmpty($keys);
+        $this->data->setProperties($empty_item,$this->_join_type);
         foreach($this->_from[$this->_alias] as $item){
-            $this->addItemByKey($item,$path);
+            $this->data->addItem($item);
         }
         return $this;
     }
 
     /**
-     * @return array|null
+     * @return bool
      */
-    public function getOnsKeys(){
+    public function getJoinMap(){
         if($this->_ons instanceof Ons){
-            return $this->_ons->getOnsKeys();
+            $this->data = $this->_ons->toMap();
         }
-        return [];
+        return true;
     }
-
 
     /**
      * For debugging, import sql clause.
@@ -123,63 +119,12 @@ class Join extends QueryBuilder
     }
 
     /**
-     * @param $name
-     * @param $logic
-     * @param $item
-     * @return string
-     */
-    public function makeKey($name,$logic,$item){
-        $key = ($logic == TreeConstants::LOGIC_OR)? $name .":" : '';
-        $key .= $item[$name];
-        return $key;
-    }
-
-    /**
-     * @param $index_keys
-     * @param $item
-     * @return $this
-     */
-    public function addItemByKey(&$index_keys,$item){
-        foreach($index_keys as $index_key){
-            $key = $this->makeKey($index_key['field'],$index_key['logic'],$item);
-            if(empty($index_key['children'])){
-                $this->data[$key] = $item;
-                continue;
-            }
-            if(empty($this->_empty_item)){
-                $this->createEmpty(array_keys($item));
-            }
-            $child = Join::of($this->_empty_item,$this->_join_type);
-            $this->data[$key] = $child ;
-            $child->addItemByKey($index_key['children'],$item);
-        }
-        return $this;
-    }
-
-    /**
-     * @param $index_keys
      * @param $left_item
      * @param $callback
-     * @param int $level
-     * @return int
+     * @return bool
      */
-    public function joinItemByKey($index_keys,$left_item,$callback,$level=0){
-        $item_count = 0;
-        foreach($index_keys as $index_key){
-            $key = $this->makeKey($index_key['field'],$index_key['logic'],$left_item);
-            if(empty($index_key['children'])){
-                call_user_func_array($callback,[$left_item,$this->data[$key]]);
-                $item_count++;
-                continue;
-            }
-            $child = $this->data[$key];
-            if($child instanceof Join ){
-                $item_count += $child->joinItemByKey($index_key['children'],$left_item,$callback,$level+1);
-            }
-        }
-        if((0==$item_count+$level) && (Join::LEFT_JOIN == $this->_join_type)){
-            call_user_func_array($callback,[$left_item,$this->_empty_item]);
-        }
-        return $item_count;
+    public function joinItem($left_item,$callback){
+        return $this->data->joinItem($left_item,$callback);
     }
+
 }

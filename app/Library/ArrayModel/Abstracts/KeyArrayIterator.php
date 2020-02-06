@@ -10,6 +10,10 @@ namespace App\Library\ArrayModel\Abstracts;
 
 use ArrayIterator;
 
+/**
+ * Class KeyArrayIterator
+ * @package App\Library\ArrayModel\Abstracts
+ */
 class KeyArrayIterator extends ArrayIterator
 {
     /**

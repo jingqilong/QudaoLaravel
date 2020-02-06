@@ -2,7 +2,6 @@
 
 namespace App\Library\ArrayModel\Abstracts;
 
-use App\Library\ArrayModel\LogicTree\TreeConstants;
 use ArrayAccess,Countable,Iterator ;
 
 /**
@@ -133,7 +132,7 @@ class SortedList implements ArrayAccess,Countable,Iterator
      *
      * @param $keys
      * @param string $default
-     * @return SortedList
+     * @return array
      */
     public function createEmpty($keys,$default=''){
         $values = array_fill(0, count($keys), $default);

@@ -10,7 +10,6 @@ namespace App\Library\ArrayModel\Query;
 
 use App\Library\ArrayModel\LogicTree\ExpressionNode;
 use App\Library\ArrayModel\LogicTree\NodeInterface;
-use App\Library\ArrayModel\LogicTree\TreeConstants;
 use Closure;
 
 /**
@@ -93,25 +92,6 @@ class OnItem extends ExpressionNode
     }
 
     /**
-     * @param array $ons
-     * @param int $key_type ,KEY_FORIEGN KEY_LOCAL
-     * @param int $level
-     */
-    public function getOnsKeys(&$ons=[],$key_type=TreeConstants::KEY_FORIEGN,$level=0){
-        $item = [
-            'node_logic' => $this->node_logic,
-            'field' => $this->_field,
-            'operator' => $this->_operator,
-            'field_join' => $this->_field_join
-        ];
-        $item['key_name'] = $this->_field;
-        if(TreeConstants::KEY_LOCAL == $key_type){
-            $item['key_name'] = $this->_field_join;
-        }
-        $ons[$level][$key] = $item;
-    }
-
-    /**
      * get the foreign keys from the on-conditions.
      *
      * @param array $keys
@@ -120,6 +100,25 @@ class OnItem extends ExpressionNode
     public function getForeignKeys(&$keys=[]){
         $keys[$this->_field] = $this->_operator;
         return $keys;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMapKey(){
+        return $this->_field;
+    }
+
+    /**
+     * @return JoinMap
+     */
+    public function toMap(){
+        $map = new JoinMap();
+        $map->logic = $this->node_logic;
+        $map->left_field = $this->_field;
+        $map->operator = $this->_operator;
+        $map->right_field = $this->_field_join;
+        return $map;
     }
 
 }
