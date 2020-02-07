@@ -88,9 +88,6 @@ class Join extends QueryBuilder
             $this->_init();
         }
         $this->getJoinMap();
-        $keys = array_keys($this->_from[0]);
-        $empty_item = $this->createEmpty($keys);
-        $this->data->setProperties($empty_item,$this->_join_type);
         foreach($this->_from[$this->_alias] as $item){
             $this->data->addItem($item);
         }
@@ -125,6 +122,17 @@ class Join extends QueryBuilder
      */
     public function joinItem($left_item,$callback){
         return $this->data->joinItem($left_item,$callback);
+    }
+
+    /**
+     * @return array
+     */
+    public function getEmptyItem(){
+        if(empty($this->_empty_item)){
+            $keys = array_keys($this->_from[0]);
+            $this->_empty_item = $this->createEmpty($keys);
+        }
+        return $this->_empty_item;
     }
 
 }

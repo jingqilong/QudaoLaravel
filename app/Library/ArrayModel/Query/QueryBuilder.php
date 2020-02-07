@@ -392,15 +392,7 @@ class QueryBuilder extends SortedList
         if($this->_alias != $alias ){
             return $this->_join->pluck($alias,$field,$result);
         }
-//        return array_column($this,$field);//TODO test with array_column
-        foreach($this->data as $item){
-            if($item instanceof QueryBuilder){
-                $result[] = $item->pluck($alias,$field,$result);
-            }else{
-                $result[] = $item[$field]??'';
-            }
-        }
-        return $result;
+        return array_column($this->_from,$field);
     }
 
     /**
@@ -557,6 +549,12 @@ class QueryBuilder extends SortedList
      * @param $right_item
      */
     public function mergeResult($left_item,$right_item){
+        if(empty($right_item)){
+            if(Join::INNER_JOIN == $this->_join_type){
+                return;
+            }
+            $right_item = $this->_join->getEmptyItem();
+        }
         /** @var Closure $closure */
         $closure = $this->getJoinClosure();
         $with_closure = ($closure instanceof Closure);

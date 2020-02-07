@@ -73,22 +73,6 @@ class JoinMap extends MultiMap
     }
 
     /**
-     * @param $empty_item
-     * @param $join_type
-     */
-    public function setProperties($empty_item,$join_type){
-        $this->empty_item = $empty_item;
-        $this->join_type = $join_type;
-        if($this->next instanceof JoinMap){
-            $this->next->setProperties($empty_item,$join_type);
-        }
-        foreach($this->child as $key => $child){
-            /** @var JoinMap $child */
-            $child->setProperties($empty_item,$join_type);
-        }
-    }
-
-    /**
      * @param $item
      * @return bool
      */
@@ -146,9 +130,10 @@ class JoinMap extends MultiMap
     /**
      * @param $left_item
      * @param $callback
-     * @return MultiMap
+     * @param int $count
+     * @return bool
      */
-    public function joinItem($left_item,$callback){
+    public function joinItem($left_item,$callback,&$count=0){
         $key = $this->left_field ?? '';
         if(!empty($key)){
             $indexes = $this->explodeIndexes($left_item,$key);
@@ -156,15 +141,20 @@ class JoinMap extends MultiMap
                 if(isset($this->data[$key][$index])){
                     $right_item = $this->data[$key][$index];
                     call_user_func_array($callback,[$left_item,$right_item]);
+                    $count++;
                 }
             }
         }
         $child = $this->data['next'][0];
         /** @var JoinMap $child */
-        $child->joinItem($left_item,$callback);
+        $child->joinItem($left_item,$callback,$count);
         foreach($this->data['child'] as $child){
             /** @var JoinMap $child */
-            $child->joinItem($left_item,$callback);
+            $child->joinItem($left_item,$callback,$count);
+        }
+        //When the item is not found, return a empty item for left join
+        if(0==$count){
+            call_user_func_array($callback,[$left_item,[]]);
         }
         return true;
     }
